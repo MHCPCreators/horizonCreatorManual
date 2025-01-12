@@ -728,3 +728,4 @@ e.g. alt-click to orbit
 * When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 *inside of `playerExit` callback is the player still in the array? Right after?
 * What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
+* Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
