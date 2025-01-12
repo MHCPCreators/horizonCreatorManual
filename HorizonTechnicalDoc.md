@@ -720,7 +720,7 @@ e.g. alt-click to orbit
 *[W3C]: World Wide Web Consortium
 *[Player]: A person in an instance (or the server).
 
-# OPEN QUESTIONS {ignore=true}
+# OPEN QUESTIONS - TODO {ignore=true}
 * does despawn cause grab "release"?
 * does "attach" cause "release"?
 * does an entity colliding with another cause "release" (probably same as moving too far)
