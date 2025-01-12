@@ -89,8 +89,8 @@
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [Grabbable Entities](#grabbable-entities)
             1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
-                1. [Setting Who Can Grab](#setting-who-can-grab)
-                2. [Setting Who Can Take From Holder](#setting-who-can-take-from-holder)
+                1. [Setting "Who Can Grab?"](#setting-who-can-grab)
+                2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
             2. [Grab Distance](#grab-distance)
             3. [Releasing Entities](#releasing-entities)
             4. [Grab Sequence and Events](#grab-sequence-and-events)
@@ -482,10 +482,11 @@ for determining which `Player`'s device the current script is running one. This 
 
 #### Creating a Grabbable Entity
 
-For an entity to be grabbable it needs:
+For an entity to be grabbable it needs
 1. `Motion` to be `Interactive`
 1. `Interaction` to be `Grabbable` or `Both`
-1. At least one active collider within it
+1. At least one [active collider](#collidability) within it
+1. To match the rules of ["Who Can Grab"](#setting-who-can-grab) and/or ["Who Can Take From Holder"](#setting-who-can-take-from-holder) (if used)
 
 See [Entity Properties](#entity-properties) for details on `Motion` and `Interaction`. See [Collidability](#collidability) for more information on active colliders.
 
@@ -495,23 +496,39 @@ See [Entity Properties](#entity-properties) for details on `Motion` and `Interac
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
 
-##### Setting Who Can Grab
-    ...
+##### Setting "Who Can Grab?"
+
+`Interactive` entities have a setting in the Property panel called "Who Can Grab?" with the following options controlling who can grab the entity.
+
+|   |  Behavior |
+|---|---|
+| **Anyone**  |  Any player is eligible to grab the entity. |
+| **First To Grab Only** | If the entity has never been grabbed then any player is eligible to grab it. Once it is grabbed then only that player can ever grab it again (unless the grabbing is reset - see below). |
+| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players.  |
+
+Use the API
 
 ```ts
 // GrabbableEntity
 setWhoCanGrab(players: Player[]): void;
 ```
 
-##### Setting Who Can Take From Holder
+to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (TODO - everyone? no one?).
 
-`Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to an entity while it is held.
+!!! note setWhoCanGrab does not auto-update
+    There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
-|  | Can a player grab it out of their own hand with their other hand? | Can another player take it from the player that is holding it?  |
+    There is no way to set an entity back to its "default behavior" (before the API is first called - TODO verify).
+
+##### Setting "Who Can Take From Holder?"
+
+`Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to the entity while it is held.
+
+| Setting | Can the holder grab it out of their own hand using their other hand? | Can another player take it from the player that is holding it?  |
 |---|---|--|
 | **No One**  | No | No |
 | **Only You** | Yes | No |
-| **Anyone** | Yes | Yes |
+| **Anyone** | Yes | Yes (*if* the person can grab the entity) |
 
 #### Grab Distance
 
@@ -665,3 +682,4 @@ e.g. alt-click to orbit
 * does ownership transfer while held send any events?
 * When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 *inside of `playerExit` callback is the player still in the array? Right after?
+* What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
