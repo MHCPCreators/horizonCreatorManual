@@ -490,20 +490,28 @@ See [Entity Properties](#entity-properties) for details on `Motion` and `Interac
 ##### Setting Who Can Grab
     ...
 
-##### Setting Who Can Take From Holder
-...
-
-
-!!! warning Grab Ranges differ between platforms
-    For example mobile players can grab entities when much farther away than VR players
-
-!!! tip Controlling grab-distance
-    You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
-
 ```ts
 // GrabbableEntity
 setWhoCanGrab(players: Player[]): void;
 ```
+
+##### Setting Who Can Take From Holder
+
+`Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to an entity while it is held.
+
+|  | Can a player grab it out of their own hand with their other hand? | Can another player take it from the player that is holding it?  |
+|---|---|--|
+| **No One**  | No | No |
+| **Only You** | Yes | No |
+| **Anyone** | Yes | Yes |
+
+#### Grab Distance
+
+!!! warning Grab distance varies between platforms
+    For example mobile players can grab entities when much farther away than VR players
+
+!!! tip Controlling grab-distance
+    You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 #### Releasing Objects
 Let go, force release, or get too far away
