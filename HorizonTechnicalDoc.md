@@ -97,13 +97,16 @@
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
         2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
         3. [Grab Distance](#grab-distance)
-        4. [Releasing Entities](#releasing-entities)
-            1. [Manual release (and grab lock)](#manual-release-and-grab-lock)
+    3. [Grabbing Entities](#grabbing-entities)
+            1. [Grab Lock](#grab-lock)
+            1. [Force Grab](#force-grab)
+        2. [Releasing Entities](#releasing-entities)
+            1. [Manual release](#manual-release)
             2. [Force release](#force-release)
             3. [Distance-based release](#distance-based-release)
-        5. [Grab Sequence and Events](#grab-sequence-and-events)
-        6. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-        7. [Moving / Locking Held Entities](#moving--locking-held-entities)
+        3. [Grab Sequence and Events](#grab-sequence-and-events)
+        4. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
+        5. [Moving / Locking Held Entities](#moving--locking-held-entities)
 12. [Attaching Entities](#attaching-entities)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
@@ -674,15 +677,42 @@ to change the list of players that are allowed to grab the entity. Until you cal
 !!! tip Controlling grab-distance
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
+## Grabbing Entities
+
+When a VR player grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity.
+
+A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
+
+#### Grab Lock
+
+When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
+
+#### Force Grab
+
+An entity can be forced into the hand of a player used the TypeScript API:
+
+```ts
+// GrabbableEntity
+forceHold(player: Player, hand: Handedness, allowRelease: boolean): void;
+```
+
+It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a VR player can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
+
+!!! example Giving players a weapon when the game starts
+    A common use case for force-grabbing is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-grabbing it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
+
+    !!! danger A force-held item can be released "accidentally"
+        Even if an entity is force-grabbed with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
+
 ### Releasing Entities
 
-#### Manual release (and grab lock)
+#### Manual release
 
-When a VR player grabs an entity is stays grabbed until they release the trigger. If you set the object to have `Grab Lock` enabled (in the Properties panel) then they do _not_ need to hold down the trigger on their VR controller; instead, the first trigger press (and release) will _grab and hold_ the entity. A second press of the trigger will then _release_ it. For screen-based players they must perform an onscreen action to grab and another to release.
+If an entity was manually grabbed or it was [force-grabbed](#force-grab) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-grabbed](#force-grab) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
 
 #### Force release
 
-A held entity can be forced out of a player's hand by calling
+A held entity can be forced out of a player's hand at any time by calling
 
 ```ts
 entity.forceRelease();
@@ -690,7 +720,7 @@ entity.forceRelease();
 
 on the held object. If the entity was **force held** then this is how you remove the entity from their hand.
 
-!!! warning Setting `simulated` to `false` on a held entity will force release it.
+!!! warning Setting `simulated` to `false` on a held entity will act just like force release. It will then no longer be grabbable until `simulated` is set to `true` again.
 
 #### Distance-based release
 
