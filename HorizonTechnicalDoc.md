@@ -98,6 +98,9 @@
         2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
         3. [Grab Distance](#grab-distance)
         4. [Releasing Entities](#releasing-entities)
+            1. [Manual release (and grab lock)](#manual-release-and-grab-lock)
+            2. [Force release](#force-release)
+            3. [Distance-based release](#distance-based-release)
         5. [Grab Sequence and Events](#grab-sequence-and-events)
         6. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
         7. [Moving / Locking Held Entities](#moving--locking-held-entities)
@@ -162,7 +165,7 @@ What is / isn't mutable
 An entity is a **root entity** if it has no parent or if its ancestor chain (parent, grandparent, etc) consists solely of Empty Objects. A root entity cannot be inside a group, its parent cannot be inside a group, etc.
 
 !!! danger Grabbable and Physics settings are ignored if the entity is not a root entity!
-If you configure a _non-root entity_ to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
+    If you configure a _non-root entity_ to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
 
     Non-root objects can be moved by modifying their transforms (such as changing the position) but cannot be moved by the playing grabbing them or by the physics system (you cannot apply forces to them, cannot have them collide with other objects, etc).
 
@@ -179,7 +182,7 @@ If you configure a _non-root entity_ to be [Grabbable](#creating-a-grabbable-ent
 Every thing in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
 
 !!! info Note Entity and Object mean the same thing (except in TypeScript)
-Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
+    Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
 
     In TypeScript `Object` is a builtin for managing data, whereas `Entity` is a Horizon-specific class.
 
@@ -251,7 +254,7 @@ You CAN nest.
 ### Materials
 
 !!! note No post-processing
-Current Horizon has no post-process rendering options which makes things like bloom, motion blur, sepia, etc impossible.
+    Current Horizon has no post-process rendering options which makes things like bloom, motion blur, sepia, etc impossible.
 
 ## Performance
 
@@ -277,15 +280,15 @@ Current Horizon has no post-process rendering options which makes things like bl
 | Projectile Launcher                              | 1 per visible             |
 
 !!! info There are draw calls outside a creator's control
-Things like the sky, personal UI, the wrist UI, teleport visuals, onscreen controls, and many other elements may add to the "base number" of draw-calls.
+    Things like the sky, personal UI, the wrist UI, teleport visuals, onscreen controls, and many other elements may add to the "base number" of draw-calls.
 
 !!! tip Group entities with the same materials together into an asset when possible
-If you have 50 bricks with the same material all in 1 asset Horizon will batch that to be 1 draw call. If those are instead a single brick duplicated 50 times then that will be at least 50 draw calls.
+    If you have 50 bricks with the same material all in 1 asset Horizon will batch that to be 1 draw call. If those are instead a single brick duplicated 50 times then that will be at least 50 draw calls.
 
     If you have an asset with 25 bricks of material A and 25 of material B then this will be 2 draw calls. If instead they were all duplicated then there would be 50 draw calls.
 
 !!! warning Multi-material assets increase draw call count
-If an asset has multiple materials or material textures then the draw call count will increase by the number of them.
+    If an asset has multiple materials or material textures then the draw call count will increase by the number of them.
 
 ### Vertices, Polygons, and Entities
 
@@ -365,7 +368,7 @@ Mention coalescence
 ## Ownership
 
 !!! danger Ownership does not cascade to children
-When you transfer ownership of an entity the ownership is _not_ automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
+    When you transfer ownership of an entity the ownership is _not_ automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
 
     !!! example
         ```ts
@@ -420,7 +423,7 @@ A **collider is active** when the following true
 and is otherwise ignored by the physics system. For example if the floor's collider is inactive an avatar will fall through it. If a grabbable entity's collider is inactive you cannot grab it.
 
 !!! info In order for a group to be seen by the physics system it must have at least one active collider within it (however deep).
-For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
+    For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
 
 ### Controlling Collisions
 
@@ -466,13 +469,13 @@ Players in Horizon all have a global "account id". There is no way to access thi
 Each `Player` instance has a `readonly id: number` property.
 
 !!! info Entering an instance assigns a new ID (for that instance)
-When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
+    When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
 
 !!! danger IDs are per-instance. Do not persist them.
-The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
+    The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
 
 !!! warning IDs should be used rarely
-Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
+    Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
 
 ### Player Indices
 
@@ -495,10 +498,10 @@ When a player enters a world they are also assigned an `index`. The `index` will
 For example: if three players arrive in an instance they may be assigned `index` values of `0`, `1`, and `2`. If they player with `index` `1` leaves then the next player that arrives may get index `1` again.
 
 !!! danger Do not rely on the order indices are assigned
-There are no guarantees that a player gets the _smallest_ available `index`. Any available value maybe be assigned to a new player.
+    There are no guarantees that a player gets the _smallest_ available `index`. Any available value maybe be assigned to a new player.
 
 !!! example Example: per-player entities
-A common use of `index`es is managing per-player entities. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
+    A common use of `index`es is managing per-player entities. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
 
 ### Listing All Players
 
@@ -511,7 +514,7 @@ getAllPlayers() : Player[]
 which returns the current list of players in the world. Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
 !!! note
-`getAllPlayers` does not include the server player.
+    `getAllPlayers` does not include the server player.
 
 TODO: relation to enter and exit
 
@@ -576,10 +579,10 @@ for determining which `Player`'s device the current script is running one. This 
 Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
 
 !!! danger Grabbables cannot be inside of Groups
-A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
+    A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
 
 !!! warning Entities must be collidable to be grabbed!
-If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
+    If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
 
 ## Can Grab
 
@@ -649,7 +652,7 @@ setWhoCanGrab(players: Player[]): void;
 to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (TODO - everyone? no one?).
 
 !!! note setWhoCanGrab does not auto-update
-There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
+    There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
     There is no way to set an entity back to its "default behavior" (before the API is first called - TODO verify).
 
@@ -666,18 +669,32 @@ There is no way to have it auto-update when new players join the instance (examp
 ### Grab Distance
 
 !!! warning Grab distance varies between platforms
-For example mobile players can grab entities when much farther away than VR players
+    For example mobile players can grab entities when much farther away than VR players
 
 !!! tip Controlling grab-distance
-You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
+    You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 ### Releasing Entities
 
-Let go, force release, or get too far away
+#### Manual release (and grab lock)
 
-Note: disabling `simulation` on a held entity will force release it.
+When a VR player grabs an entity is stays grabbed until they release the trigger. If you set the object to have `Grab Lock` enabled (in the Properties panel) then they do _not_ need to hold down the trigger on their VR controller; instead, the first trigger press (and release) will _grab and hold_ the entity. A second press of the trigger will then _release_ it. For screen-based players they must perform an onscreen action to grab and another to release.
 
-!!! info If a **held entity moves too far** from a player's hand, such as via scripting, then that hand **will release** the entity. This can go cause the entity to be fully released or to go from two-hand to one-hand grab (if one hand is still close enough to stay holding).
+#### Force release
+
+A held entity can be forced out of a player's hand by calling
+
+```ts
+entity.forceRelease();
+```
+
+on the held object. If the entity was **force held** then this is how you remove the entity from their hand.
+
+!!! warning Setting `simulated` to `false` on a held entity will force release it.
+
+#### Distance-based release
+
+If a **held entity moves too far** from a player holding it then will be **force released**. This can occur if the entity has scripted movement on it that moves it foo far from player. This can also happen if the physics system moves the object too far from the player (simple example is that if you run into a wall while holding an entity it might get flung out of your hand).
 
 ### Grab Sequence and Events
 
@@ -727,7 +744,7 @@ digraph G {
 When an entity is transferred from one hand to another or from one player to another then the entity is _fully released_ by the first player before being grabbed by the second player.
 
 !!! warning `OnGrabEnd` is sent during a "hand-off".
-The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
+    The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
 
 ### Moving / Locking Held Entities
 
@@ -830,7 +847,6 @@ _[W3C]: World Wide Web Consortium \*[Player]: A person in an instance (or the se
 
 - does despawn cause grab "release"?
 - does "attach" cause "release"?
-- does an entity colliding with another cause "release" (probably same as moving too far)
 - does ownership transfer while held send any events?
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
   \*inside of `playerExit` callback is the player still in the array? Right after?
