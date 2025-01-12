@@ -87,38 +87,39 @@
         5. [Local Player](#local-player)
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
-        2. [Grabbable Entities](#grabbable-entities)
-            1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
-                1. [Setting "Who Can Grab?"](#setting-who-can-grab)
-                2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
-            2. [Grab Distance](#grab-distance)
-            3. [Releasing Entities](#releasing-entities)
-            4. [Grab Sequence and Events](#grab-sequence-and-events)
-                1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-            5. [Moving / Locking Held Entities](#moving--locking-held-entities)
-        3. [Holstering](#holstering)
-        4. [Attaching](#attaching)
-        5. [AFK](#afk)
-    3. [Player Controls](#player-controls)
-11. [Persistence](#persistence)
+        2. [AFK](#afk)
+11. [Holding Entities](#holding-entities)
+    1. [Grabbable Entities](#grabbable-entities)
+        1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
+        2. [Setting "Who Can Grab?"](#setting-who-can-grab)
+        3. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
+        4. [Grab Distance](#grab-distance)
+        5. [Releasing Entities](#releasing-entities)
+        6. [Grab Sequence and Events](#grab-sequence-and-events)
+        7. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
+        8. [Moving / Locking Held Entities](#moving--locking-held-entities)
+12. [Attaching Entities](#attaching-entities)
+13. [Holstering Entities](#holstering-entities)
+14. [Player Input](#player-input)
+15. [Persistence](#persistence)
     1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-12. [Assets and Spawning](#assets-and-spawning)
-13. [Custom UI](#custom-ui)
+16. [Assets and Spawning](#assets-and-spawning)
+17. [Custom UI](#custom-ui)
     1. [Bindings technical overview (what *T* is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)](#bindings-technical-overview-what-t-is-allowed-set-derive-and-notes-on-preventing-memory-growth---eg-dont-keep-deriving)
-14. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
-15. [Performance Optimization](#performance-optimization)
+18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+19. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-16. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-17. [Glossary](#glossary)
+20. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+21. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -478,9 +479,14 @@ for determining which `Player`'s device the current script is running one. This 
 ## Player Events and Actions
 
 ### Entering and Exiting a World
-### Grabbable Entities
 
-#### Creating a Grabbable Entity
+### AFK
+
+# Holding Entities
+
+## Grabbable Entities
+
+### Creating a Grabbable Entity
 
 For an entity to be grabbable it needs
 1. `Motion` to be `Interactive`
@@ -496,7 +502,7 @@ See [Entity Properties](#entity-properties) for details on `Motion` and `Interac
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
 
-##### Setting "Who Can Grab?"
+### Setting "Who Can Grab?"
 
 `Interactive` entities have a setting in the Property panel called "Who Can Grab?" with the following options controlling who can grab the entity.
 
@@ -520,7 +526,7 @@ to change the list of players that are allowed to grab the entity. Until you cal
 
     There is no way to set an entity back to its "default behavior" (before the API is first called - TODO verify).
 
-##### Setting "Who Can Take From Holder?"
+### Setting "Who Can Take From Holder?"
 
 `Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to the entity while it is held.
 
@@ -530,7 +536,7 @@ to change the list of players that are allowed to grab the entity. Until you cal
 | **Only You** | Yes | No |
 | **Anyone** | Yes | Yes (*if* the person can grab the entity) |
 
-#### Grab Distance
+### Grab Distance
 
 !!! warning Grab distance varies between platforms
     For example mobile players can grab entities when much farther away than VR players
@@ -538,14 +544,14 @@ to change the list of players that are allowed to grab the entity. Until you cal
 !!! tip Controlling grab-distance
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
-#### Releasing Entities
+### Releasing Entities
 Let go, force release, or get too far away
 
 Note: disabling `simulation` on a held entity will force release it.
 
 !!! info If a **held entity moves too far** from a player's hand, such as via scripting, then that hand **will release** the entity. This can go cause the entity to be fully released or to go from two-hand to one-hand grab (if one hand is still close enough to stay holding).
 
-#### Grab Sequence and Events
+### Grab Sequence and Events
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
@@ -588,22 +594,22 @@ digraph G {
 }
 ```
 
-##### Hand-off (Switching Hands or Players)
+### Hand-off (Switching Hands or Players)
 
 When an entity is transferred from one hand to another or from one player to another then the entity is *fully released* by the first player before being grabbed by the second player.
 
 !!! warning `OnGrabEnd` is sent during a "hand-off".
     The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
 
-#### Moving / Locking Held Entities
+### Moving / Locking Held Entities
 Explain how hand.position is human hand (not avatar)
 Explain how you can prevent the entity from being updated by physics system
 
-### Holstering
-### Attaching
-### AFK
+# Attaching Entities
 
-## Player Controls
+# Holstering Entities
+
+# Player Input
 
 # Persistence
 ## Overview
