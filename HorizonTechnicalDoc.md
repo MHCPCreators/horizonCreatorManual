@@ -42,7 +42,8 @@
 7. [Scripting](#scripting)
     1. [Properties](#properties)
     2. [Types](#types)
-        1. [Entity Subtypes](#entity-subtypes)
+        1. [Quaternion](#quaternion)
+        2. [Entity Subtypes](#entity-subtypes)
     3. [Components](#components)
         1. [Props (and wiring)](#props-and-wiring)
         2. [Lifecycle](#lifecycle)
@@ -268,6 +269,9 @@ Workflows / advice for greyboxing.
 ## Properties
 ## Types
 Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
+### Quaternion
+* Euler Angles default: YXZ
+
 ### Entity Subtypes
 ## Components
 ### Props (and wiring)
