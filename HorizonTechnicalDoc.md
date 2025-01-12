@@ -92,10 +92,10 @@
                 1. [Setting Who Can Grab](#setting-who-can-grab)
                 2. [Setting Who Can Take From Holder](#setting-who-can-take-from-holder)
             2. [Grab Distance](#grab-distance)
-            3. [Releasing Objects](#releasing-objects)
+            3. [Releasing Entities](#releasing-entities)
             4. [Grab Sequence and Events](#grab-sequence-and-events)
                 1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-            5. [Moving / Locking Held Objects](#moving--locking-held-objects)
+            5. [Moving / Locking Held Entities](#moving--locking-held-entities)
         3. [Holstering](#holstering)
         4. [Attaching](#attaching)
         5. [AFK](#afk)
@@ -148,6 +148,14 @@ What is / isn't mutable
 
 # Entities
 ## Overview
+
+Every thing in the Horizon scene is an *entity* (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
+
+!!! info Note Entity and Object mean the same thing (except in TypeScript)
+    Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
+
+    In TypeScript `Object` is a builtin for managing data, whereas `Entity` is a Horizon-specific class.
+
 Gizmos, as, ...
 
 ## Docs on each kind of gizmo
@@ -231,7 +239,7 @@ You CAN nest.
 !!! info There are draw calls outside a creator's control
     Things like the sky, personal UI, the wrist UI, teleport visuals, onscreen controls, and many other elements may add to the "base number" of draw-calls.
 
-!!! tip Group objects with the same materials together into an asset when possible
+!!! tip Group entities with the same materials together into an asset when possible
     If you have 50 bricks with the same material all in 1 asset Horizon will batch that to be 1 draw call. If those are instead a single brick duplicated 50 times then that will be at least 50 draw calls.
 
     If you have an asset with 25 bricks of material A and 25 of material B then this will be 2 draw calls. If instead they were all duplicated then there would be 50 draw calls.
@@ -294,7 +302,7 @@ Mention coalescence
         anEntity.owner.set(newOwner)
         anEntity.children.get().forEach(c => c.owner.set(newOwner))
         ```
-        This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many objects are not scripted)!
+        This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities are not scripted)!
 ## Ownership Transfer
 * API overview of `transferOwnership` and `receiveOwnership` and `SerializableState`.
 * Full-details sequencing diagrams.
@@ -305,7 +313,7 @@ Collisions and Grabbables
 ## Network Events
 
 ## Authority and Reconciliation
-What happens if two scripts are setting an object's position at the "same time"?
+What happens if two scripts are setting an entity's position at the "same time"?
 
 # Physics
 ## Overview
@@ -316,7 +324,7 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 
 ## Collisions and Triggers
 * Colliding with dynamic vs static.
-* Colliding with player vs objects.
+* Colliding with player vs entities.
 * Collider gizmo.
 * Can control if ownership transfer on collision (see [Network](#network)!)
 
@@ -336,7 +344,7 @@ and is otherwise ignored by the physics system. For example if the floor's colli
 
 ### Controlling Collisions
 * Turn collidable on / off
-* Control can collide with players, objects, or both
+* Control can collide with players, entities, or both
 
 ### Triggers
 
@@ -364,7 +372,7 @@ Velocity, locomotion speed, jump speed
 
 The `Player` class represents a person in an instance. There is also special `Player` instance that represents the server. `Player` instances are allocated by the system; you should never attempt to allocate them. `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
 
-Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing objects, and much). All aspects of players are described in detail in the next sections.
+Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
 
 ## Identifying Players
 
@@ -405,8 +413,8 @@ For example: if three players arrive in an instance they may be assigned `index`
 !!! danger Do not rely on the order indices are assigned
     There are no guarantees that a player gets the *smallest* available `index`. Any available value maybe be assigned to a new player.
 
-!!! example Example: per-player objects
-    A common use of `index`es is managing per-player objects. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
+!!! example Example: per-player entities
+    A common use of `index`es is managing per-player entities. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
 
 ### Listing All Players
 
@@ -482,7 +490,7 @@ For an entity to be grabbable it needs:
 See [Entity Properties](#entity-properties) for details on `Motion` and `Interaction`. See [Collidability](#collidability) for more information on active colliders.
 
 !!! danger Grabbables cannot be inside of Groups
-    A grabbable can be inside of an empty object but it cannot be in a group. See [Groups](#groups) for more information.
+    A grabbable can be inside of an [Empty Object](#empty-objects) but it cannot be in a group. See [Groups](#groups) for more information.
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
@@ -513,16 +521,16 @@ setWhoCanGrab(players: Player[]): void;
 !!! tip Controlling grab-distance
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
-#### Releasing Objects
+#### Releasing Entities
 Let go, force release, or get too far away
 
-Note: disabling `simulation` on a held object will force release it.
+Note: disabling `simulation` on a held entity will force release it.
 
-!!! info If a **held object moves too far** from a player's hand, such as via scripting, then that hand **will release** the object. This can go cause the object to be fully released or to go from two-hand to one-hand grab (if one hand is still close enough to stay holding).
+!!! info If a **held entity moves too far** from a player's hand, such as via scripting, then that hand **will release** the entity. This can go cause the entity to be fully released or to go from two-hand to one-hand grab (if one hand is still close enough to stay holding).
 
 #### Grab Sequence and Events
 
-There are a number of events associated with grabbing and holding. The diagram below shows how the state of an object changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
+There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
 ```dot
 digraph G {
@@ -570,9 +578,9 @@ When an entity is transferred from one hand to another or from one player to ano
 !!! warning `OnGrabEnd` is sent during a "hand-off".
     The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
 
-#### Moving / Locking Held Objects
+#### Moving / Locking Held Entities
 Explain how hand.position is human hand (not avatar)
-Explain how you can prevent the object from being updated by physics system
+Explain how you can prevent the entity from being updated by physics system
 
 ### Holstering
 ### Attaching
@@ -653,7 +661,7 @@ e.g. alt-click to orbit
 # OPEN QUESTIONS {ignore=true}
 * does despawn cause grab "release"?
 * does "attach" cause "release"?
-* does an object colliding with another cause "release" (probably same as moving too far)
+* does an entity colliding with another cause "release" (probably same as moving too far)
 * does ownership transfer while held send any events?
 * When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 *inside of `playerExit` callback is the player still in the array? Right after?
