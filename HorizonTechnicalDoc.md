@@ -88,16 +88,16 @@
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
-11. [Holding Entities](#holding-entities)
-    1. [Grabbable Entities](#grabbable-entities)
-        1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
-        2. [Setting "Who Can Grab?"](#setting-who-can-grab)
-        3. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
-        4. [Grab Distance](#grab-distance)
-        5. [Releasing Entities](#releasing-entities)
-        6. [Grab Sequence and Events](#grab-sequence-and-events)
-        7. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-        8. [Moving / Locking Held Entities](#moving--locking-held-entities)
+11. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+    1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
+    2. [Can Grab](#can-grab)
+        1. [Setting "Who Can Grab?"](#setting-who-can-grab)
+        2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
+        3. [Grab Distance](#grab-distance)
+        4. [Releasing Entities](#releasing-entities)
+        5. [Grab Sequence and Events](#grab-sequence-and-events)
+        6. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
+        7. [Moving / Locking Held Entities](#moving--locking-held-entities)
 12. [Attaching Entities](#attaching-entities)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
@@ -482,11 +482,9 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### AFK
 
-# Holding Entities
+# Grabbing and Holding Entities
 
-## Grabbable Entities
-
-### Creating a Grabbable Entity
+## Creating a Grabbable Entity
 
 For an entity to be grabbable it needs
 1. `Motion` to be `Interactive`
@@ -501,6 +499,43 @@ See [Entity Properties](#entity-properties) for details on `Motion` and `Interac
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
+
+## Can Grab
+
+The decision for if `entity` can be grabbed by `player` is visualized below. The decisions are described in more detail in the sections that follow.
+
+```dot
+digraph {
+    rankdir=TD;
+
+    isInteractive [label=<Does the entity have<BR/><I>Interactive</I>  set to<BR/><I>Grabbable</I>  or<I>Both</I>?> style=filled fillcolor="#deefff"]
+
+    activeCollider [label=<Does the entity contain<BR/>an <font color="#1b75d0"><U>active collider</U></font>?> style=filled fillcolor="#deefff" href="#collidability"]
+    canGrab [label=<Is the player allowed<BR/>by <font color="#1b75d0"><U>"Who Can Grab"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-grab"]
+    isHeld [label=<Is the entity currently<BR/>held by a player?> style=filled fillcolor="#deefff"]
+    canTake [label=<Is the player allowed by<BR/><font color="#1b75d0"><U>"Who Can Take From Holder"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-take-from-holder"]
+
+    fail [label="Cannot Grab" style=filled fillcolor="#ffabbc"]
+    succeed [label="Can Grab" style=filled fillcolor="#abffbc"]
+
+    isInteractive -> activeCollider [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    isInteractive -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
+    activeCollider -> canGrab [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    activeCollider -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
+    canGrab -> isHeld [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    canGrab -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878" constraint=false]
+    isHeld -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
+    isHeld -> canTake [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    canTake -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    canTake -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
+
+    { rank=same; succeed; fail; }
+     subgraph {
+        succeed -> fail [style=invis]; // Invisible edge hints at the desired order
+    }
+
+}
+```
 
 ### Setting "Who Can Grab?"
 
@@ -567,30 +602,30 @@ digraph G {
     { rank=same; Grab2; Release2 }
     { rank=same; Release2Force; Held1 }
 
-    Grab1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#abe">player grabs with a hand</TD></TR><TR><TD BGCOLOR="#7c8"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
+    Grab1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with a hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
 
-    Release1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#abe">player releases hand or<BR/><I>forceRelease </I>called</TD></TR><TR><TD BGCOLOR="#7c8"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
+    Release1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases hand or<BR/><I>forceRelease </I>called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
 
-    NotHeld -> Grab1 [arrowhead=none];
-    Grab1 -> Held1 [arrowtail=none];
+    NotHeld -> Grab1 [arrowhead=none color="green"];
+    Grab1 -> Held1 [arrowtail=none color="green"];
 
-    Grab2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#abe">player grabs with<BR/> second hand</TD></TR><TR><TD BGCOLOR="#7c8"><B>OnMultiGrabStart</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#7c8"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
+    Grab2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with<BR/> second hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabStart</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
 
-    Held1 -> Grab2 [arrowhead=none];
-    Grab2 -> Held2;
+    Held1 -> Grab2 [arrowhead=none color="green"];
+    Grab2 -> Held2 [color="green"];
 
-    Held1 -> Release1 [arrowhead=none];
-    Release1 -> NotHeld;
+    Held1 -> Release1 [arrowhead=none color="#ff7878"];
+    Release1 -> NotHeld [color="#ff7878"];
 
-    Release2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#abe">player releases 1 hand</TD></TR><TR><TD BGCOLOR="#7c8"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
+    Release2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases 1 hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
 
-    Held2 -> Release2 [arrowhead=none];
-    Release2 -> Held1;
+    Held2 -> Release2 [arrowhead=none color="#ff7878"];
+    Release2 -> Held1 [color="#ff7878"];
 
-    Release2Force [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#abe"><I>forceRelease</I>  called</TD></TR><TR><TD BGCOLOR="#7c8"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#7c8"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
+    Release2Force [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff"><I>forceRelease</I>  called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
 
-    Held2 -> Release2Force [arrowhead=none];
-    Release2Force -> NotHeld;
+    Held2 -> Release2Force [arrowhead=none color="#ff7878"];
+    Release2Force -> NotHeld [color="#ff7878"];
 }
 ```
 
