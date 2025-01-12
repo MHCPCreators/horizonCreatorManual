@@ -15,6 +15,7 @@
         2. [Empty Objects](#empty-objects)
         3. [Root Entities](#root-entities)
     2. [Transforms (Local and Global)](#transforms-local-and-global)
+        1. [Pivots](#pivots)
     3. [Entity Properties](#entity-properties)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
@@ -154,6 +155,7 @@ An entity is a **root entity** if it has no parent or if its ancestor chain (par
     Non-root objects can be moved by modifying their transforms (such as changing the position) but cannot be moved by the playing grabbing them or by the physics system (you cannot apply forces to them, cannot have them collide with other objects, etc).
 
 ## Transforms (Local and Global)
+### Pivots
 ## Entity Properties
 
 # Entities
