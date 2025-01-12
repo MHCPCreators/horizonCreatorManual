@@ -17,11 +17,10 @@ Open the Markdown preview using:
 
 ## Generating the PDF
 
-When you want to "generate the PDF" make sure the preview tab is open. Click this ≣ icon in the bottom right (you may have to hover there for it to be visible) and then click:
+When you want to "generate the PDF" make sure the preview tab is open. Click this [≣] icon in the bottom right (you may have to hover there for it to be visible) and then click:
 ```
-Export > HTML > HTML (offline)
+Export > Chrome (Puppeteer) > PDF
 ```
-and then you can "print" the page from your browser.
 
 ## Info
 
