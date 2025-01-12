@@ -112,7 +112,7 @@
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 16. [Assets and Spawning](#assets-and-spawning)
 17. [Custom UI](#custom-ui)
-    1. [Bindings technical overview (what *T* is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)](#bindings-technical-overview-what-t-is-allowed-set-derive-and-notes-on-preventing-memory-growth---eg-dont-keep-deriving)
+    1. [Bindings technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)](#bindings-technical-overview-what-t-is-allowed-set-derive-and-notes-on-preventing-memory-growth---eg-dont-keep-deriving)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
 19. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
@@ -129,188 +129,243 @@
 <div style="page-break-after: always;"></div>
 
 # TODO {ignore=true}
-  - Golden path steps of "ramping up" to make a tutorial
+
+- Golden path steps of "ramping up" to make a tutorial
 
 # Overview
-* General description of what Horizon is and is not capable of.
+
+- General description of what Horizon is and is not capable of.
 
 # Worlds
+
 ## Metadata and Publishing
+
 Name, description, comfort setting, player count, etc.
+
 ## Instances
+
 ## Doors and Linking
 
 # Scene Graph
+
 ## Hierarchy
+
 Groups, Parents, Children, and Pivots
 What is / isn't mutable
+
 ### Groups
+
 ### Empty Objects
+
 ### Root Entities
+
 An entity is a **root entity** if it has no parent or if its ancestor chain (parent, grandparent, etc) consists solely of Empty Objects. A root entity cannot be inside a group, its parent cannot be inside a group, etc.
 
 !!! danger Grabbable and Physics settings are ignored if the entity is not a root entity!
-    If you configure a *non-root entity* to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
+If you configure a _non-root entity_ to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
 
     Non-root objects can be moved by modifying their transforms (such as changing the position) but cannot be moved by the playing grabbing them or by the physics system (you cannot apply forces to them, cannot have them collide with other objects, etc).
 
 ## Transforms (Local and Global)
+
 ### Pivots
+
 ## Entity Properties
 
 # Entities
+
 ## Overview
 
-Every thing in the Horizon scene is an *entity* (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
+Every thing in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
 
 !!! info Note Entity and Object mean the same thing (except in TypeScript)
-    Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
+Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
 
     In TypeScript `Object` is a builtin for managing data, whereas `Entity` is a Horizon-specific class.
 
 Gizmos, as, ...
 
 ## Docs on each kind of gizmo
-  - Leaderboard, Quests, and IWP should just point to the PPVs section
+
+- Leaderboard, Quests, and IWP should just point to the PPVs section
 
 ### Audio Gizmo + AI gen
 
 ### Text Gizmo
-  - all supported commands
+
+- all supported commands
 
 ### Trigger Gizmo
-Two *secret* `CodeBlockEvents`: `empty` and `occupied`
+
+Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
 
 ## Common Properties
-*  Motion and Interaction (Animated, Grabbable, Physics, Both)
-* Parents and Children
-* Visible and Collidable
-* Transform (position, rotation, scale, forward, up, right)
-* Simulated
+
+- Motion and Interaction (Animated, Grabbable, Physics, Both)
+- Parents and Children
+- Visible and Collidable
+- Transform (position, rotation, scale, forward, up, right)
+- Simulated
+
 ## Tags
 
 # Custom Model Import
+
 ## Overview
+
 Assets, imports, templates, updates.
 
 ## SubD vs Custom Models
 
 ## Assets
-### Uploads
-* Explain collection of FBXs and PNGs.
-* Each FBX will be a new asset.
-* Texture rules
-* Suffix rules
-* Pivots
-* Limits
-* Colliders
 
-###  Errors
+### Uploads
+
+- Explain collection of FBXs and PNGs.
+- Each FBX will be a new asset.
+- Texture rules
+- Suffix rules
+- Pivots
+- Limits
+- Colliders
+
+### Errors
+
 List and explanation of all possible errors
 
 ### Asset Templates
+
 E.g. only root-level properties and scripts are maintained in an update.
 You CAN nest.
 
 ### Textures
 
-* Formats: `png`s; Horizon will ingest any valid png and convert it as necessary to its own internal representation
-* Any size is allowed but power-of-2 is better for perf
-* Does Horizon de-dupe textures for download?
-* Horizon does not currently support mipmaps
-* Materials can be emissive insofar as they are "unlit" but they don't contribute to the light probes
-* Horizon used packed textures for different material attributes; see [Materials](#materials)
-* Can we verify that Horizon uses ASTC 2.0 (Adaptive Scalable Texture Compression)
+- Formats: `png`s; Horizon will ingest any valid png and convert it as necessary to its own internal representation
+- Any size is allowed but power-of-2 is better for perf
+- Does Horizon de-dupe textures for download?
+- Horizon does not currently support mipmaps
+- Materials can be emissive insofar as they are "unlit" but they don't contribute to the light probes
+- Horizon used packed textures for different material attributes; see [Materials](#materials)
+- Can we verify that Horizon uses ASTC 2.0 (Adaptive Scalable Texture Compression)
 
 ### Materials
 
 !!! note No post-processing
-    Current Horizon has no post-process rendering options which makes things like bloom, motion blur, sepia, etc impossible.
+Current Horizon has no post-process rendering options which makes things like bloom, motion blur, sepia, etc impossible.
 
 ## Performance
+
 ### Draw Calls
-* Do not rely on Horizon to do any draw call batching. Meaning each instantiated asset is at least 1 draw call.
-* Hypothesis / guess: UI Gizmos are rendered into textures on the *CPU* and then rendered as single quads with a texture on the GPU (don't know about batching...). What about name tags?
 
-* Theory: 1 draw call per avatar, 1 draw call per UI Gizmo, 1+ draw calls per instantiated asset, 1 draw call per FX/trail gizmo that is running, 1 draw call per emotes (per player that is emoting), 1+ draw call per NPC
-    * In build mode: 1 draw call per gizmo
+- Do not rely on Horizon to do any draw call batching. Meaning each instantiated asset is at least 1 draw call.
+- Hypothesis / guess: UI Gizmos are rendered into textures on the _CPU_ and then rendered as single quads with a texture on the GPU (don't know about batching...). What about name tags?
 
- | Element  | Draw Call  | Notes |
-|---|---|---|
-| Player  | 3+ each  |  Avatar, name tag, emotes |
-| Entities | 1+ each | Per instantiated asset |
-| UI Gizmo | 1 each | back-face / occlusion? |
-| Particle / Trail Gizmo | 1 each | occlusion-culled? |
-| Text Gizmo | 1 each | THESE MAY BE BATCHED! |
-| Door Gizmo | 1 each | occlusion-culled? |
-| Leaderboard / Quests / Media Board / Purchase UI | 1 each | occlusion-culled? |
-| Mirror Gizmo | 2x total draw call count? |... REALLY?!...
-| Pop-ups | 1 per visible | occluded? |
-| Projectile Launcher | 1 per visible |
+- Theory: 1 draw call per avatar, 1 draw call per UI Gizmo, 1+ draw calls per instantiated asset, 1 draw call per FX/trail gizmo that is running, 1 draw call per emotes (per player that is emoting), 1+ draw call per NPC
+  - In build mode: 1 draw call per gizmo
+
+| Element                                          | Draw Call                 | Notes                    |
+| ------------------------------------------------ | ------------------------- | ------------------------ |
+| Player                                           | 3+ each                   | Avatar, name tag, emotes |
+| Entities                                         | 1+ each                   | Per instantiated asset   |
+| UI Gizmo                                         | 1 each                    | back-face / occlusion?   |
+| Particle / Trail Gizmo                           | 1 each                    | occlusion-culled?        |
+| Text Gizmo                                       | 1 each                    | THESE MAY BE BATCHED!    |
+| Door Gizmo                                       | 1 each                    | occlusion-culled?        |
+| Leaderboard / Quests / Media Board / Purchase UI | 1 each                    | occlusion-culled?        |
+| Mirror Gizmo                                     | 2x total draw call count? | ... REALLY?!...          |
+| Pop-ups                                          | 1 per visible             | occluded?                |
+| Projectile Launcher                              | 1 per visible             |
 
 !!! info There are draw calls outside a creator's control
-    Things like the sky, personal UI, the wrist UI, teleport visuals, onscreen controls, and many other elements may add to the "base number" of draw-calls.
+Things like the sky, personal UI, the wrist UI, teleport visuals, onscreen controls, and many other elements may add to the "base number" of draw-calls.
 
 !!! tip Group entities with the same materials together into an asset when possible
-    If you have 50 bricks with the same material all in 1 asset Horizon will batch that to be 1 draw call. If those are instead a single brick duplicated 50 times then that will be at least 50 draw calls.
+If you have 50 bricks with the same material all in 1 asset Horizon will batch that to be 1 draw call. If those are instead a single brick duplicated 50 times then that will be at least 50 draw calls.
 
     If you have an asset with 25 bricks of material A and 25 of material B then this will be 2 draw calls. If instead they were all duplicated then there would be 50 draw calls.
 
 !!! warning Multi-material assets increase draw call count
-    If an asset has multiple materials or material textures then the draw call count will increase by the number of them.
+If an asset has multiple materials or material textures then the draw call count will increase by the number of them.
 
 ### Vertices, Polygons, and Entities
+
 ...
 
 ### Memory
+
 ...
 
-
 ## Horizon Lighting
+
 GI overview and tips.
 
 ## General Tips
+
 Triangulate. Normals direction.
 Workflows / advice for greyboxing.
 
 # Text Importing / Text Assets
 
 # Scripting
+
 ## Properties
+
 ## Types
+
 Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
+
 ### Quaternion
-* Euler Angles default: YXZ
+
+- Euler Angles default: YXZ
 
 ### Entity Subtypes
+
 ## Components
+
 ### Props (and wiring)
+
 ### Lifecycle
-  Construction, preStart, start, dispose
+
+Construction, preStart, start, dispose
+
 ### Receiving Events
+
 a few notes but link to the events section
+
 ### Components <--> Entities
+
 ## Async (Timers)
 
 ## Local Scripts and Ownership
+
 a few sentences and link to Networking
+
 ## PrePhysics vs Default Updates
+
 a few sentences and link to Physics
 
 ## Events (Sending and Receiving)
+
 ### Code Block Event
+
 ### Local Events
+
 ### Network Events
+
 ### Broadcast events
+
 Mention coalescence
 
 ## Frame Sequence
 
 # Network
+
 ## Clients (Devices and the Server)
+
 ## Ownership
+
 !!! danger Ownership does not cascade to children
-    When you transfer ownership of an entity the ownership is *not* automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
+When you transfer ownership of an entity the ownership is _not_ automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
 
     !!! example
         ```ts
@@ -318,52 +373,63 @@ Mention coalescence
         anEntity.children.get().forEach(c => c.owner.set(newOwner))
         ```
         This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities are not scripted)!
+
 ## Ownership Transfer
-* API overview of `transferOwnership` and `receiveOwnership` and `SerializableState`.
-* Full-details sequencing diagrams.
-* Clarify how scripts are instantiated per-owner as part of entity transfer.
+
+- API overview of `transferOwnership` and `receiveOwnership` and `SerializableState`.
+- Full-details sequencing diagrams.
+- Clarify how scripts are instantiated per-owner as part of entity transfer.
+
 ### Auto-Transfers
+
 Collisions and Grabbables
 
 ## Network Events
 
 ## Authority and Reconciliation
+
 What happens if two scripts are setting an entity's position at the "same time"?
 
 # Physics
+
 ## Overview
+
 High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
 
 ## Creating a Physical Entity
+
 ....
 
 ## Collisions and Triggers
-* Colliding with dynamic vs static.
-* Colliding with player vs entities.
-* Collider gizmo.
-* Can control if ownership transfer on collision (see [Network](#network)!)
+
+- Colliding with dynamic vs static.
+- Colliding with player vs entities.
+- Collider gizmo.
+- Can control if ownership transfer on collision (see [Network](#network)!)
 
 ### Collidability
 
 Mesh entities an collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
 
 A **collider is active** when the following true
-   * Its entity has `collidable` set `true`
-   * Its `parent` (and all their parents) have `collidable` set to `true`
-   * It is not occluded by other colliders in the world
+
+- Its entity has `collidable` set `true`
+- Its `parent` (and all their parents) have `collidable` set to `true`
+- It is not occluded by other colliders in the world
 
 and is otherwise ignored by the physics system. For example if the floor's collider is inactive an avatar will fall through it. If a grabbable entity's collider is inactive you cannot grab it.
 
 !!! info In order for a group to be seen by the physics system it must have at least one active collider within it (however deep).
-    For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
+For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
 
 ### Controlling Collisions
-* Turn collidable on / off
-* Control can collide with players, entities, or both
+
+- Turn collidable on / off
+- Control can collide with players, entities, or both
 
 ### Triggers
 
-Trigger detection is done at the *collider* level. When a collider enters/leaves a trigger then (if it is an entity-detecting trigger) Horizon starts with the entity and traverse up the ancestor chain until it finds the first entity with a matching tag, send it the event, and then STOPS the traversal.
+Trigger detection is done at the _collider_ level. When a collider enters/leaves a trigger then (if it is an entity-detecting trigger) Horizon starts with the entity and traverse up the ancestor chain until it finds the first entity with a matching tag, send it the event, and then STOPS the traversal.
 
 This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
 
@@ -376,11 +442,13 @@ This means that whenever it seems both a parent and a child could get a trigger 
 ## Gravity
 
 ## Velocity, Acceleration, Force, Torque
+
 Note: `zeroVelocity` clears out positional and rotational velocity.
 
 ## Properties: Mass, Drag, Center-of-Mass
 
 ## Players
+
 Velocity, locomotion speed, jump speed
 
 # Players
@@ -398,27 +466,28 @@ Players in Horizon all have a global "account id". There is no way to access thi
 Each `Player` instance has a `readonly id: number` property.
 
 !!! info Entering an instance assigns a new ID (for that instance)
-    When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
+When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
 
 !!! danger IDs are per-instance. Do not persist them.
-    The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
+The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
 
 !!! warning IDs should be used rarely
-    Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
+Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
 
 ### Player Indices
 
 The `Player` class has the property
 
 ```ts
-index : ReadonlyHorizonProperty<number>
+index: ReadonlyHorizonProperty<number>;
 ```
 
 which you access via
 
 ```ts
-aPlayer.index.get()
+aPlayer.index.get();
 ```
+
 .
 
 When a player enters a world they are also assigned an `index`. The `index` will be a number between `0` and `n-1`, where `n` is the maximum number of players allowed in an instance. When a player enters an instance they are assigned an `index` value that is not currently used by any other player. When they leave that value becomes available again.
@@ -426,10 +495,10 @@ When a player enters a world they are also assigned an `index`. The `index` will
 For example: if three players arrive in an instance they may be assigned `index` values of `0`, `1`, and `2`. If they player with `index` `1` leaves then the next player that arrives may get index `1` again.
 
 !!! danger Do not rely on the order indices are assigned
-    There are no guarantees that a player gets the *smallest* available `index`. Any available value maybe be assigned to a new player.
+There are no guarantees that a player gets the _smallest_ available `index`. Any available value maybe be assigned to a new player.
 
 !!! example Example: per-player entities
-    A common use of `index`es is managing per-player entities. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
+A common use of `index`es is managing per-player entities. For instance, if you want every player to have a shield when they spawn in. Then you could have an array of shield `Entity`s and when a player enters the world, assign them the shield from that array that matches their `index`.
 
 ### Listing All Players
 
@@ -442,13 +511,13 @@ getAllPlayers() : Player[]
 which returns the current list of players in the world. Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
 !!! note
-    `getAllPlayers` does not include the server player.
+`getAllPlayers` does not include the server player.
 
 TODO: relation to enter and exit
 
 ### Server Player
 
-There is a special instance of the `Player` class that represents the *server*. It has an `id` but no meaningful `index`. All APIs work but return defaults (example: the location will return the origin; name will return the empty string).
+There is a special instance of the `Player` class that represents the _server_. It has an `id` but no meaningful `index`. All APIs work but return defaults (example: the location will return the origin; name will return the empty string).
 
 The `World` class has the method
 
@@ -461,26 +530,30 @@ which can be used to access it. The primary use cases are
 1. transferring ownership back to the server:
 
 ```ts
-anEntity.owner.set(world.getServerPlayer())
+anEntity.owner.set(world.getServerPlayer());
 ```
 
 2. checking if an entity is owned by the server:
 
 ```ts
-if (anEntity.owner.get() === world.getServerPlayer()) { /* ... */ }
+if (anEntity.owner.get() === world.getServerPlayer()) {
+  /* ... */
+}
 ```
 
 3. checking if a script is running locally or not:
 
 ```ts
-if (world.getLocalPlayer() === world.getServerPlayer()) { /* ... */ }
+if (world.getLocalPlayer() === world.getServerPlayer()) {
+  /* ... */
+}
 ```
 
 ### Local Player
 
-Every script is run on an execution client associated with a `Player` (see [Network](#network) for more info). If the script is set to *default* mode, then it is always running on the server. If the script is set to *local* then is can be transferred to and from the servers and the local devices of players.
+Every script is run on an execution client associated with a `Player` (see [Network](#network) for more info). If the script is set to _default_ mode, then it is always running on the server. If the script is set to _local_ then is can be transferred to and from the servers and the local devices of players.
 
-If a script is running locally on a human-player's device then that player is the *local player* for that script. If the script is running on the server then the *server player* is the *local player* for that script.
+If a script is running locally on a human-player's device then that player is the _local player_ for that script. If the script is running on the server then the _server player_ is the _local player_ for that script.
 
 The `World` class has the method
 
@@ -488,7 +561,7 @@ The `World` class has the method
 getLocalPlayer() : Player
 ```
 
-for determining which `Player`'s device the current script is running one. This method with return a human-player in the world or the *server player*.
+for determining which `Player`'s device the current script is running one. This method with return a human-player in the world or the _server player_.
 
 ## Player Events and Actions
 
@@ -500,27 +573,27 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Creating a Grabbable Entity
 
-Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity *must* be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
+Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
 
 !!! danger Grabbables cannot be inside of Groups
-    A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
+A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
 
 !!! warning Entities must be collidable to be grabbed!
-    If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
+If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
 
 ## Can Grab
 
 For an entity to be grabbable it needs:
-1. To be a grabbable entity
-    1. `Motion` to be `Interactive`
-    1. `Interaction` to be `Grabbable` or `Both`
-1. To be currently grabbable
-    1. `simulated` set to `true`
-    1. At least one [active collider](#collidability) within it (which is not occluded from the perspective of the player)
-1. To be grabbable by this player
-    1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
-    1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
 
+1. To be a grabbable entity
+   1. `Motion` to be `Interactive`
+   1. `Interaction` to be `Grabbable` or `Both`
+1. To be currently grabbable
+   1. `simulated` set to `true`
+   1. At least one [active collider](#collidability) within it (which is not occluded from the perspective of the player)
+1. To be grabbable by this player
+   1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
+   1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
 
 ```dot
 digraph {
@@ -560,11 +633,11 @@ digraph {
 
 `Interactive` entities have a setting in the Property panel called "Who Can Grab?" with the following options controlling who can grab the entity.
 
-|   |  Behavior |
-|---|---|
-| **Anyone**  |  Any player is eligible to grab the entity. |
+|                        | Behavior                                                                                                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Anyone**             | Any player is eligible to grab the entity.                                                                                                                                               |
 | **First To Grab Only** | If the entity has never been grabbed then any player is eligible to grab it. Once it is grabbed then only that player can ever grab it again (unless the grabbing is reset - see below). |
-| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players.  |
+| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players.                                                                                                 |
 
 Use the API
 
@@ -576,7 +649,7 @@ setWhoCanGrab(players: Player[]): void;
 to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (TODO - everyone? no one?).
 
 !!! note setWhoCanGrab does not auto-update
-    There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
+There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
     There is no way to set an entity back to its "default behavior" (before the API is first called - TODO verify).
 
@@ -584,21 +657,22 @@ to change the list of players that are allowed to grab the entity. Until you cal
 
 `Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to the entity while it is held.
 
-| Setting | Can the holder grab it out of their own hand using their other hand? | Can another player take it from the player that is holding it?  |
-|---|---|--|
-| **No One**  | No | No |
-| **Only You** | Yes | No |
-| **Anyone** | Yes | Yes (*if* the person can grab the entity) |
+| Setting      | Can the holder grab it out of their own hand using their other hand? | Can another player take it from the player that is holding it? |
+| ------------ | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **No One**   | No                                                                   | No                                                             |
+| **Only You** | Yes                                                                  | No                                                             |
+| **Anyone**   | Yes                                                                  | Yes (_if_ the person can grab the entity)                      |
 
 ### Grab Distance
 
 !!! warning Grab distance varies between platforms
-    For example mobile players can grab entities when much farther away than VR players
+For example mobile players can grab entities when much farther away than VR players
 
 !!! tip Controlling grab-distance
-    You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
+You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 ### Releasing Entities
+
 Let go, force release, or get too far away
 
 Note: disabling `simulation` on a held entity will force release it.
@@ -650,12 +724,13 @@ digraph G {
 
 ### Hand-off (Switching Hands or Players)
 
-When an entity is transferred from one hand to another or from one player to another then the entity is *fully released* by the first player before being grabbed by the second player.
+When an entity is transferred from one hand to another or from one player to another then the entity is _fully released_ by the first player before being grabbed by the second player.
 
 !!! warning `OnGrabEnd` is sent during a "hand-off".
-    The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
+The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
 
 ### Moving / Locking Held Entities
+
 Explain how hand.position is human hand (not avatar)
 Explain how you can prevent the entity from being updated by physics system
 
@@ -666,81 +741,98 @@ Explain how you can prevent the entity from being updated by physics system
 # Player Input
 
 # Persistence
+
 ## Overview
-  - Cloning a world
-  - World persistence does not exists
+
+- Cloning a world
+- World persistence does not exists
+
 ## Leaderboards
-  - Overview
-    - Kind of data allowed
-    - Player opt-out
-  - Creation
-  - Using the Gizmo
-  - APIs
-  - Resetting
-    - Weekly / Monthly
+
+- Overview
+  - Kind of data allowed
+  - Player opt-out
+- Creation
+- Using the Gizmo
+- APIs
+- Resetting
+  - Weekly / Monthly
+
 ## Quests
-  - Overview
-    - Tracked
-  - Creation
-  - Using the Gizmo
-    - Which are visible
-  - APIs
-  - Resetting
+
+- Overview
+  - Tracked
+- Creation
+- Using the Gizmo
+  - Which are visible
+- APIs
+- Resetting
+
 ## In-World Purchases (IWP)
-  - Overview
-  - Creation
-    - Types (consumables, durables)
-  - Using the Gizmo
-  - APIs
-    - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
-  - Test Purchases
-    - Collaborators can but Testers cannot (will be charged)
+
+- Overview
+- Creation
+  - Types (consumables, durables)
+- Using the Gizmo
+- APIs
+  - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
+- Test Purchases
+  - Collaborators can but Testers cannot (will be charged)
+
 ## Player Persistent Variables (PPV)
-  - Overview
-    - Groups
-    - Types: `number` and JSON-serializable `object`.
-  - Creation
-  - Read / Write
-  - Resetting
+
+- Overview
+  - Groups
+  - Types: `number` and JSON-serializable `object`.
+- Creation
+- Read / Write
+- Resetting
 
 # Assets and Spawning
 
 # Custom UI
-## Bindings technical overview (what *T* is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)
+
+## Bindings technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)
 
 # "Cross Screens" - Mobile vs PC vs VR
 
 # Performance Optimization
 
 ## Physics
+
 Colliders, triggers,
 
 ## Gizmos
-* pool FX, sounds,
-* limit mirror (1) and dynamic lights (20)
+
+- pool FX, sounds,
+- limit mirror (1) and dynamic lights (20)
 
 ## Bridge calls explanation
+
 ## Draw-call specification
+
 ## Perfetto hints
 
 ## Memory
-* UIGizmos have an option to enable mipmaps; this will increase visual quality but also increase memory use
+
+- UIGizmos have an option to enable mipmaps; this will increase visual quality but also increase memory use
 
 # List of all desktop editor shortcuts
+
 e.g. alt-click to orbit
 
 # Glossary
 
-*[HTML]: Hyper Text Markup Language
-*[W3C]: World Wide Web Consortium
-*[Player]: A person in an instance (or the server).
+_[HTML]: Hyper Text Markup Language
+_[W3C]: World Wide Web Consortium \*[Player]: A person in an instance (or the server).
 
 # OPEN QUESTIONS - TODO {ignore=true}
-* does despawn cause grab "release"?
-* does "attach" cause "release"?
-* does an entity colliding with another cause "release" (probably same as moving too far)
-* does ownership transfer while held send any events?
-* When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
-*inside of `playerExit` callback is the player still in the array? Right after?
-* What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
-* Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
+
+- does despawn cause grab "release"?
+- does "attach" cause "release"?
+- does an entity colliding with another cause "release" (probably same as moving too far)
+- does ownership transfer while held send any events?
+- When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
+  \*inside of `playerExit` callback is the player still in the array? Right after?
+- What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
+- Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
