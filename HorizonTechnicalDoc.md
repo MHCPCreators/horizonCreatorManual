@@ -91,10 +91,11 @@
             1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
                 1. [Setting Who Can Grab](#setting-who-can-grab)
                 2. [Setting Who Can Take From Holder](#setting-who-can-take-from-holder)
-            2. [Releasing Objects](#releasing-objects)
-            3. [Grab Sequence and Events](#grab-sequence-and-events)
+            2. [Grab Distance](#grab-distance)
+            3. [Releasing Objects](#releasing-objects)
+            4. [Grab Sequence and Events](#grab-sequence-and-events)
                 1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-            4. [Moving / Locking Held Objects](#moving--locking-held-objects)
+            5. [Moving / Locking Held Objects](#moving--locking-held-objects)
         3. [Holstering](#holstering)
         4. [Attaching](#attaching)
         5. [AFK](#afk)
@@ -198,7 +199,7 @@ You CAN nest.
 * Does Horizon de-dupe textures for download?
 * Horizon does not currently support mipmaps
 * Materials can be emissive insofar as they are "unlit" but they don't contribute to the light probes
-* Horizon used packed textures for different material attributes; see the materials section
+* Horizon used packed textures for different material attributes; see [Materials](#materials)
 * Can we verify that Horizon uses ASTC 2.0 (Adaptive Scalable Texture Compression)
 
 ### Materials
@@ -317,7 +318,7 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 * Colliding with dynamic vs static.
 * Colliding with player vs objects.
 * Collider gizmo.
-* Can control if ownership transfer on collision (see the network section!)
+* Can control if ownership transfer on collision (see [Network](#network)!)
 
 ### Collidability
 
@@ -454,7 +455,7 @@ if (world.getLocalPlayer() === world.getServerPlayer()) { /* ... */ }
 
 ### Local Player
 
-Every script is run on an execution client associated with a `Player` (see the networking section for more info). If the script is set to *default* mode, then it is always running on the server. If the script is set to *local* then is can be transferred to and from the servers and the local devices of players.
+Every script is run on an execution client associated with a `Player` (see [Network](#network) for more info). If the script is set to *default* mode, then it is always running on the server. If the script is set to *local* then is can be transferred to and from the servers and the local devices of players.
 
 If a script is running locally on a human-player's device then that player is the *local player* for that script. If the script is running on the server then the *server player* is the *local player* for that script.
 
@@ -478,10 +479,10 @@ For an entity to be grabbable it needs:
 1. `Interaction` to be `Grabbable` or `Both`
 1. At least one active collider within it
 
-See the Entity Properties section for details on `Motion` and `Interaction`. See the section on `Collidability` for more information on active colliders.
+See [Entity Properties](#entity-properties) for details on `Motion` and `Interaction`. See [Collidability](#collidability) for more information on active colliders.
 
 !!! danger Grabbables cannot be inside of Groups
-    A grabbable can be inside of an empty object but it cannot be in a group. See the section of groups for more information.
+    A grabbable can be inside of an empty object but it cannot be in a group. See [Groups](#groups) for more information.
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
