@@ -13,6 +13,7 @@
     1. [Hierarchy](#hierarchy)
         1. [Groups](#groups)
         2. [Empty Objects](#empty-objects)
+        3. [Root Entities](#root-entities)
     2. [Transforms (Local and Global)](#transforms-local-and-global)
     3. [Entity Properties](#entity-properties)
 4. [Entities](#entities)
@@ -144,6 +145,13 @@ Groups, Parents, Children, and Pivots
 What is / isn't mutable
 ### Groups
 ### Empty Objects
+### Root Entities
+An entity is a **root entity** if it has no parent or if its ancestor chain (parent, grandparent, etc) consists solely of Empty Objects. A root entity cannot be inside a group, its parent cannot be inside a group, etc.
+
+!!! danger Grabbable and Physics settings are ignored if the entity is not a root entity!
+    If you configure a *non-root entity* to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
+
+    Non-root objects can be moved by modifying their transforms (such as changing the position) but cannot be moved by the playing grabbing them or by the physics system (you cannot apply forces to them, cannot have them collide with other objects, etc).
 
 ## Transforms (Local and Global)
 ## Entity Properties
@@ -490,23 +498,27 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Creating a Grabbable Entity
 
-For an entity to be grabbable it needs
-1. `Motion` to be `Interactive`
-1. `Interaction` to be `Grabbable` or `Both`
-1. At least one [active collider](#collidability) within it
-1. To match the rules of ["Who Can Grab"](#setting-who-can-grab) and/or ["Who Can Take From Holder"](#setting-who-can-take-from-holder) (if used)
-
-See [Entity Properties](#entity-properties) for details on `Motion` and `Interaction`. See [Collidability](#collidability) for more information on active colliders.
+Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity *must* be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
 
 !!! danger Grabbables cannot be inside of Groups
-    A grabbable can be inside of an [Empty Object](#empty-objects) but it cannot be in a group. See [Groups](#groups) for more information.
+    A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
 
 !!! warning Entities must be collidable to be grabbed!
-    If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders with it are active then it cannot be grabbed, even if the root is collidable!
+    If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
 
 ## Can Grab
 
-The decision for if `entity` can be grabbed by `player` is visualized below. The decisions are described in more detail in the sections that follow.
+For an entity to be grabbable it needs:
+1. To be a grabbable entity
+    1. `Motion` to be `Interactive`
+    1. `Interaction` to be `Grabbable` or `Both`
+1. To be currently grabbable
+    1. `simulated` set to `true`
+    1. At least one [active collider](#collidability) within it
+1. To be grabbable by this player
+    1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
+    1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
+
 
 ```dot
 digraph {
@@ -515,29 +527,30 @@ digraph {
     isInteractive [label=<Does the entity have<BR/><I>Interactive</I>  set to<BR/><I>Grabbable</I>  or<I>Both</I>?> style=filled fillcolor="#deefff"]
 
     activeCollider [label=<Does the entity contain<BR/>an <font color="#1b75d0"><U>active collider</U></font>?> style=filled fillcolor="#deefff" href="#collidability"]
+
+    simulated [label=<Is <I>simulated</I><BR/>set to <I>true</I>?> style=filled fillcolor="#deefff" href="#collidability"]
+
     canGrab [label=<Is the player allowed<BR/>by <font color="#1b75d0"><U>"Who Can Grab"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-grab"]
+
     isHeld [label=<Is the entity currently<BR/>held by a player?> style=filled fillcolor="#deefff"]
-    canTake [label=<Is the player allowed by<BR/><font color="#1b75d0"><U>"Who Can Take From Holder"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-take-from-holder"]
+
+    canTake [label=<Is the player allowed<BR/>by <font color="#1b75d0"><U>"Who Can Take<BR/>From Holder"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-take-from-holder"]
 
     fail [label="Cannot Grab" style=filled fillcolor="#ffabbc"]
     succeed [label="Can Grab" style=filled fillcolor="#abffbc"]
 
     isInteractive -> activeCollider [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
     isInteractive -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    activeCollider -> canGrab [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    activeCollider -> simulated [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
+    simulated -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
+    simulated -> canGrab [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
     activeCollider -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
     canGrab -> isHeld [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    canGrab -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878" constraint=false]
+    canGrab -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
     isHeld -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
     isHeld -> canTake [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
     canTake -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
     canTake -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-
-    { rank=same; succeed; fail; }
-     subgraph {
-        succeed -> fail [style=invis]; // Invisible edge hints at the desired order
-    }
-
 }
 ```
 
