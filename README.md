@@ -24,8 +24,9 @@ Export > Chrome (Puppeteer) > PDF
 
 ## Guidelines
 
-1. Use 'TODO' anywhere in the doc where there is an explicit question or issue that needs review. This makes it easy to search for 'TODO' throughout the doc.
-1. Use "entity" instead of "object" unless referring to a place where Horizon specifically calls it an "Object".
+1. **TODO** - Use 'TODO' anywhere in the doc where there is an explicit question or issue that needs review. This makes it easy to search for 'TODO' throughout the doc.
+1. **Entity, not Object** - Use "entity" instead of "object" unless referring to a place where Horizon specifically calls it an "Object".
+1. **Sample code** - prefer technical explanation over example code. Write an example only when the example provides clarity that is hard to explain otherwise.
 
 ## Info
 
