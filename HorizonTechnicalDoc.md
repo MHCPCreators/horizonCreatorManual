@@ -219,7 +219,7 @@ Gizmos, as, ...
 
 ### Interactive Entities
 
-When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for grabbing, physics, or both. We call these **interactive entities**.
+When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
     If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
