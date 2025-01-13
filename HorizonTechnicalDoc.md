@@ -406,7 +406,7 @@ The "center" of an entity is called its **pivot point**. It rotates around its p
 
 1. **Mesh entities** have their pivot points specified when they are authored (e.g. in Blender)
 1. **Empty objects** have their pivot points at the center of the gizmo (the grey cube)
-1. **Group entities** compute their pivot point to be at the center of their "bounding box". For example if you move a child in a group in edit mode then when click off the group it will recompute its pivot point to be at the center of all of its children. *This only happens in edit mode. The pivot of a group doesn't auto-change in play mode.*
+1. **Group entities** compute their pivot point to be at the center of their "bounding box" **in edit mode**. For example if you move a child in a group in edit mode then when click off the group it will recompute its pivot point to be at the center of all of its children. *This only happens in edit mode. The pivot of a group doesn't auto-change when the world is running (even if its children move around).*
 1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a builtin pivot point (usually at their center).
 
 !!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
