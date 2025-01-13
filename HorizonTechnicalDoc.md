@@ -127,7 +127,7 @@
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 16. [Assets and Spawning](#assets-and-spawning)
 17. [Custom UI](#custom-ui)
-    1. [Bindings technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)](#bindings-technical-overview-what-t-is-allowed-set-derive-and-notes-on-preventing-memory-growth---eg-dont-keep-deriving)
+    1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
 19. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
@@ -983,7 +983,8 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 # Custom UI
 
-## Bindings technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)
+## Bindings
+Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)
 
 # "Cross Screens" - Mobile vs PC vs VR
 
