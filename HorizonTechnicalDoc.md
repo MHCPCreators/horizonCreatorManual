@@ -190,6 +190,8 @@ When an entity has no parent it is called a **root entity**.
 
 We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent, we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
 
+We call the children, and their children, and their children, etc of an entity its **descendants**.
+
 ### Empty Object and Groups
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
@@ -358,7 +360,45 @@ When you want to set the position of an entity in relation to the current positi
 
 ### Transform Property
 
+Each entity has a transform property that can be accessed via `entity.transform`.
+
+```ts
+class Entity {
+  readonly transform: Transform
+
+  // ...
+}
+```
+
+Position, rotation, and scale can all be accessed through a `Transform`. The following two lines behave identically.
+
+```
+entity.position.set(p)
+entity.transform.position.set(p)
+```
+
+Additionally, the `Transform` object can be used to access **local** position, rotation, and scale. See the next section for more information.
+
 ### Local Transforms
+
+Entities have a `localPosition`, `localRotation`, and `localScale` that can be accessed via the transforms (e.g. `entity.transform.localPosition.get()`). These properties specify values in relation to a parent entity (or to the world if there is no parent).
+
+Throughout this doc, other than this section, we omit the word *global*. When you see "position" it means "global position".
+
+!!! example
+    Let `parent` be an entity that has not been rotated nor scaled with `child` as one of its children.
+
+    If `parent`'s **global position** is `(3, 0, 0)` and `child`'s **global position** is `(8, 1, 0)` then `child`'s **local position** will be `(5, 1, 0)`. The `child`'s local position is how much it is moved from its parent.
+
+    Note: if the `parent` were rotated or scaled then you can't just "subtract the positions".
+
+!!! note Global values "cascade down" the hierarchy
+    An entity's global position/rotation/scale influences the global position/rotation/scale of its children (which then cascades to their child too!). If you have a plate on a table on a boat  and the boat moves globally then so do the table and the plate; if the table moves then so does the plate (and everything on it!)
+
+!!! warning Local values exist in the transformed coordinate system of the parent
+    Rotating and/or scaling an entity causing it axes to rotate and scaled as well. We call these the *transformed axes*.
+
+    A child with local position of `(0, 6, 0)` is moved 6 units **from the global position** of its parent **along the parent's transformed up-axis**. If there is no parent then this is just 6 meters up the world's y-axis.
 
 ### Pivots
 
