@@ -53,7 +53,7 @@
         1. [Props (and wiring)](#props-and-wiring)
         2. [Lifecycle](#lifecycle)
         3. [Receiving Events](#receiving-events)
-        4. [Components <--> Entities](#components---entities)
+        4. [Converting Between Components and Entities](#converting-between-components-and-entities)
     4. [Async (Timers)](#async-timers)
     5. [Local Scripts and Ownership](#local-scripts-and-ownership)
     6. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
@@ -63,10 +63,10 @@
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
     8. [Frame Sequence](#frame-sequence)
-    9. [Events Phase](#events-phase)
-    10. [OnUpdate Phase](#onupdate-phase)
-    11. [PrePhysics Phase](#prephysics-phase)
-    12. [Physics Phase](#physics-phase)
+        1. [PrePhysics Phase](#prephysics-phase)
+        2. [Physics Phase](#physics-phase)
+        3. [Events Phase](#events-phase)
+        4. [OnUpdate Phase](#onupdate-phase)
 8. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
@@ -125,7 +125,11 @@
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-16. [Assets and Spawning](#assets-and-spawning)
+16. [Spawning](#spawning)
+    1. [Assets](#assets-1)
+        1. [Foo](#foo)
+        2. [Spawn Controller](#spawn-controller)
+    2. [Sublevels](#sublevels)
 17. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
@@ -378,7 +382,7 @@ Construction, preStart, start, dispose
 
 a few notes but link to the events section
 
-### Components <--> Entities
+### Converting Between Components and Entities
 
 ## Async (Timers)
 
@@ -472,13 +476,13 @@ stateDiagram
    }
 ```
 
-## Events Phase
+### PrePhysics Phase
 
-## OnUpdate Phase
+### Physics Phase
 
-## PrePhysics Phase
+### Events Phase
 
-## Physics Phase
+### OnUpdate Phase
 
 # Network
 
@@ -720,38 +724,32 @@ For an entity to be grabbable it needs:
    1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
    1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
 
-```dot
-digraph {
-    rankdir=TD;
+```mermaid
+flowchart TD
+    style fail fill:#ffabbc,stroke:black;
+    style success fill:#abffbc,stroke:black;
 
-    isInteractive [label=<Does the entity have<BR/><I>Interactive</I>  set to<BR/><I>Grabbable</I>  or<I>Both</I>?> style=filled fillcolor="#deefff"]
+    isInteractive([Does the entity have *Interactive* set to *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain an <a href="#collidability">active collider</a>?])
 
-    activeCollider [label=<Does the entity contain<BR/>an <font color="#1b75d0"><U>active collider</U></font>?> style=filled fillcolor="#deefff" href="#collidability"]
+    isInteractive -- no --> fail([Cannot grab])
 
-    simulated [label=<Is <I>simulated</I><BR/>set to <I>true</I>?> style=filled fillcolor="#deefff" href="#collidability"]
+    activeCollider -- yes --> simulated([Is *simulated* set to *true*?])
+    activeCollider -- no --> fail
 
-    canGrab [label=<Is the player allowed<BR/>by <font color="#1b75d0"><U>"Who Can Grab"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-grab"]
+    simulated -- yes --> canGrab([Is the player allowed by <a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>])
+    simulated -- no --> fail
 
-    isHeld [label=<Is the entity currently<BR/>held by a player?> style=filled fillcolor="#deefff"]
+    canGrab -- yes --> isHeld([Is the entity currently held by a player?])
+    canGrab -- no --> fail
 
-    canTake [label=<Is the player allowed<BR/>by <font color="#1b75d0"><U>"Who Can Take<BR/>From Holder"</U></font>?> style=filled fillcolor="#deefff" href="#setting-who-can-take-from-holder"]
+    isHeld -- yes --> canTake([Is the player allowed by <a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
+    isHeld -- no --> success([Can grab])
 
-    fail [label="Cannot Grab" style=filled fillcolor="#ffabbc"]
-    succeed [label="Can Grab" style=filled fillcolor="#abffbc"]
+    canTake -- yes --> success
+    canTake -- no --> fail
 
-    isInteractive -> activeCollider [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    isInteractive -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    activeCollider -> simulated [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    simulated -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    simulated -> canGrab [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    activeCollider -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    canGrab -> isHeld [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    canGrab -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    isHeld -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-    isHeld -> canTake [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    canTake -> succeed [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#9affab"><TR><TD>yes</TD></TR></TABLE>> color="green"]
-    canTake -> fail [label=<<TABLE BORDER="0" CELLBORDER="0" BGCOLOR="#ff9aab"><TR><TD>no</TD></TR></TABLE>> color="#ff7878"]
-}
+    linkStyle 0,2,4,6,8,10 stroke:green,stroke-width:1px;
+    linkStyle 1,3,5,7,9,11 stroke:red,stroke-width:1px;
 ```
 
 ### Setting "Who Can Grab?"
@@ -979,7 +977,15 @@ Here is a simple example of a grabbable entity that is constrained to move along
 - Read / Write
 - Resetting
 
-# Assets and Spawning
+# Spawning
+
+## Assets
+
+### Foo
+
+### Spawn Controller
+
+## Sublevels
 
 # Custom UI
 
