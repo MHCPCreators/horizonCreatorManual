@@ -22,7 +22,7 @@
         4. [Offsets - Move, Rotate, and Scale](#offsets---move-rotate-and-scale)
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
-        7. [Pivots](#pivots)
+        7. [Pivot Points](#pivot-points)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
     2. [Static Entities](#static-entities)
@@ -199,7 +199,7 @@ Empty Objects and Groups are two methods of "collection" entities together. They
 TODO - Label the headers (X = Collection Type, Y = Collection Properties)
 |   | Groups | Empty Object |
 |---|---|---|
-| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the pivot point. | The **center of the Empty Object** is always the pivot point. |
+| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | The **center of the Empty Object** is always the [pivot point](#pivot-points). |
 | **[Interactive Entity](#interactive-entities) Children** | Children have their **interaction disabled**. | Children **can be [Interactive Entity](#interactive-entities)**, if the Empty Object's `Motion` is `None`. |
 | **Projectile Launcher** | Projectile collisions happen **on the group**. | Projectile collisions happen **on a child**. |
 | **Child Count** | **1** or more. | **0** or more. |
@@ -400,26 +400,17 @@ Throughout this doc, other than this section, we omit the word *global*. When yo
 
     A child with local position of `(0, 6, 0)` is moved 6 units **from the global position** of its parent **along the parent's transformed up-axis**. If there is no parent then this is just 6 meters up the world's y-axis.
 
-### Pivots
+### Pivot Points
 
-!!! info Scratch notes
-    **Pivot settings are center or pivot**
+The "center" of an entity is called its **pivot point**. It rotates around its pivot point, it scales around its pivot point, and when you move an entity its pivot point end ups at the position specified.
 
-    **Center**
-    Center of the bounding box around an entity or a collection.
+1. **Mesh entities** have their pivot points specified when they are authored (e.g. in Blender)
+1. **Empty objects** have their pivot points at the center of the gizmo (the grey cube)
+1. **Group entities** compute their pivot point to be at the center of their "bounding box". For example if you move a child in a group in edit mode then when click off the group it will recompute its pivot point to be at the center of all of its children. *This only happens in edit mode. The pivot of a group doesn't auto-change in play mode.*
+1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a builtin pivot point (usually at their center).
 
-    **Pivot**
-    Center or entity or a group
-    A collection's root entity (Empty Object)
-    Mesh origin of an imported mesh (If offset pivot was imported)
-
-    TODO - Note: Offset pivots warn that only a single mesh in the FBX is supported when importing.
-
-    TODO - Explain something along the lines of checking in Blender as source of truth for origin point position.
-
-    **Pivot properties of hierarchies**
-    When adding an entity to a hierarchy, local transforms become offsets of the parent.
-
+!!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
+    The desktop editor lets you choose to put the "manipulator handlers" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
 
 # Entities
 
