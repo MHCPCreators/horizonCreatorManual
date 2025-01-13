@@ -216,10 +216,10 @@ TODO - explain how collisions and triggers both do the algorithm of "start with 
 ### Understanding Position
 
 #### Global Position
-In the property panel, setting an entity at 0,0,0 will place it at the  center of a world. This is the center of the grid that is visible when creating a blank world.
+In the property panel, setting an entity at 0,0,0 will place it at the  center of a world. This is the center of the grid that is visible when creating a blank world. An entity has an X,Y, and Z value that correlates to the distance (in meters) that it is positioned away from the center of the world.
 
 #### Local Position
-An entity has an X,Y, and Z value that correlates to the distance (in meters) that it is positioned away from the center of the world.
+TODO - Takes position of parent
 
 ### Understanding Rotation
 
