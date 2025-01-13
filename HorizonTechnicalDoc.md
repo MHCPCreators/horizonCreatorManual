@@ -324,15 +324,37 @@ See [local transforms](#local-transforms) for setting scale relative to a parent
 
 When you want to set the position of an entity in relation to the current position we call this **offsetting** the position. There is no builtin API for doing this (as of Feb 2025) but it can be accomplished easily with the pattern of *get-modify-set*.
 
-!!! example Offsetting position
+!!! example Offsetting position and scale
     To move an entity up 2 meters from its current location you can do:
     ```ts
-    const pos = entity.position.get().clone()
-    pos.y += 2
+    const offset = new Vec3(0, 2, 0)
+
+    const pos = entity.position.get()
+    const newPos = pos.add(offset)
     entity.position.set(pos)
     ```
-    See [Horizon Properties](#horizon-properties) for more information on the use of `clone()`.
+    Offsetting scale works similarly.
 
+!!! example Offsetting rotation
+    To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
+    ```ts
+    const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
+
+    const rot = entity.rotation.get()
+    const newRot = offset.mul(rot)
+    entity.rotation.set(newRot)
+    ```
+    Note that `mul()` is used to combine rotations.
+
+    If instead you wanted to rotate an entity 90 degrees around its own up-axis you would do:
+    ```ts
+    const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
+
+    const rot = entity.rotation.get()
+    const newRot = rot.mul(offset)
+    entity.rotation.set(newRot)
+    ```
+    where the order of the Quaternion multiplication has been flipped. See [Quaternions](#quaternion) for more explanation.
 
 ### Transform Property
 
