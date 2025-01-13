@@ -11,11 +11,18 @@
     3. [Doors and Linking](#doors-and-linking)
 3. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
+    2. [Hierarchy](#hierarchy-1)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
-    2. [Transforms (Local and Global)](#transforms-local-and-global)
-        1. [Pivots](#pivots)
-    3. [Entity Properties](#entity-properties)
+    3. [Coordinates System](#coordinates-system)
+    4. [Transforms](#transforms)
+        1. [Position](#position)
+        2. [Rotation](#rotation)
+        3. [Scale](#scale)
+        4. [Offsets - Move, Rotate, and Scale](#offsets---move-rotate-and-scale)
+        5. [Transform Property](#transform-property)
+        6. [Local Transforms](#local-transforms)
+        7. [Pivots](#pivots)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
     2. [Static Entities](#static-entities)
@@ -45,7 +52,7 @@
     6. [General Tips](#general-tips)
 6. [Text Importing / Text Assets](#text-importing--text-assets)
 7. [Scripting](#scripting)
-    1. [Properties](#properties)
+    1. [Horizon Properties](#horizon-properties)
     2. [Types](#types)
         1. [Quaternion](#quaternion)
         2. [Entity Subtypes](#entity-subtypes)
@@ -170,7 +177,9 @@ Name, description, comfort setting, player count, etc.
 
 ## Hierarchy
 
-Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child up the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
+## Hierarchy
+
+Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
 
 1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
 2. To create "layers" or "folders" in the editor (e.g. putting all trees in a ["collection"](#empty-object-and-groups) to make them easier to manage).
@@ -179,12 +188,13 @@ When an entity has no parent it is called a **root entity**.
 
 ### Ancestors
 
-We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
+We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent, we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
 
 ### Empty Object and Groups
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
 
+TODO - Label the headers (X = Collection Type, Y = Collection Properties)
 |   | Groups | Empty Object |
 |---|---|---|
 | **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the pivot point. | The **center of the Empty Object** is always the pivot point. |
@@ -194,13 +204,160 @@ Empty Objects and Groups are two methods of "collection" entities together. They
 
 Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
 
-TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop"
+TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".
 
-## Transforms (Local and Global)
+## Coordinates System
+
+**Axes**. Following standard convention, the editor uses *red* for the *<span style="color:red">x-axis</span>*, *green* for the *<span style="color:green">y-axis</span>*, and *blue* for the *<span style="color:blue">z-axis</span>* when displaying "manipulation handles" to move, rotate, or scale an entity.
+
+**Y-up**. The positive-y axis is *up*.
+
+**Left-handed**. The coordinate system is *left-handed*, meaning that if position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
+
+TODO - picture
+
+**Meters**. Distances and positions in Horizon are referenced using meters. For example, the position `(0, 1, 0)` is 1 meter (roughly 3.28 feet) up from the center of the world. Avatars in Horizon are approximately 1.8 meter tall (5 feet 11 inches).
+
+**Origin**. The editor has the origin `(0,0,0)` at the center of the grid. The origin cannot be moved.
+
+## Transforms
+
+Entities have three transform properties: position, rotation, and scale. You can use the properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modifying the values using scripting.
+
+In the desktop editor you can switch quickly between transform tools via the keyboard.
+| Manipulation Tool  |  Keyboard Shortcut |
+|---|---|
+| Move | W |
+| Rotate | E |
+| Scale | R |
+
+!!! note No Arbitrary Matrix Transforms
+    Horizon does not currently allow matrix transforms. You can achieve some skew effects by rotating an entity inside a non-uniformly scaled one. Arbitrary matrix transforms are not exposed to the developer.
+
+### Position
+
+Positions are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
+
+The `position` property on an entity determines where in 3D space the [pivot point](#pivots) of the entity is, in relation to the origin of the world. Often the pivot is just the center of the entity, and so typically the position of an entity is where its center point is.
+
+!!! example Setting a position
+    Position is a [read-write property](#horizon-properties) on the `Entity` class. To get the current position of an entity, do:
+
+    ```td
+    entity.position.get()
+    ```
+
+    To move an entity to be 3 meters up from the origin and 4 meters forward, do:
+    ```ts
+    entity.position.set(new Vec3(0, 3, 4))
+    ```
+
+Setting the `position` property is not influenced by the position of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting position relative to a parent entity.
+
+### Rotation
+
+Rotations are specified using a mathematical object called a `Quaternion`. Whenever you see the word "Quaternion" you can just think it means "rotation". This isn't mathematically true but is sufficient for nearly all uses.
+
+Rotations in the editor are specified using [Euler Angles](https://en.wikipedia.org/wiki/Euler_angles) which are a robust way of specifying yaw, pitch, and roll. The default **Euler Order** order in Horizon is **YXZ** meaning that entity does a *yaw*, then a *pitch*, and then a *roll* (when specifying Euler Angles). Euler angles are specified in **degrees**.
+
+!!! tip Rotations are tricky!
+    Rotations, Quaternions, Euler Angles, etc are all rather tricky and subtle concepts. It will take a lot of time to build an intuition for them. Be patient and don't worry if rotations seem complex (they are)!
+
+The `rotation` property on an entity determines how much the entity is rotated around its [pivot point](#pivots). This rotation is specified *globally*, meaning that it is measured with respect to the world. A zero-rotation will have an entity's up-axis align with the world's y-axis, it's right-axis align with the world's x-axis, etc.
+
+!!! example Setting a rotation
+    Rotation is a [read-write property](#horizon-properties) on the `Entity` class. To get the current rotation of an entity, do:
+
+    ```td
+    entity.rotation.get()
+    ```
+
+    To rotate an entity so that it yaws 45 degrees and then rolls 90 degrees, do:
+    ```ts
+    entity.rotation.set(Quaternion.fromEuler(new Vec3(0, 90, 45)))
+    ```
+
+!!! tip Default Rotation ("Not rotated")
+    If you want an entity to be "not rotated", set its rotation to be `(0, 0, 0)` in the editor. In Typescript you can use any of these lines (they all do the same thing):
+
+    ```ts
+    entity.rotation.set(Quaternion.fromEuler(new Vec3(0, 0, 0)))
+
+    entity.rotation.set(Quaternion.fromEuler(Vec3.zero))
+
+    entity.rotation.set(Quaternion.one)
+    ```
+
+Setting the `rotation` property is not influenced by the rotation of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting rotation relative to a parent entity.
+
+### Scale
+
+Scales are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
+
+**Inherent Size**: All entities have their own inherent size. For instance, a SubD cube is inherently 1 meter long on each side. Mesh assets have a size based on how they were authored. The inherent size of an entity is the size it is when it is *unscaled*.
+
+The `scale` property determines the fraction an entity should be of its inherent size. For instance, a SubD cube is inherently 1 meter long on each side. If you set its scale to be `(1, 0.5, 2)` then the cube will be 1 meter long on its right-axis, 0.5 meters long on its up-axis, and 2 meters long on its forward-axis. In this example, the object has been "shrunk" along its up-axis, and "expanded" along its forward-axis.
+
+!!! example Setting a scale
+    Scale is a [read-write property](#horizion-properties) on the `Entity` class. To get the current scale of an entity, do:
+
+    ```td
+    entity.scale.get()
+    ```
+
+    To scale an entity so that it is 3 times bigger on its up axis (than its inherent size), do:
+    ```ts
+    entity.scale.set(new Vec3(1, 3, 1))
+    ```
+
+    Since the default scale is `(1,1,1)`, you can set any part of a scale to `1` to leave the entity "un-scaled" along that axis.
+
+Setting the `scale` property is not influenced by the rotation of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting scale relative to a parent entity.
+
+!!! danger Mesh Primitives Have Unexpected Inherent Sizes
+    The builtin mesh primitives have an inherent scale of 150 meters on each side (as of Feb 2025). Thus if you wanted to use a builtin mesh cube and have it be 1 meter long on each side, you would need to give it a scale of (1/150, 1/150, 1/150). This is a longstanding bug.
+
+### Offsets - Move, Rotate, and Scale
+
+When you want to set the position of an entity in relation to the current position we call this **offsetting** the position. There is no builtin API for doing this (as of Feb 2025) but it can be accomplished easily with the pattern of *get-modify-set*.
+
+!!! example Offsetting position
+    To move an entity up 2 meters from its current location you can do:
+    ```ts
+    const pos = entity.position.get().clone()
+    pos.y += 2
+    entity.position.set(pos)
+    ```
+    See [Horizon Properties](#horizon-properties) for more information on the use of `clone()`.
+
+
+### Transform Property
+
+### Local Transforms
 
 ### Pivots
 
-## Entity Properties
+!!! info Scratch notes
+    **Pivot settings are center or pivot**
+
+    **Center**
+    Center of the bounding box around an entity or a collection.
+
+    **Pivot**
+    Center or entity or a group
+    A collection's root entity (Empty Object)
+    Mesh origin of an imported mesh (If offset pivot was imported)
+
+    TODO - Note: Offset pivots warn that only a single mesh in the FBX is supported when importing.
+
+    TODO - Explain something along the lines of checking in Blender as source of truth for origin point position.
+
+    **Pivot properties of hierarchies**
+    When adding an entity to a hierarchy, local transforms become offsets of the parent.
+
 
 # Entities
 
@@ -358,11 +515,35 @@ Workflows / advice for greyboxing.
 
 # Scripting
 
-## Properties
+## Horizon Properties
+
+Note: getting a property returns a copy of
+
+The following code is RISKY.... (you should clone pos before mutate because anyone else who get the position this frame will get a wrong value... mention the per-frame bridge cache).
+
+```ts
+// RISKY!
+const p = entity.position.get()
+p.x += 10
+entity.position.set(p)
+
+// OK #1
+const p = entity.position.get().clone()
+p.x += 10
+entity.position.set(p)
+
+// OK #2
+const p = entity.position.get()
+entity.position.set(new Vec3(p.x, p.y += 10, p.z))
+```
 
 ## Types
 
 Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
+
+Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risks property coherence if it came from a `.get()` and link to the [Horizon Properties](#horizon-properties).
+
+Accessor mutations beware!
 
 ### Quaternion
 
