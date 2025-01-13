@@ -11,9 +11,10 @@
     3. [Doors and Linking](#doors-and-linking)
 3. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
-        1. [Groups](#groups)
-        2. [Empty Objects](#empty-objects)
-        3. [Root Entities](#root-entities)
+        1. [Ancestors](#ancestors)
+        2. [Dynamic vs Static Entities](#dynamic-vs-static-entities)
+        3. [Empty Object and Groups](#empty-object-and-groups)
+        4. [Interactive Entities](#interactive-entities)
     2. [Transforms (Local and Global)](#transforms-local-and-global)
         1. [Pivots](#pivots)
     3. [Entity Properties](#entity-properties)
@@ -102,15 +103,15 @@
         2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
         3. [Grab Distance](#grab-distance)
     3. [Grabbing Entities](#grabbing-entities)
-            1. [Grab Lock](#grab-lock)
-            1. [Force Grab](#force-grab)
-        2. [Releasing Entities](#releasing-entities)
-            1. [Manual release](#manual-release)
-            2. [Force release](#force-release)
-            3. [Distance-based release](#distance-based-release)
-        3. [Grab Sequence and Events](#grab-sequence-and-events)
-        4. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-        5. [Moving Held Entities](#moving-held-entities)
+        1. [Grab Lock](#grab-lock)
+        2. [Force Grab](#force-grab)
+    4. [Releasing Entities](#releasing-entities)
+        1. [Manual release](#manual-release)
+        2. [Force release](#force-release)
+        3. [Distance-based release](#distance-based-release)
+    5. [Grab Sequence and Events](#grab-sequence-and-events)
+        1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
+        2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
 12. [Attaching Entities](#attaching-entities)
@@ -163,21 +164,39 @@ Name, description, comfort setting, player count, etc.
 
 ## Hierarchy
 
-Groups, Parents, Children, and Pivots
+Parents, Children, and Pivots
 What is / isn't mutable
 
-### Groups
+### Ancestors
 
-### Empty Objects
+We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent we say it has 0 ancestors. If it has just a parent and then grandparent, it would hav2.
 
-### Root Entities
+### Dynamic vs Static Entities
 
-An entity is a **root entity** if it has no parent or if its ancestor chain (parent, grandparent, etc) consists solely of Empty Objects. A root entity cannot be inside a group, its parent cannot be inside a group, etc.
+### Empty Object and Groups
 
-!!! danger Grabbable and Physics settings are ignored if the entity is not a root entity!
-    If you configure a _non-root entity_ to be [Grabbable](#creating-a-grabbable-entity) or to have [Physics](#creating-a-physical-entity) on it then Horizon will ignore those settings!
+Empty objects are quite similar.
 
-    Non-root objects can be moved by modifying their transforms (such as changing the position) but cannot be moved by the playing grabbing them or by the physics system (you cannot apply forces to them, cannot have them collide with other objects, etc).
+|   | Groups | Empty Object |
+|---|---|---|
+| **Pivots** | Always at the center of all their children. Meaning that moving one child will move the pivot point. | The center of the Empty Object is always the pivot point. |
+| Allows **[interactive entities](#interactive-entities) as children**? | No | Yes, if `Motion` is `None` |
+| When a **projectile launcher** collides with one of its children, which entity is reported as being collided with? | The group | The child |
+
+Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
+
+TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop"
+
+### Interactive Entities
+
+When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for grabbing, physics, or both. We call these **interactive entities**.
+
+!!! warning All [ancestors](#ancestors) of Interactive entities should have `Motion` set to `None`!
+    If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
+
+    If Motion is not None then interactivity will be disabled.
+
+    If any other entity types are ancestors then the behavior is undefined.
 
 ## Transforms (Local and Global)
 
@@ -496,6 +515,8 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 - Collider gizmo.
 - Can control if ownership transfer on collision (see [Network](#network)!)
 
+- collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
+
 ### Collidability
 
 Mesh entities an collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
@@ -594,13 +615,13 @@ For example: if three players arrive in an instance they may be assigned `index`
 The `World` class has the method:
 
 ```ts
-getAllPlayers() : Player[]
+getPlayers() : Player[]
 ```
 
 which returns the current list of players in the world. Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
 !!! note
-    `getAllPlayers` does not include the server player.
+    `getPlayers` does not include the server player.
 
 TODO: relation to enter and exit
 
@@ -664,8 +685,8 @@ for determining which `Player`'s device the current script is running one. This 
 
 Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
 
-!!! danger Grabbables cannot be inside of Groups
-    A grabbable entity must be a [root entity](#root-entities) (it can only have [Empty Objects](#empty-objects) in its ancestor chain).
+!!! danger Grabbables cannot be inside dynamic objects
+    A grabbable entity must be a [root entity](#root-entities) (it can only have [Static Objects](#dynamic-vs-static-entities) in its ancestor chain).
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
@@ -766,11 +787,11 @@ When a VR player grabs an entity is stays grabbed until they release the trigger
 
 A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
 
-#### Grab Lock
+### Grab Lock
 
 When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
 
-#### Force Grab
+### Force Grab
 
 An entity can be forced into the hand of a player used the TypeScript API:
 
@@ -787,13 +808,13 @@ It allows you to specify which player to have hold it, which hand they should ho
     !!! danger A force-held item can be released "accidentally"
         Even if an entity is force-grabbed with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
 
-### Releasing Entities
+## Releasing Entities
 
-#### Manual release
+### Manual release
 
 If an entity was manually grabbed or it was [force-grabbed](#force-grab) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-grabbed](#force-grab) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
 
-#### Force release
+### Force release
 
 A held entity can be forced out of a player's hand at any time by calling
 
@@ -805,11 +826,11 @@ on the held object. If the entity was **force held** then this is how you remove
 
 !!! warning Setting `simulated` to `false` on a held entity will act just like force release. It will then no longer be grabbable until `simulated` is set to `true` again.
 
-#### Distance-based release
+### Distance-based release
 
 If a **held entity moves too far** from a player holding it then will be **force released**. This can occur if the entity has scripted movement on it that moves it foo far from player. This can also happen if the physics system moves the object too far from the player (simple example is that if you run into a wall while holding an entity it might get flung out of your hand).
 
-### Grab Sequence and Events
+## Grab Sequence and Events
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
@@ -937,7 +958,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 ## Player Persistent Variables (PPV)
 
 - Overview
-  - Groups
+  - Variable Groups
   - Types: `number` and JSON-serializable `object`.
 - Creation
 - Read / Write
@@ -982,8 +1003,7 @@ e.g. alt-click to orbit
 
 # Glossary
 
-_[HTML]: Hyper Text Markup Language
-_[W3C]: World Wide Web Consortium \*[Player]: A person in an instance (or the server).
+*[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
 
 # OPEN QUESTIONS - TODO {ignore=true}
 
