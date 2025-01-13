@@ -14,7 +14,21 @@
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
     2. [Transforms (Local and Global)](#transforms-local-and-global)
-        1. [Pivots](#pivots)
+        1. [Understanding Position](#understanding-position)
+            1. [Global Position](#global-position)
+            2. [Local Position](#local-position)
+        2. [Understanding Rotation](#understanding-rotation)
+            1. [Global Rotation](#global-rotation)
+            2. [Local Rotation](#local-rotation)
+        3. [Understanding Scale](#understanding-scale)
+            1. [Global Scale](#global-scale)
+            2. [Local Scale](#local-scale)
+        4. [Changing Transforms](#changing-transforms)
+            1. [Changing Transform with Properties Panel](#changing-transform-with-properties-panel)
+            2. [Changing Transform with Transform Handles](#changing-transform-with-transform-handles)
+            3. [Transform Handle Settings](#transform-handle-settings)
+            4. [Snap Settings](#snap-settings)
+        5. [Pivots](#pivots)
     3. [Entity Properties](#entity-properties)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
@@ -199,7 +213,122 @@ TODO - explain how collisions and triggers both do the algorithm of "start with 
 
 ## Transforms (Local and Global)
 
+### Understanding Position
+
+#### Global Position
+The center of a world is (0,0,0). It is the center of the grid that is visible when creating a blank world.
+
+#### Local Position
+An entity has an X,Y, and Z value that correlates to the distance (in meters) that it is positioned away from the center of the world.
+
+### Understanding Rotation
+
+#### Global Rotation
+When creating a blank world, a spawn point gizmo is added to the center of the grid. The forward direction of the spawn point gizmo is pointing towards the world's Z-axis in the positive direction. The upward direction of the spawn point gizmo is pointing towards the world's Y-axis in the positive direction.
+
+#### Local Rotation
+When the rotation of an entity is set to (0,0,0), the entity's forward, or Z+, points towards the world's Z+ and the entity's up, or Y+, points towards the world's Y+. Changing any axis values to a positive number will result in a counter-clockwise rotation around that axis when facing the positive direction of the axis.
+
+TODO - Explain why setting the X axis to > 90 causes Y and Z to be set to 180, when Y and Z are 0.
+
+### Understanding Scale
+
+#### Global Scale
+Represents the entity's scale vector, as defined in its properties, multiplied by its [ancestors'](#ancestors) scale vectors.
+
+#### Local Scale
+An entity only has a local scale when it is a child in a [hierarchy](#hierarchy). The local scale vector is entity's scale vector, as defined in its properties.
+
+TODO - Explain why some shapes, import mesh, and gizmos are not (1,1,1) upon adding to world  
+
+TODO - Explain the nuance of scale in regards to hierarchy, where a collection's scale will default to (1,1,1) upon grouping.
+
+### Changing Transforms
+
+#### Changing Transform with Properties Panel
+When selecting an entity, you may change the X, Y, or Z of its position, rotation, and scale through the properties panel. 
+
+ **Scalar Values of Transforms**
+ All transform values are floats.
+ - Position - Meters away from world center
+ - Rotation - Degrees away from world rotation
+ - Scale - Decimal notation of scale percentage. 1 = 100% TODO - Better way to say this
+
+ TODO - When typing a number into the number input in desktop editor, if the integer is > 1000 but < 10,000, max precision is 5. If < 1000, max precision is 6. Every next place is 1 less precision.
+
+#### Changing Transform with Transform Handles
+When selecting an entity, you may change the selection mode to Move, Rotate, or Scale. Doing so will display draggable handles that are color coded to each axis.
+
+**Axis Colors**
+ - X = Red
+ - Y = Green
+ - Z = Blue
+
+ **Keyboard Shortcut for Transform Modes**
+ - Move - W
+ - Rotate - E
+ - Scale - R
+
+#### Transform Handle Settings
+You can select Local or Global to change the display settings of the transform handles. Setting to Local will display the transform handles toward the orientation of the entity, meaning it follows the rotation values set for the entity. Setting to Global will display the transform handles towards the [world rotation](#world-rotation).
+
+#### Snap Settings
+Snap settings can be toggled to improve placement accuracy when using the transform handles.
+
+!!! info Holding Ctrl while dragging the transform handles will toggle on the snap settings that correlate to the handle's transform mode.
+
+Snapping Units can be set to Relative or Absolute.
+- Relative - Displays snap positions relative to the entity's current transformation.
+- Absolute - Displays snap positions relative to the world's transform.
+
+**Snap Units**
+Translation Grid Snap - Grid Units
+Rotation Angle Snap - Degrees
+Scale Snap - Percentage
+
+**Snap to Surface**
+This setting will display an orange sphere at the current [pivot setting](#pivot-setting). Dragging the orange sphere will cause the entity to snap to the surface under the cursor.
+
+**Horizon Core API**
+TODO - These should likely be removed since there will be detailed explanation  in the typescript section
+
+Position and Scale are Vec3
+Rotation is Quaternion
+See [types](#types) to learn more about the transform types
+
+When getting the transform of an entity,
+you can do the following [bridge calls](#bridge-calls)
+.position.get()
+.rotation.get()
+.scale.get()
+.transform.position.get()
+.transform.rotation.get()
+.transform.scale.get()
+.transform.localPosition.get()
+.transform.localRotation.get()
+.transform.localScale.get()
+
+
 ### Pivots
+
+!!! info Scratch notes
+    **Pivot settings are center or pivot**
+
+    **Center**
+    Center of the bounding box around an entity or a collection.
+
+    **Pivot**
+    Center or entity or a group
+    A collection's root entity (Empty Object) 
+    Mesh origin of an imported mesh (If offset pivot was imported)
+
+    TODO - Note: Offset pivots warn that only a single mesh in the FBX is supported when importing.
+
+    TODO - Explain something along the lines of checking in Blender as source of truth for origin point position.
+
+    **Pivot properties of hierarchies**
+    When adding an entity to a hierarchy, local transforms become offsets of the parent.
+
 
 ## Entity Properties
 
