@@ -170,7 +170,7 @@ Name, description, comfort setting, player count, etc.
 
 ## Hierarchy
 
-Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child up the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
+Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
 
 1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
 2. To create "layers" or "folders" in the editor (e.g. putting all trees in a ["collection"](#empty-object-and-groups) to make them easier to manage).
@@ -179,12 +179,13 @@ When an entity has no parent it is called a **root entity**.
 
 ### Ancestors
 
-We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
+We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent, we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
 
 ### Empty Object and Groups
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
 
+TODO - Label the headers (X = Collection Type, Y = Collection Properties)
 |   | Groups | Empty Object |
 |---|---|---|
 | **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the pivot point. | The **center of the Empty Object** is always the pivot point. |
@@ -226,7 +227,7 @@ Gizmos, as, ...
 When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
-    If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
+    If you want to have an interactive entity be within a [heirarchy](#hierarchy) (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
 
     If `Motion` is `Animated` or `Interactive` on any of its [ancestors](#ancestors) then interactivity will be disabled.
 
