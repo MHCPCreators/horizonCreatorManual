@@ -53,13 +53,17 @@
         4. [Components <--> Entities](#components---entities)
     4. [Async (Timers)](#async-timers)
     5. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    6. [PrePhysics vs Default Updates](#prephysics-vs-default-updates)
+    6. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
     7. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
     8. [Frame Sequence](#frame-sequence)
+    9. [Events Phase](#events-phase)
+    10. [OnUpdate Phase](#onupdate-phase)
+    11. [PrePhysics Phase](#prephysics-phase)
+    12. [Physics Phase](#physics-phase)
 8. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
@@ -106,7 +110,9 @@
             3. [Distance-based release](#distance-based-release)
         3. [Grab Sequence and Events](#grab-sequence-and-events)
         4. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-        5. [Moving / Locking Held Entities](#moving--locking-held-entities)
+        5. [Moving Held Entities](#moving-held-entities)
+            1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
+            2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
 12. [Attaching Entities](#attaching-entities)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
@@ -128,7 +134,8 @@
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
 20. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-21. [Glossary](#glossary)
+21. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+22. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -346,7 +353,7 @@ a few notes but link to the events section
 
 a few sentences and link to Networking
 
-## PrePhysics vs Default Updates
+## PrePhysics vs OnUpdate Updates
 
 a few sentences and link to Physics
 
@@ -363,6 +370,82 @@ a few sentences and link to Physics
 Mention coalescence
 
 ## Frame Sequence
+
+```mermaid
+stateDiagram
+    direction LR
+    Start : Frame Start
+    End : Frame End
+
+    Physics : Physics Phase
+
+    PrePhysics : PrePhysics Phase
+    PrePhysicsScript : on update [PrePhysics]<br>code runs
+    PrePhysicsMut : Apply PrePhysics<br>scene mutations
+
+    Players : Update players<br>from locomotion
+    Animation : Update recorded<br>animation playback
+    PhysicsMut : Perform physics updates<br>to positions, velocities, etc
+
+    ScriptEvents : Events Phase
+
+    Script : When [X] is recevied<br>code runs
+    ScriptMut : Apply script event<br>scene mutations
+
+    Default_ : OnUpdate Phase
+
+    DefaultScript : on update [Default]<br>code runs
+    DefaultMut : Apply Default<br>scene mutations
+
+    RenderScene : Scene Renders
+    Sync : Broadcast updates<br>to other clients
+
+   WholeFrame : Frame Render Sequence
+
+    state WholeFrame {
+    direction LR
+    Start --> PrePhysics
+
+    state PrePhysics {
+        PrePhysicsScript --> PrePhysicsMut
+    }
+
+    PrePhysics --> Physics
+
+    state Physics {
+        Players --> Animation
+        Animation --> PhysicsMut
+    }
+
+    Physics --> ScriptEvents
+
+    state ScriptEvents {
+        Script --> ScriptMut
+    }
+
+    ScriptEvents --> Default_
+
+    state Default_ {
+        DefaultScript --> DefaultMut
+    }
+
+    Default_ --> Render
+
+    state Render {
+        RenderScene --> Sync
+    }
+
+    Render --> End
+   }
+```
+
+## Events Phase
+
+## OnUpdate Phase
+
+## PrePhysics Phase
+
+## Physics Phase
 
 # Network
 
@@ -776,10 +859,76 @@ When an entity is transferred from one hand to another or from one player to ano
 !!! warning `OnGrabEnd` is sent during a "hand-off".
     The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
 
-### Moving / Locking Held Entities
+### Moving Held Entities
 
-Explain how hand.position is human hand (not avatar)
-Explain how you can prevent the entity from being updated by physics system
+Normally the position and rotation of a held object is determined by the position and orientation of the player hand that is holding it (during the [physics stage](#frame-sequence) of the frame).
+
+It is some times useful to invert that and instead have __the position and rotation of the held entity influence the position and rotation of the hand that is holding it__.
+
+This can be achieved due to the fact that
+```ts
+player.leftHand.position.get()
+```
+returns where the _player's hand is __supposed__ to be_, but not where the _avatar's_ hand is. That means that you can move a held entity, which will move the avatar hand holding it, but can still check where the hand is supposed to be (if you hadn't moved it).
+
+There are two approaches for moving a held entity:
+
+#### Moving a Held Entity Locally in Relation to the Hand
+In a gun-recoil animation you want the player hand to be able to move freely, yet have the gun apply an additional local rotation "on top of it". If you set the position / rotation of the entity when a user takes an action (such as firing the gun) then that change will only last for one frame (which might be ok for a quick recoil effect) because the entity's position / rotation will be immediately updated the next frame from the avatar's hand.
+
+If you want a multi-frame or ongoing effect then you need to set the position / rotation of the entity repeatedly in an [OnUpdate](#onupdate-phase) handler. In summary: **every frame in which you want the entity change from where the avatar want it, you must set it yourself**.
+
+#### Moving a Held Entity Globally in Relation to the World
+When building a lever, for example, you want the avatar hand to "lock onto" the lever. In this case you want to completely control the position of the avatar hand. To do this,  set `locked` to `true` on the grabbable entity. This will prevent the entity from being moved by physics or by the avatar. Then you can move the entity by setting its `position` and `rotation`. The avatar hand will then be moved to match.
+
+In this lever example, you could get `player.leftHand.position.get()` every frame to identify where the avatar's hand is _supposed_ to be, constrain that position to a "valid position" and then rotate the level according. This is an advanced use case that likely requires trigonometry.
+
+Note that if the grabbed entity gets too far away from the avatar hand you will get a [distance-based release](#distance-based-release).
+
+Here is a simple example of a grabbable entity that is constrained to move along the y-axis (you can only move it up and down).
+
+```ts
+class AxisYConstrainedGrabbable extends Component<typeof AxisYConstrainedGrabbable> {
+  private grabInfo?: {isRightHand: boolean, player: Player}
+
+  override preStart() {
+    // Lock the entity so it can't be moved by an avatar hand or by physics
+    this.entity.as(PhysicalEntity).locked.set(true)
+
+    // Record which player and which hand grab
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.GrabStart, (isRightHand, player) => {
+      this.grabInfo = {isRightHand, player}
+    })
+
+    // Forget about the grabber when they release
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.GrabEnd, (isRightHand, player) => {
+      this.grabInfo = undefined
+    })
+
+    // Update the entity every frame
+    this.connectLocalBroadcastEvent(World.OnUpdate, () => {
+      if (this.grabInfo) {
+        // Get the y-value of the *intended* player hand location
+        const {player, isRightHand} = this.grabInfo
+        const playerHand = isRightHand ? player.rightHand : player.leftHand
+        const handPosition = playerHand.position.get()
+        const handY = handPosition.y
+
+        // Get the current location of the entity
+        const grabbablePosition = this.entity.position.get()
+
+        // Change the y-value in the vector
+        grabbablePosition.y = handY
+
+        // Set the new location of the entity
+        this.entity.position.set(handY)
+      }
+    })
+  }
+}
+Component.register(AxisYConstrainedGrabbable)
+```
+
 
 # Attaching Entities
 
@@ -867,6 +1016,10 @@ Colliders, triggers,
 # List of all desktop editor shortcuts
 
 e.g. alt-click to orbit
+
+# Common Problems and Troubleshooting
+- leave and come back
+- stop, reset, play (don't just hit escape)
 
 # Glossary
 
