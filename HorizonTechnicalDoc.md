@@ -216,7 +216,7 @@ TODO - explain how collisions and triggers both do the algorithm of "start with 
 ### Understanding Position
 
 #### Global Position
-The center of a world is (0,0,0). It is the center of the grid that is visible when creating a blank world.
+In the property panel, setting an entity at 0,0,0 will place it at the  center of a world. This is the center of the grid that is visible when creating a blank world.
 
 #### Local Position
 An entity has an X,Y, and Z value that correlates to the distance (in meters) that it is positioned away from the center of the world.
@@ -224,9 +224,11 @@ An entity has an X,Y, and Z value that correlates to the distance (in meters) th
 ### Understanding Rotation
 
 #### Global Rotation
+TODO - Z+ Forward, Y+ Up, X+ Right
 When creating a blank world, a spawn point gizmo is added to the center of the grid. The forward direction of the spawn point gizmo is pointing towards the world's Z-axis in the positive direction. The upward direction of the spawn point gizmo is pointing towards the world's Y-axis in the positive direction.
 
 #### Local Rotation
+TODO - Euler angles in relation to X, Y, Z
 When the rotation of an entity is set to (0,0,0), the entity's forward, or Z+, points towards the world's Z+ and the entity's up, or Y+, points towards the world's Y+. Changing any axis values to a positive number will result in a counter-clockwise rotation around that axis when facing the positive direction of the axis.
 
 TODO - Explain why setting the X axis to > 90 causes Y and Z to be set to 180, when Y and Z are 0.
