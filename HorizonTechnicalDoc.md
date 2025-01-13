@@ -12,20 +12,22 @@
 3. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
-        2. [Dynamic vs Static Entities](#dynamic-vs-static-entities)
-        3. [Empty Object and Groups](#empty-object-and-groups)
-        4. [Interactive Entities](#interactive-entities)
+        2. [Empty Object and Groups](#empty-object-and-groups)
     2. [Transforms (Local and Global)](#transforms-local-and-global)
         1. [Pivots](#pivots)
     3. [Entity Properties](#entity-properties)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
-    2. [Docs on each kind of gizmo](#docs-on-each-kind-of-gizmo)
-        1. [Audio Gizmo + AI gen](#audio-gizmo--ai-gen)
+    2. [Static Entities](#static-entities)
+    3. [Dynamic Entities](#dynamic-entities)
+        1. [Animated Entities](#animated-entities)
+        2. [Interactive Entities](#interactive-entities)
+    4. [Gizmos](#gizmos)
+        1. [Audio Gizmo](#audio-gizmo)
         2. [Text Gizmo](#text-gizmo)
         3. [Trigger Gizmo](#trigger-gizmo)
-    3. [Common Properties](#common-properties)
-    4. [Tags](#tags)
+    5. [Common Properties](#common-properties)
+    6. [Tags](#tags)
 5. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -129,7 +131,7 @@
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
 19. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
-    2. [Gizmos](#gizmos)
+    2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
@@ -164,39 +166,31 @@ Name, description, comfort setting, player count, etc.
 
 ## Hierarchy
 
-Parents, Children, and Pivots
-What is / isn't mutable
+Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child up the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
+
+1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
+2. To create "layers" or "folders" in the editor (e.g. putting all trees in a ["collection"](#empty-object-and-groups) to make them easier to manage).
+
+When an entity has no parent it is called a **root entity**.
 
 ### Ancestors
 
-We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent we say it has 0 ancestors. If it has just a parent and then grandparent, it would hav2.
-
-### Dynamic vs Static Entities
+We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
 
 ### Empty Object and Groups
 
-Empty objects are quite similar.
+Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
 
 |   | Groups | Empty Object |
 |---|---|---|
-| **Pivots** | Always at the center of all their children. Meaning that moving one child will move the pivot point. | The center of the Empty Object is always the pivot point. |
-| Allows **[interactive entities](#interactive-entities) as children**? | No | Yes, if `Motion` is `None` |
-| When a **projectile launcher** collides with one of its children, which entity is reported as being collided with? | The group | The child |
+| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the pivot point. | The **center of the Empty Object** is always the pivot point. |
+| **[Interactive Entity](#interactive-entities) Children** | Children have their **interaction disabled**. | Children **can be [Interactive Entity](#interactive-entities)**, if the Empty Object's `Motion` is `None`. |
+| **Projectile Launcher** | Projectile collisions happen **on the group**. | Projectile collisions happen **on a child**. |
+| **Child Count** | **1** or more. | **0** or more. |
 
 Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
 
 TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop"
-
-### Interactive Entities
-
-When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for grabbing, physics, or both. We call these **interactive entities**.
-
-!!! warning All [ancestors](#ancestors) of Interactive entities should have `Motion` set to `None`!
-    If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
-
-    If Motion is not None then interactivity will be disabled.
-
-    If any other entity types are ancestors then the behavior is undefined.
 
 ## Transforms (Local and Global)
 
@@ -208,7 +202,7 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
 ## Overview
 
-Every thing in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
+Every "thing" in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
 
 !!! info Note Entity and Object mean the same thing (except in TypeScript)
     Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
@@ -217,11 +211,31 @@ Every thing in the Horizon scene is an _entity_ (an grabbable item, a mesh, a li
 
 Gizmos, as, ...
 
-## Docs on each kind of gizmo
+## Static Entities
+
+## Dynamic Entities
+
+### Animated Entities
+
+### Interactive Entities
+
+When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for grabbing, physics, or both. We call these **interactive entities**.
+
+!!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
+    If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
+
+    If `Motion` is `Animated` or `Interactive` on any of its [ancestors](#ancestors) then interactivity will be disabled.
+
+    If any of its ancestors are a [Group Entity](#empty-object-and-groups) then interactivity will be disabled.
+
+    If there are any ancestors other than Mesh Entities, Empty Objects, and Group Entities then it is undefined whether or not interaction is disabled.
+
+## Gizmos
 
 - Leaderboard, Quests, and IWP should just point to the PPVs section
 
-### Audio Gizmo + AI gen
+### Audio Gizmo
+  AI gen
 
 ### Text Gizmo
 
@@ -523,9 +537,9 @@ Mesh entities an collider gizmos have **colliders** that are used by the physics
 
 A **collider is active** when the following true
 
-- Its entity has `collidable` set `true`
-- Its `parent` (and all their parents) have `collidable` set to `true`
-- It is not occluded by other colliders in the world
+1. Its entity has `collidable` set `true`
+1. Its `parent` (and all their parents) have `collidable` set to `true`
+1. It is not occluded by other colliders in the world. *Occlusion is typically from a specific direction*. Example: if you want to grab an object but it is behind a wall then the wall's collider will occlude the object (from the vantage point of the player trying to grab it).
 
 and is otherwise ignored by the physics system. For example if the floor's collider is inactive an avatar will fall through it. If a grabbable entity's collider is inactive you cannot grab it.
 
@@ -698,6 +712,7 @@ For an entity to be grabbable it needs:
 1. To be a grabbable entity
    1. `Motion` to be `Interactive`
    1. `Interaction` to be `Grabbable` or `Both`
+   1. [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
 1. To be currently grabbable
    1. `simulated` set to `true`
    1. At least one [active collider](#collidability) within it (which is not occluded from the perspective of the player)
