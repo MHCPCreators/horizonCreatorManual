@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": true,
+    "typeRoots": ["types/"],
+    "module": "CommonJS",
+    "lib": ["ES2020"],
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "target": "ES2020",
+    "declaration": true
+  }
+}
