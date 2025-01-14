@@ -134,9 +134,9 @@
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 16. [Spawning](#spawning)
     1. [Assets](#assets-1)
-        1. [Foo](#foo)
-        2. [Spawn Controller](#spawn-controller)
-    2. [Sublevels](#sublevels)
+    2. [Simple Spawning](#simple-spawning)
+    3. [Spawn Controller](#spawn-controller)
+    4. [Sublevels](#sublevels)
 17. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
@@ -1081,43 +1081,24 @@ If a **held entity moves too far** from a player holding it then will be **force
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
-```dot
-digraph G {
-    rankdir=TD;
+```mermaid
+flowchart TD
+  hold0([Not Held])
+  hold1([Held with 1 hand])
+  hold2([Held with 2 hands])
 
-    NotHeld [label="Not held"];
-    Held1 [label=<Held with<BR/>1 hand>];
-    Held2 [label=<Held with<BR/>2 hands>];
+  hold0 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> ---> hold1
 
-    { rank=same; Grab1; Release1 }
-    { rank=same; Grab2; Release2 }
-    { rank=same; Release2Force; Held1 }
+  hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> --> hold2
 
-    Grab1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with a hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
+  hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr></table> --> hold1
 
-    Release1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases hand or<BR/><I>forceRelease </I>called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
+   hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases hand or<code style="background-color:#0000">forceRelease</code> called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    NotHeld -> Grab1 [arrowhead=none color="green"];
-    Grab1 -> Held1 [arrowtail=none color="green"];
+    hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    Grab2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with<BR/> second hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabStart</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held1 -> Grab2 [arrowhead=none color="green"];
-    Grab2 -> Held2 [color="green"];
-
-    Held1 -> Release1 [arrowhead=none color="#ff7878"];
-    Release1 -> NotHeld [color="#ff7878"];
-
-    Release2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases 1 hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held2 -> Release2 [arrowhead=none color="#ff7878"];
-    Release2 -> Held1 [color="#ff7878"];
-
-    Release2Force [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff"><I>forceRelease</I>  called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held2 -> Release2Force [arrowhead=none color="#ff7878"];
-    Release2Force -> NotHeld [color="#ff7878"];
-}
+   linkStyle 0,1 stroke:green,stroke-width:1px;
+    linkStyle 2,3,4 stroke:red,stroke-width:1px;
 ```
 
 ### Hand-off (Switching Hands or Players)
@@ -1215,9 +1196,9 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 ## Assets
 
-### Foo
+## Simple Spawning
 
-### Spawn Controller
+## Spawn Controller
 
 ## Sublevels
 
