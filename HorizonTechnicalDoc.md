@@ -30,11 +30,22 @@
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
     4. [Gizmos](#gizmos)
-        1. [Audio Gizmo](#audio-gizmo)
-        2. [Text Gizmo](#text-gizmo)
-        3. [Trigger Gizmo](#trigger-gizmo)
-    5. [Common Properties](#common-properties)
-    6. [Tags](#tags)
+    5. [Effects Gizmos](#effects-gizmos)
+        1. [Audio](#audio)
+        2. [Particles](#particles)
+        3. [Trail](#trail)
+        4. [Dynamic Light](#dynamic-light)
+        5. [Static Light](#static-light)
+    6. [UI Gizmos](#ui-gizmos)
+        1. [Text Gizmo](#text-gizmo)
+        2. [Custom UI](#custom-ui)
+        3. [Leaderboard, Quests, In-World Purchase, Media Board](#leaderboard-quests-in-world-purchase-media-board)
+    7. [Collision Gizmos](#collision-gizmos)
+        1. [Trigger Gizmo](#trigger-gizmo)
+        2. [Collider Gizmos](#collider-gizmos)
+        3. [Other Gizmos](#other-gizmos)
+    8. [Common Properties](#common-properties)
+    9. [Tags](#tags)
 5. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -54,22 +65,28 @@
 7. [Scripting](#scripting)
     1. [Horizon Properties](#horizon-properties)
     2. [Types](#types)
-        1. [Quaternion](#quaternion)
-        2. [Entity Subtypes](#entity-subtypes)
-    3. [Components](#components)
-        1. [Props (and wiring)](#props-and-wiring)
-        2. [Lifecycle](#lifecycle)
-        3. [Receiving Events](#receiving-events)
-        4. [Converting Between Components and Entities](#converting-between-components-and-entities)
-    4. [Async (Timers)](#async-timers)
-    5. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    6. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    7. [Events (Sending and Receiving)](#events-sending-and-receiving)
+        1. [In-Place Mutation](#in-place-mutation)
+        2. [Color](#color)
+        3. [Vec3](#vec3)
+        4. [Quaternion](#quaternion)
+        5. [Entity Subtypes](#entity-subtypes)
+    3. [Files](#files)
+    4. [Components](#components)
+        1. [Component Class](#component-class)
+        2. [Props (and wiring)](#props-and-wiring)
+        3. [Lifecycle](#lifecycle)
+        4. [Sending and Receiving Events](#sending-and-receiving-events)
+        5. [Converting Between Components and Entities](#converting-between-components-and-entities)
+        6. [Subclasses](#subclasses)
+    5. [Async (Timers)](#async-timers)
+    6. [Local Scripts and Ownership](#local-scripts-and-ownership)
+    7. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    8. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    8. [Frame Sequence](#frame-sequence)
+    9. [Frame Sequence](#frame-sequence)
         1. [PrePhysics Phase](#prephysics-phase)
         2. [Physics Phase](#physics-phase)
         3. [Events Phase](#events-phase)
@@ -137,7 +154,7 @@
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-17. [Custom UI](#custom-ui)
+17. [Custom UI](#custom-ui-1)
     1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
 19. [Performance Optimization](#performance-optimization)
@@ -444,20 +461,49 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
     If there are any ancestors other than Mesh Entities, Empty Objects, and Group Entities then it is undefined whether or not interaction is disabled.
 
+TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)
+
 ## Gizmos
+
+There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
 
 - Leaderboard, Quests, and IWP should just point to the PPVs section
 
-### Audio Gizmo
-  AI gen
+## Effects Gizmos
+
+### Audio
+AI Gen
+
+### Particles
+
+### Trail
+
+### Dynamic Light
+
+### Static Light
+
+## UI Gizmos
 
 ### Text Gizmo
-
 - all supported commands
 
-### Trigger Gizmo
+### Custom UI
 
+### Leaderboard, Quests, In-World Purchase, Media Board
+
+## Collision Gizmos
+
+### Trigger Gizmo
 Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
+
+### Collider Gizmos
+
+### Other Gizmos
+* Spawn Point
+* Mirror
+* Debug Console
+* Door
+* Avatar Pose
 
 ## Common Properties
 
@@ -468,6 +514,12 @@ Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
 - Simulated
 
 ## Tags
+
+Getting entities with tags.
+
+Tag uses:
+  * Triggers
+  * Collisions
 
 # Custom Model Import
 
@@ -598,25 +650,74 @@ Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risk
 
 Accessor mutations beware!
 
+### In-Place Mutation
+
+.*inPlace() methods
+
+### Color
+
+### Vec3
+
 ### Quaternion
 
 - Euler Angles default: YXZ
 
 ### Entity Subtypes
 
+## Files
+
 ## Components
+
+### Component Class
+
+1. extend Component
+1. typeof "Name" for generic
+1. static propsDefinition
+1. start()
+1. Component.register
+1. [optional] preStart()
+1. [optional] initializeUI()
+1. [optional] dispose
 
 ### Props (and wiring)
 
+Props definition uses an untyped object (be careful).
+Keys are prop names. Values are of the form {type: PropsTypes[...], defaultValue?: ... }
+
+Vec3, Quaternion, Color, number, string, boolean have auto-defaults
+
+Entity, Asset are nullable
+
+Player doesn't make sense to use
+
+Array types are unsupported.
+
 ### Lifecycle
+
+Is anything other than props unavailable in property initializers?
+
+**DO NOT** implement the constructor, use property initializers instead.
+
+Avoid using anything other than "plain old data" before preStart.
+
+|   | Props | Can send to events |
+|---|---|---|
+| class property initializers | ❌ are empty | ❌ receiver unlikely listening |
+| preStart() | ✅ props are available | ❌ receiver unlikely listening |
+| start() | ✅ props are available | ✅ |
+| after start, but not disposed | ✅ props are available | ✅ |
+| dispose() | ? | ? |
+| after dispose() | ? | ? |
 
 Construction, preStart, start, dispose
 
-### Receiving Events
+### Sending and Receiving Events
 
 a few notes but link to the events section
 
 ### Converting Between Components and Entities
+
+### Subclasses
 
 ## Async (Timers)
 
