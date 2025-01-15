@@ -152,8 +152,8 @@
             1. [Stick To](#stick-to)
         2. [Anchor](#anchor)
             1. [Anchor To](#anchor-to)
-        3. [Socket Attachment](#socket-attachment)
-        4. [Auto Scale to Anchor](#auto-scale-to-anchor)
+            2. [Socket Attachment](#socket-attachment)
+            3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     3. [Attach to 2D screen](#attach-to-2d-screen)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
@@ -1854,14 +1854,14 @@ The following is a list of player body parts that the attachable entity may anch
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
 
-### Socket Attachment
+#### Socket Attachment
 Allows you to set a position and rotation offset from the selected anchor
 
 Can be set in properties panel.
 Can be overridden progrmatically.
 
 
-### Auto Scale to Anchor
+#### Auto Scale to Anchor
 
 ## Attach to 2D screen
 
