@@ -146,6 +146,15 @@
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
 12. [Attaching Entities](#attaching-entities)
+    1. [Attachable By](#attachable-by)
+    2. [Avatar Attachable](#avatar-attachable)
+        1. [Sticky](#sticky)
+            1. [Stick To](#stick-to)
+        2. [Anchor](#anchor)
+            1. [Anchor To](#anchor-to)
+        3. [Socket Attachment](#socket-attachment)
+        4. [Auto Scale to Anchor](#auto-scale-to-anchor)
+    3. [Attach to 2D screen](#attach-to-2d-screen)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
 15. [Persistence](#persistence)
@@ -1786,6 +1795,85 @@ Here is a simple example of a grabbable entity that is constrained to move along
 ![[ horizonScripts/axisYConstrainedGrabbable.ts ]]
 
 # Attaching Entities
+Entites can be attached to players.
+Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
+Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties panel.
+
+## Attachable By
+This setting defines the permissions of who the entity can attach to.
+
+**Owner**
+    Only the person holding the attachable entity is permitted to attach it to themselves.
+
+**Everyone**
+    Anyone holding the attachable entity is permitted to attach it to themselves or anyone else.
+
+TODO - When set to owner, can I attach thru code to a rando in the world?
+
+## Avatar Attachable
+Attaching an entity to player can be done by the following:
+
+- Via release:
+    Upon releasing the held entity, the entity checks if collision has occured between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.
+
+- Via code:
+    See code API.
+
+TODO - Explain what happens when multiple attached
+
+### Sticky
+Whereas attachable entites may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
+
+#### Stick To
+The following is a list of player body parts that the attachable entity may stick to. 
+
+**Head**
+    This option allows the attachable entity to stick to the player's head.
+    
+**Torso**
+    This option allows the attachable entity to stick to the player's torso.
+
+!!! warning Using code to attach a sticky entity does not set the entity's position and rotation to match the body part.
+    Set `Avatar Attachable` to [Anchor](#anchor) to attach to the body part's position and rotation.
+
+### Anchor
+When attached, an anchored entity will position its [pivot point](#pivot-points) at a specified anchor position.
+
+The anchor position is a body part specified in [Anchor To](#anchor-to). Anchor position can be altered by setting a offset values in [Socket Attachment](#socket-attachment).
+
+By default an anchored entity's [rotation](#rotation) is as follows:
+    - Z+ pointing from the center to the player's head towards the player's facing direction
+    - Y+ pointing from the center of the player's head towards the top player's head.
+
+!!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
+
+TODO - Explain detach via a grab by a ["Who Can Grab?"](#setting-who-can-grab) permitted player and detach via [code](#detach).
+
+#### Anchor To
+The following is a list of player body parts that the attachable entity may anchor to.
+
+**Head**
+    This sets the attachment point to the center of the player's head.
+    
+**Torso**
+    This sets the attachment point to the center of the player's torso.
+
+**Left/Right Hip**
+    This sets the attachment point to the side (left or right) of the player's waist.
+
+!!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
+    Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
+
+### Socket Attachment
+Allows you to set a position and rotation offset from the selected anchor
+
+Can be set in properties panel.
+Can be overridden progrmatically.
+
+
+### Auto Scale to Anchor
+
+## Attach to 2D screen
 
 # Holstering Entities
 
@@ -1892,7 +1980,11 @@ e.g. alt-click to orbit
 # OPEN QUESTIONS - TODO {ignore=true}
 
 - does despawn cause grab "release"?
+
 - does "attach" cause "release"?
+**Yes, this triggers a release. On both in VR attach and programatic attach**
+**Demo code** 
+![[ horizonScripts/testAttachReleaseEvent.ts ]]
 - does ownership transfer while held send any events?
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
   \*inside of `playerExit` callback is the player still in the array? Right after?
