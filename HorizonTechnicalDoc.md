@@ -1,5 +1,7 @@
 # Horizon Technical Specification {ignore=true}
 
+<div class="print-note">This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.</div>
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
 <!-- code_chunk_output -->
@@ -11,25 +13,18 @@
     3. [Doors and Linking](#doors-and-linking)
 3. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
+    2. [Hierarchy](#hierarchy-1)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
-    2. [Transforms (Local and Global)](#transforms-local-and-global)
-        1. [Understanding Position](#understanding-position)
-            1. [Global Position](#global-position)
-            2. [Local Position](#local-position)
-        2. [Understanding Rotation](#understanding-rotation)
-            1. [Global Rotation](#global-rotation)
-            2. [Local Rotation](#local-rotation)
-        3. [Understanding Scale](#understanding-scale)
-            1. [Global Scale](#global-scale)
-            2. [Local Scale](#local-scale)
-        4. [Changing Transforms](#changing-transforms)
-            1. [Changing Transform with Properties Panel](#changing-transform-with-properties-panel)
-            2. [Changing Transform with Transform Handles](#changing-transform-with-transform-handles)
-            3. [Transform Handle Settings](#transform-handle-settings)
-            4. [Snap Settings](#snap-settings)
-        5. [Pivots](#pivots)
-    3. [Entity Properties](#entity-properties)
+    3. [Coordinates System](#coordinates-system)
+    4. [Transforms](#transforms)
+        1. [Position](#position)
+        2. [Rotation](#rotation)
+        3. [Scale](#scale)
+        4. [Offsets - Move, Rotate, and Scale](#offsets---move-rotate-and-scale)
+        5. [Transform Property](#transform-property)
+        6. [Local Transforms](#local-transforms)
+        7. [Pivot Points](#pivot-points)
 4. [Entities](#entities)
     1. [Overview](#overview-1)
     2. [Static Entities](#static-entities)
@@ -37,11 +32,25 @@
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
     4. [Gizmos](#gizmos)
-        1. [Audio Gizmo](#audio-gizmo)
-        2. [Text Gizmo](#text-gizmo)
-        3. [Trigger Gizmo](#trigger-gizmo)
-    5. [Common Properties](#common-properties)
-    6. [Tags](#tags)
+        1. [Common Properties](#common-properties)
+        2. [Custom UI Gizmo](#custom-ui-gizmo)
+        3. [Door Gizmo](#door-gizmo)
+        4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        5. [Environment Gizmo](#environment-gizmo)
+        6. [ParticleFx Gizmo](#particlefx-gizmo)
+        7. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        8. [Quests Gizmo](#quests-gizmo)
+        9. [Raycast Gizmo](#raycast-gizmo)
+        10. [Script Gizmo](#script-gizmo)
+        11. [Snap Destination Gizmo](#snap-destination-gizmo)
+        12. [Sound Gizmo](#sound-gizmo)
+        13. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        14. [Spawn Point Gizmo](#spawn-point-gizmo)
+        15. [Text Gizmo](#text-gizmo)
+        16. [TrailFx Gizmo](#trailfx-gizmo)
+        17. [Trigger Gizmo](#trigger-gizmo)
+        18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+    5. [Tags](#tags)
 5. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -59,24 +68,30 @@
     6. [General Tips](#general-tips)
 6. [Text Importing / Text Assets](#text-importing--text-assets)
 7. [Scripting](#scripting)
-    1. [Properties](#properties)
+    1. [Horizon Properties](#horizon-properties)
     2. [Types](#types)
-        1. [Quaternion](#quaternion)
-        2. [Entity Subtypes](#entity-subtypes)
-    3. [Components](#components)
-        1. [Props (and wiring)](#props-and-wiring)
-        2. [Lifecycle](#lifecycle)
-        3. [Receiving Events](#receiving-events)
-        4. [Converting Between Components and Entities](#converting-between-components-and-entities)
-    4. [Async (Timers)](#async-timers)
-    5. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    6. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    7. [Events (Sending and Receiving)](#events-sending-and-receiving)
+        1. [In-Place Mutation](#in-place-mutation)
+        2. [Color](#color)
+        3. [Vec3](#vec3)
+        4. [Quaternion](#quaternion)
+        5. [Entity Subtypes](#entity-subtypes)
+    3. [Files](#files)
+    4. [Components](#components)
+        1. [Component Class](#component-class)
+        2. [Props (and wiring)](#props-and-wiring)
+        3. [Lifecycle](#lifecycle)
+        4. [Sending and Receiving Events](#sending-and-receiving-events)
+        5. [Converting Between Components and Entities](#converting-between-components-and-entities)
+        6. [Subclasses](#subclasses)
+    5. [Async (Timers)](#async-timers)
+    6. [Local Scripts and Ownership](#local-scripts-and-ownership)
+    7. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    8. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    8. [Frame Sequence](#frame-sequence)
+    9. [Frame Sequence](#frame-sequence)
         1. [PrePhysics Phase](#prephysics-phase)
         2. [Physics Phase](#physics-phase)
         3. [Events Phase](#events-phase)
@@ -141,9 +156,9 @@
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 16. [Spawning](#spawning)
     1. [Assets](#assets-1)
-        1. [Foo](#foo)
-        2. [Spawn Controller](#spawn-controller)
-    2. [Sublevels](#sublevels)
+    2. [Simple Spawning](#simple-spawning)
+    3. [Spawn Controller](#spawn-controller)
+    4. [Sublevels](#sublevels)
 17. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
@@ -184,6 +199,8 @@ Name, description, comfort setting, player count, etc.
 
 ## Hierarchy
 
+## Hierarchy
+
 Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
 
 1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
@@ -195,6 +212,8 @@ When an entity has no parent it is called a **root entity**.
 
 We call the collection of an entity's parent, grandparent, great-grandparent, etc the entity's **ancestors**. If the entity has no parent, we say it has 0 ancestors. If it has just a parent and then grandparent, it would have 2.
 
+We call the children, and their children, and their children, etc of an entity its **descendants**.
+
 ### Empty Object and Groups
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
@@ -202,137 +221,218 @@ Empty Objects and Groups are two methods of "collection" entities together. They
 TODO - Label the headers (X = Collection Type, Y = Collection Properties)
 |   | Groups | Empty Object |
 |---|---|---|
-| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the pivot point. | The **center of the Empty Object** is always the pivot point. |
+| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | The **center of the Empty Object** is always the [pivot point](#pivot-points). |
 | **[Interactive Entity](#interactive-entities) Children** | Children have their **interaction disabled**. | Children **can be [Interactive Entity](#interactive-entities)**, if the Empty Object's `Motion` is `None`. |
 | **Projectile Launcher** | Projectile collisions happen **on the group**. | Projectile collisions happen **on a child**. |
 | **Child Count** | **1** or more. | **0** or more. |
 
 Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
 
-TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop"
+TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".
 
-## Transforms (Local and Global)
+## Coordinates System
 
-### Understanding Position
+**Axes**. Following standard convention, the editor uses *red* for the *<span style="color:red">x-axis</span>*, *green* for the *<span style="color:green">y-axis</span>*, and *blue* for the *<span style="color:blue">z-axis</span>* when displaying "manipulation handles" to move, rotate, or scale an entity.
 
-#### Global Position
-In the property panel, setting an entity at 0,0,0 will place it at the  center of a world. This is the center of the grid that is visible when creating a blank world. An entity has an X,Y, and Z value that correlates to the distance (in meters) that it is positioned away from the center of the world.
+**Y-up**. The positive-y axis is *up*.
 
-#### Local Position
-TODO - Takes position of parent
+**Left-handed**. The coordinate system is *left-handed*, meaning that if position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
 
-### Understanding Rotation
+TODO - picture
 
-#### Global Rotation
-TODO - Z+ Forward, Y+ Up, X+ Right
-When creating a blank world, a spawn point gizmo is added to the center of the grid. The forward direction of the spawn point gizmo is pointing towards the world's Z-axis in the positive direction. The upward direction of the spawn point gizmo is pointing towards the world's Y-axis in the positive direction.
+**Meters**. Distances and positions in Horizon are referenced using meters. For example, the position `(0, 1, 0)` is 1 meter (roughly 3.28 feet) up from the center of the world. Avatars in Horizon are approximately 1.8 meter tall (5 feet 11 inches).
 
-#### Local Rotation
-TODO - Euler angles in relation to X, Y, Z
-When the rotation of an entity is set to (0,0,0), the entity's forward, or Z+, points towards the world's Z+ and the entity's up, or Y+, points towards the world's Y+. Changing any axis values to a positive number will result in a counter-clockwise rotation around that axis when facing the positive direction of the axis.
+**Origin**. The editor has the origin `(0,0,0)` at the center of the grid. The origin cannot be moved.
 
-TODO - Explain why setting the X axis to > 90 causes Y and Z to be set to 180, when Y and Z are 0.
+## Transforms
 
-### Understanding Scale
+Entities have three transform properties: position, rotation, and scale. You can use the properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modifying the values using scripting.
 
-#### Global Scale
-Represents the entity's scale vector, as defined in its properties, multiplied by its [ancestors'](#ancestors) scale vectors.
+In the desktop editor you can switch quickly between transform tools via the keyboard.
+| Manipulation Tool  |  Keyboard Shortcut |
+|---|---|
+| Move | W |
+| Rotate | E |
+| Scale | R |
 
-#### Local Scale
-An entity only has a local scale when it is a child in a [hierarchy](#hierarchy). The local scale vector is entity's scale vector, as defined in its properties.
+!!! note No Arbitrary Matrix Transforms
+    Horizon does not currently allow matrix transforms. You can achieve some skew effects by rotating an entity inside a non-uniformly scaled one. Arbitrary matrix transforms are not exposed to the developer.
 
-TODO - Explain why some shapes, import mesh, and gizmos are not (1,1,1) upon adding to world  
+### Position
 
-TODO - Explain the nuance of scale in regards to hierarchy, where a collection's scale will default to (1,1,1) upon grouping.
+Positions are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
 
-### Changing Transforms
+The `position` property on an entity determines where in 3D space the [pivot point](#pivots) of the entity is, in relation to the origin of the world. Often the pivot is just the center of the entity, and so typically the position of an entity is where its center point is.
 
-#### Changing Transform with Properties Panel
-When selecting an entity, you may change the X, Y, or Z of its position, rotation, and scale through the properties panel. 
+!!! example Setting a position
+    Position is a [read-write property](#horizon-properties) on the `Entity` class. To get the current position of an entity, do:
 
- **Scalar Values of Transforms**
- All transform values are floats.
- - Position - Meters away from world center
- - Rotation - Degrees away from world rotation
- - Scale - Decimal notation of scale percentage. 1 = 100% TODO - Better way to say this
+    ```td
+    entity.position.get()
+    ```
 
- TODO - When typing a number into the number input in desktop editor, if the integer is > 1000 but < 10,000, max precision is 5. If < 1000, max precision is 6. Every next place is 1 less precision.
+    To move an entity to be 3 meters up from the origin and 4 meters forward, do:
+    ```ts
+    entity.position.set(new Vec3(0, 3, 4))
+    ```
 
-#### Changing Transform with Transform Handles
-When selecting an entity, you may change the selection mode to Move, Rotate, or Scale. Doing so will display draggable handles that are color coded to each axis.
+Setting the `position` property is not influenced by the position of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting position relative to a parent entity.
 
-**Axis Colors**
- - X = Red
- - Y = Green
- - Z = Blue
+### Rotation
 
- **Keyboard Shortcut for Transform Modes**
- - Move - W
- - Rotate - E
- - Scale - R
+Rotations are specified using a mathematical object called a `Quaternion`. Whenever you see the word "Quaternion" you can just think it means "rotation". This isn't mathematically true but is sufficient for nearly all uses.
 
-#### Transform Handle Settings
-You can select Local or Global to change the display settings of the transform handles. Setting to Local will display the transform handles toward the orientation of the entity, meaning it follows the rotation values set for the entity. Setting to Global will display the transform handles towards the [world rotation](#world-rotation).
+Rotations in the editor are specified using [Euler Angles](https://en.wikipedia.org/wiki/Euler_angles) which are a robust way of specifying yaw, pitch, and roll. The default **Euler Order** order in Horizon is **YXZ** meaning that entity does a *yaw*, then a *pitch*, and then a *roll* (when specifying Euler Angles). Euler angles are specified in **degrees**.
 
-#### Snap Settings
-Snap settings can be toggled to improve placement accuracy when using the transform handles.
+!!! tip Rotations are tricky!
+    Rotations, Quaternions, Euler Angles, etc are all rather tricky and subtle concepts. It will take a lot of time to build an intuition for them. Be patient and don't worry if rotations seem complex (they are)!
 
-!!! info Holding Ctrl while dragging the transform handles will toggle on the snap settings that correlate to the handle's transform mode.
+The `rotation` property on an entity determines how much the entity is rotated around its [pivot point](#pivots). This rotation is specified *globally*, meaning that it is measured with respect to the world. A zero-rotation will have an entity's up-axis align with the world's y-axis, it's right-axis align with the world's x-axis, etc.
 
-Snapping Units can be set to Relative or Absolute.
-- Relative - Displays snap positions relative to the entity's current transformation.
-- Absolute - Displays snap positions relative to the world's transform.
+!!! example Setting a rotation
+    Rotation is a [read-write property](#horizon-properties) on the `Entity` class. To get the current rotation of an entity, do:
 
-**Snap Units**
-Translation Grid Snap - Grid Units
-Rotation Angle Snap - Degrees
-Scale Snap - Percentage
+    ```td
+    entity.rotation.get()
+    ```
 
-**Snap to Surface**
-This setting will display an orange sphere at the current [pivot setting](#pivot-setting). Dragging the orange sphere will cause the entity to snap to the surface under the cursor.
+    To rotate an entity so that it yaws 45 degrees and then rolls 90 degrees, do:
+    ```ts
+    entity.rotation.set(Quaternion.fromEuler(new Vec3(0, 90, 45)))
+    ```
 
-**Horizon Core API**
-TODO - These should likely be removed since there will be detailed explanation  in the typescript section
+!!! tip Default Rotation ("Not rotated")
+    If you want an entity to be "not rotated", set its rotation to be `(0, 0, 0)` in the editor. In Typescript you can use any of these lines (they all do the same thing):
 
-Position and Scale are Vec3
-Rotation is Quaternion
-See [types](#types) to learn more about the transform types
+    ```ts
+    entity.rotation.set(Quaternion.fromEuler(new Vec3(0, 0, 0)))
 
-When getting the transform of an entity,
-you can do the following [bridge calls](#bridge-calls)
-.position.get()
-.rotation.get()
-.scale.get()
-.transform.position.get()
-.transform.rotation.get()
-.transform.scale.get()
-.transform.localPosition.get()
-.transform.localRotation.get()
-.transform.localScale.get()
+    entity.rotation.set(Quaternion.fromEuler(Vec3.zero))
 
+    entity.rotation.set(Quaternion.one)
+    ```
 
-### Pivots
+Setting the `rotation` property is not influenced by the rotation of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting rotation relative to a parent entity.
 
-!!! info Scratch notes
-    **Pivot settings are center or pivot**
+### Scale
 
-    **Center**
-    Center of the bounding box around an entity or a collection.
+Scales are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
 
-    **Pivot**
-    Center or entity or a group
-    A collection's root entity (Empty Object) 
-    Mesh origin of an imported mesh (If offset pivot was imported)
+**Inherent Size**: All entities have their own inherent size. For instance, a SubD cube is inherently 1 meter long on each side. Mesh assets have a size based on how they were authored. The inherent size of an entity is the size it is when it is *unscaled*.
 
-    TODO - Note: Offset pivots warn that only a single mesh in the FBX is supported when importing.
+The `scale` property determines the fraction an entity should be of its inherent size. For instance, a SubD cube is inherently 1 meter long on each side. If you set its scale to be `(1, 0.5, 2)` then the cube will be 1 meter long on its right-axis, 0.5 meters long on its up-axis, and 2 meters long on its forward-axis. In this example, the object has been "shrunk" along its up-axis, and "expanded" along its forward-axis.
 
-    TODO - Explain something along the lines of checking in Blender as source of truth for origin point position.
+!!! example Setting a scale
+    Scale is a [read-write property](#horizion-properties) on the `Entity` class. To get the current scale of an entity, do:
 
-    **Pivot properties of hierarchies**
-    When adding an entity to a hierarchy, local transforms become offsets of the parent.
+    ```td
+    entity.scale.get()
+    ```
 
+    To scale an entity so that it is 3 times bigger on its up axis (than its inherent size), do:
+    ```ts
+    entity.scale.set(new Vec3(1, 3, 1))
+    ```
 
-## Entity Properties
+    Since the default scale is `(1,1,1)`, you can set any part of a scale to `1` to leave the entity "un-scaled" along that axis.
+
+Setting the `scale` property is not influenced by the rotation of any [ancestors](#ancestors).
+See [local transforms](#local-transforms) for setting scale relative to a parent entity.
+
+!!! danger Mesh Primitives Have Unexpected Inherent Sizes
+    The builtin mesh primitives have an inherent scale of 150 meters on each side (as of Feb 2025). Thus if you wanted to use a builtin mesh cube and have it be 1 meter long on each side, you would need to give it a scale of (1/150, 1/150, 1/150). This is a longstanding bug.
+
+### Offsets - Move, Rotate, and Scale
+
+When you want to set the position of an entity in relation to the current position we call this **offsetting** the position. There is no builtin API for doing this (as of Feb 2025) but it can be accomplished easily with the pattern of *get-modify-set*.
+
+!!! example Offsetting position and scale
+    To move an entity up 2 meters from its current location you can do:
+    ```ts
+    const offset = new Vec3(0, 2, 0)
+
+    const pos = entity.position.get()
+    const newPos = pos.add(offset)
+    entity.position.set(pos)
+    ```
+    Offsetting scale works similarly.
+
+!!! example Offsetting rotation
+    To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
+    ```ts
+    const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
+
+    const rot = entity.rotation.get()
+    const newRot = offset.mul(rot)
+    entity.rotation.set(newRot)
+    ```
+    Note that `mul()` is used to combine rotations.
+
+    If instead you wanted to rotate an entity 90 degrees around its own up-axis you would do:
+    ```ts
+    const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
+
+    const rot = entity.rotation.get()
+    const newRot = rot.mul(offset)
+    entity.rotation.set(newRot)
+    ```
+    where the order of the Quaternion multiplication has been flipped. See [Quaternions](#quaternion) for more explanation.
+
+### Transform Property
+
+Each entity has a transform property that can be accessed via `entity.transform`.
+
+```ts
+class Entity {
+  readonly transform: Transform
+
+  // ...
+}
+```
+
+Position, rotation, and scale can all be accessed through a `Transform`. The following two lines behave identically.
+
+```
+entity.position.set(p)
+entity.transform.position.set(p)
+```
+
+Additionally, the `Transform` object can be used to access **local** position, rotation, and scale. See the next section for more information.
+
+### Local Transforms
+
+Entities have a `localPosition`, `localRotation`, and `localScale` that can be accessed via the transforms (e.g. `entity.transform.localPosition.get()`). These properties specify values in relation to a parent entity (or to the world if there is no parent).
+
+Throughout this doc, other than this section, we omit the word *global*. When you see "position" it means "global position".
+
+!!! example
+    Let `parent` be an entity that has not been rotated nor scaled with `child` as one of its children.
+
+    If `parent`'s **global position** is `(3, 0, 0)` and `child`'s **global position** is `(8, 1, 0)` then `child`'s **local position** will be `(5, 1, 0)`. The `child`'s local position is how much it is moved from its parent.
+
+    Note: if the `parent` were rotated or scaled then you can't just "subtract the positions".
+
+!!! note Global values "cascade down" the hierarchy
+    An entity's global position/rotation/scale influences the global position/rotation/scale of its children (which then cascades to their child too!). If you have a plate on a table on a boat  and the boat moves globally then so do the table and the plate; if the table moves then so does the plate (and everything on it!)
+
+!!! warning Local values exist in the transformed coordinate system of the parent
+    Rotating and/or scaling an entity causing it axes to rotate and scaled as well. We call these the *transformed axes*.
+
+    A child with local position of `(0, 6, 0)` is moved 6 units **from the global position** of its parent **along the parent's transformed up-axis**. If there is no parent then this is just 6 meters up the world's y-axis.
+
+### Pivot Points
+
+The "center" of an entity is called its **pivot point**. It rotates around its pivot point, it scales around its pivot point, and when you move an entity its pivot point end ups at the position specified.
+
+1. **Mesh entities** have their pivot points specified when they are authored (e.g. in Blender)
+1. **Empty objects** have their pivot points at the center of the gizmo (the grey cube)
+1. **Group entities** compute their pivot point to be at the center of their "bounding box" **in edit mode**. For example if you move a child in a group in edit mode then when click off the group it will recompute its pivot point to be at the center of all of its children. *This only happens in edit mode. The pivot of a group doesn't auto-change when the world is running (even if its children move around).*
+1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a builtin pivot point (usually at their center).
+
+!!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
+    The desktop editor lets you choose to put the "manipulator handlers" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
 
 # Entities
 
@@ -358,7 +458,7 @@ Gizmos, as, ...
 When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
-    If you want to have an interactive entity be within a [heirarchy](#hierarchy) (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
+    If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
 
     If `Motion` is `Animated` or `Interactive` on any of its [ancestors](#ancestors) then interactivity will be disabled.
 
@@ -366,22 +466,32 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
     If there are any ancestors other than Mesh Entities, Empty Objects, and Group Entities then it is undefined whether or not interaction is disabled.
 
+TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)
+
 ## Gizmos
 
-- Leaderboard, Quests, and IWP should just point to the PPVs section
+There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
 
-### Audio Gizmo
-  AI gen
 
-### Text Gizmo
+- [Custom UI Gizmo](#custom-ui-gizmo)
+- [Door Gizmo](#door-gizmo)
+- [Dynamic Light Gizmo](#dynamic-light-gizmo)
+- [Environment Gizmo](#environment-gizmo)
+- [ParticleFx Gizmo](#particlefx-gizmo)
+- [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+- [Quests Gizmo](#quests-gizmo)
+- [Raycast Gizmo](#raycast-gizmo)
+- [Script Gizmo](#script-gizmo)
+- [Snap Destination Gizmo](#snap-destination-gizmo)
+- [Sound Gizmo](#sound-gizmo)
+- [Sound Recorder Gizmo](#sound-recorder-gizmo)
+- [Spawn Point Gizmo](#spawn-point-gizmo)
+- [Text Gizmo](#text-gizmo)
+- [TrailFx Gizmo](#trailfx-gizmo)
+- [Trigger Gizmo](#trigger-gizmo)
+- [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 
-- all supported commands
-
-### Trigger Gizmo
-
-Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
-
-## Common Properties
+### Common Properties
 
 - Motion and Interaction (Animated, Grabbable, Physics, Both)
 - Parents and Children
@@ -389,7 +499,537 @@ Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
 - Transform (position, rotation, scale, forward, up, right)
 - Simulated
 
+### Custom UI Gizmo
+See details in [Custom UI](#custom-ui)
+
+### Door Gizmo
+Place in a world to allow players to traverse to other worlds easily
+
+Search for any public worlds in Horizon Worlds
+
+Is very costly to performance if overused due to expensive VFXs
+
+Cannot be transformed. Give it a parent (such as a group), and transform the parent instead, if you want to transform it.
+
+### Dynamic Light Gizmo
+Lights that can be attached to animated or interactable objects
+
+Is very costly to performance if overused due to light/shadow per frame processing.
+
+```ts
+class DynamicLightGizmo {
+    /**
+     * Indicates whether the entity has a dynamic light effect on it. true to
+     * enable dynamic lighting; otherwise, false.
+     */
+    enabled: HorizonProperty<boolean>;
+    /**
+     * The light intensity. 0 for least intense and 10 for most intense.
+     */
+    intensity: HorizonProperty<number>;
+    /**
+     * The light falloff distance. 0 for the least distance and 100 for the greatest
+     * distance.
+     */
+    falloffDistance: HorizonProperty<number>;
+    /**
+     * The light spread. 0 for the least light spread (none) and 100 for the
+     * greatest light spread.
+     */
+    spread: HorizonProperty<number>;
+}
+```
+
+Max of 20 allowed at once.
+
+### Environment Gizmo
+Changes the skybox, lighting, and world voice settings
+
+Multiple allowed in world. Only one can be active at a time.
+
+No current TS APIs (no TS entity).
+
+### ParticleFx Gizmo
+Premade effects to enhance the user experience
+
+Is very costly to performance if overused due to per frame rending calculations. Vary between types of particles.
+
+Be aware there are many premade ones in asset library too!
+
+```ts
+/**
+ * The settings for {@link ParticleGizmo.start | playing} a particle effect.
+ *
+ * @remarks
+ * fromStart - true to play the effect from the beginning even if already playing.
+ * Otherwise, the effect doesn't play if already playing.
+ *
+ * players - The array of players to apply the change to.
+ *
+ * oneShot - If true, the effect emits a new particle that plays until its
+ * full duration completes. This does not interfere with other play interactions.
+ */
+type ParticleFXPlayOptions = {
+    fromStart?: boolean;
+    players?: Array<Player>;
+    oneShot?: boolean;
+};
+
+class ParticleGizmo extends Entity {
+    /**
+     * Plays the particle effect.
+     *
+     * @param options - Controls how the effect is played.
+     */
+    play(options?: ParticleFXPlayOptions): void;
+    /**
+     * Stops the particle effect.
+     *
+     * @param options - The options that control how the effect is stopped.
+     */
+    stop(options?: ParticleFXStopOptions): void;
+}
+```
+
+### Projectile Launcher Gizmo
+A turnkey way to launch small objects
+
+Heavily uses codeblock actions and events
+
+TODO - list code block events
+
+```ts
+/**
+ * Options for launching a projectile.
+ *
+ * @param speed - speed in meters per second. Defaults to 20m/s
+ * @param duration - max lifetime of projectile in seconds. Defaults to infinity
+ */
+type LaunchProjectileOptions = {
+    speed: number;
+    duration?: number;
+};
+
+class ProjectileLauncherGizmo extends Entity {
+    /**
+     * The gravity applied to the projectile.
+     */
+    projectileGravity: WritableHorizonProperty<number>;
+    /**
+     * Launches a projectile.
+     *
+     * @deprecated use `launch` instead.
+     *
+     * @param speed - Optional. The speed at which the projectile will launch from the launcher.
+     */
+    launchProjectile(speed?: number): void;
+    /**
+     * Launches a projectile with options.
+     *
+     * @param options - Optional options for launching projectile
+     */
+    launch(options?: LaunchProjectileOptions): void;
+}
+```
+
+```ts
+// Code block events
+OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
+    /**
+     * The event that is triggered when a projectile hits a player.
+     */
+    OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
+    /**
+     * The event that is triggered when a projectile hits an object.
+     */
+    OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
+    /**
+     * The event that is triggered when a projectile hits something in the world.
+     */
+    OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
+    OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
+```
+
+### Quests Gizmo
+TODO- Can be moved to dedicated quest reference
+Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
+
+Must be created in Quest tab in creator menu
+
+Simple means you can complete the quest through an achievement event
+
+Tracked means you can set a player persistent variable to a specified number to complete it
+
+```ts
+class AchievementsGizmo extends Entity {
+    /**
+     * Displays the achievements.
+     *
+     * @param achievementScriptIDs - List of achievement script IDs.
+     */
+    displayAchievements(achievementScriptIDs: Array<string>): void;
+}
+```
+```ts
+// CodeBlockEvents
+    /**
+     * The event that is triggered when an achievement is completed.
+     */
+    OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
+```
+
+### Raycast Gizmo
+Invisible laser that can be activated in a script to collide with players and/or objects.
+
+Retrieves hit object/player, collision point, and collision normal
+
+```ts
+/**
+ * The target type during a raycast collision.
+ */
+enum RaycastTargetType {
+    /**
+     * A player.
+     */
+    Player = 0,
+    /**
+     * An entity.
+     */
+    Entity = 1,
+    /**
+     * A static object.
+     */
+    Static = 2
+}
+type BaseRaycastHit = {
+    /**
+     * The distance between the raycast position and the hit point.
+     */
+    distance: number;
+    /**
+     * The position of the raycast hit.
+     */
+    hitPoint: Vec3;
+    /**
+     * The normal of the raycast hit.
+     */
+    normal: Vec3;
+};
+type StaticRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Static;
+};
+type EntityRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Entity;
+    /**
+     * The actual entity in the world the raycast has hit.
+     */
+    target: Entity;
+};
+type PlayerRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Player;
+    /**
+     * The actual player in the world the raycast has hit.
+     */
+    target: Player;
+};
+/**
+ * The result of a {@link RaycastGizmo.raycast | raycast} collision.
+ */
+type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
+
+class RaycastGizmo extends Entity {
+    /**
+     * Casts a ray from the Raycast gizmo using the given origin and direction
+     * and then retrieves collision information.
+     *
+     * @param origin - The starting point of the ray.
+     * @param direction - The direction for the ray to travel.
+     * @param options - The options for configuring the raycast operation.
+     *
+     * @returns The collision information.
+     */
+    raycast(origin: Vec3, direction: Vec3, options?: {
+        layerType?: LayerType;
+        maxDistance?: number;
+    }): RaycastHit | null;
+}
+```
+
+### Script Gizmo
+See FBS or [Script API](#scripting)
+
+### Snap Destination Gizmo
+This can be added to a world to help visitors with locomotion easily move into a designated spot
+
+Can be used to attach scripts that manage or communicate with other objects
+
+No TS type.
+
+### Sound Gizmo
+AI gen
+Many premade sound effects, loops, songs, atmospheric sounds.
+
+Can be stopped and started via scripts
+
+Max distance (in meters) is how far away from the gizmo you can stand before you can no longer hear it
+Min distance (in meters) is how close you must be to hear the audio at its max volume
+
+Is very costly to performance if overused due to memory cost of storing audio data and CPU cost of spatial audio processing. General guidance is 10 max audio graphs in scene. Mitigated by spawning in/out.
+
+`CodeBlockEvents.OnAudioCompleted<[]>`
+
+```ts
+/**
+ * Determines whether sound from an {@link AudioGizmo} is audible to specific
+ * players.
+ */
+enum AudibilityMode {
+    /**
+     * The sound is audible.
+     */
+    AudibleTo = 0,
+    /**
+     * The sound is inaudible.
+     */
+    InaudibleTo = 1
+}
+/**
+ * Provides {@link AudioGizmo} playback options for a set of players.
+ *
+ * @param fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
+ * @param players - Only plays the audio for the specified players.
+ * @param audibilityMode - Indicates whether the audio is audible to the specified players.
+ * See {@link AudibilityMode} for more information.
+ *
+ * @remarks
+ * fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
+ *
+ * players - Only plays the audio for the specified players.
+ *
+ * audibilityMode - Indicates whether the audio is audible to the specified players.
+ * See {@link AudibilityMode} for more information.
+ */
+type AudioOptions = {
+    fade: number;
+    players?: Array<Player>;
+    audibilityMode?: AudibilityMode;
+};
+/**
+ * Represents an audio gizmo in the world.
+ */
+class AudioGizmo extends Entity {
+    /**
+     * The audio volume, which ranges from 0 (no sound) to 1 (full volume).
+     */
+    volume: WritableHorizonProperty<number, AudioOptions>;
+    /**
+     * The audio pitch in semitones, which ranges from -12 to 12.
+     */
+    pitch: WritableHorizonProperty<number>;
+    /**
+     * Plays an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is played.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.play(audioOptions);
+     * ```
+     */
+    play(audioOptions?: AudioOptions): void;
+    /**
+     * Pauses an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is paused.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.pause(audioOptions);
+     * ```
+     */
+    pause(audioOptions?: AudioOptions): void;
+    /**
+     * Stops an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is played.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.stop(audioOptions);
+     * ```
+     */
+    stop(audioOptions?: AudioOptions): void;
+}
+```
+
+### Sound Recorder Gizmo
+Used to record custom audio
+
+Can be stopped and started via scripts
+
+Max distance is how far away from the gizmo you can stand before you can no longer hear it
+Min distance is how close you must be to hear the audio at its max volume
+
+Distance in in meters
+
+Is very costly to performance if overused
+
+API is same as previous section [audio gizmo](#audio-gizmo)
+
+### Spawn Point Gizmo
+Use as a predetermined location to send the player when using the “Teleport player” code block
+
+Attach a script with an object variable to a trigger
+Open the spawn point properties panel, and drag the reference pill to the object variable on the trigger’s properties panel
+
+```ts
+class SpawnPointGizmo extends Entity {
+    /**
+     * The gravity for players spawned using this gizmo.
+     *
+     * @remarks
+     * Range = (0, 9.81)
+     */
+    gravity: HorizonProperty<number>;
+    /**
+     * The speed for players spawned using this gizmo.
+     *
+     * @remarks
+     * Range = (0, 45)
+     */
+    speed: HorizonProperty<number>;
+    /**
+     * Teleports a player to the spawn point.
+     *
+     * @param player - The player to teleport.
+     */
+    teleportPlayer(player: Player): void;
+}
+```
+
+### Text Gizmo
+- all supported commands
+    - TODO: import https://www.horizonhub.info/reference/textGizmo
+
+A way to display numbers and common English letters
+Font size can automatically scale when auto fit is on, or set manually when auto fit is off.
+
+Can be used for clever texturing
+
+Is very costly to performance if overused due to draw call cost and lack of batching when rendering
+
+```ts
+class TextGizmo extends Entity {
+    /**
+     * The content to display in the text label.
+     *
+     * Note: if the content was previously set with `localizableText`, the getter
+     * of this property will return the localized string in the language of the
+     * local player. Do not use the returned text in attributes shared with other
+     * players. Other player might use differnet languages, and only
+     * LocalizableText object will be localized.
+     */
+    text: HorizonProperty<string>;
+}
+```
+
+### TrailFx Gizmo
+Lines that follow the object when moved
+
+Can have a flat or tapered end
+
+Is very costly to performance if overused due to per frame rendering
+
+Same API as [particle gizmo](#particlefx-gizmo)
+
+### Trigger Gizmo
+Designated area that causes an event to fire in the code
+
+Player Enter
+Player Exit
+
+(Triggered by object with tag)
+Object Enter
+Object Exit
+
+Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
+
+```ts
+class TriggerGizmo extends Entity {
+    /**
+     * Creates a human-readable representation of the entity.
+     * @returns A string representation
+     */
+    toString(): string;
+    /**
+     * Whether the Trigger is enabled.
+     */
+    enabled: WritableHorizonProperty<boolean>;
+}
+```
+
+```ts
+/**
+ * The event that is triggered when the player enters a trigger zone.
+ */
+OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
+/**
+ * The event that is triggered when a player leaves a trigger zone.
+ */
+OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
+/**
+ * The event that is triggered when an entity enters a trigger zone.
+ */
+OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+/**
+ * The event that is triggered when an entity exits a trigger zone.
+ */
+OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+```
+
+### World Leaderboard Gizmo
+TODO- Can be moved to dedicated quest reference
+Used to track score and compare/compete against friends and other visitors
+
+Must be created in Leaderboards tab in creator menu
+
+Can be used to gain insight about how your experience is being used
+
+No TS type, but you can set with `world.leaderboards.setScoreForPlayer`:
+
+```ts
+/**
+ * Sets the leaderboard score for a player.
+ * @param leaderboardName - The name of the leader board.
+ * @param player - The player for whom the score is updated.
+ * @param score - The new score.
+ * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
+ */
+setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
+```
+
 ## Tags
+
+Getting entities with tags.
+
+Tag uses:
+  * Triggers
+  * Collisions
 
 # Custom Model Import
 
@@ -438,6 +1078,8 @@ You CAN nest.
 ## Performance
 
 ### Draw Calls
+
+<mark>**Challenge question (for the doc)**: are draw calls really ever the primary issue? Is this information truly used and needed by 1p and 2p? A lot of Horizon's behavior is "like other 3D engines". What specific things (about Horizon) do we actually need to document, assuming that someone is technically savvy (enough) already?</mark>
 
 - Do not rely on Horizon to do any draw call batching. Meaning each instantiated asset is at least 1 draw call.
 - Hypothesis / guess: UI Gizmos are rendered into textures on the _CPU_ and then rendered as single quads with a texture on the GPU (don't know about batching...). What about name tags?
@@ -490,11 +1132,43 @@ Workflows / advice for greyboxing.
 
 # Scripting
 
-## Properties
+## Horizon Properties
+
+Note: getting a property returns a copy of
+
+The following code is RISKY.... (you should clone pos before mutate because anyone else who get the position this frame will get a wrong value... mention the per-frame bridge cache).
+
+```ts
+// RISKY!
+const p = entity.position.get()
+p.x += 10
+entity.position.set(p)
+
+// OK #1
+const p = entity.position.get().clone()
+p.x += 10
+entity.position.set(p)
+
+// OK #2
+const p = entity.position.get()
+entity.position.set(new Vec3(p.x, p.y += 10, p.z))
+```
 
 ## Types
 
 Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
+
+Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risks property coherence if it came from a `.get()` and link to the [Horizon Properties](#horizon-properties).
+
+Accessor mutations beware!
+
+### In-Place Mutation
+
+.*inPlace() methods
+
+### Color
+
+### Vec3
 
 ### Quaternion
 
@@ -502,19 +1176,60 @@ Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can b
 
 ### Entity Subtypes
 
+## Files
+
 ## Components
+
+### Component Class
+
+1. extend Component
+1. typeof "Name" for generic
+1. static propsDefinition
+1. start()
+1. Component.register
+1. [optional] preStart()
+1. [optional] initializeUI()
+1. [optional] dispose
 
 ### Props (and wiring)
 
+Props definition uses an untyped object (be careful).
+Keys are prop names. Values are of the form {type: PropsTypes[...], defaultValue?: ... }
+
+Vec3, Quaternion, Color, number, string, boolean have auto-defaults
+
+Entity, Asset are nullable
+
+Player doesn't make sense to use
+
+Array types are unsupported.
+
 ### Lifecycle
+
+Is anything other than props unavailable in property initializers?
+
+**DO NOT** implement the constructor, use property initializers instead.
+
+Avoid using anything other than "plain old data" before preStart.
+
+|   | Props | Can send to events |
+|---|---|---|
+| class property initializers | ❌ are empty | ❌ receiver unlikely listening |
+| preStart() | ✅ props are available | ❌ receiver unlikely listening |
+| start() | ✅ props are available | ✅ |
+| after start, but not disposed | ✅ props are available | ✅ |
+| dispose() | ? | ? |
+| after dispose() | ? | ? |
 
 Construction, preStart, start, dispose
 
-### Receiving Events
+### Sending and Receiving Events
 
 a few notes but link to the events section
 
 ### Converting Between Components and Entities
+
+### Subclasses
 
 ## Async (Timers)
 
@@ -666,6 +1381,18 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 - Can control if ownership transfer on collision (see [Network](#network)!)
 
 - collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
+
+TODO: CodeBlockEvents
+```ts
+/**
+ * The event that is triggered when a player collides with something.
+ */
+OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
+/**
+ * The event that is triggered when an entity collides with something.
+ */
+OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
+```
 
 ### Collidability
 
@@ -829,6 +1556,18 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### AFK
 
+```ts
+// CodeBlockEvents
+/**
+ * The event that is triggered when a player goes AFK (opens the Oculus menu, takes their headset off, etc)
+ */
+OnPlayerEnterAFK: CodeBlockEvent<[player: Player]>;
+/**
+ * The event that is triggered when a player comes back from being AFK.
+ */
+OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
+```
+
 # Grabbing and Holding Entities
 
 ## Creating a Grabbable Entity
@@ -979,43 +1718,24 @@ If a **held entity moves too far** from a player holding it then will be **force
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
-```dot
-digraph G {
-    rankdir=TD;
+```mermaid
+flowchart TD
+  hold0([Not Held])
+  hold1([Held with 1 hand])
+  hold2([Held with 2 hands])
 
-    NotHeld [label="Not held"];
-    Held1 [label=<Held with<BR/>1 hand>];
-    Held2 [label=<Held with<BR/>2 hands>];
+  hold0 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> ---> hold1
 
-    { rank=same; Grab1; Release1 }
-    { rank=same; Grab2; Release2 }
-    { rank=same; Release2Force; Held1 }
+  hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> --> hold2
 
-    Grab1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with a hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
+  hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr></table> --> hold1
 
-    Release1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases hand or<BR/><I>forceRelease </I>called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
+   hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases hand or<code style="background-color:#0000">forceRelease</code> called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    NotHeld -> Grab1 [arrowhead=none color="green"];
-    Grab1 -> Held1 [arrowtail=none color="green"];
+    hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    Grab2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player grabs with<BR/> second hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabStart</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabStart</B><I>[isRightHand, player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held1 -> Grab2 [arrowhead=none color="green"];
-    Grab2 -> Held2 [color="green"];
-
-    Held1 -> Release1 [arrowhead=none color="#ff7878"];
-    Release1 -> NotHeld [color="#ff7878"];
-
-    Release2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff">player releases 1 hand</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held2 -> Release2 [arrowhead=none color="#ff7878"];
-    Release2 -> Held1 [color="#ff7878"];
-
-    Release2Force [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD BGCOLOR="#deefff"><I>forceRelease</I>  called</TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnMultiGrabEnd</B><I>[player]</I></TD></TR><TR><TD BGCOLOR="#cbffcd"><B>OnGrabEnd</B><I>[player]</I></TD></TR></TABLE>>, shape=box margin=0];
-
-    Held2 -> Release2Force [arrowhead=none color="#ff7878"];
-    Release2Force -> NotHeld [color="#ff7878"];
-}
+   linkStyle 0,1 stroke:green,stroke-width:1px;
+    linkStyle 2,3,4 stroke:red,stroke-width:1px;
 ```
 
 ### Hand-off (Switching Hands or Players)
@@ -1113,9 +1833,9 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 ## Assets
 
-### Foo
+## Simple Spawning
 
-### Spawn Controller
+## Spawn Controller
 
 ## Sublevels
 
