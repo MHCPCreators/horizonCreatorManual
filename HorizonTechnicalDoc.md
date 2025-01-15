@@ -1821,6 +1821,23 @@ Attaching an entity to player can be done by the following:
 
 TODO - Explain what happens when multiple attached
 
+```mermaid
+flowchart TD
+  detach([Detached])
+  attach([Attached])
+
+  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases attachable entity on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+
+  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+
+  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+
+  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+
+   linkStyle 0,1 stroke:green,stroke-width:1px;
+    linkStyle 2,3 stroke:red,stroke-width:1px;
+```
+
 ### Sticky
 Whereas attachable entites may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
 
