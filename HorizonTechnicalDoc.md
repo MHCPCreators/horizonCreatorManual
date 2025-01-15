@@ -1,5 +1,7 @@
 # Horizon Technical Specification {ignore=true}
 
+<div class="print-note">This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.</div>
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
 <!-- code_chunk_output -->
@@ -30,22 +32,25 @@
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
     4. [Gizmos](#gizmos)
-    5. [Effects Gizmos](#effects-gizmos)
-        1. [Audio](#audio)
-        2. [Particles](#particles)
-        3. [Trail](#trail)
-        4. [Dynamic Light](#dynamic-light)
-        5. [Static Light](#static-light)
-    6. [UI Gizmos](#ui-gizmos)
-        1. [Text Gizmo](#text-gizmo)
-        2. [Custom UI](#custom-ui)
-        3. [Leaderboard, Quests, In-World Purchase, Media Board](#leaderboard-quests-in-world-purchase-media-board)
-    7. [Collision Gizmos](#collision-gizmos)
-        1. [Trigger Gizmo](#trigger-gizmo)
-        2. [Collider Gizmos](#collider-gizmos)
-        3. [Other Gizmos](#other-gizmos)
-    8. [Common Properties](#common-properties)
-    9. [Tags](#tags)
+        1. [Common Properties](#common-properties)
+        2. [Custom UI Gizmo](#custom-ui-gizmo)
+        3. [Door Gizmo](#door-gizmo)
+        4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        5. [Environment Gizmo](#environment-gizmo)
+        6. [ParticleFx Gizmo](#particlefx-gizmo)
+        7. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        8. [Quests Gizmo](#quests-gizmo)
+        9. [Raycast Gizmo](#raycast-gizmo)
+        10. [Script Gizmo](#script-gizmo)
+        11. [Snap Destination Gizmo](#snap-destination-gizmo)
+        12. [Sound Gizmo](#sound-gizmo)
+        13. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        14. [Spawn Point Gizmo](#spawn-point-gizmo)
+        15. [Text Gizmo](#text-gizmo)
+        16. [TrailFx Gizmo](#trailfx-gizmo)
+        17. [Trigger Gizmo](#trigger-gizmo)
+        18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+    5. [Tags](#tags)
 5. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -154,7 +159,7 @@
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-17. [Custom UI](#custom-ui-1)
+17. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
 18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
 19. [Performance Optimization](#performance-optimization)
@@ -467,51 +472,556 @@ TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in gra
 
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
 
-- Leaderboard, Quests, and IWP should just point to the PPVs section
 
-## Effects Gizmos
+- [Custom UI Gizmo](#custom-ui-gizmo)
+- [Door Gizmo](#door-gizmo)
+- [Dynamic Light Gizmo](#dynamic-light-gizmo)
+- [Environment Gizmo](#environment-gizmo)
+- [ParticleFx Gizmo](#particlefx-gizmo)
+- [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+- [Quests Gizmo](#quests-gizmo)
+- [Raycast Gizmo](#raycast-gizmo)
+- [Script Gizmo](#script-gizmo)
+- [Snap Destination Gizmo](#snap-destination-gizmo)
+- [Sound Gizmo](#sound-gizmo)
+- [Sound Recorder Gizmo](#sound-recorder-gizmo)
+- [Spawn Point Gizmo](#spawn-point-gizmo)
+- [Text Gizmo](#text-gizmo)
+- [TrailFx Gizmo](#trailfx-gizmo)
+- [Trigger Gizmo](#trigger-gizmo)
+- [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 
-### Audio
-AI Gen
-
-### Particles
-
-### Trail
-
-### Dynamic Light
-
-### Static Light
-
-## UI Gizmos
-
-### Text Gizmo
-- all supported commands
-
-### Custom UI
-
-### Leaderboard, Quests, In-World Purchase, Media Board
-
-## Collision Gizmos
-
-### Trigger Gizmo
-Two _secret_ `CodeBlockEvents`: `empty` and `occupied`
-
-### Collider Gizmos
-
-### Other Gizmos
-* Spawn Point
-* Mirror
-* Debug Console
-* Door
-* Avatar Pose
-
-## Common Properties
+### Common Properties
 
 - Motion and Interaction (Animated, Grabbable, Physics, Both)
 - Parents and Children
 - Visible and Collidable
 - Transform (position, rotation, scale, forward, up, right)
 - Simulated
+
+### Custom UI Gizmo
+See details in [Custom UI](#custom-ui)
+
+### Door Gizmo
+Place in a world to allow players to traverse to other worlds easily
+
+Search for any public worlds in Horizon Worlds
+
+Is very costly to performance if overused due to expensive VFXs
+
+Cannot be transformed. Give it a parent (such as a group), and transform the parent instead, if you want to transform it.
+
+### Dynamic Light Gizmo
+Lights that can be attached to animated or interactable objects
+
+Is very costly to performance if overused due to light/shadow per frame processing.
+
+```ts
+class DynamicLightGizmo {
+    /**
+     * Indicates whether the entity has a dynamic light effect on it. true to
+     * enable dynamic lighting; otherwise, false.
+     */
+    enabled: HorizonProperty<boolean>;
+    /**
+     * The light intensity. 0 for least intense and 10 for most intense.
+     */
+    intensity: HorizonProperty<number>;
+    /**
+     * The light falloff distance. 0 for the least distance and 100 for the greatest
+     * distance.
+     */
+    falloffDistance: HorizonProperty<number>;
+    /**
+     * The light spread. 0 for the least light spread (none) and 100 for the
+     * greatest light spread.
+     */
+    spread: HorizonProperty<number>;
+}
+```
+
+Max of 20 allowed at once.
+
+### Environment Gizmo
+Changes the skybox, lighting, and world voice settings
+
+Multiple allowed in world. Only one can be active at a time.
+
+No current TS APIs (no TS entity).
+
+### ParticleFx Gizmo
+Premade effects to enhance the user experience
+
+Is very costly to performance if overused due to per frame rending calculations. Vary between types of particles.
+
+Be aware there are many premade ones in asset library too!
+
+```ts
+/**
+ * The settings for {@link ParticleGizmo.start | playing} a particle effect.
+ *
+ * @remarks
+ * fromStart - true to play the effect from the beginning even if already playing.
+ * Otherwise, the effect doesn't play if already playing.
+ *
+ * players - The array of players to apply the change to.
+ *
+ * oneShot - If true, the effect emits a new particle that plays until its
+ * full duration completes. This does not interfere with other play interactions.
+ */
+type ParticleFXPlayOptions = {
+    fromStart?: boolean;
+    players?: Array<Player>;
+    oneShot?: boolean;
+};
+
+class ParticleGizmo extends Entity {
+    /**
+     * Plays the particle effect.
+     *
+     * @param options - Controls how the effect is played.
+     */
+    play(options?: ParticleFXPlayOptions): void;
+    /**
+     * Stops the particle effect.
+     *
+     * @param options - The options that control how the effect is stopped.
+     */
+    stop(options?: ParticleFXStopOptions): void;
+}
+```
+
+### Projectile Launcher Gizmo
+A turnkey way to launch small objects
+
+Heavily uses codeblock actions and events
+
+TODO - list code block events
+
+```ts
+/**
+ * Options for launching a projectile.
+ *
+ * @param speed - speed in meters per second. Defaults to 20m/s
+ * @param duration - max lifetime of projectile in seconds. Defaults to infinity
+ */
+type LaunchProjectileOptions = {
+    speed: number;
+    duration?: number;
+};
+
+class ProjectileLauncherGizmo extends Entity {
+    /**
+     * The gravity applied to the projectile.
+     */
+    projectileGravity: WritableHorizonProperty<number>;
+    /**
+     * Launches a projectile.
+     *
+     * @deprecated use `launch` instead.
+     *
+     * @param speed - Optional. The speed at which the projectile will launch from the launcher.
+     */
+    launchProjectile(speed?: number): void;
+    /**
+     * Launches a projectile with options.
+     *
+     * @param options - Optional options for launching projectile
+     */
+    launch(options?: LaunchProjectileOptions): void;
+}
+```
+
+```ts
+// Code block events
+OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
+    /**
+     * The event that is triggered when a projectile hits a player.
+     */
+    OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
+    /**
+     * The event that is triggered when a projectile hits an object.
+     */
+    OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
+    /**
+     * The event that is triggered when a projectile hits something in the world.
+     */
+    OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
+    OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
+```
+
+### Quests Gizmo
+TODO- Can be moved to dedicated quest reference
+Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
+
+Must be created in Quest tab in creator menu
+
+Simple means you can complete the quest through an achievement event
+
+Tracked means you can set a player persistent variable to a specified number to complete it
+
+```ts
+class AchievementsGizmo extends Entity {
+    /**
+     * Displays the achievements.
+     *
+     * @param achievementScriptIDs - List of achievement script IDs.
+     */
+    displayAchievements(achievementScriptIDs: Array<string>): void;
+}
+```
+```ts
+// CodeBlockEvents
+    /**
+     * The event that is triggered when an achievement is completed.
+     */
+    OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
+```
+
+### Raycast Gizmo
+Invisible laser that can be activated in a script to collide with players and/or objects.
+
+Retrieves hit object/player, collision point, and collision normal
+
+```ts
+/**
+ * The target type during a raycast collision.
+ */
+enum RaycastTargetType {
+    /**
+     * A player.
+     */
+    Player = 0,
+    /**
+     * An entity.
+     */
+    Entity = 1,
+    /**
+     * A static object.
+     */
+    Static = 2
+}
+type BaseRaycastHit = {
+    /**
+     * The distance between the raycast position and the hit point.
+     */
+    distance: number;
+    /**
+     * The position of the raycast hit.
+     */
+    hitPoint: Vec3;
+    /**
+     * The normal of the raycast hit.
+     */
+    normal: Vec3;
+};
+type StaticRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Static;
+};
+type EntityRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Entity;
+    /**
+     * The actual entity in the world the raycast has hit.
+     */
+    target: Entity;
+};
+type PlayerRaycastHit = BaseRaycastHit & {
+    /**
+     * The type of target a raycast has hit
+     */
+    targetType: RaycastTargetType.Player;
+    /**
+     * The actual player in the world the raycast has hit.
+     */
+    target: Player;
+};
+/**
+ * The result of a {@link RaycastGizmo.raycast | raycast} collision.
+ */
+type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
+
+class RaycastGizmo extends Entity {
+    /**
+     * Casts a ray from the Raycast gizmo using the given origin and direction
+     * and then retrieves collision information.
+     *
+     * @param origin - The starting point of the ray.
+     * @param direction - The direction for the ray to travel.
+     * @param options - The options for configuring the raycast operation.
+     *
+     * @returns The collision information.
+     */
+    raycast(origin: Vec3, direction: Vec3, options?: {
+        layerType?: LayerType;
+        maxDistance?: number;
+    }): RaycastHit | null;
+}
+```
+
+### Script Gizmo
+See FBS or [Script API](#scripting)
+
+### Snap Destination Gizmo
+This can be added to a world to help visitors with locomotion easily move into a designated spot
+
+Can be used to attach scripts that manage or communicate with other objects
+
+No TS type.
+
+### Sound Gizmo
+AI gen
+Many premade sound effects, loops, songs, atmospheric sounds.
+
+Can be stopped and started via scripts
+
+Max distance (in meters) is how far away from the gizmo you can stand before you can no longer hear it
+Min distance (in meters) is how close you must be to hear the audio at its max volume
+
+Is very costly to performance if overused due to memory cost of storing audio data and CPU cost of spatial audio processing. General guidance is 10 max audio graphs in scene. Mitigated by spawning in/out.
+
+`CodeBlockEvents.OnAudioCompleted<[]>`
+
+```ts
+/**
+ * Determines whether sound from an {@link AudioGizmo} is audible to specific
+ * players.
+ */
+enum AudibilityMode {
+    /**
+     * The sound is audible.
+     */
+    AudibleTo = 0,
+    /**
+     * The sound is inaudible.
+     */
+    InaudibleTo = 1
+}
+/**
+ * Provides {@link AudioGizmo} playback options for a set of players.
+ *
+ * @param fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
+ * @param players - Only plays the audio for the specified players.
+ * @param audibilityMode - Indicates whether the audio is audible to the specified players.
+ * See {@link AudibilityMode} for more information.
+ *
+ * @remarks
+ * fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
+ *
+ * players - Only plays the audio for the specified players.
+ *
+ * audibilityMode - Indicates whether the audio is audible to the specified players.
+ * See {@link AudibilityMode} for more information.
+ */
+type AudioOptions = {
+    fade: number;
+    players?: Array<Player>;
+    audibilityMode?: AudibilityMode;
+};
+/**
+ * Represents an audio gizmo in the world.
+ */
+class AudioGizmo extends Entity {
+    /**
+     * The audio volume, which ranges from 0 (no sound) to 1 (full volume).
+     */
+    volume: WritableHorizonProperty<number, AudioOptions>;
+    /**
+     * The audio pitch in semitones, which ranges from -12 to 12.
+     */
+    pitch: WritableHorizonProperty<number>;
+    /**
+     * Plays an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is played.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.play(audioOptions);
+     * ```
+     */
+    play(audioOptions?: AudioOptions): void;
+    /**
+     * Pauses an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is paused.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.pause(audioOptions);
+     * ```
+     */
+    pause(audioOptions?: AudioOptions): void;
+    /**
+     * Stops an AudioGizmo sound.
+     *
+     * @param audioOptions - Controls how the audio is played.
+     *
+     * @example
+     * ```
+     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
+     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
+     * soundGizmo.stop(audioOptions);
+     * ```
+     */
+    stop(audioOptions?: AudioOptions): void;
+}
+```
+
+### Sound Recorder Gizmo
+Used to record custom audio
+
+Can be stopped and started via scripts
+
+Max distance is how far away from the gizmo you can stand before you can no longer hear it
+Min distance is how close you must be to hear the audio at its max volume
+
+Distance in in meters
+
+Is very costly to performance if overused
+
+API is same as previous section [audio gizmo](#audio-gizmo)
+
+### Spawn Point Gizmo
+Use as a predetermined location to send the player when using the “Teleport player” code block
+
+Attach a script with an object variable to a trigger
+Open the spawn point properties panel, and drag the reference pill to the object variable on the trigger’s properties panel
+
+```ts
+class SpawnPointGizmo extends Entity {
+    /**
+     * The gravity for players spawned using this gizmo.
+     *
+     * @remarks
+     * Range = (0, 9.81)
+     */
+    gravity: HorizonProperty<number>;
+    /**
+     * The speed for players spawned using this gizmo.
+     *
+     * @remarks
+     * Range = (0, 45)
+     */
+    speed: HorizonProperty<number>;
+    /**
+     * Teleports a player to the spawn point.
+     *
+     * @param player - The player to teleport.
+     */
+    teleportPlayer(player: Player): void;
+}
+```
+
+### Text Gizmo
+- all supported commands
+    - TODO: import https://www.horizonhub.info/reference/textGizmo
+
+A way to display numbers and common English letters
+Font size can automatically scale when auto fit is on, or set manually when auto fit is off.
+
+Can be used for clever texturing
+
+Is very costly to performance if overused due to draw call cost and lack of batching when rendering
+
+```ts
+class TextGizmo extends Entity {
+    /**
+     * The content to display in the text label.
+     *
+     * Note: if the content was previously set with `localizableText`, the getter
+     * of this property will return the localized string in the language of the
+     * local player. Do not use the returned text in attributes shared with other
+     * players. Other player might use differnet languages, and only
+     * LocalizableText object will be localized.
+     */
+    text: HorizonProperty<string>;
+}
+```
+
+### TrailFx Gizmo
+Lines that follow the object when moved
+
+Can have a flat or tapered end
+
+Is very costly to performance if overused due to per frame rendering
+
+Same API as [particle gizmo](#particlefx-gizmo)
+
+### Trigger Gizmo
+Designated area that causes an event to fire in the code
+
+Player Enter
+Player Exit
+
+(Triggered by object with tag)
+Object Enter
+Object Exit
+
+Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
+
+```ts
+class TriggerGizmo extends Entity {
+    /**
+     * Creates a human-readable representation of the entity.
+     * @returns A string representation
+     */
+    toString(): string;
+    /**
+     * Whether the Trigger is enabled.
+     */
+    enabled: WritableHorizonProperty<boolean>;
+}
+```
+
+```ts
+/**
+ * The event that is triggered when the player enters a trigger zone.
+ */
+OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
+/**
+ * The event that is triggered when a player leaves a trigger zone.
+ */
+OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
+/**
+ * The event that is triggered when an entity enters a trigger zone.
+ */
+OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+/**
+ * The event that is triggered when an entity exits a trigger zone.
+ */
+OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+```
+
+### World Leaderboard Gizmo
+TODO- Can be moved to dedicated quest reference
+Used to track score and compare/compete against friends and other visitors
+
+Must be created in Leaderboards tab in creator menu
+
+Can be used to gain insight about how your experience is being used
+
+No TS type, but you can set with `world.leaderboards.setScoreForPlayer`:
+
+```ts
+/**
+ * Sets the leaderboard score for a player.
+ * @param leaderboardName - The name of the leader board.
+ * @param player - The player for whom the score is updated.
+ * @param score - The new score.
+ * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
+ */
+setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
+```
 
 ## Tags
 
@@ -568,6 +1078,8 @@ You CAN nest.
 ## Performance
 
 ### Draw Calls
+
+<mark>**Challenge question (for the doc)**: are draw calls really ever the primary issue? Is this information truly used and needed by 1p and 2p? A lot of Horizon's behavior is "like other 3D engines". What specific things (about Horizon) do we actually need to document, assuming that someone is technically savvy (enough) already?</mark>
 
 - Do not rely on Horizon to do any draw call batching. Meaning each instantiated asset is at least 1 draw call.
 - Hypothesis / guess: UI Gizmos are rendered into textures on the _CPU_ and then rendered as single quads with a texture on the GPU (don't know about batching...). What about name tags?
@@ -870,6 +1382,18 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 
 - collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
 
+TODO: CodeBlockEvents
+```ts
+/**
+ * The event that is triggered when a player collides with something.
+ */
+OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
+/**
+ * The event that is triggered when an entity collides with something.
+ */
+OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
+```
+
 ### Collidability
 
 Mesh entities an collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
@@ -1031,6 +1555,18 @@ for determining which `Player`'s device the current script is running one. This 
 ### Entering and Exiting a World
 
 ### AFK
+
+```ts
+// CodeBlockEvents
+/**
+ * The event that is triggered when a player goes AFK (opens the Oculus menu, takes their headset off, etc)
+ */
+OnPlayerEnterAFK: CodeBlockEvent<[player: Player]>;
+/**
+ * The event that is triggered when a player comes back from being AFK.
+ */
+OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
+```
 
 # Grabbing and Holding Entities
 
