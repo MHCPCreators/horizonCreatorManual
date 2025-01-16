@@ -369,6 +369,8 @@ When you want to set the position of an entity in relation to the current positi
     Offsetting scale works similarly.
 
 !!! example Offsetting rotation
+    TODO - Probably want to mention how the rotation is counter-clockwise when facing towards the positive direction of the axis
+    
     To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
     ```ts
     const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
@@ -433,7 +435,7 @@ Throughout this doc, other than this section, we omit the word *global*. When yo
 
 ### Pivot Points
 
-The "center" of an entity is called its **pivot point**. It rotates around its pivot point, it scales around its pivot point, and when you move an entity its pivot point end ups at the position specified.
+The transformation origin point of an entity is called its **pivot point**. It rotates around its pivot point, it scales around its pivot point, and when you move an entity its pivot point end ups at the position specified.
 
 1. **Mesh entities** have their pivot points specified when they are authored (e.g. in Blender)
 1. **Empty objects** have their pivot points at the center of the gizmo (the grey cube)
