@@ -371,7 +371,7 @@ When you want to set the position of an entity in relation to the current positi
 
 !!! example Offsetting rotation
     TODO - Probably want to mention how the rotation is counter-clockwise when facing towards the positive direction of the axis
-    
+
     To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
     ```ts
     const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
@@ -1855,6 +1855,8 @@ flowchart TD
 
 ### Scripted Attach
 
+TODO
+
 ### Sticky
 Whereas attachable entites may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
 
@@ -1886,14 +1888,11 @@ TODO - Explain detach via a grab by a ["Who Can Grab?"](#setting-who-can-grab) p
 #### Anchor To
 The following is a list of player body parts that the attachable entity may anchor to.
 
-**Head**
-    This sets the attachment point to the center of the player's head.
-
-**Torso**
-    This sets the attachment point to the center of the player's torso.
-
-**Left/Right Hip**
-    This sets the attachment point to the side (left or right) of the player's waist.
+| Body Part Setting | Sets the attachment point to |
+|---|---|
+| **Head** | center of the player's head.|
+| **Torso** | center of the player's torso. |
+| **Left/Right Hip** | the side (left or right) of the player's waist. |
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
