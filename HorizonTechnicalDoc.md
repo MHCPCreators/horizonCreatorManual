@@ -1890,9 +1890,9 @@ The following is a list of player body parts that the attachable entity may anch
 
 | Body Part Setting | Sets the attachment point to |
 |---|---|
-| **Head** | center of the player's head.|
-| **Torso** | center of the player's torso. |
-| **Left/Right Hip** | the side (left or right) of the player's waist. |
+| *Head* | center of the player's head.|
+| *Torso* | center of the player's torso. |
+| *Left/Right Hip* | the side (left or right) of the player's waist. |
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
