@@ -511,6 +511,8 @@ Is very costly to performance if overused due to expensive VFXs
 
 Cannot be transformed. Give it a parent (such as a group), and transform the parent instead, if you want to transform it.
 
+!!! info You can not change or stop the default door animation or sound.
+
 ### Dynamic Light Gizmo
 Lights that can be attached to animated or interactable objects
 
@@ -548,6 +550,8 @@ Changes the skybox, lighting, and world voice settings
 Multiple allowed in world. Only one can be active at a time.
 
 No current TS APIs (no TS entity).
+
+!!! info You can use asset spawing to change the enviroment dynamically.
 
 ### ParticleFx Gizmo
 Premade effects to enhance the user experience
@@ -891,6 +895,8 @@ Is very costly to performance if overused
 
 API is same as previous section [audio gizmo](#audio-gizmo)
 
+!!! info  Each recording can be up to 20 minutes long.
+
 ### Spawn Point Gizmo
 Use as a predetermined location to send the player when using the “Teleport player” code block
 
@@ -957,6 +963,8 @@ Is very costly to performance if overused due to per frame rendering
 
 Same API as [particle gizmo](#particlefx-gizmo)
 
+!!! info Using stop on TrailFX will derender the Trail.
+
 ### Trigger Gizmo
 Designated area that causes an event to fire in the code
 
@@ -966,6 +974,8 @@ Player Exit
 (Triggered by object with tag)
 Object Enter
 Object Exit
+
+TODO - Enable And disable trigger and note about costly to performance. 
 
 Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
 
