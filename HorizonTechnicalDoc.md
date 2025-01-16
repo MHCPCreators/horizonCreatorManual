@@ -139,22 +139,23 @@
     4. [Releasing Entities](#releasing-entities)
         1. [Manual release](#manual-release)
         2. [Force release](#force-release)
-        3. [Distance-based release](#distance-based-release)
     5. [Grab Sequence and Events](#grab-sequence-and-events)
         1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
 12. [Attaching Entities](#attaching-entities)
-    1. [Attachable By](#attachable-by)
-    2. [Avatar Attachable](#avatar-attachable)
-        1. [Sticky](#sticky)
+    1. [Creating an Attachable](#creating-an-attachable)
+    2. [Attachable By](#attachable-by)
+    3. [Avatar Attachable](#avatar-attachable)
+        1. [Scripted Attach](#scripted-attach)
+        2. [Sticky](#sticky)
             1. [Stick To](#stick-to)
-        2. [Anchor](#anchor)
+        3. [Anchor](#anchor)
             1. [Anchor To](#anchor-to)
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
-    3. [Attach to 2D screen](#attach-to-2d-screen)
+    4. [Attach to 2D screen](#attach-to-2d-screen)
 13. [Holstering Entities](#holstering-entities)
 14. [Player Input](#player-input)
 15. [Persistence](#persistence)
@@ -986,7 +987,7 @@ Player Exit
 Object Enter
 Object Exit
 
-TODO - Enable And disable trigger and note about costly to performance. 
+TODO - Enable And disable trigger and note about costly to performance.
 
 Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
 
@@ -1729,11 +1730,14 @@ entity.forceRelease();
 
 on the held object. If the entity was **force held** then this is how you remove the entity from their hand.
 
-!!! warning Setting `simulated` to `false` on a held entity will act just like force release. It will then no longer be grabbable until `simulated` is set to `true` again.
+!!! info Some actions automatically force release.
+    There are a number of ways in which a grabbable entity can be "automatically" force released:
+    1. **`Simulated` is set to `false`** - the entity is force released and then remains ungrabbable until `simulated` is set to `true` again.
+    1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player
+    1. **Entity moves too far away** - either via scripting, animation, or physics "knocking it out of the hand".
 
-### Distance-based release
-
-If a **held entity moves too far** from a player holding it then will be **force released**. This can occur if the entity has scripted movement on it that moves it foo far from player. This can also happen if the physics system moves the object too far from the player (simple example is that if you run into a wall while holding an entity it might get flung out of your hand).
+!!! danger Despawning a held object does not send a grab release event!
+    This is a bug that may be fixed in the future. Be mindful of despawning assets that contain grabbable entities (you may need to clean up manually).
 
 ## Grab Sequence and Events
 
@@ -1761,7 +1765,7 @@ flowchart TD
 
 ### Hand-off (Switching Hands or Players)
 
-When an entity is transferred from one hand to another or from one player to another then the entity is _fully released_ by the first player before being grabbed by the second player.
+When an entity is transferred from one hand to another or from one player to another then the entity is _fully released_ by the first player before being grabbed by the second player. This means there is a moment where the entity is held by no one. An entity is never held by 2 players (not even momentarily); and if it is not a multi-grab entity then it is never held by 2 hands (not even momentarily).
 
 !!! warning `OnGrabEnd` is sent during a "hand-off".
     The `OnGrabEnd` event may mean that an entity is about to grabbed by a different hand or player.
@@ -1790,7 +1794,7 @@ When building a lever, for example, you want the avatar hand to "lock onto" the 
 
 In this lever example, you could get `player.leftHand.position.get()` every frame to identify where the avatar's hand is _supposed_ to be, constrain that position to a "valid position" and then rotate the level according. This is an advanced use case that likely requires trigonometry.
 
-Note that if the grabbed entity gets too far away from the avatar hand you will get a [distance-based release](#distance-based-release).
+Note that if the grabbed entity gets too far away from the avatar hand you will get a [force release](#force-release).
 
 Here is a simple example of a grabbable entity that is constrained to move along the y-axis (you can only move it up and down).
 
@@ -1800,6 +1804,8 @@ Here is a simple example of a grabbable entity that is constrained to move along
 Entites can be attached to players.
 Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
 Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties panel.
+
+## Creating an Attachable
 
 ## Attachable By
 This setting defines the permissions of who the entity can attach to.
@@ -1830,9 +1836,9 @@ flowchart TD
 
   detach -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases attachable entity on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
 
-  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
 
-  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> --> detach
 
   attach -- <table style="margin:0"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
 
@@ -1840,15 +1846,24 @@ flowchart TD
     linkStyle 2,3 stroke:red,stroke-width:1px;
 ```
 
+!!! info Transitioning between Held and Attached results in being both at the same time.
+    An entity goes *from being held to being attached* when `attachToPlayer` is called. An entity goes *from being attached to held* when a player [grabs](#can-grab) or when `forceGrab` is called. In both of these cases the entity is **momentarily held and attached at the same time**.
+
+    **Events ordering**:
+    * From Held to Attached: the `OnAttachStart` is sent and then `OnGrabEnd`.
+    * From Attached to Held: the `OnGrabStart` is sent and then `OnAttachEnd`.
+
+### Scripted Attach
+
 ### Sticky
 Whereas attachable entites may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
 
 #### Stick To
-The following is a list of player body parts that the attachable entity may stick to. 
+The following is a list of player body parts that the attachable entity may stick to.
 
 **Head**
     This option allows the attachable entity to stick to the player's head.
-    
+
 **Torso**
     This option allows the attachable entity to stick to the player's torso.
 
@@ -1873,7 +1888,7 @@ The following is a list of player body parts that the attachable entity may anch
 
 **Head**
     This sets the attachment point to the center of the player's head.
-    
+
 **Torso**
     This sets the attachment point to the center of the player's torso.
 
@@ -2002,10 +2017,11 @@ e.g. alt-click to orbit
 
 - does "attach" cause "release"?
 **Yes, this triggers a release. On both in VR attach and programatic attach**
-**Demo code** 
+**Demo code**
 ![[ horizonScripts/testAttachReleaseEvent.ts ]]
 - does ownership transfer while held send any events?
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
   \*inside of `playerExit` callback is the player still in the array? Right after?
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
+
