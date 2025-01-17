@@ -51,7 +51,8 @@
         17. [Trigger Gizmo](#trigger-gizmo)
         18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
     5. [Tags](#tags)
-5. [Custom Model Import](#custom-model-import)
+5. [Camera](#camera)
+6. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
     3. [Assets](#assets)
@@ -66,8 +67,8 @@
         3. [Memory](#memory)
     5. [Horizon Lighting](#horizon-lighting)
     6. [General Tips](#general-tips)
-6. [Text Importing / Text Assets](#text-importing--text-assets)
-7. [Scripting](#scripting)
+7. [Text Importing / Text Assets](#text-importing--text-assets)
+8. [Scripting](#scripting)
     1. [Horizon Properties](#horizon-properties)
     2. [Types](#types)
         1. [In-Place Mutation](#in-place-mutation)
@@ -96,14 +97,14 @@
         2. [Physics Phase](#physics-phase)
         3. [Events Phase](#events-phase)
         4. [OnUpdate Phase](#onupdate-phase)
-8. [Network](#network)
+9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
     4. [Network Events](#network-events-1)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-9. [Physics](#physics)
+10. [Physics](#physics)
     1. [Overview](#overview-3)
     2. [Creating a Physical Entity](#creating-a-physical-entity)
     3. [Collisions and Triggers](#collisions-and-triggers)
@@ -117,7 +118,7 @@
     8. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
     9. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
     10. [Players](#players)
-10. [Players](#players-1)
+11. [Players](#players-1)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -127,7 +128,7 @@
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
-11. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+12. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -144,7 +145,7 @@
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
-12. [Attaching Entities](#attaching-entities)
+13. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -156,32 +157,32 @@
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-13. [Holstering Entities](#holstering-entities)
-14. [Player Input](#player-input)
-15. [Persistence](#persistence)
+14. [Holstering Entities](#holstering-entities)
+15. [Player Input](#player-input)
+16. [Persistence](#persistence)
     1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-16. [Spawning](#spawning)
+17. [Spawning](#spawning)
     1. [Assets](#assets-1)
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-17. [Custom UI](#custom-ui)
+18. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
-18. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
-19. [Performance Optimization](#performance-optimization)
+19. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+20. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-20. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-21. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-22. [Glossary](#glossary)
+21. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+22. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+23. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -1052,6 +1053,19 @@ Getting entities with tags.
 Tag uses:
   * Triggers
   * Collisions
+
+# Camera
+!!! note Scratch notes
+    XS only
+
+    Local Only
+    Local Camera
+
+    - Spawn point camera options
+    - Turnkey modes (1st and 3rd person)
+    - Granular modes? (Fixed, Attach, Orbit, Pan)
+    - Collision (enable/disable)
+    - Disabling perspective switch
 
 # Custom Model Import
 
