@@ -38,16 +38,16 @@
         4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
         5. [Environment Gizmo](#environment-gizmo)
         6. [ParticleFx Gizmo](#particlefx-gizmo)
-        7. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        8. [Quests Gizmo](#quests-gizmo)
-        9. [Raycast Gizmo](#raycast-gizmo)
-        10. [Script Gizmo](#script-gizmo)
-        11. [Snap Destination Gizmo](#snap-destination-gizmo)
-        12. [Sound Gizmo](#sound-gizmo)
-        13. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        14. [Spawn Point Gizmo](#spawn-point-gizmo)
-        15. [Text Gizmo](#text-gizmo)
-        16. [TrailFx Gizmo](#trailfx-gizmo)
+        7. [TrailFx Gizmo](#trailfx-gizmo)
+        8. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        9. [Quests Gizmo](#quests-gizmo)
+        10. [Raycast Gizmo](#raycast-gizmo)
+        11. [Script Gizmo](#script-gizmo)
+        12. [Snap Destination Gizmo](#snap-destination-gizmo)
+        13. [Sound Gizmo](#sound-gizmo)
+        14. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        15. [Spawn Point Gizmo](#spawn-point-gizmo)
+        16. [Text Gizmo](#text-gizmo)
         17. [Trigger Gizmo](#trigger-gizmo)
         18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         19. [In World Purchase Gizmo](#in-world-purchase-gizmo)
@@ -492,6 +492,7 @@ There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, 
 - [Dynamic Light Gizmo](#dynamic-light-gizmo)
 - [Environment Gizmo](#environment-gizmo)
 - [ParticleFx Gizmo](#particlefx-gizmo)
+- [TrailFx Gizmo](#trailfx-gizmo)
 - [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
 - [Quests Gizmo](#quests-gizmo)
 - [Raycast Gizmo](#raycast-gizmo)
@@ -501,7 +502,6 @@ There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, 
 - [Sound Recorder Gizmo](#sound-recorder-gizmo)
 - [Spawn Point Gizmo](#spawn-point-gizmo)
 - [Text Gizmo](#text-gizmo)
-- [TrailFx Gizmo](#trailfx-gizmo)
 - [Trigger Gizmo](#trigger-gizmo)
 - [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 
@@ -590,6 +590,33 @@ class ParticleGizmo extends Entity {
     stop(options?: ParticleFXStopOptions): void;
 }
 ```
+
+* Hit Ring and Hit Spark are essentially quick "canned effects". When you do play they run. Stop does nothing because the effects are so short.
+* All other effects are implemented as particle emitters (with randomization).
+    * **Play** starts the emitter for some amount of time (different per effect and some randomness)
+    * **Stop** stops the emitter meaning that any particles that haven't emitted yet are not emitted.
+    * **Fixed number of particles**. Each effect has a fixed number of particles. At any moment in time a particle is in one of three states: *countdown-to-birth*, *alive*, and *dead*. At world launch all particles in a gizmo are *dead*.
+        * Play: transitions all *dead* particles into the *countdown-to-birth* "countdown" state.
+        * Stop: transitions all *countdown-to-birth* particles into the *dead* state. n
+        * Play-from-start: transitions all *dead* into *fuse-lit* and resets all the fuses on the *fuse-lit*.
+
+|   |  Dead | Countdown-to-Birth | Alive |
+|---|---|---|---|
+| Play  |   | |
+| Stop | | |
+| Play from start | | |
+
+
+### TrailFx Gizmo
+Lines that follow the object when moved
+
+Can have a flat or tapered end
+
+Is very costly to performance if overused due to per frame rendering
+
+Same API as [particle gizmo](#particlefx-gizmo)
+
+!!! info Using stop on TrailFX will derender the Trail.
 
 ### Projectile Launcher Gizmo
 A turnkey way to launch small objects
@@ -925,17 +952,6 @@ class TextGizmo extends Entity {
     text: HorizonProperty<string>;
 }
 ```
-
-### TrailFx Gizmo
-Lines that follow the object when moved
-
-Can have a flat or tapered end
-
-Is very costly to performance if overused due to per frame rendering
-
-Same API as [particle gizmo](#particlefx-gizmo)
-
-!!! info Using stop on TrailFX will derender the Trail.
 
 ### Trigger Gizmo
 Designated area that causes an event to fire in the code
