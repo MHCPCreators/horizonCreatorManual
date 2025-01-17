@@ -1814,22 +1814,18 @@ Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties p
 ## Attachable By
 This setting defines the permissions of who the entity can attach to.
 
-**Owner**
-    Only the person holding the attachable entity is permitted to attach it to themselves.
-
-**Everyone**
-    Anyone holding the attachable entity is permitted to attach it to themselves or anyone else.
-
-TODO - When set to owner, can I attach thru code to a rando in the world?
+| Attachable By | Description |
+|---|---|
+| *Owner* | Only the person holding the attachable entity is permitted to attach it to themselves.|
+| *Everyone* | Anyone holding the attachable entity is permitted to attach it to themselves or anyone else.|
 
 ## Avatar Attachable
 Attaching an entity to player can be done by the following:
 
-- Via release:
-    Upon releasing the held entity, the entity checks if collision has occured between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.
-
-- Via code:
-    See code API.
+| Attach Method | Description |
+|---|---|
+| *Release on body part* | Upon releasing the held entity, the entity checks if collision has occured between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
+| *Script* | See attachables API.|
 
 TODO - Explain what happens when multiple attached
 
@@ -2028,4 +2024,4 @@ e.g. alt-click to orbit
   \*inside of `playerExit` callback is the player still in the array? Right after?
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
-
+- When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
