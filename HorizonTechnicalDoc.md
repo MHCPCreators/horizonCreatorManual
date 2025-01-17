@@ -1737,8 +1737,10 @@ on the held object. If the entity was **force held** then this is how you remove
 !!! info Some actions automatically force release.
     There are a number of ways in which a grabbable entity can be "automatically" force released:
     1. **`Simulated` is set to `false`** - the entity is force released and then remains ungrabbable until `simulated` is set to `true` again.
+    1. **`Collidable` is set to `false`** - the entity is force released and then remains ungrabbable until `Collidable` is set to `true` again.
     1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player it is forced released (after attaching to the player, meaning that it is momentarily held *and* attached at the same time).
-    1. **Entity moves too far away** - either via scripting, animation, or physics "knocking it out of the hand".
+    1. **Entity moves too far away from player** - either via scripting, animation, or physics "knocking it out of the hand".
+    1. **Player moves too far away entity** - either via scripting, physics, or player movement input "walking away while grabbing physics locked object".
 
 !!! danger Despawning a held object does not send a grab release event!
     This is a bug that may be fixed in the future. Be mindful of despawning assets that contain grabbable entities (you may need to clean up manually).
