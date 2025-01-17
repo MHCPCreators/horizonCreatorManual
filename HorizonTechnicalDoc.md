@@ -1472,7 +1472,7 @@ Each `Player` has an `id` and an `index` which serve different purposes (see bel
 
 ## Identifying Players
 
-Players in Horizon all have a global "account id". There is no way to access this id directly, although Horizon users it under the hood for persistence (player variables, leaderboards, and quests). Within an instance players can be referenced by the `id` or the `index` they are assigned on entry. Player `index`es are reused when players leave; `id`s are not.
+Players in Horizon all have a global "account id". There is no way to access this id directly, although Horizon uses it under the hood for persistence (player variables, leaderboards, and quests). Within an instance players can be referenced by the `id` or the `index` they are assigned on entry. Player `index`es are reused when players leave; `id`s are not.
 
 ### Player ID
 
