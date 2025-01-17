@@ -199,6 +199,8 @@
 
 # Worlds
 
+* A world exists within a cube 20,000m long on each side, centered at the origin.
+
 ## Metadata and Publishing
 
 Name, description, comfort setting, player count, etc.
@@ -290,6 +292,15 @@ The `position` property on an entity determines where in 3D space the [pivot poi
 
 Setting the `position` property is not influenced by the position of any [ancestors](#ancestors).
 See [local transforms](#local-transforms) for setting position relative to a parent entity.
+
+!!! danger An entity position cannot have a value outside of `[-10,000, 10,000]`
+    When an entity moves (via `position.set` or via physics) to a location where any of its x-, y-, or z-values are outside the range `[-10,000, 10,000]`, then instead, the **entity will be automatically moved to the location it had at world start** (or at spawn-time if it was spawn). If it is a physics entity then it will also have its velocity cleared out.
+
+     **Players do not auto-move / respawn when they are too far away from the origin**.
+
+     !!! bug Entities can be spawned farther than 10,000 away from the origin.
+        It is a bug that entities can be spawned outside the bounds of the world.
+
 
 ### Rotation
 
@@ -591,21 +602,9 @@ class ParticleGizmo extends Entity {
 }
 ```
 
-* Hit Ring and Hit Spark are essentially quick "canned effects". When you do play they run. Stop does nothing because the effects are so short.
-* All other effects are implemented as particle emitters (with randomization).
-    * **Play** starts the emitter for some amount of time (different per effect and some randomness)
-    * **Stop** stops the emitter meaning that any particles that haven't emitted yet are not emitted.
-    * **Fixed number of particles**. Each effect has a fixed number of particles. At any moment in time a particle is in one of three states: *countdown-to-birth*, *alive*, and *dead*. At world launch all particles in a gizmo are *dead*.
-        * Play: transitions all *dead* particles into the *countdown-to-birth* "countdown" state.
-        * Stop: transitions all *countdown-to-birth* particles into the *dead* state. n
-        * Play-from-start: transitions all *dead* into *fuse-lit* and resets all the fuses on the *fuse-lit*.
-
-|   |  Dead | Countdown-to-Birth | Alive |
-|---|---|---|---|
-| Play  |   | |
-| Stop | | |
-| Play from start | | |
-
+* **Play (fromStart=false)** do the effect (minimize the impact on the previous `play`). **(try to) elongate the effect**.
+* **Play (fromStart=true)** do the effect as strongly as possible (taking away from the previous `play` as needed). **(try to) make a new effect**.
+* **Stop** causes a particle effect to end as quickly as it can while still looking like the effect completed naturally. For example a particle effect might stop emitting any new particles but with let the ones "in the air" finish. A canned effect may just complete or fast-forward its completion.
 
 ### TrailFx Gizmo
 Lines that follow the object when moved
@@ -1628,20 +1627,20 @@ flowchart TD
     style fail fill:#ffabbc,stroke:black;
     style success fill:#abffbc,stroke:black;
 
-    isInteractive([Does the entity have *Interactive* set to *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain an <a href="#collidability">active collider</a>?])
+    isInteractive([Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain<br/>an <a href="#collidability">active collider</a>?])
 
     isInteractive -- no --> fail([Cannot grab])
 
     activeCollider -- yes --> simulated([Is *simulated* set to *true*?])
     activeCollider -- no --> fail
 
-    simulated -- yes --> canGrab([Is the player allowed by <a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>])
+    simulated -- yes --> canGrab([Is the player allowed by<br/><a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>])
     simulated -- no --> fail
 
-    canGrab -- yes --> isHeld([Is the entity currently held by a player?])
+    canGrab -- yes --> isHeld([Is the entity currently<br/>held by a player?])
     canGrab -- no --> fail
 
-    isHeld -- yes --> canTake([Is the player allowed by <a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
+    isHeld -- yes --> canTake([Is the player allowed by<br/><a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
     isHeld -- no --> success([Can grab])
 
     canTake -- yes --> success
@@ -1650,6 +1649,9 @@ flowchart TD
     linkStyle 0,2,4,6,8,10 stroke:green,stroke-width:1px;
     linkStyle 1,3,5,7,9,11 stroke:red,stroke-width:1px;
 ```
+
+!!! bug Collidable=false is ignored when there is a grab anchor.
+    When
 
 ### Setting "Who Can Grab?"
 
@@ -1739,10 +1741,12 @@ on the held object. If the entity was **force held** then this is how you remove
 !!! info Some actions automatically force release.
     There are a number of ways in which a grabbable entity can be "automatically" force released:
     1. **`Simulated` is set to `false`** - the entity is force released and then remains ungrabbable until `simulated` is set to `true` again.
-    1. **`Collidable` is set to `false`** - the entity is force released and then remains ungrabbable until `Collidable` is set to `true` again.
     1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player it is forced released (after attaching to the player, meaning that it is momentarily held *and* attached at the same time).
     1. **Entity moves too far away from player** - either via scripting, animation, or physics "knocking it out of the hand".
     1. **Player moves too far away entity** - either via scripting, physics, or player movement input "walking away while grabbing physics locked object".
+
+    !!! info Disabling collidability does *not* cause a force release.
+
 
 !!! danger Despawning a held object does not send a grab release event!
     This is a bug that may be fixed in the future. Be mindful of despawning assets that contain grabbable entities (you may need to clean up manually).
