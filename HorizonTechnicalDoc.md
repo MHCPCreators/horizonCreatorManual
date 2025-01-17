@@ -1867,11 +1867,12 @@ Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` 
 #### Stick To
 The following is a list of player body parts that the attachable entity may stick to.
 
-**Head**
-    This option allows the attachable entity to stick to the player's head.
 
-**Torso**
-    This option allows the attachable entity to stick to the player's torso.
+| Body Part Setting | Sets the stickiness to |
+|---|---|
+| *Any* | Both head and torso|
+| *Head* | Anywhere on the player's head|
+| *Torso* | Anywhere on the player's torso|
 
 !!! warning Using code to attach a sticky entity does not set the entity's position and rotation to match the body part.
     Set `Avatar Attachable` to [Anchor](#anchor) to attach to the body part's position and rotation.
