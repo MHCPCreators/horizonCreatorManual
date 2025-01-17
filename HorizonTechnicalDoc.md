@@ -38,6 +38,8 @@
         4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
         5. [Environment Gizmo](#environment-gizmo)
         6. [ParticleFx Gizmo](#particlefx-gizmo)
+            1. [Playing a Particle Effect](#playing-a-particle-effect)
+            2. [Stopping a Particle Effect](#stopping-a-particle-effect)
         7. [TrailFx Gizmo](#trailfx-gizmo)
         8. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         9. [Quests Gizmo](#quests-gizmo)
@@ -77,6 +79,7 @@
         3. [Vec3](#vec3)
         4. [Quaternion](#quaternion)
         5. [Entity Subtypes](#entity-subtypes)
+            1. [Entity as() method](#entity-as-method)
     3. [Files](#files)
     4. [Components](#components)
         1. [Component Class](#component-class)
@@ -521,6 +524,7 @@ There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, 
 - Motion and Interaction (Animated, Grabbable, Physics, Both)
 - Parents and Children
 - Visible and Collidable
+    - These 2 toggle independently
 - Transform (position, rotation, scale, forward, up, right)
 - Simulated
 
@@ -579,32 +583,68 @@ No current TS APIs (no TS entity).
 !!! info You can use asset spawing to change the enviroment dynamically.
 
 ### ParticleFx Gizmo
-Premade effects to enhance the user experience
 
-Is very costly to performance if overused due to per frame rending calculations. Vary between types of particles.
+The particle gizmo allows you to play builtin effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
 
-Be aware there are many premade ones in asset library too!
+Particle gizmos are created in two ways:
+1. Instantiate the `ParticleFx` gizmo in the editor (via the Gizmos tab).
+2. Instantiate one of the pre-made effects in the "VFX" section of the "Assets" tab.
+
+!!! warning Effects are performance intensive.
+    Be careful about having too many effects running all at same time. Effects use CPU and can easily impact frame-rate (FPS) if too many are running. Performance cost varies by effect. Be sure to test your perf as you develop.
+
+In TypeScript, the ParticleFX gizmo is referenced via the `ParticleGizmo` Entity [subclass](#entity-subtypes) (see [as](#entity-as-method)) which has methods for playing the effect and stopping it.
+
+#### Playing a Particle Effect
+
+Call the method
+
+```ts
+// Particle Gizmo
+play(options?: ParticleFXPlayOptions): void;
+```
+
+to make a particle effect start playing. If the effect is set to `looping` in the Property panel then it will play forever (a campfire will burn, a muzzle flare with repeat) unless stopped.
+
+You can specify options when calling `play()`:
 
 ```ts
 type ParticleFXPlayOptions = {
-    fromStart?: boolean; // restart effect if already playing
+    fromStart?: boolean;
     players?: Array<Player>;
-    oneShot?: boolean; // override looping setting?
+    oneShot?: boolean;
 };
+```
 
+| Option  | Type | Meaning  | Default Value |
+|---|---|---|---|
+| fromStart  | `boolean`  | This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect".<br><br>In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph". | TODO |
+| players | `Array<Players>` | The players that will see the effect play. | [All players in the world](#listing-all-players) |
+| oneShot | `boolean` | `true` will play the effect once. `false` will play it looping. This overrides the setting in the Property panel. | TODO |
+
+
+#### Stopping a Particle Effect
+
+Call the method
+
+```ts
+// Particle Gizmo
+stop(options?: ParticleFXStopOptions): void;
+```
+
+to make a particle effect stop playing. The effect will end quickly yet smoothly; it does not just vanish. For example: in a fire the flame will burn out, in a water burst the flow will stop, in a muzzle flare it will simply finish the flare animation, etc.
+
+You can specify options when calling `stop()`:
+
+```ts
 type ParticleFXStopOptions = {
     players?: Array<Player>;
 };
-
-class ParticleGizmo extends Entity {
-    play(options?: ParticleFXPlayOptions): void;
-    stop(options?: ParticleFXStopOptions): void;
-}
 ```
 
-* **Play (fromStart=false)** do the effect (minimize the impact on the previous `play`). **(try to) elongate the effect**.
-* **Play (fromStart=true)** do the effect as strongly as possible (taking away from the previous `play` as needed). **(try to) make a new effect**.
-* **Stop** causes a particle effect to end as quickly as it can while still looking like the effect completed naturally. For example a particle effect might stop emitting any new particles but with let the ones "in the air" finish. A canned effect may just complete or fast-forward its completion.
+| Option  | Type | Meaning  | Default Value |
+|---|---|---|---|
+| players | `Array<Players>` | The players that will see the effect stop. | [All players in the world](#listing-all-players) |
 
 ### TrailFx Gizmo
 Lines that follow the object when moved
@@ -1199,6 +1239,8 @@ Accessor mutations beware!
 
 ### Entity Subtypes
 
+#### Entity as() method
+
 ## Files
 
 ## Components
@@ -1650,8 +1692,8 @@ flowchart TD
     linkStyle 1,3,5,7,9,11 stroke:red,stroke-width:1px;
 ```
 
-!!! bug Collidable=false is ignored when there is a grab anchor.
-    When
+!!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
+    There is currently a bug where when an entity has a grab anchor it can still be grabbed even when collidable is set to false. If you want to make an entity, with a grab anchor, "disappear" you should move it far away (instead of just setting visibility and collidability to false).
 
 ### Setting "Who Can Grab?"
 
