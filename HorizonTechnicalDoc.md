@@ -1870,8 +1870,10 @@ The following is a list of player body parts that the attachable entity may stic
 | *Head* | Anywhere on the player's head|
 | *Torso* | Anywhere on the player's torso|
 
-!!! warning Using code to attach a sticky entity does not set the entity's position and rotation to match the body part.
-    Set `Avatar Attachable` to [Anchor](#anchor) to attach to the body part's position and rotation.
+!!! warning Using code to attach a sticky entity does not place the entity at the center of the body part.
+    Wherever the entity is located upon calling `attachToPlayer()` will be where the entity will begin to follow the body part.
+
+    Set `Avatar Attachable` to [Anchor](#anchor) to reposition the entity to the body part when doing a scripted attach.
 
 ### Anchor
 When attached, an anchored entity will position its [pivot point](#pivot-points) at a specified anchor position.
