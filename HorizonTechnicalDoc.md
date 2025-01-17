@@ -50,6 +50,7 @@
         16. [TrailFx Gizmo](#trailfx-gizmo)
         17. [Trigger Gizmo](#trigger-gizmo)
         18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        19. [In World Purchase Gizmo](#in-world-purchase-gizmo)
     5. [Tags](#tags)
 5. [Camera](#camera)
 6. [Custom Model Import](#custom-model-import)
@@ -574,36 +575,18 @@ Is very costly to performance if overused due to per frame rending calculations.
 Be aware there are many premade ones in asset library too!
 
 ```ts
-/**
- * The settings for {@link ParticleGizmo.start | playing} a particle effect.
- *
- * @remarks
- * fromStart - true to play the effect from the beginning even if already playing.
- * Otherwise, the effect doesn't play if already playing.
- *
- * players - The array of players to apply the change to.
- *
- * oneShot - If true, the effect emits a new particle that plays until its
- * full duration completes. This does not interfere with other play interactions.
- */
 type ParticleFXPlayOptions = {
-    fromStart?: boolean;
+    fromStart?: boolean; // restart effect if already playing
     players?: Array<Player>;
-    oneShot?: boolean;
+    oneShot?: boolean; // override looping setting?
+};
+
+type ParticleFXStopOptions = {
+    players?: Array<Player>;
 };
 
 class ParticleGizmo extends Entity {
-    /**
-     * Plays the particle effect.
-     *
-     * @param options - Controls how the effect is played.
-     */
     play(options?: ParticleFXPlayOptions): void;
-    /**
-     * Stops the particle effect.
-     *
-     * @param options - The options that control how the effect is stopped.
-     */
     stop(options?: ParticleFXStopOptions): void;
 }
 ```
@@ -668,32 +651,8 @@ OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
 ```
 
 ### Quests Gizmo
-TODO- Can be moved to dedicated quest reference
-Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
 
-Must be created in Quest tab in creator menu
-
-Simple means you can complete the quest through an achievement event
-
-Tracked means you can set a player persistent variable to a specified number to complete it
-
-```ts
-class AchievementsGizmo extends Entity {
-    /**
-     * Displays the achievements.
-     *
-     * @param achievementScriptIDs - List of achievement script IDs.
-     */
-    displayAchievements(achievementScriptIDs: Array<string>): void;
-}
-```
-```ts
-// CodeBlockEvents
-    /**
-     * The event that is triggered when an achievement is completed.
-     */
-    OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
-```
+[Quests](#quests)
 
 ### Raycast Gizmo
 Invisible laser that can be activated in a script to collide with players and/or objects.
@@ -1026,25 +985,12 @@ OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
 ```
 
 ### World Leaderboard Gizmo
-TODO- Can be moved to dedicated quest reference
-Used to track score and compare/compete against friends and other visitors
 
-Must be created in Leaderboards tab in creator menu
+[Leaderboards](#leaderboards)
 
-Can be used to gain insight about how your experience is being used
+### In World Purchase Gizmo
 
-No TS type, but you can set with `world.leaderboards.setScoreForPlayer`:
-
-```ts
-/**
- * Sets the leaderboard score for a player.
- * @param leaderboardName - The name of the leader board.
- * @param player - The player for whom the score is updated.
- * @param score - The new score.
- * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
- */
-setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
-```
+[In World Purchases](#in-world-purchases-iwp)
 
 ## Tags
 
@@ -1173,6 +1119,28 @@ Creating scripting entities in Horizon involves creating [`Components`](#compone
 In the classes you can send and receive [events](#events-sending-and-receiving) to perform actions in the world. The majority of code will interact with the core game types: [Entity](#entities), [Player](#players), and [Asset](#assets), as well as use the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations).
 
 ## Horizon Properties
+
+```ts
+interface ReadableHorizonProperty<T> {
+    get(): T;
+}
+```
+
+```ts
+interface WritableHorizonProperty<T, U = never> {
+    set(value: T, ...values: [U?]): void;
+}
+
+// Example use of the `U`
+ volume: WritableHorizonProperty<number, AudioOptions>
+ myGizmo.volume.set(9, {})
+```
+
+```ts
+class  HorizonProperty<T> implements ReadableHorizonProperty<T>, WritableHorizonProperty<T> {
+    get(): T;
+    set(value: T): void;
+```
 
 Note: getting a property returns a copy of
 
@@ -1953,6 +1921,26 @@ Can be overridden programatically.
 - Resetting
   - Weekly / Monthly
 
+  TODO- Can be moved to dedicated quest reference
+Used to track score and compare/compete against friends and other visitors
+
+Must be created in Leaderboards tab in creator menu
+
+Can be used to gain insight about how your experience is being used
+
+No TS type, but you can set with `world.leaderboards.setScoreForPlayer`:
+
+```ts
+/**
+ * Sets the leaderboard score for a player.
+ * @param leaderboardName - The name of the leader board.
+ * @param player - The player for whom the score is updated.
+ * @param score - The new score.
+ * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
+ */
+setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
+```
+
 ## Quests
 
 - Overview
@@ -1962,6 +1950,33 @@ Can be overridden programatically.
   - Which are visible
 - APIs
 - Resetting
+
+TODO- Can be moved to dedicated quest reference
+Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
+
+Must be created in Quest tab in creator menu
+
+Simple means you can complete the quest through an achievement event
+
+Tracked means you can set a player persistent variable to a specified number to complete it
+
+```ts
+class AchievementsGizmo extends Entity {
+    /**
+     * Displays the achievements.
+     *
+     * @param achievementScriptIDs - List of achievement script IDs.
+     */
+    displayAchievements(achievementScriptIDs: Array<string>): void;
+}
+```
+```ts
+// CodeBlockEvents
+    /**
+     * The event that is triggered when an achievement is completed.
+     */
+    OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
+```
 
 ## In-World Purchases (IWP)
 
