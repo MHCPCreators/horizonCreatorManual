@@ -1295,6 +1295,10 @@ Mention coalescence
 
 ## Frame Sequence
 
+TODO: where in the frame are spawned components allocated
+TODO: does first frame
+NOTE: a prephysics handler in code blocks scripts runs before start
+
 ```mermaid
 stateDiagram
     direction LR
