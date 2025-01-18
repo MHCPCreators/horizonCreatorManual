@@ -31,29 +31,30 @@
     3. [Dynamic Entities](#dynamic-entities)
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
-    4. [Gizmos](#gizmos)
-        1. [Common Properties](#common-properties)
-        2. [Custom UI Gizmo](#custom-ui-gizmo)
-        3. [Door Gizmo](#door-gizmo)
-        4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-        5. [Environment Gizmo](#environment-gizmo)
-        6. [ParticleFx Gizmo](#particlefx-gizmo)
+    4. [Common Properties](#common-properties)
+        1. [Simulated](#simulated)
+    5. [Gizmos](#gizmos)
+        1. [Custom UI Gizmo](#custom-ui-gizmo)
+        2. [Door Gizmo](#door-gizmo)
+        3. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        4. [Environment Gizmo](#environment-gizmo)
+        5. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Playing a Particle Effect](#playing-a-particle-effect)
             2. [Stopping a Particle Effect](#stopping-a-particle-effect)
-        7. [TrailFx Gizmo](#trailfx-gizmo)
-        8. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        9. [Quests Gizmo](#quests-gizmo)
-        10. [Raycast Gizmo](#raycast-gizmo)
-        11. [Script Gizmo](#script-gizmo)
-        12. [Snap Destination Gizmo](#snap-destination-gizmo)
-        13. [Sound Gizmo](#sound-gizmo)
-        14. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        15. [Spawn Point Gizmo](#spawn-point-gizmo)
-        16. [Text Gizmo](#text-gizmo)
-        17. [Trigger Gizmo](#trigger-gizmo)
-        18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        19. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-    5. [Tags](#tags)
+        6. [TrailFx Gizmo](#trailfx-gizmo)
+        7. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        8. [Quests Gizmo](#quests-gizmo)
+        9. [Raycast Gizmo](#raycast-gizmo)
+        10. [Script Gizmo](#script-gizmo)
+        11. [Snap Destination Gizmo](#snap-destination-gizmo)
+        12. [Sound Gizmo](#sound-gizmo)
+        13. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        14. [Spawn Point Gizmo](#spawn-point-gizmo)
+        15. [Text Gizmo](#text-gizmo)
+        16. [Trigger Gizmo](#trigger-gizmo)
+        17. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        18. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+    6. [Tags](#tags)
 5. [Camera](#camera)
 6. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
@@ -140,7 +141,7 @@
         3. [Grab Distance](#grab-distance)
     3. [Grabbing Entities](#grabbing-entities)
         1. [Grab Lock](#grab-lock)
-        2. [Force Grab](#force-grab)
+        2. [Force Holding](#force-holding)
     4. [Releasing Entities](#releasing-entities)
         1. [Manual release](#manual-release)
         2. [Force release](#force-release)
@@ -496,6 +497,19 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
 TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)
 
+## Common Properties
+
+- Motion and Interaction (Animated, Grabbable, Physics, Both)
+- Parents and Children
+- Visible and Collidable
+    - These 2 toggle independently
+- Transform (position, rotation, scale, forward, up, right)
+
+### Simulated
+When false the only way to move and rotated is `position.set` and `rotation.set`. The physics system is disabled, grabbing is disabled (any avatar interactions), etc.
+
+TODO: do attachables care (e.g. can you attach a simulated=false object? does it detach if becoming simulated=false)
+
 ## Gizmos
 
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
@@ -518,15 +532,6 @@ There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, 
 - [Text Gizmo](#text-gizmo)
 - [Trigger Gizmo](#trigger-gizmo)
 - [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-
-### Common Properties
-
-- Motion and Interaction (Animated, Grabbable, Physics, Both)
-- Parents and Children
-- Visible and Collidable
-    - These 2 toggle independently
-- Transform (position, rotation, scale, forward, up, right)
-- Simulated
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
@@ -1324,6 +1329,18 @@ TODO: where in the frame are spawned components allocated
 TODO: does first frame
 NOTE: a prephysics handler in code blocks scripts runs before start
 
+`async` runs AFTER default.
+
+> On Frame N during PrePhysics:
+>  moving object into a trigger
+>
+> On Frame N+1 during Events:
+>  triggerEnter is handled
+>
+> I think the rule is as simple as:
+>
+> Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
+
 ```mermaid
 stateDiagram
     direction LR
@@ -1382,7 +1399,13 @@ stateDiagram
         DefaultScript --> DefaultMut
     }
 
-    Default_ --> Render
+    Default_ --> Async
+
+    state Async {
+        Foo : Timeouts and Intervals<br>are processed
+    }
+
+    Async --> Render
 
     state Render {
         RenderScene --> Sync
@@ -1390,6 +1413,24 @@ stateDiagram
 
     Render --> End
    }
+```
+
+```mermaid
+flowchart LR
+  subgraph prePhysics [PrePhysics Phase]
+    preHandlers(<code style="background-color:#0000">onUpdatePrePhysics</code> handlers run) --> preMutations(PrePhysics scene mutations are applied)
+  end
+
+  frameStart(Frame Start) --> prePhysics
+  prePhysics --> physics(Physics)
+  physics --> events(Events Phase)
+  events --> onUpdate(OnUpdate Phase)
+  onUpdate --> async(Async Phase)
+  async --> render(Render Phase)
+  render --> frameEnd(Frame End)
+
+  style frameStart fill:#ddd,stroke:#aaa
+  style frameEnd fill:#ddd,stroke:#aaa
 ```
 
 ### PrePhysics Phase
@@ -1747,7 +1788,7 @@ A screen-based player uses an onscreen button to grab and then (later) a differe
 
 When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
 
-### Force Grab
+### Force Holding
 
 An entity can be forced into the hand of a player used the TypeScript API:
 
@@ -1759,16 +1800,16 @@ forceHold(player: Player, hand: Handedness, allowRelease: boolean): void;
 It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a VR player can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
 
 !!! example Giving players a weapon when the game starts
-    A common use case for force-grabbing is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-grabbing it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
+    A common use case for force-holding is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-holding it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
 
     !!! danger A force-held item can be released "accidentally"
-        Even if an entity is force-grabbed with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
+        Even if an entity is force-held with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
 
 ## Releasing Entities
 
 ### Manual release
 
-If an entity was manually grabbed or it was [force-grabbed](#force-grab) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-grabbed](#force-grab) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
+If an entity was manually grabbed or it was [force-held](#force-holding) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-held](#force-holding) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
 
 ### Force release
 
@@ -2111,6 +2152,8 @@ e.g. alt-click to orbit
 *[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
 
 # OPEN QUESTIONS - TODO {ignore=true}
+
+NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
 - does despawn cause grab "release"?
 
