@@ -508,7 +508,9 @@ TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in gra
 ### Simulated
 When false the only way to move and rotated is `position.set` and `rotation.set`. The physics system is disabled, grabbing is disabled (any avatar interactions), etc.
 
-TODO: do attachables care (e.g. can you attach a simulated=false object? does it detach if becoming simulated=false)
+When simulated is set to false, an attached stays detached.
+
+"Simulated=false is like setting Motion=None."
 
 ## Gizmos
 
@@ -1342,95 +1344,61 @@ NOTE: a prephysics handler in code blocks scripts runs before start
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
 ```mermaid
-stateDiagram
-    direction LR
-    Start : Frame Start
-    End : Frame End
-
-    Physics : Physics Phase
-
-    PrePhysics : PrePhysics Phase
-    PrePhysicsScript : on update [PrePhysics]<br>code runs
-    PrePhysicsMut : Apply PrePhysics<br>scene mutations
-
-    Players : Update players<br>from locomotion
-    Animation : Update recorded<br>animation playback
-    PhysicsMut : Perform physics updates<br>to positions, velocities, etc
-
-    ScriptEvents : Events Phase
-
-    Script : When [X] is recevied<br>code runs
-    ScriptMut : Apply script event<br>scene mutations
-
-    Default_ : OnUpdate Phase
-
-    DefaultScript : on update [Default]<br>code runs
-    DefaultMut : Apply Default<br>scene mutations
-
-    RenderScene : Scene Renders
-    Sync : Broadcast updates<br>to other clients
-
-   WholeFrame : Frame Render Sequence
-
-    state WholeFrame {
-    direction LR
-    Start --> PrePhysics
-
-    state PrePhysics {
-        PrePhysicsScript --> PrePhysicsMut
-    }
-
-    PrePhysics --> Physics
-
-    state Physics {
-        Players --> Animation
-        Animation --> PhysicsMut
-    }
-
-    Physics --> ScriptEvents
-
-    state ScriptEvents {
-        Script --> ScriptMut
-    }
-
-    ScriptEvents --> Default_
-
-    state Default_ {
-        DefaultScript --> DefaultMut
-    }
-
-    Default_ --> Async
-
-    state Async {
-        Foo : Timeouts and Intervals<br>are processed
-    }
-
-    Async --> Render
-
-    state Render {
-        RenderScene --> Sync
-    }
-
-    Render --> End
-   }
-```
-
-```mermaid
 flowchart LR
-  subgraph prePhysics [PrePhysics Phase]
-    preHandlers(<code style="background-color:#0000">onUpdatePrePhysics</code> handlers run) --> preMutations(PrePhysics scene mutations are applied)
+  subgraph prepare [Prepare Phase]
+    load(Reconcile scene mutations from <i>network</i>)
   end
 
-  frameStart(Frame Start) --> prePhysics
+  subgraph prePhysics [PrePhysics Phase]
+    preHandlers(<code style="background-color:#0000">onUpdatePrePhysics</code> handlers run) --> preMutations(Apply scene mutations)
+  end
+
+  subgraph physics [Physics Phase]
+    locomotion(Update players from locomotion and pose) --> animation(Update recorded animation playback)
+
+    animation --> physicsStep(Perform physics updates to positions, velocities, etc)
+  end
+
+  subgraph events [Events Phase]
+    eventHandlers(CodeBlockEvent and NetworkEvent handlers run) --> eventsMutations(Apply scene mutations)
+  end
+
+  subgraph onUpdate [OnUpdate Phase]
+    onUpdateHandlers(<code style="background-color:#0000">onUpdate</code> handlers run) --> onUpdateMutations(Apply scene mutations)
+  end
+
+  subgraph async [Async Phase]
+    asyncHandlers(Timeouts and<br/>Intervals run) --> asyncMutations(Apply scene mutations)
+  end
+
+  subgraph render [Render Phase]
+    sceneRender(Scene rendered to pixels for display) --> broadcast(Scene graph updates and network events are broadcast)
+  end
+
+  prepare --> prePhysics
   prePhysics --> physics(Physics)
   physics --> events(Events Phase)
   events --> onUpdate(OnUpdate Phase)
   onUpdate --> async(Async Phase)
   async --> render(Render Phase)
-  render --> frameEnd(Frame End)
 
-  style frameStart fill:#ddd,stroke:#aaa
-  style frameEnd fill:#ddd,stroke:#aaa
+  style prepare fill:#eee,stroke:#aaa
+  style physics fill:#eee,stroke:#aaa
+  style render fill:#eee,stroke:#aaa
+
+  style preHandlers fill:#dfe,stroke:#8a9
+  style eventHandlers fill:#dfe,stroke:#8a9
+  style onUpdateHandlers fill:#dfe,stroke:#8a9
+  style asyncHandlers fill:#dfe,stroke:#8a9
+
+  style preMutations fill:#def,stroke:#89a
+  style eventsMutations fill:#def,stroke:#89a
+  style onUpdateMutations fill:#def,stroke:#89a
+  style asyncMutations fill:#def,stroke:#89a
+
+  style locomotion fill:#def,stroke:#89a
+  style animation fill:#def,stroke:#89a
+  style physicsStep fill:#def,stroke:#89a
 ```
 
 ### PrePhysics Phase
