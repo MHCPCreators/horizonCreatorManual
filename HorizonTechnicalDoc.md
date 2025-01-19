@@ -1375,12 +1375,13 @@ flowchart LR
     sceneRender(Scene rendered to pixels for display) --> broadcast(Scene graph updates and network events are broadcast)
   end
 
-  prepare --> prePhysics
+  prepare --> async
+  async --> prePhysics
   prePhysics --> physics(Physics)
-  physics --> events(Events Phase)
-  events --> onUpdate(OnUpdate Phase)
-  onUpdate --> async(Async Phase)
-  async --> render(Render Phase)
+  physics -->
+  onUpdate(OnUpdate Phase)
+  onUpdate --> events(Events Phase)
+  events --> render(Render Phase)
 
   style prepare fill:#eee,stroke:#aaa
   style physics fill:#eee,stroke:#aaa
@@ -1400,6 +1401,24 @@ flowchart LR
   style animation fill:#def,stroke:#89a
   style physicsStep fill:#def,stroke:#89a
 ```
+
+Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
+
+Proved: async runs at end of frame. An interval / timeout of 0ms (or some other tiny value) is allowed to run many times per frame (but is capped via some max time - meaning that the async phase will deplete the timer queue only for so long).
+
+Proved: creating an async function ANYWHERE in a frame (EVEN during that frame's async phase) is eligible to be run during that frame's async phase (as long as it's delay is small enough and we haven't hit the "budget").
+
+Proved: creating a timeout / interval in start() with timeout of 0ms will run in that frame before prePhysics.
+
+Proved: 0ms is the default time when omitted.
+
+Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
+
+Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you get an error (and none of the events are processed that frame). Note 2047 times is allowed; 2048 is not. There is a bug where the thrown error implies that 2048 is allowed (it's not!).
+
+Proved: code block event handlers will eventually timeout but it seems to be upward of some 10s of seconds. Even if each event takes a long time, Horizon will do its best to process the entire queue every frame. It never punts events to a future frame. Meaning... it may stall the JS thread for 10s+ (frame isn't stuck, just JS thread) to process all the events.
+
+Proved: each code block event handler is wrapped in a try.
 
 ### PrePhysics Phase
 
