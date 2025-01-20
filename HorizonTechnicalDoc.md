@@ -19,7 +19,14 @@ Current main assignments:
 2. [Worlds](#worlds)
     1. [Metadata and Publishing](#metadata-and-publishing)
     2. [Instances](#instances)
+        1. [Instance Types](#instance-types)
+        2. [Available Instances](#available-instances)
+            1. [Open and Closed Instances](#open-and-closed-instances)
+        3. [Instance Selection](#instance-selection)
+        4. [Modes: Edit, Play, and Publish](#modes-edit-play-and-publish)
     3. [Doors and Linking](#doors-and-linking)
+    4. [World Snapshot](#world-snapshot)
+    5. [World Backups](#world-backups)
 3. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
     2. [Hierarchy](#hierarchy-1)
@@ -127,12 +134,13 @@ Current main assignments:
         3. [Triggers](#triggers)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [Projectiles](#projectiles)
-    7. [Gravity](#gravity)
-    8. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
-    9. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
-    10. [Players](#players)
-11. [Players](#players-1)
+    6. [PhysicalEntity Class](#physicalentity-class)
+    7. [Projectiles](#projectiles)
+    8. [Gravity](#gravity)
+    9. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
+    10. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
+    11. [Player Physics](#player-physics)
+11. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -202,27 +210,138 @@ Current main assignments:
 
 <div style="page-break-after: always;"></div>
 
-# TODO {ignore=true}
-
-- Golden path steps of "ramping up" to make a tutorial
-
 # Overview
 
-- General description of what Horizon is and is not capable of.
+Meta Horizon Worlds (called "Horizon" for the rest of this document) is a Metaverse content platform where people can find and create 3D immersive content to play, explore, and socialize in. Horizon calls each experience a **world**. The content can be accessed on:
+
+**Supported platforms**: mobile, web, Windows PCs, and VR.
+
+Use the Horizon creation tools you can create team-vs-team shooter games, fantasy fighting games, social deception games, hang out spaces and clubs, art exhibits, simulation games, battle royale games, dungeon crawlers, obstacle courses, puzzle games, talk shows, adventure games, stories, party games, improv clubs, and whatever else you can imagine.
+
+The tools support many features for managing and scripting players, physics, 3D mesh import, projectiles, purchases, grabbable items, wearable items, player inputs, lights, UI, NPCs, and more.
+
+**Desktop Editor**: on Windows the Horizon executable can be launched in "Edit" mode (TODO - explain) which opens app in a set of tools where you can create and edit worlds.
+
+**VR Editor**: in Quest VR devices the Meta Horizon Worlds app contain an edit mode that allows for creating and editing worlds inside of VR. It offers a natural and intuitive experience where you can place object directly with your hands and immerse yourself in your creations. The VR editor does not provide access to all tools that the desktop has.
+
+**TypeScript and Code Blocks**. Horizon uses [TypeScript](https://www.typescriptlang.org/) as its scripting language. TypeScript scripts can only be edited in the Desktop Editor. Horizon also has a custom block-based scripting system (where you write scripts by combining blocks together) that it calls **Code Blocks**. Code Block Scripts can only be edited in the VR Editor.
 
 # Worlds
 
-* A world exists within a cube 20,000m long on each side, centered at the origin.
+You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#metadata-and-publishing) enables you to configure worlds settings and publish the world when ready. Worlds are saved in "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
 
 ## Metadata and Publishing
+
+TODO
 
 Name, description, comfort setting, player count, etc.
 
 ## Instances
 
+Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#player-capacity">player capacity</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
+
+!!! info Horizon sometimes refers to Instances as "Sessions"
+    In all technical documentation, Horizon uses the word *instance*. Given that this is a somewhat technical term, it refers to them as **sessions** within the user-facing side of the product. For example, a person can "create a new session".
+
+### Instance Types
+
+There are two types of instances: **published instances** and **editor instances**. There is no way to turn one into the other; when Horizon starts up a new instances, it chooses which type and then that instance is forever that type.
+
+| Instance Type  |   |
+|---|---|
+|  *Published*  |   |
+
+### Available Instances
+
+A player can only travel to an instance if that instance is **available for the player**. Availability is determined by three criteria, all of which must be met:
+
+1. **[Has Player capacity](#player-capacity)**: a player can only travel to a world if there as at least one [index](#player-indices) available. If the capacity is set to 20 and there are 19 people there, then 1 more can travel to the world. It is then unavailable for all players until at one player leaves.
+1. **Is Safe**: Horizon has an undisclosed, and evolving, set of rules for what it deems *safe*, regarding travel. These rules may include: which players have blocked one another (and how recently), if the traveling player has recently been voted out of that instance, if the instance has a moderated event running, and more.
+1. **[Instance is Open](#open-and-closed-instances)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
+
+#### Open and Closed Instances
+
+**New instances default to open.**  When a [new instance is created](#instance-selection) via the "Travel" button it is **open**.
+
+**Player can create closed instances.** When a player explicitly creates a new instance, via "Create New Session", they can choose whether the instance is open (allowing anyone to join) or closed (allowing only invited-players to join).
+
+**Openness can be changed with scripting.** You can change whether or not the current instance is open via TypeScript with
+```ts
+this.world.matchmaking.allowPlayerJoin(isOpen)
+```
+which returns a `Promise<void>` to signal when the change has taken effect.
+
+<mark>TODO: when calling `allowPlayerJoin(false)`, can players join by invite or is the instance actually LOCKED vs Closed?</mark>
+
+### Instance Selection
+
+When a player travels to a world, Horizon will determine which instance to send them to (if there are multiple) or create a new instance if needed (if all are full, none exist, or the player specifically created a new one).
+
+!!! info The Editor Instance
+    There is only ever (at most) one **editor instance** of a given world. When that one instance is full, no other editors can load the world to edit.
+
+```mermaid
+flowchart TD
+  playerTravel{{Player initiates<br/>travel via ____}} --"**Edit World**"--> isEditorFull[Is the Editor<br/>Instance <a href="#available-instances">available</a>?]
+
+  playerTravel --"**Travel to Player**"--> publishedAvailable[Is the instance<br/>they are in <a href="#available-instances">available</a>?]
+
+  playerTravel --"**Visit World**"--> checkInstance[Is there an<br/>  <a href="#available-instances">available</a> instance?]
+
+  publishedAvailable --"yes"--> existingInstance
+
+  checkInstance --"yes"--> existingInstance(Existing Instance)
+  checkInstance --"no"--> newInstance
+
+  playerTravel --""**Create New Session**--> newInstance(New Instance)
+
+  isEditorFull --"yes"--> editInstance(The Editor Instance)
+  isEditorFull --"no"--> failed(Failed to Travel)
+
+  publishedAvailable --"no"--> failed
+
+  style playerTravel fill:#e2faea,stroke:#9a9
+  style checkInstance fill:#fafaea,stroke:#aa9
+  style publishedAvailable fill:#fafaea,stroke:#aa9
+  style isEditorFull fill:#fafaea,stroke:#aa9
+  style failed fill:#fcdada,stroke:#a99
+```
+
+!!! warning
+
+### Modes: Edit, Play, and Publish
+
+A Horizon world can be experienced in 3 different modes:
+
+| Mode  |  Description | Instance Type | Required Role |
+|---|---|---|---|
+| *Edit* | Experience the world **as an editor** where you can modify the world.  | Editor Instance | Editor |
+| *Play* | Experience the world **as a player** from within the editable instance. | Editor Instance | Editor or Tester |
+| *Publish*  | Experience the world **as a player** in a published instance. | Published Instance | n/a |
+
 ## Doors and Linking
 
+<mark>TODO:</mark>
+
+* Doors act like an in-experience Hyperlink
+* Instruction how to get an actual link...
+
+## World Snapshot
+
+When you create a new world, Horizon creates a new "file" on their servers which contains all the information and data for the world. Horizon calls this a **world snapshot**. Every time you update the world, a new snapshot is created. You can manage all the saves snapshots via the [backups](#world-backups) feature.
+
+!!! info **The** world snapshot
+    Whenever this document refers to **the world snapshot** it is referring to the specific snapshot that you have loaded the world from (which is the last one saved, unless you did a rollback).
+
+**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
+
+<a name="player-capacity">**Player capacity**</a>:
+
+## World Backups
+
 # Scene Graph
+
+Nerd comment: why graph instead of tree
 
 ## Hierarchy
 
@@ -245,7 +364,7 @@ We call the children, and their children, and their children, etc of an entity i
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
 
-TODO - Label the headers (X = Collection Type, Y = Collection Properties)
+<mark>TODO - Label the headers (X = Collection Type, Y = Collection Properties)</mark>
 |   | Groups | Empty Object |
 |---|---|---|
 | **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | The **center of the Empty Object** is always the [pivot point](#pivot-points). |
@@ -255,7 +374,7 @@ TODO - Label the headers (X = Collection Type, Y = Collection Properties)
 
 Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
 
-TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".
+<mark>TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".</mark>
 
 ## Coordinates System
 
@@ -265,7 +384,7 @@ TODO - explain how collisions and triggers both do the algorithm of "start with 
 
 **Left-handed**. The coordinate system is *left-handed*, meaning that if position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
 
-TODO - picture
+<mark>TODO - picture</mark>
 
 **Meters**. Distances and positions in Horizon are referenced using meters. For example, the position `(0, 1, 0)` is 1 meter (roughly 3.28 feet) up from the center of the world. Avatars in Horizon are approximately 1.8 meter tall (5 feet 11 inches).
 
@@ -306,7 +425,7 @@ The `position` property on an entity determines where in 3D space the [pivot poi
 Setting the `position` property is not influenced by the position of any [ancestors](#ancestors).
 See [local transforms](#local-transforms) for setting position relative to a parent entity.
 
-!!! danger An entity position cannot have a value outside of `[-10,000, 10,000]`
+!!! danger <a name="world-max-bounds">An entity position cannot have a value outside of `[-10,000, 10,000]`</a>
     When an entity moves (via `position.set` or via physics) to a location where any of its x-, y-, or z-values are outside the range `[-10,000, 10,000]`, then instead, the **entity will be automatically moved to the location it had at world start** (or at spawn-time if it was spawn). If it is a physics entity then it will also have its velocity cleared out.
 
      **Players do not auto-move / respawn when they are too far away from the origin**.
@@ -396,7 +515,7 @@ When you want to set the position of an entity in relation to the current positi
     Offsetting scale works similarly.
 
 !!! example Offsetting rotation
-    TODO - Probably want to mention how the rotation is counter-clockwise when facing towards the positive direction of the axis
+    <mark>TODO - Probably want to mention how the rotation is counter-clockwise when facing towards the positive direction of the axis</mark>
 
     To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
     ```ts
@@ -504,7 +623,7 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
     If there are any ancestors other than Mesh Entities, Empty Objects, and Group Entities then it is undefined whether or not interaction is disabled.
 
-TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)
+<mark>TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)</mark>
 
 ## Common Properties
 
@@ -531,8 +650,7 @@ Tag uses:
 
 ## Gizmos
 
-There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
-
+There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. <mark>TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.</mark>
 
 - [Custom UI Gizmo](#custom-ui-gizmo)
 - [Door Gizmo](#door-gizmo)
@@ -627,9 +745,9 @@ type ParticleFXPlayOptions = {
 
 | Option  | Type | Meaning  | Default Value |
 |---|---|---|---|
-| fromStart  | `boolean`  | This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect".<br><br>In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph". | TODO |
+| fromStart  | `boolean`  | This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect".<br><br>In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph". | <mark>TODO</mark> |
 | players | `Array<Players>` | The players that will see the effect play. | [All players in the world](#listing-all-players) |
-| oneShot | `boolean` | `true` will play the effect once. `false` will play it looping. This overrides the setting in the Property panel. | TODO |
+| oneShot | `boolean` | `true` will play the effect once. `false` will play it looping. This overrides the setting in the Property panel. | <mark>TODO</mark> |
 
 
 #### Stopping a Particle Effect
@@ -814,7 +932,7 @@ class SpawnPointGizmo extends Entity {
 
 ### Text Gizmo
 - all supported commands
-    - TODO: import https://www.horizonhub.info/reference/textGizmo
+    - <mark>TODO: import https://www.horizonhub.info/reference/textGizmo</mark>
 
 A way to display numbers and common English letters
 Font size can automatically scale when auto fit is on, or set manually when auto fit is off.
@@ -839,7 +957,7 @@ Player Exit
 Object Enter
 Object Exit
 
-TODO - Enable And disable trigger and note about costly to performance.
+<mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
 
 Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
 
@@ -1129,8 +1247,8 @@ Mention coalescence
 
 ## Frame Sequence
 
-TODO: where in the frame are spawned components allocated
-TODO: does first frame
+<mark>TODO: where in the frame are spawned components allocated</mark>
+<mark>TODO: does first frame</mark>
 NOTE: a prephysics handler in code blocks scripts runs before start
 
 `async` runs AFTER default.
@@ -1283,7 +1401,7 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 
 - collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
 
-TODO: CodeBlockEvents
+<mark>TODO</mark>: CodeBlockEvents
 ```ts
 /**
  * The event that is triggered when a player collides with something.
@@ -1325,6 +1443,100 @@ This means that whenever it seems both a parent and a child could get a trigger 
 
 ## Simulated vs Locked Entities
 
+## PhysicalEntity Class
+
+```ts
+export declare class PhysicalEntity extends Entity {
+    /**
+     * Gets a string representation of the entity.
+     * @returns The human readable string representation of this entity.
+     */
+    toString(): string;
+    /**
+     * Whether the entity has a gravity effect on it.
+     * If `true`, gravity has an effect, otherwise gravity does not have an effect.
+     */
+    gravityEnabled: WritableHorizonProperty<boolean>;
+    /**
+     * `true` if the physics system is blocked from interacting with the entity; `false` otherwise.
+     */
+    locked: HorizonProperty<boolean>;
+    /**
+     * The velocity of an object in world space, in meters per second.
+     */
+    velocity: ReadableHorizonProperty<Vec3>;
+    /**
+     * The angular velocity of an object in world space.
+     */
+    angularVelocity: ReadableHorizonProperty<Vec3>;
+    /**
+     * Applies a force at a world space point. Adds to the current velocity.
+     * @param vector - The force vector.
+     * @param mode - The amount of force to apply.
+     */
+    applyForce(vector: Vec3, mode: PhysicsForceMode): void;
+    /**
+     * Applies a local force at a world space point. Adds to the current velocity.
+     * @param vector - The force vector.
+     * @param mode - The amount of force to apply.
+     */
+    applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
+    /**
+     * Applies a force at a world space point using a specified position as the center of force.
+     * @param vector - The force vector.
+     * @param position - The position of the center of the force vector.
+     * @param mode - The amount of force to apply.
+     */
+    applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
+    /**
+     * Applies torque to the entity.
+     * @param vector - The force vector.
+     */
+    applyTorque(vector: Vec3): void;
+    /**
+     * Applies a local torque to the entity.
+     * @param vector - The force vector.
+     */
+    applyLocalTorque(vector: Vec3): void;
+    /**
+     * Sets the velocity of an entity to zero.
+     */
+    zeroVelocity(): void;
+    /**
+     * Pushes a physical entity toward a target position as if it's attached to a spring.
+     * This should be called every frame and requires the physical entity's motion type to be interactive.
+     *
+     * @param position - The target position, or 'origin' of the spring
+     * @param options - Additional optional arguments to control the spring's behavior.
+     *
+     * @example
+     * ```
+     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
+     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     *  physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
+     * })
+     * ```
+     */
+    springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+    /**
+     * Spins a physical entity toward a target rotation as if it's attached to a spring.
+     * This should be called every frame and requires the physical entity's motion type to be interactive.
+     *
+     * @param rotation - The target quaternion rotation.
+     * @param options - Additional optional arguments to control the spring's behavior.
+     *
+     * @example
+     * ```
+     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
+     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     *  physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
+     * })
+     * ```
+     */
+    springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+}
+```
+
 ## Projectiles
 
 ## Gravity
@@ -1335,13 +1547,17 @@ Note: `zeroVelocity` clears out positional and rotational velocity.
 
 ## Properties: Mass, Drag, Center-of-Mass
 
-## Players
+## Player Physics
 
 Velocity, locomotion speed, jump speed
 
 # Players
 
-The `Player` class represents a person in an instance. There is also special `Player` instance that represents the server. `Player` instances are allocated by the system; you should never attempt to allocate them. `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
+The `Player` class represents a person in an instance. Each world has a [player capacity](#player-capacity) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
+
+`Player` instances are allocated by the system; you should never attempt to allocate them. `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
+
+There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the  <a href="#player-capacity">player setting</a>.
 
 Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
 
@@ -1382,6 +1598,19 @@ When a player enters a world they are also assigned an `index`. The `index` will
 
 For example: if three players arrive in an instance they may be assigned `index` values of `0`, `1`, and `2`. If they player with `index` `1` leaves then the next player that arrives may get index `1` again.
 
+You can read a player's index with
+
+```ts
+player.index.get()
+```
+
+and use
+```ts
+world.getPlayerFromIndex(index) // Player | null
+```
+
+to find out which player currently, if any, has a given index.
+
 !!! danger Do not rely on the order indices are assigned
     There are no guarantees that a player gets the _smallest_ available `index`. Any available value maybe be assigned to a new player.
 
@@ -1401,11 +1630,13 @@ which returns the current list of players in the world. Note that the order of t
 !!! note
     `getPlayers` does not include the server player.
 
-TODO: relation to enter and exit
+<mark>TODO</mark>: relation to enter and exit
 
 ### Server Player
 
-There is a special instance of the `Player` class that represents the _server_. It has an `id` but no meaningful `index`. All APIs work but return defaults (example: the location will return the origin; name will return the empty string).
+There is a special instance of the `Player` class that represents the _server_. It has an `id` but no meaningful `index`. All `Player` APIs work for the server player, but return default values (example: the location will return the origin; name will return the empty string).
+
+The server player does not count as one of the human players: it does not get assigned an `index` and it does not count toward the <a href="#player-capacity">player capacity</a>.
 
 The `World` class has the method
 
@@ -1503,7 +1734,7 @@ flowchart TD
 
     isInteractive([Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain<br/>an <a href="#collidability">active collider</a>?])
 
-    isInteractive -- no --> fail([Cannot grab])
+    isInteractive -- no --> fail[Cannot grab]
 
     activeCollider -- yes --> simulated([Is *simulated* set to *true*?])
     activeCollider -- no --> fail
@@ -1515,7 +1746,7 @@ flowchart TD
     canGrab -- no --> fail
 
     isHeld -- yes --> canTake([Is the player allowed by<br/><a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
-    isHeld -- no --> success([Can grab])
+    isHeld -- no --> success[Can grab]
 
     canTake -- yes --> success
     canTake -- no --> fail
@@ -1544,12 +1775,12 @@ Use the API
 setWhoCanGrab(players: Player[]): void;
 ```
 
-to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (TODO - everyone? no one?).
+to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (<mark>TODO</mark> - everyone? no one?).
 
 !!! note setWhoCanGrab does not auto-update
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
-    There is no way to set an entity back to its "default behavior" (before the API is first called - TODO verify).
+    There is no way to set an entity back to its "default behavior" (before the API is first called - <mark>TODO</mark> verify).
 
 ### Setting "Who Can Take From Holder?"
 
@@ -1709,7 +1940,7 @@ Attaching an entity to player can be done by the following:
 | *Release on body part* | Upon releasing the held entity, the entity checks if collision has occured between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
 | *Script* | See attachables API.|
 
-TODO - Explain what happens when multiple attached
+<mark>TODO</mark> - Explain what happens when multiple attached
 
 ```mermaid
 flowchart TD
@@ -1737,7 +1968,7 @@ flowchart TD
 
 ### Scripted Attach
 
-TODO
+<mark>TODO<mark>
 
 ### Sticky
 Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
@@ -1768,7 +1999,7 @@ By default an anchored entity's [rotation](#rotation) is as follows:
 
 !!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
 
-TODO - Explain detach via a grab by a ["Who Can Grab?"](#setting-who-can-grab) permitted player and detach via [code](#detach).
+<mark>TODO</mark> - Explain detach via a grab by a ["Who Can Grab?"](#setting-who-can-grab) permitted player and detach via [code](#detach).
 
 #### Anchor To
 The following is a list of player body parts that the attachable entity may anchor to.
@@ -1815,7 +2046,7 @@ Can be overridden programatically.
 - Resetting
   - Weekly / Monthly
 
-  TODO- Can be moved to dedicated quest reference
+  <mark>TODO</mark>- Can be moved to dedicated quest reference
 Used to track score and compare/compete against friends and other visitors
 
 Must be created in Leaderboards tab in creator menu
@@ -1845,7 +2076,7 @@ setScoreForPlayer(leaderboardName: string, player: Player, score: number, overri
 - APIs
 - Resetting
 
-TODO- Can be moved to dedicated quest reference
+<mark>TODO</mark>- Can be moved to dedicated quest reference
 Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
 
 Must be created in Quest tab in creator menu
@@ -1935,14 +2166,15 @@ Colliders, triggers,
 e.g. alt-click to orbit
 
 # Common Problems and Troubleshooting
-- leave and come back
 - stop, reset, play (don't just hit escape)
+- leave and come back
+- let the instance die
 
 # Glossary
 
 *[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
 
-# OPEN QUESTIONS - TODO {ignore=true}
+# OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
 NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
