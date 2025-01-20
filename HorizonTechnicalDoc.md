@@ -1352,7 +1352,7 @@ NOTE: a prephysics handler in code blocks scripts runs before start
 >
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
-FULL VERSION
+FULL
 ```mermaid
 flowchart LR
   subgraph Physics [Physics Phase]
@@ -1362,7 +1362,7 @@ flowchart LR
   end
 
   subgraph Events
-    NetworkEvents --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
   end
 
   subgraph EndFrame [End Phase]
@@ -1411,6 +1411,7 @@ flowchart LR
   style NetworkEvents fill:#dfe,stroke:#8a9
   style CodeBlockEvents fill:#dfe,stroke:#8a9
 ```
+
 
 Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
 
