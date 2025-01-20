@@ -18,16 +18,18 @@ Current main assignments:
 1. [Overview](#overview)
 2. [Worlds](#worlds)
     1. [Metadata and Publishing](#metadata-and-publishing)
-    2. [Instances](#instances)
-        1. [Instance Types](#instance-types)
-        2. [Available Instances](#available-instances)
-            1. [Open and Closed Instances](#open-and-closed-instances)
-        3. [Instance Selection](#instance-selection)
-        4. [Modes: Edit, Play, and Publish](#modes-edit-play-and-publish)
-    3. [Doors and Linking](#doors-and-linking)
-    4. [World Snapshot](#world-snapshot)
-    5. [World Backups](#world-backups)
-3. [Scene Graph](#scene-graph)
+    2. [Editor Roles](#editor-roles)
+    3. [World Snapshot](#world-snapshot)
+    4. [World Backups](#world-backups)
+3. [Instances](#instances)
+    1. [Instance Lifetime](#instance-lifetime)
+    2. [Instance Types](#instance-types)
+        1. [Visitation Modes: Edit, Play, and Publish](#visitation-modes-edit-play-and-publish)
+    3. [Available Instances](#available-instances)
+        1. [Open and Closed Instances](#open-and-closed-instances)
+    4. [Instance Selection](#instance-selection)
+    5. [Travel, Doors, and Links](#travel-doors-and-links)
+4. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
     2. [Hierarchy](#hierarchy-1)
         1. [Ancestors](#ancestors)
@@ -41,7 +43,7 @@ Current main assignments:
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
-4. [Entities](#entities)
+5. [Entities](#entities)
     1. [Overview](#overview-1)
     2. [Static Entities](#static-entities)
     3. [Dynamic Entities](#dynamic-entities)
@@ -52,27 +54,28 @@ Current main assignments:
         2. [Tags](#tags)
     5. [Gizmos](#gizmos)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
-        2. [Door Gizmo](#door-gizmo)
-        3. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-        4. [Environment Gizmo](#environment-gizmo)
-        5. [ParticleFx Gizmo](#particlefx-gizmo)
+        2. [Debug Console Gizmo](#debug-console-gizmo)
+        3. [Door Gizmo](#door-gizmo)
+        4. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        5. [Environment Gizmo](#environment-gizmo)
+        6. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Playing a Particle Effect](#playing-a-particle-effect)
             2. [Stopping a Particle Effect](#stopping-a-particle-effect)
-        6. [TrailFx Gizmo](#trailfx-gizmo)
-        7. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        8. [Quests Gizmo](#quests-gizmo)
-        9. [Raycast Gizmo](#raycast-gizmo)
-        10. [Script Gizmo](#script-gizmo)
-        11. [Snap Destination Gizmo](#snap-destination-gizmo)
-        12. [Sound Gizmo](#sound-gizmo)
-        13. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        14. [Spawn Point Gizmo](#spawn-point-gizmo)
-        15. [Text Gizmo](#text-gizmo)
-        16. [Trigger Gizmo](#trigger-gizmo)
-        17. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        18. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-5. [Camera](#camera)
-6. [Custom Model Import](#custom-model-import)
+        7. [TrailFx Gizmo](#trailfx-gizmo)
+        8. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        9. [Quests Gizmo](#quests-gizmo)
+        10. [Raycast Gizmo](#raycast-gizmo)
+        11. [Script Gizmo](#script-gizmo)
+        12. [Snap Destination Gizmo](#snap-destination-gizmo)
+        13. [Sound Gizmo](#sound-gizmo)
+        14. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        15. [Spawn Point Gizmo](#spawn-point-gizmo)
+        16. [Text Gizmo](#text-gizmo)
+        17. [Trigger Gizmo](#trigger-gizmo)
+        18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        19. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+6. [Camera](#camera)
+7. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
     3. [Assets](#assets)
@@ -87,8 +90,8 @@ Current main assignments:
         3. [Memory](#memory)
     5. [Horizon Lighting](#horizon-lighting)
     6. [General Tips](#general-tips)
-7. [Text Importing / Text Assets](#text-importing--text-assets)
-8. [Scripting](#scripting)
+8. [Text Importing / Text Assets](#text-importing--text-assets)
+9. [Scripting](#scripting)
     1. [Horizon Properties](#horizon-properties)
     2. [Types](#types)
         1. [In-Place Mutation](#in-place-mutation)
@@ -118,14 +121,14 @@ Current main assignments:
         2. [Physics Phase](#physics-phase)
         3. [Events Phase](#events-phase)
         4. [OnUpdate Phase](#onupdate-phase)
-9. [Network](#network)
+10. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
     4. [Network Events](#network-events-1)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-10. [Physics](#physics)
+11. [Physics](#physics)
     1. [Overview](#overview-3)
     2. [Creating a Physical Entity](#creating-a-physical-entity)
     3. [Collisions and Triggers](#collisions-and-triggers)
@@ -140,7 +143,7 @@ Current main assignments:
     9. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
     10. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
     11. [Player Physics](#player-physics)
-11. [Players](#players)
+12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -150,7 +153,7 @@ Current main assignments:
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
-12. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -167,7 +170,7 @@ Current main assignments:
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
-13. [Attaching Entities](#attaching-entities)
+14. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -179,32 +182,32 @@ Current main assignments:
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-14. [Holstering Entities](#holstering-entities)
-15. [Player Input](#player-input)
-16. [Persistence](#persistence)
+15. [Holstering Entities](#holstering-entities)
+16. [Player Input](#player-input)
+17. [Persistence](#persistence)
     1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-17. [Spawning](#spawning)
+18. [Spawning](#spawning)
     1. [Assets](#assets-1)
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-18. [Custom UI](#custom-ui)
+19. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
-19. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
-20. [Performance Optimization](#performance-optimization)
+20. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+21. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-21. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-22. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-23. [Glossary](#glossary)
+22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+24. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -232,26 +235,73 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 
 ## Metadata and Publishing
 
-TODO
+<mark>TODO</mark>
 
 Name, description, comfort setting, player count, etc.
 
-## Instances
+## Editor Roles
+
+<mark>TODO</mark>
+
+| Role  | Description | Can travel to an editor instance? | Can edit the [scene graph](#scene-graph) and [scripts](#scripting)? | Can publish the world? | Can manage [persistence](#persistence)? | Can assign roles? |
+|---|---|---|---|---|---|---|
+| *Owner*  | ?  | ✅ | ✅ | ✅ | ✅ | ✅ |
+| *Collaborator* | ? | ✅ | ✅ | ❌ | ❌ | ❌ |
+| *Tester* | ? |  ✅ | ❌ | ❌ | ❌ | ❌ |
+
+## World Snapshot
+
+When you create a new world, Horizon creates a new "file" on their servers which contains all the information and data for the world. Horizon calls this a **world snapshot**. Every time you update the world, a new snapshot is created. You can manage all the saves snapshots via the [backups](#world-backups) feature.
+
+!!! info **The** world snapshot
+    Whenever this document refers to **the world snapshot** it is referring to the specific snapshot that you have loaded the world from (which is the last one saved, unless you did a rollback).
+
+**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
+
+<a name="player-capacity">**Player capacity**</a>:
+
+## World Backups
+
+# Instances
 
 Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#player-capacity">player capacity</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
 
 !!! info Horizon sometimes refers to Instances as "Sessions"
     In all technical documentation, Horizon uses the word *instance*. Given that this is a somewhat technical term, it refers to them as **sessions** within the user-facing side of the product. For example, a person can "create a new session".
 
-### Instance Types
+## Instance Lifetime
+**Creation**: When a player travels to a world (to play it or edit it), Horizon [finds or creates an instance](#instance-selection) of the right [type](#instance-types).
 
-There are two types of instances: **published instances** and **editor instances**. There is no way to turn one into the other; when Horizon starts up a new instances, it chooses which type and then that instance is forever that type.
+**Longevity**: The instance then remains running as long as players stay in it. Even when all players leave, and the instance becomes empty, it may stay running for some time, in case any players try to return or new players arrive.
 
-| Instance Type  |   |
-|---|---|
-|  *Published*  |   |
+**Destruction**: When there are no players in an instance it will be destroyed, after some timeout threshold. In rare instances a server error may also cause an instance to be destroyed (which will send all players in it back to the app-launch state).
 
-### Available Instances
+!!! warning Destroyed instances are permanently gone and so is their data.
+    When an instance is destroyed there is no way for players to get back that specific instance. Any data they had "acquired" in that instance is permanently lost. You can **use [Horizon persistence](#persistence) to track data across instances and visits**.
+
+## Instance Types
+
+There are two types of instances: **published instances** and **editor instances**. The editing tools, for modifying a world, are only available inside of an *editor instance*. There is no way to turn one into the other; when Horizon [starts up a new instances](#instance-selection), based on how the player is traveling, and then the type never changes, for as long as the instance is [alive](#instance-lifetime).
+
+| Instance Type  | How do you travel to one? | Can you open the editing tools? | How many instances are allowed? |
+|---|---|---|---|
+|  *Published*  | Use the "Visit World" button, or [travel](#travel-doors-and-links) to a friend, travel via a door. | No | No limit |
+| *Editor* | Use the "Edit World" button if you are the [world owner, collaborator, or a tester](#editor-roles). | Yes, if you are the [owner or a collaborator](#editor-roles). | 1 |
+
+### Visitation Modes: Edit, Play, and Publish
+
+"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and collaborators can switch back and forth between edit and play modes; testers are always in play mode.
+
+| Mode  |  Description | Instance Type | Required Role |
+|---|---|---|---|
+| *Edit* | Experience the world **as an editor** where you can modify the world.  | Editor Instance | Editor |
+| *Play* | Experience the world **as a player** from within the editable instance. | Editor Instance | Editor or Tester |
+| *Publish*  | Experience the world **as a player** in a published instance. | Published Instance | n/a |
+
+!!! info Debug Console Gizmo Visibility
+  The [Debug Console Gizmo](#debug-console-gizmo) has setting to control which visitation mode(s) it is visible in.
+
+## Available Instances
 
 A player can only travel to an instance if that instance is **available for the player**. Availability is determined by three criteria, all of which must be met:
 
@@ -259,7 +309,7 @@ A player can only travel to an instance if that instance is **available for the 
 1. **Is Safe**: Horizon has an undisclosed, and evolving, set of rules for what it deems *safe*, regarding travel. These rules may include: which players have blocked one another (and how recently), if the traveling player has recently been voted out of that instance, if the instance has a moderated event running, and more.
 1. **[Instance is Open](#open-and-closed-instances)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
 
-#### Open and Closed Instances
+### Open and Closed Instances
 
 **New instances default to open.**  When a [new instance is created](#instance-selection) via the "Travel" button it is **open**.
 
@@ -273,7 +323,7 @@ which returns a `Promise<void>` to signal when the change has taken effect.
 
 <mark>TODO: when calling `allowPlayerJoin(false)`, can players join by invite or is the instance actually LOCKED vs Closed?</mark>
 
-### Instance Selection
+## Instance Selection
 
 When a player travels to a world, Horizon will determine which instance to send them to (if there are multiple) or create a new instance if needed (if all are full, none exist, or the player specifically created a new one).
 
@@ -286,7 +336,7 @@ flowchart TD
 
   playerTravel --"**Travel to Player**"--> publishedAvailable[Is the instance<br/>they are in <a href="#available-instances">available</a>?]
 
-  playerTravel --"**Visit World**"--> checkInstance[Is there an<br/>  <a href="#available-instances">available</a> instance?]
+  playerTravel --"**Visit World** <br/><a href="#travel-doors-and-links">button, link, or door</a>"--> checkInstance[Is there an<br/>  <a href="#available-instances">available</a> instance?]
 
   publishedAvailable --"yes"--> existingInstance
 
@@ -309,35 +359,13 @@ flowchart TD
 
 !!! warning
 
-### Modes: Edit, Play, and Publish
-
-A Horizon world can be experienced in 3 different modes:
-
-| Mode  |  Description | Instance Type | Required Role |
-|---|---|---|---|
-| *Edit* | Experience the world **as an editor** where you can modify the world.  | Editor Instance | Editor |
-| *Play* | Experience the world **as a player** from within the editable instance. | Editor Instance | Editor or Tester |
-| *Publish*  | Experience the world **as a player** in a published instance. | Published Instance | n/a |
-
-## Doors and Linking
+## Travel, Doors, and Links
 
 <mark>TODO:</mark>
 
 * Doors act like an in-experience Hyperlink
+* Travel to friend
 * Instruction how to get an actual link...
-
-## World Snapshot
-
-When you create a new world, Horizon creates a new "file" on their servers which contains all the information and data for the world. Horizon calls this a **world snapshot**. Every time you update the world, a new snapshot is created. You can manage all the saves snapshots via the [backups](#world-backups) feature.
-
-!!! info **The** world snapshot
-    Whenever this document refers to **the world snapshot** it is referring to the specific snapshot that you have loaded the world from (which is the last one saved, unless you did a rollback).
-
-**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
-
-<a name="player-capacity">**Player capacity**</a>:
-
-## World Backups
 
 # Scene Graph
 
@@ -653,6 +681,7 @@ Tag uses:
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. <mark>TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.</mark>
 
 - [Custom UI Gizmo](#custom-ui-gizmo)
+- [Debug Console Gizmo](#debug-console-gizmo)
 - [Door Gizmo](#door-gizmo)
 - [Dynamic Light Gizmo](#dynamic-light-gizmo)
 - [Environment Gizmo](#environment-gizmo)
@@ -672,6 +701,11 @@ There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, 
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
+
+### Debug Console Gizmo
+
+<mark>TODO</mark>
+Visibility: control which [visitation mode](#visitation-modes-edit-play-and-publish) the gizmo is visible in.
 
 ### Door Gizmo
 Place in a world to allow players to traverse to other worlds easily
