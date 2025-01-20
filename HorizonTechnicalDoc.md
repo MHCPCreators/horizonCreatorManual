@@ -676,60 +676,24 @@ Same API as [particle gizmo](#particlefx-gizmo)
 ### Projectile Launcher Gizmo
 A turnkey way to launch small objects
 
-Heavily uses codeblock actions and events
-
-TODO - list code block events
-
 ```ts
-/**
- * Options for launching a projectile.
- *
- * @param speed - speed in meters per second. Defaults to 20m/s
- * @param duration - max lifetime of projectile in seconds. Defaults to infinity
- */
 type LaunchProjectileOptions = {
-    speed: number;
-    duration?: number;
+    speed: number; // m/s ; default is 20 m/s
+    duration?: number; // max lifetime in sec; default +Infinity
 };
 
 class ProjectileLauncherGizmo extends Entity {
-    /**
-     * The gravity applied to the projectile.
-     */
-    projectileGravity: WritableHorizonProperty<number>;
-    /**
-     * Launches a projectile.
-     *
-     * @deprecated use `launch` instead.
-     *
-     * @param speed - Optional. The speed at which the projectile will launch from the launcher.
-     */
-    launchProjectile(speed?: number): void;
-    /**
-     * Launches a projectile with options.
-     *
-     * @param options - Optional options for launching projectile
-     */
-    launch(options?: LaunchProjectileOptions): void;
+  launch(options?: LaunchProjectileOptions): void;
 }
 ```
 
 ```ts
 // Code block events
 OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
-    /**
-     * The event that is triggered when a projectile hits a player.
-     */
-    OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
-    /**
-     * The event that is triggered when a projectile hits an object.
-     */
-    OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
-    /**
-     * The event that is triggered when a projectile hits something in the world.
-     */
-    OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
-    OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
+OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
+OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
+OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
+OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
 ```
 
 ### Quests Gizmo
@@ -742,83 +706,41 @@ Invisible laser that can be activated in a script to collide with players and/or
 Retrieves hit object/player, collision point, and collision normal
 
 ```ts
-/**
- * The target type during a raycast collision.
- */
 enum RaycastTargetType {
-    /**
-     * A player.
-     */
-    Player = 0,
-    /**
-     * An entity.
-     */
-    Entity = 1,
-    /**
-     * A static object.
-     */
-    Static = 2
+  Player = 0,
+  Entity = 1,
+  Static = 2
 }
 type BaseRaycastHit = {
-    /**
-     * The distance between the raycast position and the hit point.
-     */
-    distance: number;
-    /**
-     * The position of the raycast hit.
-     */
-    hitPoint: Vec3;
-    /**
-     * The normal of the raycast hit.
-     */
-    normal: Vec3;
+  distance: number; // meters
+  hitPoint: Vec3;
+  normal: Vec3;
 };
 type StaticRaycastHit = BaseRaycastHit & {
-    /**
-     * The type of target a raycast has hit
-     */
-    targetType: RaycastTargetType.Static;
+  targetType: RaycastTargetType.Static;
 };
 type EntityRaycastHit = BaseRaycastHit & {
-    /**
-     * The type of target a raycast has hit
-     */
-    targetType: RaycastTargetType.Entity;
-    /**
-     * The actual entity in the world the raycast has hit.
-     */
-    target: Entity;
+  targetType: RaycastTargetType.Entity;
+  target: Entity;
 };
 type PlayerRaycastHit = BaseRaycastHit & {
-    /**
-     * The type of target a raycast has hit
-     */
-    targetType: RaycastTargetType.Player;
-    /**
-     * The actual player in the world the raycast has hit.
-     */
-    target: Player;
+  targetType: RaycastTargetType.Player;
+  target: Player;
 };
-/**
- * The result of a {@link RaycastGizmo.raycast | raycast} collision.
- */
+
 type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
 
+enum LayerType {
+  Player = 0,
+  Objects = 1,
+  Both = 2
+}
+
 class RaycastGizmo extends Entity {
-    /**
-     * Casts a ray from the Raycast gizmo using the given origin and direction
-     * and then retrieves collision information.
-     *
-     * @param origin - The starting point of the ray.
-     * @param direction - The direction for the ray to travel.
-     * @param options - The options for configuring the raycast operation.
-     *
-     * @returns The collision information.
-     */
-    raycast(origin: Vec3, direction: Vec3, options?: {
-        layerType?: LayerType;
-        maxDistance?: number;
-    }): RaycastHit | null;
+  raycast(origin: Vec3, direction: Vec3, options?: {
+    layerType?: LayerType;
+    maxDistance?: number;
+  }): RaycastHit | null;
 }
 ```
 
@@ -846,92 +768,24 @@ Is very costly to performance if overused due to memory cost of storing audio da
 `CodeBlockEvents.OnAudioCompleted<[]>`
 
 ```ts
-/**
- * Determines whether sound from an {@link AudioGizmo} is audible to specific
- * players.
- */
 enum AudibilityMode {
-    /**
-     * The sound is audible.
-     */
-    AudibleTo = 0,
-    /**
-     * The sound is inaudible.
-     */
-    InaudibleTo = 1
+  AudibleTo = 0,
+  InaudibleTo = 1
 }
-/**
- * Provides {@link AudioGizmo} playback options for a set of players.
- *
- * @param fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
- * @param players - Only plays the audio for the specified players.
- * @param audibilityMode - Indicates whether the audio is audible to the specified players.
- * See {@link AudibilityMode} for more information.
- *
- * @remarks
- * fade - The duration, in seconds, that it takes for the audio to fade in or fade out.
- *
- * players - Only plays the audio for the specified players.
- *
- * audibilityMode - Indicates whether the audio is audible to the specified players.
- * See {@link AudibilityMode} for more information.
- */
+
 type AudioOptions = {
-    fade: number;
-    players?: Array<Player>;
-    audibilityMode?: AudibilityMode;
+  fade: number; // Duration sec
+  players?: Array<Player>;
+  audibilityMode?: AudibilityMode;
 };
-/**
- * Represents an audio gizmo in the world.
- */
+
 class AudioGizmo extends Entity {
-    /**
-     * The audio volume, which ranges from 0 (no sound) to 1 (full volume).
-     */
-    volume: WritableHorizonProperty<number, AudioOptions>;
-    /**
-     * The audio pitch in semitones, which ranges from -12 to 12.
-     */
-    pitch: WritableHorizonProperty<number>;
-    /**
-     * Plays an AudioGizmo sound.
-     *
-     * @param audioOptions - Controls how the audio is played.
-     *
-     * @example
-     * ```
-     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
-     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
-     * soundGizmo.play(audioOptions);
-     * ```
-     */
-    play(audioOptions?: AudioOptions): void;
-    /**
-     * Pauses an AudioGizmo sound.
-     *
-     * @param audioOptions - Controls how the audio is paused.
-     *
-     * @example
-     * ```
-     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
-     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
-     * soundGizmo.pause(audioOptions);
-     * ```
-     */
-    pause(audioOptions?: AudioOptions): void;
-    /**
-     * Stops an AudioGizmo sound.
-     *
-     * @param audioOptions - Controls how the audio is played.
-     *
-     * @example
-     * ```
-     * const soundGizmo = this.props.sfx.as(hz.AudioGizmo);
-     * const audioOptions: AudioOptions = {fade: 1, players: [player1, player2]};
-     * soundGizmo.stop(audioOptions);
-     * ```
-     */
-    stop(audioOptions?: AudioOptions): void;
+  volume: WritableHorizonProperty<number, AudioOptions>; // [0, 1]
+  pitch: WritableHorizonProperty<number>; // semitones [-12, 12]
+
+  play(audioOptions?: AudioOptions): void;
+  pause(audioOptions?: AudioOptions): void;
+  stop(audioOptions?: AudioOptions): void;
 }
 ```
 
@@ -959,26 +813,9 @@ Open the spawn point properties panel, and drag the reference pill to the object
 
 ```ts
 class SpawnPointGizmo extends Entity {
-    /**
-     * The gravity for players spawned using this gizmo.
-     *
-     * @remarks
-     * Range = (0, 9.81)
-     */
-    gravity: HorizonProperty<number>;
-    /**
-     * The speed for players spawned using this gizmo.
-     *
-     * @remarks
-     * Range = (0, 45)
-     */
-    speed: HorizonProperty<number>;
-    /**
-     * Teleports a player to the spawn point.
-     *
-     * @param player - The player to teleport.
-     */
-    teleportPlayer(player: Player): void;
+  gravity: HorizonProperty<number>; // m/s^2 in [0, 9.81]
+  speed: HorizonProperty<number>; // [0, 45] in m/s
+  teleportPlayer(player: Player): void;
 }
 ```
 
@@ -995,16 +832,7 @@ Is very costly to performance if overused due to draw call cost and lack of batc
 
 ```ts
 class TextGizmo extends Entity {
-    /**
-     * The content to display in the text label.
-     *
-     * Note: if the content was previously set with `localizableText`, the getter
-     * of this property will return the localized string in the language of the
-     * local player. Do not use the returned text in attributes shared with other
-     * players. Other player might use differnet languages, and only
-     * LocalizableText object will be localized.
-     */
-    text: HorizonProperty<string>;
+  text: HorizonProperty<string>;
 }
 ```
 
@@ -1024,34 +852,14 @@ Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/obje
 
 ```ts
 class TriggerGizmo extends Entity {
-    /**
-     * Creates a human-readable representation of the entity.
-     * @returns A string representation
-     */
-    toString(): string;
-    /**
-     * Whether the Trigger is enabled.
-     */
-    enabled: WritableHorizonProperty<boolean>;
+  enabled: WritableHorizonProperty<boolean>;
 }
 ```
 
 ```ts
-/**
- * The event that is triggered when the player enters a trigger zone.
- */
 OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
-/**
- * The event that is triggered when a player leaves a trigger zone.
- */
 OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
-/**
- * The event that is triggered when an entity enters a trigger zone.
- */
 OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
-/**
- * The event that is triggered when an entity exits a trigger zone.
- */
 OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
 ```
 
