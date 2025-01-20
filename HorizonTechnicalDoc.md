@@ -42,6 +42,7 @@ Current main assignments:
         2. [Interactive Entities](#interactive-entities)
     4. [Common Properties](#common-properties)
         1. [Simulated](#simulated)
+        2. [Tags](#tags)
     5. [Gizmos](#gizmos)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
         2. [Door Gizmo](#door-gizmo)
@@ -63,7 +64,6 @@ Current main assignments:
         16. [Trigger Gizmo](#trigger-gizmo)
         17. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         18. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-    6. [Tags](#tags)
 5. [Camera](#camera)
 6. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
@@ -521,6 +521,14 @@ When simulated is set to false, an attached stays detached.
 
 "Simulated=false is like setting Motion=None."
 
+### Tags
+
+Getting entities with tags.
+
+Tag uses:
+  * Triggers
+  * Collisions
+
 ## Gizmos
 
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*.
@@ -559,31 +567,16 @@ Cannot be transformed. Give it a parent (such as a group), and transform the par
 !!! info You can not change or stop the default door animation or sound.
 
 ### Dynamic Light Gizmo
-Lights that can be attached to animated or interactable objects
+Lights that can be attached to animated or interactive objects
 
 Is very costly to performance if overused due to light/shadow per frame processing.
 
 ```ts
 class DynamicLightGizmo {
-    /**
-     * Indicates whether the entity has a dynamic light effect on it. true to
-     * enable dynamic lighting; otherwise, false.
-     */
-    enabled: HorizonProperty<boolean>;
-    /**
-     * The light intensity. 0 for least intense and 10 for most intense.
-     */
-    intensity: HorizonProperty<number>;
-    /**
-     * The light falloff distance. 0 for the least distance and 100 for the greatest
-     * distance.
-     */
-    falloffDistance: HorizonProperty<number>;
-    /**
-     * The light spread. 0 for the least light spread (none) and 100 for the
-     * greatest light spread.
-     */
-    spread: HorizonProperty<number>;
+  enabled: HorizonProperty<boolean>;
+  intensity: HorizonProperty<number>; // [0, 10]
+  falloffDistance: HorizonProperty<number>; // [0, 100] meters?
+  spread: HorizonProperty<number>; // [0, 100] percent?
 }
 ```
 
@@ -596,7 +589,7 @@ Multiple allowed in world. Only one can be active at a time.
 
 No current TS APIs (no TS entity).
 
-!!! info You can use asset spawing to change the enviroment dynamically.
+!!! info You can use asset spawning to change the environment dynamically.
 
 ### ParticleFx Gizmo
 
@@ -870,14 +863,6 @@ OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
 ### In World Purchase Gizmo
 
 [In World Purchases](#in-world-purchases-iwp)
-
-## Tags
-
-Getting entities with tags.
-
-Tag uses:
-  * Triggers
-  * Collisions
 
 # Camera
 !!! note Scratch notes
