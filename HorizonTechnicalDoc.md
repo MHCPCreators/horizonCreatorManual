@@ -2,6 +2,15 @@
 
 <div class="print-note">This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.</div>
 
+Current main assignments:
+  1. **EARLY** DRAFT READY: scene graph, grabbables, players,
+  1. wafflecopters - scripting
+  1. tellous - attachables (& holstering?)
+  1. pigeon - PPV
+  1. shards632 - networking
+  1. physics - TODO (will get easier after scripting and network are done)
+  1. UIGizmo, Camera, Player Inputs, Spawning - **tentative**, time may run out
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
 <!-- code_chunk_output -->
@@ -1343,63 +1352,64 @@ NOTE: a prephysics handler in code blocks scripts runs before start
 >
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
+FULL VERSION
 ```mermaid
 flowchart LR
-  subgraph prepare [Prepare Phase]
-    load(Reconcile scene mutations from <i>network</i>)
+  subgraph Physics [Physics Phase]
+    locomotion(Update players from<br/>locomotion and pose) --> animation(Update recorded animation playback)
+
+    animation --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
   end
 
-  subgraph prePhysics [PrePhysics Phase]
-    preHandlers(<code style="background-color:#0000">onUpdatePrePhysics</code> handlers run) --> preMutations(Apply scene mutations)
+  subgraph Events
+    NetworkEvents --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
   end
 
-  subgraph physics [Physics Phase]
-    locomotion(Update players from locomotion and pose) --> animation(Update recorded animation playback)
-
-    animation --> physicsStep(Perform physics updates to positions, velocities, etc)
+  subgraph EndFrame [End Phase]
+    Async --> receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
   end
 
-  subgraph events [Events Phase]
-    eventHandlers(CodeBlockEvent and NetworkEvent handlers run) --> eventsMutations(Apply scene mutations)
+  Pre-Physics --> Physics --> On-Update --> Events --> EndFrame
+
+  style Physics fill:#eee,stroke:#aaa
+  style Events fill:#eee,stroke:#aaa
+  style EndFrame fill:#eee,stroke:#aaa
+
+  %% Scripting
+  style Async fill:#dfe,stroke:#8a9
+  style Pre-Physics fill:#dfe,stroke:#8a9
+  style On-Update fill:#dfe,stroke:#8a9
+  style NetworkEvents fill:#dfe,stroke:#8a9
+  style CodeBlockEvents fill:#dfe,stroke:#8a9
+  style Components fill:#dfe,stroke:#8a9
+```
+SIMPLER
+```mermaid
+flowchart LR
+  subgraph Physics [Physics Phase]
+    locomotion(Update players from<br/>locomotion and pose.<br/>Update recorded<br/>animations) --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
   end
 
-  subgraph onUpdate [OnUpdate Phase]
-    onUpdateHandlers(<code style="background-color:#0000">onUpdate</code> handlers run) --> onUpdateMutations(Apply scene mutations)
+  subgraph Events
+    NetworkEvents --> CodeBlockEvents
   end
 
-  subgraph async [Async Phase]
-    asyncHandlers(Timeouts and<br/>Intervals run) --> asyncMutations(Apply scene mutations)
+  subgraph EndFrame [End Phase]
+    broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
   end
 
-  subgraph render [Render Phase]
-    sceneRender(Scene rendered to pixels for display) --> broadcast(Scene graph updates and network events are broadcast)
-  end
+  Pre-Physics --> Physics --> On-Update --> Events --> Async --> EndFrame
 
-  prepare --> async
-  async --> prePhysics
-  prePhysics --> physics(Physics)
-  physics -->
-  onUpdate(OnUpdate Phase)
-  onUpdate --> events(Events Phase)
-  events --> render(Render Phase)
+  style Physics fill:#eee,stroke:#aaa
+  style Events fill:#eee,stroke:#aaa
+  style EndFrame fill:#eee,stroke:#aaa
 
-  style prepare fill:#eee,stroke:#aaa
-  style physics fill:#eee,stroke:#aaa
-  style render fill:#eee,stroke:#aaa
-
-  style preHandlers fill:#dfe,stroke:#8a9
-  style eventHandlers fill:#dfe,stroke:#8a9
-  style onUpdateHandlers fill:#dfe,stroke:#8a9
-  style asyncHandlers fill:#dfe,stroke:#8a9
-
-  style preMutations fill:#def,stroke:#89a
-  style eventsMutations fill:#def,stroke:#89a
-  style onUpdateMutations fill:#def,stroke:#89a
-  style asyncMutations fill:#def,stroke:#89a
-
-  style locomotion fill:#def,stroke:#89a
-  style animation fill:#def,stroke:#89a
-  style physicsStep fill:#def,stroke:#89a
+  %% Scripting
+  style Async fill:#dfe,stroke:#8a9
+  style Pre-Physics fill:#dfe,stroke:#8a9
+  style On-Update fill:#dfe,stroke:#8a9
+  style NetworkEvents fill:#dfe,stroke:#8a9
+  style CodeBlockEvents fill:#dfe,stroke:#8a9
 ```
 
 Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
