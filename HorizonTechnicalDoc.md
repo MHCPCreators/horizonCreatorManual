@@ -1044,8 +1044,6 @@ class SpawnPointGizmo extends Entity {
 ```
 
 ### Text Gizmo
-- all supported commands
-    - <mark>TODO: import https://www.horizonhub.info/reference/textGizmo</mark>
 
 A way to display numbers and common English letters
 Font size can automatically scale when auto fit is on, or set manually when auto fit is off.
@@ -1059,6 +1057,8 @@ class TextGizmo extends Entity {
   text: HorizonProperty<string>;
 }
 ```
+
+![[ markup/TextGizmoTable.html ]]
 
 ### Trigger Gizmo
 Designated area that causes an event to fire in the code
