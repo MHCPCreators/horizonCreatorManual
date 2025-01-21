@@ -17,10 +17,11 @@ Current main assignments:
 
 1. [Overview](#overview)
 2. [Worlds](#worlds)
-    1. [Metadata and Publishing](#metadata-and-publishing)
-    2. [Editor Roles](#editor-roles)
-    3. [World Snapshot](#world-snapshot)
-    4. [World Backups](#world-backups)
+    1. [Creating a World](#creating-a-world)
+    2. [Metadata and Publishing](#metadata-and-publishing)
+    3. [Editor Roles](#editor-roles)
+    4. [World Snapshot](#world-snapshot)
+    5. [World Backups](#world-backups)
 3. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
@@ -233,6 +234,10 @@ The tools support many features for managing and scripting players, physics, 3D 
 
 You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#metadata-and-publishing) enables you to configure worlds settings and publish the world when ready. Worlds are saved in "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
 
+## Creating a World
+
+<mark>TODO</mark>
+
 ## Metadata and Publishing
 
 <mark>TODO</mark>
@@ -278,13 +283,13 @@ Name, description, comfort setting, player count, etc.
 
 ## Editor Roles
 
-<mark>TODO</mark>
+The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. Other people, called **collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role  | Description | Can travel to an editor instance? | Can edit the [scene graph](#scene-graph) and [scripts](#scripting)? | Can publish the world? | Can manage [persistence](#persistence)? | Can assign roles? |
-|---|---|---|---|---|---|---|
-| *Owner*  | ?  | ✅ | ✅ | ✅ | ✅ | ✅ |
-| *Collaborator* | ? | ✅ | ✅ | ❌ | ❌ | ❌ |
-| *Tester* | ? |  ✅ | ❌ | ❌ | ❌ | ❌ |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [play mode](#visitation-modes-edit-play-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
+|---|---|---|---|---|---|
+| *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
+| *Editor* | ✅ | ✅ | ❌ | ❌ | ❌ |
+| *Tester* |  ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ## World Snapshot
 
@@ -295,7 +300,13 @@ When you create a new world, Horizon creates a new "file" on their servers which
 
 ## World Backups
 
-<mark>TODO</mark>
+The editor regularly "auto saves" the world, creating a new [world snapshot](#world-snapshot) that is calls a **backup**. You can manually create a snapshot as a via the "Save Backup" option.
+
+The list of all previous saved snapshots are viewable in the "Backups" menu. This menu allows you to see the list of backups, see when background were created, modify the name and description, or to **restore** a backup to be the current snapshot.
+
+For instance, before starting a major change to the world, you could create a backup, and then if you run into issues, you could restore that "safe" backup back to when the world was "unchanged". You can also look back into backups to investigate when a certain bug appeared, or to go back and make an [asset](#assets) or copy a [script](#scripting) that you have since modified or deleted.
+
+<mark>TODO: source control</mark>
 
 # Instances
 
@@ -321,11 +332,11 @@ There are two types of instances: **published instances** and **editor instances
 | Instance Type  | How do you travel to one? | Can you open the editing tools? | How many instances are allowed? |
 |---|---|---|---|
 |  *Published*  | Use the "Visit World" button, or [travel](#travel-doors-and-links) to a friend, travel via a door. | No | No limit |
-| *Editor* | Use the "Edit World" button if you are the [world owner, collaborator, or a tester](#editor-roles). | Yes, if you are the [owner or a collaborator](#editor-roles). | 1 |
+| *Editor* | Use the "Edit World" button if you are the [world owner, editor, or a tester](#editor-roles). | Yes, if you are the [owner or a editor](#editor-roles). | 1 |
 
 ### Visitation Modes: Edit, Play, and Publish
 
-"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and collaborators can switch back and forth between edit and play modes; testers are always in play mode.
+"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and editors can switch back and forth between edit and play modes; testers are always in play mode.
 
 | Mode  |  Description | Instance Type | Required Role |
 |---|---|---|---|
@@ -2192,7 +2203,7 @@ class AchievementsGizmo extends Entity {
 - APIs
   - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
 - Test Purchases
-  - Collaborators can but Testers cannot (will be charged)
+  - Owner & editors can but Testers cannot (will be charged)
 
 ## Player Persistent Variables (PPV)
 
