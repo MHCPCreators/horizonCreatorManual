@@ -133,20 +133,21 @@ Current main assignments:
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 11. [Physics](#physics)
     1. [Overview](#overview-3)
-    2. [Creating a Physical Entity](#creating-a-physical-entity)
-    3. [Gravity](#gravity)
-    4. [Collisions and Triggers](#collisions-and-triggers)
+    2. [Units](#units)
+    3. [Creating a Physical Entity](#creating-a-physical-entity)
+    4. [Gravity](#gravity)
+    5. [Collisions and Triggers](#collisions-and-triggers)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
-    5. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
-    6. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    7. [PhysicalEntity Class](#physicalentity-class)
-    8. [Projectiles](#projectiles)
-    9. [Gravity](#gravity-1)
-    10. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
-    11. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
-    12. [Player Physics](#player-physics)
+    6. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
+    7. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
+    8. [PhysicalEntity Class](#physicalentity-class)
+    9. [Projectiles](#projectiles)
+    10. [Gravity](#gravity-1)
+    11. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
+    12. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
+    13. [Player Physics](#player-physics)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -1520,6 +1521,12 @@ Setting a player's position will require a network trip from server to player si
 ## Overview
 
 High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
+
+Somewhere: force vs impulse vs velocity change
+
+## Units
+
+m, m/s, m/s^2, Nm for torque, etc
 
 ## Creating a Physical Entity
 
