@@ -1072,8 +1072,6 @@ Object Exit
 
 <mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
 
-Two _secret_ `CodeBlockEvents`: `empty[player/object]` and `occupied[player/object]`
-
 ```ts
 class TriggerGizmo extends Entity {
   enabled: WritableHorizonProperty<boolean>;
@@ -1085,6 +1083,18 @@ OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
 OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
 OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
 OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+```
+
+Secret events:
+
+```ts
+const TriggerEmptyOfPlayers = new CodeBlockEvent<[Player]>('empty', [PropTypes.Player])
+
+const TriggerOccupiedByPlayers = new CodeBlockEvent<[Player]>('occupied', [PropTypes.Player])
+
+const TriggerEmptyOfEntities = new CodeBlockEvent<[Entity]>('empty', [PropTypes.Entity])
+
+const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [PropTypes.Entity])
 ```
 
 ### World Leaderboard Gizmo
