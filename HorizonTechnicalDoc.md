@@ -1917,11 +1917,11 @@ flowchart TD
 
 `Interactive` entities have a setting in the Property panel called "Who Can Grab?" with the following options controlling who can grab the entity.
 
-|                        | Behavior                                                                                                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Anyone**             | Any player is eligible to grab the entity.                                                                                                                                               |
-| **First To Grab Only** | If the entity has never been grabbed then any player is eligible to grab it. Once it is grabbed then only that player can ever grab it again (unless the grabbing is reset - see below). |
-| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players.                                                                                                 |
+| Setting | Behavior |
+|---|---|
+| *Anyone* | Any player is eligible to grab the entity. |
+| *First To Grab Only* | If the entity has never been grabbed then any player is eligible to grab it. Once it is grabbed then only that player can ever grab it again (unless the grabbing is reset - see below). |
+| *Script Assignee(s)* | A player is only eligible to grab the entity if they are in the list of allowed players. |
 
 Use the API
 
@@ -1943,9 +1943,9 @@ to change the list of players that are allowed to grab the entity. Until you cal
 
 | Setting      | Can the holder grab it out of their own hand using their other hand? | Can another player take it from the player that is holding it? |
 | ------------ | -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **No One**   | No                                                                   | No                                                             |
-| **Only You** | Yes                                                                  | No                                                             |
-| **Anyone**   | Yes                                                                  | Yes (_if_ the person can grab the entity)                      |
+| *No One*   | No                                                                   | No                                                             |
+| *Only You* | Yes                                                                  | No                                                             |
+| *Anyone*   | Yes                                                                  | Yes (_if_ the person can grab the entity)                      |
 
 ### Grab Distance
 
@@ -2291,7 +2291,7 @@ class AchievementsGizmo extends Entity {
 # Custom UI
 
 ## Bindings
-Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving)
+Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving). T must be serializable (not throwing via JSON.stringify. For example: bigint is not allowed which means that Entity is not allowed.)
 
 # "Cross Screens" - Mobile vs PC vs VR
 
