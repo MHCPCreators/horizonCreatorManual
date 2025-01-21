@@ -157,6 +157,7 @@ Current main assignments:
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
+    3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -439,13 +440,10 @@ We call the children, and their children, and their children, etc of an entity i
 
 Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
 
-<mark>TODO - Label the headers (X = Collection Type, Y = Collection Properties)</mark>
-|   | Groups | Empty Object |
-|---|---|---|
-| **Pivots** | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | The **center of the Empty Object** is always the [pivot point](#pivot-points). |
-| **[Interactive Entity](#interactive-entities) Children** | Children have their **interaction disabled**. | Children **can be [Interactive Entity](#interactive-entities)**, if the Empty Object's `Motion` is `None`. |
-| **Projectile Launcher** | Projectile collisions happen **on the group**. | Projectile collisions happen **on a child**. |
-| **Child Count** | **1** or more. | **0** or more. |
+| Collection Type | [Pivots](#pivot-points) | [Interactive Entity](#interactive-entities) Children | [Projectile Launcher](#projectiles) | [Child Count](#hierarchy) |
+|---|---|---|---|---|
+| Group | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | Children have their **interaction disabled**. | [Projectile collisions](#projectiles) happen **on the group**. | 1+
+| Empty Object | The **center of the Empty Object** is always the [pivot point](#pivot-points). | Children **can be [Interactive Entities](#interactive-entities)**, if the Empty Object's `Motion` is `None`. | [Projectile collisions](#projectiles) happen **on a child**. | 0+ |
 
 Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
 
@@ -459,7 +457,40 @@ Empty Objects and Groups behave identically in regards to collisions and trigger
 
 **Left-handed**. The coordinate system is *left-handed*, meaning that if position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
 
-<mark>TODO - picture</mark>
+```graphviz {align="center"}
+digraph {
+  layout=neato
+
+  O [pos="0,0!" shape=point width=0.08]
+  X [pos="1.75,0!" width=0 height=0 shape=none fontcolor=red]
+  Y [pos="0,1.5!" width=0 height=0 shape=none fontcolor=green]
+  Z [pos="0.9,0.9!" width=0 height=0 shape=none fontcolor=blue]
+
+  O -> X [color="red"]
+  O -> Y [color="green"]
+  O -> Z [color="blue"]
+}
+```
+
+<a name="local-coordinates">**Local coordinates**</a>. Every [entity](#entities) and every [player and player body part](#pose-position-and-body-parts) has a set of [local axes](#local-transforms) called: **right**, **up**, and **forward** which have an origin at the [pivot point](#pivot-points), if an entity, and at the center of the body part if it is a body part (example: player center is the hips; head center is literally the center of the head). Local coordinates are used for moving entities around in the Desktop editor (if enabled) and are used when interacting with [local transforms](#local-transforms).
+
+!!! example Local Coordinates Example
+    The *forward* axis of *a player head* is always pointing away from their face (parallel to their nose), its *right* axis is always point "out" their right ear, and its *up* axis is pointing out from the top of the skull. When the entity or player body part moves, the origin of these axes move; likewise the axes rotate along with the entity (so that the *right* axis always points out from the right ear).
+
+    ```graphviz {align="center"}
+    digraph {
+      layout=neato
+
+      O [pos="0,0!" shape=box3d width=0.5 label=""]
+      X [pos="1.75,0!" width=0 height=0 shape=none fontcolor=red label=right]
+      Y [pos="0,1.5!" width=0 height=0 shape=none fontcolor=green label=up]
+      Z [pos="0.9,0.9!" width=0 height=0 shape=none fontcolor=blue label=forward]
+
+      O -> X [color="red"]
+      O -> Y [color="green"]
+      O -> Z [color="blue"]
+    }
+    ```
 
 **Meters**. Distances and positions in Horizon are referenced using meters. For example, the position `(0, 1, 0)` is 1 meter (roughly 3.28 feet) up from the center of the world. Avatars in Horizon are approximately 1.8 meter tall (5 feet 11 inches).
 
@@ -635,21 +666,21 @@ Additionally, the `Transform` object can be used to access **local** position, r
 
 ### Local Transforms
 
-Entities have a `localPosition`, `localRotation`, and `localScale` that can be accessed via the transforms (e.g. `entity.transform.localPosition.get()`). These properties specify values in relation to a parent entity (or to the world if there is no parent).
+Entities have a `localPosition`, `localRotation`, and `localScale` that can be accessed via the transforms (e.g. `entity.transform.localPosition.get()`). These properties specify values in relation to a parent entity (or to the world if there is no parent), specified in the parent's [local coordinates](#local-coordinates).
 
 Throughout this doc, other than this section, we omit the word *global*. When you see "position" it means "global position".
 
-!!! example
+!!! example Local Position Example
     Let `parent` be an entity that has not been rotated nor scaled with `child` as one of its children.
 
     If `parent`'s **global position** is `(3, 0, 0)` and `child`'s **global position** is `(8, 1, 0)` then `child`'s **local position** will be `(5, 1, 0)`. The `child`'s local position is how much it is moved from its parent.
 
     Note: if the `parent` were rotated or scaled then you can't just "subtract the positions".
 
-!!! note Global values "cascade down" the hierarchy
+!!! note Global values "cascade down" the hierarchy.
     An entity's global position/rotation/scale influences the global position/rotation/scale of its children (which then cascades to their child too!). If you have a plate on a table on a boat  and the boat moves globally then so do the table and the plate; if the table moves then so does the plate (and everything on it!)
 
-!!! warning Local values exist in the transformed coordinate system of the parent
+!!! warning Local values exist in the transformed [local coordinate system](#local-coordinates) of the parent.
     Rotating and/or scaling an entity causing it axes to rotate and scaled as well. We call these the *transformed axes*.
 
     A child with local position of `(0, 6, 0)` is moved 6 units **from the global position** of its parent **along the parent's transformed up-axis**. If there is no parent then this is just 6 meters up the world's y-axis.
@@ -1803,6 +1834,8 @@ OnPlayerEnterAFK: CodeBlockEvent<[player: Player]>;
  */
 OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
 ```
+
+## Pose (Position and Body Parts)
 
 # Grabbing and Holding Entities
 
