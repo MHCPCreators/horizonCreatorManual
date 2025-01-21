@@ -31,11 +31,10 @@ Current main assignments:
     5. [Travel, Doors, and Links](#travel-doors-and-links)
 4. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
-    2. [Hierarchy](#hierarchy-1)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
-    3. [Coordinates System](#coordinates-system)
-    4. [Transforms](#transforms)
+    2. [Coordinates System](#coordinates-system)
+    3. [Transforms](#transforms)
         1. [Position](#position)
         2. [Rotation](#rotation)
         3. [Scale](#scale)
@@ -131,18 +130,19 @@ Current main assignments:
 11. [Physics](#physics)
     1. [Overview](#overview-3)
     2. [Creating a Physical Entity](#creating-a-physical-entity)
-    3. [Collisions and Triggers](#collisions-and-triggers)
+    3. [Gravity](#gravity)
+    4. [Collisions and Triggers](#collisions-and-triggers)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
-    4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
-    5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [PhysicalEntity Class](#physicalentity-class)
-    7. [Projectiles](#projectiles)
-    8. [Gravity](#gravity)
-    9. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
-    10. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
-    11. [Player Physics](#player-physics)
+    5. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
+    6. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
+    7. [PhysicalEntity Class](#physicalentity-class)
+    8. [Projectiles](#projectiles)
+    9. [Gravity](#gravity-1)
+    10. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
+    11. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
+    12. [Player Physics](#player-physics)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -237,7 +237,44 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 
 <mark>TODO</mark>
 
+Publish World "box"
+  Status: unpublished
+  Name
+  Description
+  World rating (a flow that result in: <mark>TODO</mark>)
+  Comfort rating: Not Rated, Comfortable, Moderate, Intense
+  (World) Tags (select N from list)
+  Mute Assist (boolean)
+  Visible to public (boolean)
+  Members-only world (boolean)
+  Boolean (boolean)
+  Available Through Web and Mobile
+  Compatible with Web and Mobile
+
+Player Settings
+  VOIP: Global vs Local
+  Maximum Player Count (4 to 32)
+  Suggested Minimum Player Count (1 up to Max)
+  Emotes (boolean)
+  Emotes Audio (boolean)
+  Can Hands Collide With Physics Objects
+  Can Hands Collide With Static Objects
+  Custom Player Movement
+  Generate Instant Replays
+  Frame Budget Boost (Early Access) -- (Default, On, Off)
+  Spawn Nearby (boolean)
+  Footsteps Volume
+  Footsteps Min Distance
+  Footsteps Max Distance
+  Hide Action by Default (boolean)
+    -- mobile only setting, can be overridden by setting icon in Properties
+Disable Dynamic LOD Toggles on Avatar (makes it easier to increase player count)
+Enable Max Quality Avatar
+
+
 Name, description, comfort setting, player count, etc.
+<a name="player-capacity">**Player capacity**</a>: ...
+
 
 ## Editor Roles
 
@@ -256,11 +293,9 @@ When you create a new world, Horizon creates a new "file" on their servers which
 !!! info **The** world snapshot
     Whenever this document refers to **the world snapshot** it is referring to the specific snapshot that you have loaded the world from (which is the last one saved, unless you did a rollback).
 
-**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
-
-<a name="player-capacity">**Player capacity**</a>:
-
 ## World Backups
+
+<mark>TODO</mark>
 
 # Instances
 
@@ -357,8 +392,6 @@ flowchart TD
   style failed fill:#fcdada,stroke:#a99
 ```
 
-!!! warning
-
 ## Travel, Doors, and Links
 
 <mark>TODO:</mark>
@@ -369,9 +402,9 @@ flowchart TD
 
 # Scene Graph
 
-Nerd comment: why graph instead of tree
+**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
 
-## Hierarchy
+TODO: Nerd comment: why graph instead of tree
 
 ## Hierarchy
 
@@ -1418,6 +1451,17 @@ What happens if two scripts are setting an entity's position at the "same time"?
 
 # Physics
 
+Setting player position (locally) in Prephysics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+
+Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
+    NOT async
+
+  When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
+
+Note: player position refers to the location in the world of the "navel" (it is the hip joint in the skeleton)
+
+Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
+
 ## Overview
 
 High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
@@ -1425,6 +1469,8 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 ## Creating a Physical Entity
 
 ....
+
+## Gravity
 
 ## Collisions and Triggers
 
