@@ -1886,6 +1886,8 @@ flowchart TD
     style fail fill:#ffabbc,stroke:black;
     style success fill:#abffbc,stroke:black;
 
+    isHeld -- no --> success[Can grab]
+
     isInteractive([Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain<br/>an <a href="#collidability">active collider</a>?])
 
     isInteractive -- no --> fail[Cannot grab]
@@ -1900,13 +1902,12 @@ flowchart TD
     canGrab -- no --> fail
 
     isHeld -- yes --> canTake([Is the player allowed by<br/><a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
-    isHeld -- no --> success[Can grab]
 
     canTake -- yes --> success
     canTake -- no --> fail
 
-    linkStyle 0,2,4,6,8,10 stroke:green,stroke-width:1px;
-    linkStyle 1,3,5,7,9,11 stroke:red,stroke-width:1px;
+    linkStyle 1,3,5,7,9,10 stroke:green,stroke-width:1px;
+    linkStyle 0,2,4,6,8,11 stroke:red,stroke-width:1px;
 ```
 
 !!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
