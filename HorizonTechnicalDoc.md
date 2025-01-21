@@ -74,8 +74,7 @@ Current main assignments:
         17. [Trigger Gizmo](#trigger-gizmo)
         18. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         19. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-6. [Camera](#camera)
-7. [Custom Model Import](#custom-model-import)
+6. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
     3. [Assets](#assets)
@@ -90,8 +89,8 @@ Current main assignments:
         3. [Memory](#memory)
     5. [Horizon Lighting](#horizon-lighting)
     6. [General Tips](#general-tips)
-8. [Text Importing / Text Assets](#text-importing--text-assets)
-9. [Scripting](#scripting)
+7. [Text Importing / Text Assets](#text-importing--text-assets)
+8. [Scripting](#scripting)
     1. [Creating and Editing Scripts](#creating-and-editing-scripts)
         1. [Syncing Scripts](#syncing-scripts)
         2. [Scripts in Source Control](#scripts-in-source-control)
@@ -108,6 +107,7 @@ Current main assignments:
         1. [Component Class](#component-class)
         2. [Props (and wiring)](#props-and-wiring)
         3. [Lifecycle](#lifecycle)
+            1. [Auto-Restart on Script Edit](#auto-restart-on-script-edit)
         4. [Sending and Receiving Events](#sending-and-receiving-events)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Subclasses](#subclasses)
@@ -120,18 +120,26 @@ Current main assignments:
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
     10. [Frame Sequence](#frame-sequence)
-        1. [PrePhysics Phase](#prephysics-phase)
-        2. [Physics Phase](#physics-phase)
-        3. [Events Phase](#events-phase)
-        4. [OnUpdate Phase](#onupdate-phase)
-10. [Network](#network)
+            1. [PrePhysics Phase](#prephysics-phase)
+            1. [Physics Phase](#physics-phase)
+            2. [OnUpdate Phase](#onupdate-phase)
+        2. [Scripting Phase](#scripting-phase)
+            1. [Component Initialization](#component-initialization)
+            2. [Network Events Handling](#network-events-handling)
+            3. [Code Block Events Handing](#code-block-events-handing)
+            4. [Committing Scene Graph Mutations](#committing-scene-graph-mutations)
+        3. [End Phase](#end-phase)
+            1. [Async Handling](#async-handling)
+            2. [Network Sync](#network-sync)
+        4. [Render](#render)
+9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
     4. [Network Events](#network-events-1)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-11. [Physics](#physics)
+10. [Physics](#physics)
     1. [Overview](#overview-3)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
@@ -148,7 +156,7 @@ Current main assignments:
     11. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
     12. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
     13. [Player Physics](#player-physics)
-12. [Players](#players)
+11. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -159,7 +167,7 @@ Current main assignments:
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+12. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -176,7 +184,7 @@ Current main assignments:
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
-14. [Attaching Entities](#attaching-entities)
+13. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -188,32 +196,42 @@ Current main assignments:
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-15. [Holstering Entities](#holstering-entities)
-16. [Player Input](#player-input)
-17. [Persistence](#persistence)
+14. [Holstering Entities](#holstering-entities)
+15. [Player Input](#player-input)
+    1. [Actions on Held Items](#actions-on-held-items)
+    2. [Onscreen Controls](#onscreen-controls)
+16. [Persistence](#persistence)
     1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [Spawning](#spawning)
+17. [Spawning](#spawning)
     1. [Assets](#assets-1)
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-19. [Custom UI](#custom-ui)
+18. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
-20. ["Cross Screens" - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
-21. [Performance Optimization](#performance-optimization)
+    2. [View Types](#view-types)
+        1. [View](#view)
+        2. [Image](#image)
+        3. [Pressable](#pressable)
+        4. [Dynamic List](#dynamic-list)
+        5. [ScrollView](#scrollview)
+    3. [Animated Bindings](#animated-bindings)
+19. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+    1. [Camera](#camera)
+20. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-24. [Glossary](#glossary)
+21. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+22. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+23. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -383,28 +401,28 @@ When a player travels to a world, Horizon will determine which instance to send 
 
 ```mermaid
 flowchart TD
-  playerTravel{{Player initiates<br/>travel via ____}} --"**Edit World**"--> isEditorFull[Is the Editor<br/>Instance <a href="#available-instances">available</a>?]
+  playerTravel@{ shape: circle, label: "How was<br/>travel initiated?" } --"**Edit World**"--> isEditorFull{{Is the Editor<br/>Instance <a href="#available-instances">available</a>?}}
 
-  playerTravel --"**Travel to Player**"--> publishedAvailable[Is the instance<br/>they are in <a href="#available-instances">available</a>?]
+  playerTravel --"**Travel to other Player**"--> publishedAvailable{{Is the instance<br/>they are in <a href="#available-instances">available</a>?}}
 
-  playerTravel --"**Visit World** <br/><a href="#travel-doors-and-links">button, link, or door</a>"--> checkInstance[Is there an<br/>  <a href="#available-instances">available</a> instance?]
+  playerTravel --"**Visit World** <br/><a href="#travel-doors-and-links">button, link, or door</a>"--> checkInstance{{Is there an<br/>  <a href="#available-instances">available</a> instance?}}
 
   publishedAvailable --"yes"--> existingInstance
 
-  checkInstance --"yes"--> existingInstance(Existing Instance)
+  checkInstance --"yes"--> existingInstance@{ shape: dbl-circ, label: "Existing<br/>Published<br/>Instance" }
   checkInstance --"no"--> newInstance
 
-  playerTravel --""**Create New Session**--> newInstance(New Instance)
+  playerTravel --""**Create New Session**--> newInstance@{ shape: dbl-circ, label: "New<br/>Published<br/>Instance" }
 
-  isEditorFull --"yes"--> editInstance(The Editor Instance)
-  isEditorFull --"no"--> failed(Failed to Travel)
+  isEditorFull --"yes"--> editInstance@{ shape: dbl-circ, label: "Editor<br/>Instance" }
+  isEditorFull --"no"--> failed@{ shape: dbl-circ, label: "Failed to<br/>Travel" }
 
   publishedAvailable --"no"--> failed
 
-  style playerTravel fill:#e2faea,stroke:#9a9
-  style checkInstance fill:#fafaea,stroke:#aa9
-  style publishedAvailable fill:#fafaea,stroke:#aa9
-  style isEditorFull fill:#fafaea,stroke:#aa9
+  style newInstance fill:#e2faea,stroke:#9a9
+  style playerTravel fill:#ffffde,stroke:#9a9
+  style existingInstance fill:#e2faea,stroke:#9a9
+  style editInstance fill:#e2faea,stroke:#9a9
   style failed fill:#fcdada,stroke:#a99
 ```
 
@@ -1105,19 +1123,6 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 
 [In World Purchases](#in-world-purchases-iwp)
 
-# Camera
-!!! note Scratch notes
-    XS only
-
-    Local Only
-    Local Camera
-
-    - Spawn point camera options
-    - Turnkey modes (1st and 3rd person)
-    - Granular modes? (Fixed, Attach, Orbit, Pan)
-    - Collision (enable/disable)
-    - Disabling perspective switch
-
 # Custom Model Import
 
 ## Overview
@@ -1333,6 +1338,8 @@ Array types are unsupported.
 
 Is anything other than props unavailable in property initializers?
 
+Subscriptions are NOT cleaned up when a script autorestarts
+
 **DO NOT** implement the constructor, use property initializers instead.
 
 Avoid using anything other than "plain old data" before preStart.
@@ -1347,6 +1354,8 @@ Avoid using anything other than "plain old data" before preStart.
 | after dispose() | ? | ? |
 
 Construction, preStart, start, dispose
+
+#### Auto-Restart on Script Edit
 
 ### Sending and Receiving Events
 
@@ -1475,13 +1484,29 @@ Proved: code block event handlers will eventually timeout but it seems to be upw
 
 Proved: each code block event handler is wrapped in a try.
 
-### PrePhysics Phase
+#### PrePhysics Phase
 
-### Physics Phase
+#### Physics Phase
 
-### Events Phase
+#### OnUpdate Phase
 
-### OnUpdate Phase
+### Scripting Phase
+
+#### Component Initialization
+
+#### Network Events Handling
+
+#### Code Block Events Handing
+
+#### Committing Scene Graph Mutations
+
+### End Phase
+
+#### Async Handling
+
+#### Network Sync
+
+### Render
 
 # Network
 
@@ -1732,20 +1757,6 @@ Each `Player` instance has a `readonly id: number` property.
 
 ### Player Indices
 
-The `Player` class has the property
-
-```ts
-index: ReadonlyHorizonProperty<number>;
-```
-
-which you access via
-
-```ts
-aPlayer.index.get();
-```
-
-.
-
 When a player enters a world they are also assigned an `index`. The `index` will be a number between `0` and `n-1`, where `n` is the maximum number of players allowed in an instance. When a player enters an instance they are assigned an `index` value that is not currently used by any other player. When they leave that value becomes available again.
 
 For example: if three players arrive in an instance they may be assigned `index` values of `0`, `1`, and `2`. If they player with `index` `1` leaves then the next player that arrives may get index `1` again.
@@ -1856,6 +1867,9 @@ OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
 
 # Grabbing and Holding Entities
 
+<mark>TODO</mark> overview.
+<mark>TODO</mark> actions (onscreen buttons) and inputs.
+
 ## Creating a Grabbable Entity
 
 Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
@@ -1885,29 +1899,32 @@ For an entity to be grabbable it needs:
 flowchart TD
     style fail fill:#ffabbc,stroke:black;
     style success fill:#abffbc,stroke:black;
+    style start fill:#ffffde,stroke:black;
 
-    isHeld -- no --> success[Can grab]
+    start@{ shape: circle, label: "Can<br/>Grab?" } -.-> isInteractive@{ shape: dbl-circ, label: "Can<br/>Grab" }
 
-    isInteractive([Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?]) -- yes --> activeCollider([Does the entity contain<br/>an <a href="#collidability">active collider</a>?])
+    isHeld -- no --> success@{ shape: dbl-circ, label: "Can<br/>Grab" }
 
-    isInteractive -- no --> fail[Cannot grab]
+    isInteractive{{Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?}} -- yes --> activeCollider{{Does the entity contain<br/>an <a href="#collidability">active collider</a>?}}
 
-    activeCollider -- yes --> simulated([Is *simulated* set to *true*?])
+    isInteractive -- no --> fail@{ shape: dbl-circ, label: "Cannot<br/>Grab" }
+
+    activeCollider -- yes --> simulated{{Is *simulated* set to *true*?}}
     activeCollider -- no --> fail
 
-    simulated -- yes --> canGrab([Is the player allowed by<br/><a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>])
+    simulated -- yes --> canGrab{{Is the player allowed by<br/><a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>}}
     simulated -- no --> fail
 
-    canGrab -- yes --> isHeld([Is the entity currently<br/>held by a player?])
+    canGrab -- yes --> isHeld{{Is the entity currently<br/>held by a player?}}
     canGrab -- no --> fail
 
-    isHeld -- yes --> canTake([Is the player allowed by<br/><a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>])
+    isHeld -- yes --> canTake{{Is the player allowed by<br/><a href="#setting-who-can-take-from-holder">&quot;Who Can Take From Holder?&quot;</a>}}
 
     canTake -- yes --> success
     canTake -- no --> fail
 
-    linkStyle 1,3,5,7,9,10 stroke:green,stroke-width:1px;
-    linkStyle 0,2,4,6,8,11 stroke:red,stroke-width:1px;
+    linkStyle 1,3,5,7,9,10 stroke:red,stroke-width:1px;
+    linkStyle 2,4,6,8,11 stroke:green,stroke-width:1px;
 ```
 
 !!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
@@ -2174,7 +2191,6 @@ Allows you to set a position and rotation offset from the selected anchor
 Can be set in properties panel.
 Can be overridden programatically.
 
-
 #### Auto Scale to Anchor
 
 ## Attach to 2D screen
@@ -2182,6 +2198,10 @@ Can be overridden programatically.
 # Holstering Entities
 
 # Player Input
+
+## Actions on Held Items
+
+## Onscreen Controls
 
 # Persistence
 
@@ -2290,10 +2310,41 @@ class AchievementsGizmo extends Entity {
 
 # Custom UI
 
+Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
+
 ## Bindings
 Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving). T must be serializable (not throwing via JSON.stringify. For example: bigint is not allowed which means that Entity is not allowed.)
 
-# "Cross Screens" - Mobile vs PC vs VR
+Limits of type, amount, and frequency.
+
+## View Types
+
+### View
+
+### Image
+
+### Pressable
+
+### Dynamic List
+
+### ScrollView
+
+## Animated Bindings
+
+# Cross Screens - Mobile vs PC vs VR
+
+## Camera
+!!! note Scratch notes
+    XS only
+
+    Local Only
+    Local Camera
+
+    - Spawn point camera options
+    - Turnkey modes (1st and 3rd person)
+    - Granular modes? (Fixed, Attach, Orbit, Pan)
+    - Collision (enable/disable)
+    - Disabling perspective switch
 
 # Performance Optimization
 
