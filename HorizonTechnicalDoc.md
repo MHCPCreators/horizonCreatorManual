@@ -92,31 +92,34 @@ Current main assignments:
     6. [General Tips](#general-tips)
 8. [Text Importing / Text Assets](#text-importing--text-assets)
 9. [Scripting](#scripting)
-    1. [Horizon Properties](#horizon-properties)
-    2. [Types](#types)
+    1. [Creating and Editing Scripts](#creating-and-editing-scripts)
+        1. [Syncing Scripts](#syncing-scripts)
+        2. [Scripts in Source Control](#scripts-in-source-control)
+    2. [Horizon Properties](#horizon-properties)
+    3. [Types](#types)
         1. [In-Place Mutation](#in-place-mutation)
         2. [Color](#color)
         3. [Vec3](#vec3)
         4. [Quaternion](#quaternion)
         5. [Entity Subtypes](#entity-subtypes)
             1. [Entity as() method](#entity-as-method)
-    3. [Files](#files)
-    4. [Components](#components)
+    4. [Files](#files)
+    5. [Components](#components)
         1. [Component Class](#component-class)
         2. [Props (and wiring)](#props-and-wiring)
         3. [Lifecycle](#lifecycle)
         4. [Sending and Receiving Events](#sending-and-receiving-events)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Subclasses](#subclasses)
-    5. [Async (Timers)](#async-timers)
-    6. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    7. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    8. [Events (Sending and Receiving)](#events-sending-and-receiving)
+    6. [Async (Timers)](#async-timers)
+    7. [Local Scripts and Ownership](#local-scripts-and-ownership)
+    8. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    9. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    9. [Frame Sequence](#frame-sequence)
+    10. [Frame Sequence](#frame-sequence)
         1. [PrePhysics Phase](#prephysics-phase)
         2. [Physics Phase](#physics-phase)
         3. [Events Phase](#events-phase)
@@ -306,7 +309,8 @@ The list of all previous saved snapshots are viewable in the "Backups" menu. Thi
 
 For instance, before starting a major change to the world, you could create a backup, and then if you run into issues, you could restore that "safe" backup back to when the world was "unchanged". You can also look back into backups to investigate when a certain bug appeared, or to go back and make an [asset](#assets) or copy a [script](#scripting) that you have since modified or deleted.
 
-<mark>TODO: source control</mark>
+!!! tip Source Control
+    Currently there is no way to put a whole world into an external source control system, such as git, but it is possible to [put the scripts into source control](#scripts-in-source-control).
 
 # Instances
 
@@ -1177,6 +1181,16 @@ Workflows / advice for greyboxing.
 Creating scripting entities in Horizon involves creating [`Components`](#components) classes that you attach to `Entities` in the Desktop editor. In these classes you can specify [properties](#props-and-wiring) that will appear in the Property panel in the Desktop editor.
 
 In the classes you can send and receive [events](#events-sending-and-receiving) to perform actions in the world. The majority of code will interact with the core game types: [Entity](#entities), [Player](#players), and [Asset](#assets), as well as use the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations).
+
+## Creating and Editing Scripts
+
+### Syncing Scripts
+
+### Scripts in Source Control
+
+Script directory: "auto-sync directory"
+
+https://developers.meta.com/horizon-worlds/learn/documentation/typescript/recommended-version-control-strategies
 
 ## Horizon Properties
 
