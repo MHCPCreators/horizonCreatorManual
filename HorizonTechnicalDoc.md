@@ -261,7 +261,7 @@ Publish World "box"
 
 Player Settings
   VOIP: Global vs Local
-  Maximum Player Count (4 to 32)
+  <a name="maximum-player-count">Maximum Player Count</a> (4 to 32)
   Suggested Minimum Player Count (1 up to Max)
   Emotes (boolean)
   Emotes Audio (boolean)
@@ -281,7 +281,6 @@ Enable Max Quality Avatar
 
 
 Name, description, comfort setting, player count, etc.
-<a name="player-capacity">**Player capacity**</a>: ...
 
 
 ## Editor Roles
@@ -314,7 +313,7 @@ For instance, before starting a major change to the world, you could create a ba
 
 # Instances
 
-Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#player-capacity">player capacity</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
+Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#maximum-player-count">maximum player count</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
 
 !!! info Horizon sometimes refers to Instances as "Sessions"
     In all technical documentation, Horizon uses the word *instance*. Given that this is a somewhat technical term, it refers to them as **sessions** within the user-facing side of the product. For example, a person can "create a new session".
@@ -355,7 +354,7 @@ There are two types of instances: **published instances** and **editor instances
 
 A player can only travel to an instance if that instance is **available for the player**. Availability is determined by three criteria, all of which must be met:
 
-1. **[Has Player capacity](#player-capacity)**: a player can only travel to a world if there as at least one [index](#player-indices) available. If the capacity is set to 20 and there are 19 people there, then 1 more can travel to the world. It is then unavailable for all players until at one player leaves.
+1. **[Isn't at maximum player count](#maximum-player-count)**: a player can only travel to a world if there as at least one [index](#player-indices) available. If the capacity is set to 20 and there are 19 people there, then 1 more can travel to the world. It is then unavailable for all players until at one player leaves.
 1. **Is Safe**: Horizon has an undisclosed, and evolving, set of rules for what it deems *safe*, regarding travel. These rules may include: which players have blocked one another (and how recently), if the traveling player has recently been voted out of that instance, if the instance has a moderated event running, and more.
 1. **[Instance is Open](#open-and-closed-instances)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
 
@@ -1658,11 +1657,11 @@ Velocity, locomotion speed, jump speed
 
 # Players
 
-The `Player` class represents a person in an instance. Each world has a [player capacity](#player-capacity) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
+The `Player` class represents a person in an instance. Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
 
 `Player` instances are allocated by the system; you should never attempt to allocate them. `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
 
-There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the  <a href="#player-capacity">player setting</a>.
+There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the <a href="#maximum-player-count">maximum player count</a> being reached.
 
 Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
 
@@ -1741,7 +1740,7 @@ which returns the current list of players in the world. Note that the order of t
 
 There is a special instance of the `Player` class that represents the _server_. It has an `id` but no meaningful `index`. All `Player` APIs work for the server player, but return default values (example: the location will return the origin; name will return the empty string).
 
-The server player does not count as one of the human players: it does not get assigned an `index` and it does not count toward the <a href="#player-capacity">player capacity</a>.
+The server player does not count as one of the human players: it does not get assigned an `index` and it does not count toward the <a href="#maximum-player-count">maximum player count</a> being reached.
 
 The `World` class has the method
 
