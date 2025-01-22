@@ -181,7 +181,7 @@ Current main assignments:
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-    4. [Player Voice](#player-voice)
+    4. [VOIP Settings](#voip-settings)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -222,10 +222,9 @@ Current main assignments:
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
-    1. [Assets](#assets-1)
-    2. [Simple Spawning](#simple-spawning)
-    3. [Spawn Controller](#spawn-controller)
-    4. [Sublevels](#sublevels)
+    1. [Simple Spawning](#simple-spawning)
+    2. [Spawn Controller](#spawn-controller)
+    3. [Sublevels](#sublevels)
 19. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
     2. [View Types](#view-types)
@@ -906,8 +905,11 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
     - None
 
 ### Environment Gizmo
+
+<mark>TODO</mark> only one allowed active at a time; active not scriptable; spawning overwrites all values (VOIP=Env will pass back to last env gizmo)
+
 ##### Purpose
-Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voice settings, etc...
+Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
 #####  Manual Properties
 - Active
@@ -2003,6 +2005,20 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Entering and Exiting a World
 
+There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
+
+| CodeBlockEvent | Description | Parameters |
+|---|---|---|
+| `OnPlayerEnterWorld`  | ? | `(player : Player)` |
+| `OnPlayerExitWorld`  | ? | `(player : Player)` |
+
+!!! tip Player-Enter and Player-Exit are sent to all entities.
+
+!!! danger Player-Enter and Player-Exit events are not sent to locally-owned entities.
+
+
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
+
 ### AFK
 
 ```ts
@@ -2019,9 +2035,37 @@ OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
 
 ## Pose (Position and Body Parts)
 
-## Player Voice
+## VOIP Settings
 
-<mark>TODO</mark> mention player voice APIs and relation to [Environment Gizmo](#environment-gizmo) audio setting.
+Horizon has the ability control *who can hear a player and from how far away*.
+
+It call this the **VOIP Setting** which can be configured with a number of values: **mute, whisper, nearby, *default*, extended, global** which representing increases ranges of being heard. Mute means that no one can hear the player, global means that everyone can hear the player (and with full volume). The other values represent a spectrum in between mute and global, with **default** being the recommended setting for most experiences (people in your general vicinity can hear and so can people farther away if you are loud). There is one more special VOIP Setting **environment**, which is described below.
+
+!!! info There are no team-based voip settings (there are no "voice channels").
+    There is (currently) no way to configure voip settings between two specific players or to configure voice channels. Specifically you can't make a team game where a whole hears each other globally but the other team hears them whisper. When a player is set to global or whisper, **the setting controls how everyone else hears them**.
+
+The **[environment gizmo](#environment-gizmo)** allows you to set a VOIP Setting for the whole world. All players will be assigned this value upon joining.
+
+You can change the VOIP setting for a given player in TypeScript with:
+
+```ts
+player.setVoipSetting(VoipSetting.Whisper)
+```
+
+and at any point in time you can "cancel" that custom setting and return the player back to whatever setting is on the environment gizmo via:
+
+```ts
+player.setVoipSetting(VoipSetting.Environment)
+```
+
+!!! info Spawning Environment Gizmos
+    when a new environment gizmo is [spawned](#assets), all players will be updated to have its VOIP setting. If the spawned gizmo is set to `Environment` then all players will be returned to the setting in the last active gizmo.
+
+**World's Player Settings' VOIP Setting**: there is a top-level setting in *Player Settings* called *VOIP Settings* that can be set to `Global` and `Local`. When set to `Global` every player has **global** as their setting, it is not possible to change any VOIP settings further (all gizmos and TypeScript related to VOIP are ignored). The `Local` setting gives the world the **default** setting, which can then be further changed by environment gizmos and TypeScript.
+
+!!! danger Never use the World's Player Settings' `Global` VOIP Setting.
+    The World's Player Settings' VOIP Settings toggle has bugs. We recommend that you **set it to `Local`** (or just never touch it after creating a new world).
+
 
 # Grabbing and Holding Entities
 
@@ -2473,7 +2517,6 @@ class AchievementsGizmo extends Entity {
 
 # Spawning
 
-## Assets
 Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
 Assets must have an `Asset Type` and `Folder`.
