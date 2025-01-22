@@ -139,24 +139,24 @@ Current main assignments:
         1. [Auto-Transfers](#auto-transfers)
     4. [Network Events](#network-events-1)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-10. [Physics](#physics)
-    1. [Overview](#overview-3)
-    2. [Units](#units)
-    3. [Creating a Physical Entity](#creating-a-physical-entity)
-    4. [Gravity](#gravity)
-    5. [Collisions and Triggers](#collisions-and-triggers)
+10. [Collision Detection](#collision-detection)
+    1. [Collisions and Triggers](#collisions-and-triggers)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
-    6. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
-    7. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    8. [PhysicalEntity Class](#physicalentity-class)
-    9. [Projectiles](#projectiles)
-    10. [Gravity](#gravity-1)
-    11. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
-    12. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
-    13. [Player Physics](#player-physics)
-11. [Players](#players)
+11. [Physics](#physics)
+    1. [Overview](#overview-3)
+    2. [Units](#units)
+    3. [Creating a Physical Entity](#creating-a-physical-entity)
+    4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
+    5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
+    6. [PhysicalEntity Class](#physicalentity-class)
+    7. [Projectiles](#projectiles)
+    8. [Gravity](#gravity)
+    9. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
+    10. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
+    11. [Player Physics](#player-physics)
+12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -167,7 +167,7 @@ Current main assignments:
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-12. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -184,7 +184,7 @@ Current main assignments:
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
-13. [Attaching Entities](#attaching-entities)
+14. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -196,22 +196,22 @@ Current main assignments:
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-14. [Holstering Entities](#holstering-entities)
-15. [Player Input](#player-input)
+15. [Holstering Entities](#holstering-entities)
+16. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
-16. [Persistence](#persistence)
+17. [Persistence](#persistence)
     1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-17. [Spawning](#spawning)
+18. [Spawning](#spawning)
     1. [Assets](#assets-1)
     2. [Simple Spawning](#simple-spawning)
     3. [Spawn Controller](#spawn-controller)
     4. [Sublevels](#sublevels)
-18. [Custom UI](#custom-ui)
+19. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
     2. [View Types](#view-types)
         1. [View](#view)
@@ -220,18 +220,18 @@ Current main assignments:
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     3. [Animated Bindings](#animated-bindings)
-19. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+20. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-20. [Performance Optimization](#performance-optimization)
+21. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-21. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-22. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-23. [Glossary](#glossary)
+22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+24. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -1540,34 +1540,7 @@ Collisions and Grabbables
 
 What happens if two scripts are setting an entity's position at the "same time"?
 
-# Physics
-
-Setting player position (locally) in Prephysics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
-
-Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
-    NOT async
-
-  When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
-
-Note: player position refers to the location in the world of the "navel" (it is the hip joint in the skeleton)
-
-Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
-
-## Overview
-
-High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
-
-Somewhere: force vs impulse vs velocity change
-
-## Units
-
-m, m/s, m/s^2, Nm for torque, etc
-
-## Creating a Physical Entity
-
-....
-
-## Gravity
+# Collision Detection
 
 ## Collisions and Triggers
 
@@ -1616,9 +1589,62 @@ Trigger detection is done at the _collider_ level. When a collider enters/leaves
 
 This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
 
+# Physics
+
+## Overview
+
+High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
+
+Somewhere: force vs impulse vs velocity change
+
+## Units
+| Name | Unit | Description |
+|---|---|---|
+|Time|Seconds when using [onUpdate event](#onupdate-phase)|Amount of time passed since last frame|
+|Position|Measured in Meters|The location of an entity|
+|Velocity|Meters/Seconds|The location change over time|
+|Acceleration|Meters/Seconds^2|Velocity change over time|
+|Mass|Measured in Kilograms|Entity's resistance to acceleration when a force is applied|
+|Gravity|Simply denoted as gravity|acceleration due to gravity (approximately 9.81m/s2 on Earth)|
+|Weight|Newtons or (Mass * Gravity)|The the force needed to accelerate one kilogram of mass by one meter per second squared.|
+
+Angular force
+| Name | Unit | Description |
+|---|---|-
+|Angle|Degrees in properties panel|Amount of rotation|
+|Angular Velocity|Degrees/second|How angle changes over time|
+|Angular Acceleration|Degrees/second^2/how quickly an entity's rotational speed is changing|
+
+!!! note Scripting agular force allows for the use of radians
+    See [rotational force API](#)
+
+TODO - Shouldn't the in-between frames be ignored? In other words, how is it doing FixedUpdate?
+
+## Creating a Physical Entity
+For an entity to become a physical entity:
+1. Have an [active collider](#collidability)
+1. Set `Motion` to `Interactive`
+1. Set `Interaction` to `Physics` or `Both`
+1.  [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
+
+!!! tip Set the mass of a physical entity when first creating a physical entity
+    This will ensure that physics calculations with other entities work as expected when you start experimenting with other physical properties and functions.
+
+TODO - Collision type: discrete, continuous - figure out horizon way
+TODO - Average?, min?, max? - friction and bounciness calculation
+
+
 ## PrePhysics vs Defaults Scripts
 
 ## Simulated vs Locked Entities
+
+## Gravity
+
+## Velocity, Acceleration, Force, Torque
+
+Note: `zeroVelocity` clears out positional and rotational velocity.
+
+## Properties: Mass, Drag, Center-of-Mass
 
 ## PhysicalEntity Class
 
@@ -1716,17 +1742,20 @@ export declare class PhysicalEntity extends Entity {
 
 ## Projectiles
 
-## Gravity
-
-## Velocity, Acceleration, Force, Torque
-
-Note: `zeroVelocity` clears out positional and rotational velocity.
-
-## Properties: Mass, Drag, Center-of-Mass
-
 ## Player Physics
 
-Velocity, locomotion speed, jump speed
+Setting player position (locally) in Prephysics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+
+Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
+    NOT async
+
+  When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
+
+Note: player position refers to the location in the world of the "navel" (it is the hip joint in the skeleton)
+
+Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
+
+TODO - Velocity, locomotion speed, jump speed
 
 # Players
 
