@@ -150,12 +150,9 @@ Current main assignments:
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [Gravity](#gravity)
-    7. [Velocity, Acceleration, Force, Torque](#velocity-acceleration-force-torque)
-    8. [Properties: Mass, Drag, Center-of-Mass](#properties-mass-drag-center-of-mass)
-    9. [PhysicalEntity Class](#physicalentity-class)
-    10. [Projectiles](#projectiles)
-    11. [Player Physics](#player-physics)
+    6. [PhysicalEntity Class](#physicalentity-class)
+    7. [Projectiles](#projectiles)
+    8. [Player Physics](#player-physics)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -1612,8 +1609,9 @@ Angular force
 | Name | Unit | Description |
 |---|---|-
 |Angle|Degrees in properties panel|Amount of rotation|
-|Angular Velocity|Degrees/second|How angle changes over time|
-|Angular Acceleration|Degrees/second^2/how quickly an entity's rotational speed is changing|
+
+Torque
+
 
 !!! note Scripting agular force allows for the use of radians
     See [rotational force API](#)
@@ -1627,24 +1625,26 @@ For an entity to become a physical entity:
 1. Set `Interaction` to `Physics` or `Both`
 1.  [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
 
+|Force Properties|Description|
+|---|---|
+|Gravity ||
+|Mass||
+|Drag||
+|Angular Drag||
+|Dynamic Friction||
+|Static Friction||
+|Bounciness||
+|Center-of-Mass||
+
 !!! tip Set the mass of a physical entity when first creating a physical entity
     This will ensure that physics calculations with other entities work as expected when you start experimenting with other physical properties and functions.
 
-TODO - Collision type: discrete, continuous - figure out horizon way
-TODO - Average?, min?, max? - friction and bounciness calculation
-
+TODO - Collision type: discrete, continuous - figure out horizon way(Any guarantees?)
+TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantees?)
 
 ## PrePhysics vs Defaults Scripts
 
 ## Simulated vs Locked Entities
-
-## Gravity
-
-## Velocity, Acceleration, Force, Torque
-
-Note: `zeroVelocity` clears out positional and rotational velocity.
-
-## Properties: Mass, Drag, Center-of-Mass
 
 ## PhysicalEntity Class
 
