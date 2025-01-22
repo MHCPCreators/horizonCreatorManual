@@ -181,6 +181,7 @@ Current main assignments:
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+    4. [Player Voice](#player-voice)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -945,7 +946,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
   - Value between 0.0000 - 0.1000
 - Show Grid
   - ON/OFF Toggle
-- VOIP Settings
+- VOIP Settings (link to [player audio](#player-audio))
   - Environment
   - Default
   - Nearby
@@ -2017,6 +2018,10 @@ OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
 ```
 
 ## Pose (Position and Body Parts)
+
+## Player Voice
+
+<mark>TODO</mark> mention player voice APIs and relation to [Environment Gizmo](#environment-gizmo) audio setting.
 
 # Grabbing and Holding Entities
 
