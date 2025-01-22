@@ -2107,7 +2107,7 @@ setWhoCanGrab(players: Player[]): void;
 
 to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (<mark>TODO</mark> - everyone? no one?).
 
-!!! note setWhoCanGrab does not auto-update
+!!! note setWhoCanGrab does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
     There is no way to set an entity back to its "default behavior" (before the API is first called - <mark>TODO</mark> verify).
@@ -2124,10 +2124,10 @@ to change the list of players that are allowed to grab the entity. Until you cal
 
 ### Grab Distance
 
-!!! warning Grab distance varies between platforms
+!!! warning Grab distance varies between platforms.
     For example mobile players can grab entities when much farther away than VR players
 
-!!! tip Controlling grab-distance
+!!! tip Grab-distance cannot be configured.
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 ## Grabbing Entities
