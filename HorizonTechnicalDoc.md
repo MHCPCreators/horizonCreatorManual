@@ -2190,21 +2190,21 @@ on the held object. If the entity was **force held** then this is how you remove
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
   hold0([Not Held])
   hold1([Held with 1 hand])
   hold2([Held with 2 hands])
 
-  hold0 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> ---> hold1
+  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> ---> hold1
 
-  hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> --> hold2
+  hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs with<br/>second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> --> hold2
 
-  hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr></table> --> hold1
+  hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr></table> --> hold1
 
-   hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases hand or<code style="background-color:#0000">forceRelease</code> called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+   hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases hand or<br/><code style="background-color:#0000">forceRelease</code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+    hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3,4 stroke:red,stroke-width:1px;
@@ -2272,18 +2272,18 @@ Attaching an entity to player can be done by the following:
 
 <mark>TODO</mark> - Explain what happens when multiple attached
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
   detach([Detached])
   attach([Attached])
 
-  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases attachable entity on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases<br/>attachable entity<br/>on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
 
-  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
 
-  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
 
-  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3 stroke:red,stroke-width:1px;
