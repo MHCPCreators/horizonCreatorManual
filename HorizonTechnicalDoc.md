@@ -2337,13 +2337,160 @@ class AchievementsGizmo extends Entity {
 # Spawning
 
 ## Assets
+Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts. 
+
+Assets must have an `Asset Type` and `Folder`.
+
+Saved Asset will receive an ID that is used for spawning.
+
+|Asset Types|Description|
+|---|---|
+|Template Asset| Similar to [Prefabs in Unity](https://docs.unity3d.com/Manual/Prefabs.html). Allows for publishing, versioning, and local editing/overriding.|
+|Legacy Asset Group|Simple collection of entities, property configurations, and/or scripts.
+
+!!! warning Assets can be used across worlds, but using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
+
+!!! note Asset Folders can be shared with other users.
+
 
 ## Simple Spawning
+```ts
+  /**
+     * Asynchronously spawns an asset.
+     * @param asset - The asset to spawn.
+     * @param position - The position where the asset is spawned.
+     * @param rotation - The rotation of the spawned asset. If invalid, is replace with `Quaternion.one` (no rotation).
+     * @param scale - The scale of the spawned asset.
+     * @returns A promise resolving to all of the root entities within the asset.
+     */
+    spawnAsset(asset: Asset, position: Vec3, rotation?: Quaternion, scale?: Vec3): Promise<Entity[]>;
+```
 
 ## Spawn Controller
-
+```ts
+export declare class SpawnControllerBase {
+    /**
+     * The ID of the asset that is currently being spawned. This is
+     * a protected version of the {@link spawnID} property.
+     */
+    protected _spawnId: number;
+    /**
+     * The ID of the asset that is currently being spawned.
+     */
+    get spawnId(): number;
+    /**
+     * A list of entities contained in a spawned asset.
+     */
+    readonly rootEntities: ReadableHorizonProperty<Entity[]>;
+    /**
+     * The current spawn state of the spawn controller asset.
+     */
+    readonly currentState: ReadableHorizonProperty<SpawnState>;
+    /**
+     * The spawn state the spawn controller asset is attempting to reach.
+     */
+    readonly targetState: ReadableHorizonProperty<SpawnState>;
+    /**
+     * An error associated with the spawn operation.
+     */
+    readonly spawnError: ReadableHorizonProperty<SpawnError>;
+    /**
+     * Loads asset data if it's not previously loaded and then spawns the asset.
+     *
+     * @returns A promise that indicates whether the operation succeeded.
+     */
+    spawn(): Promise<void>;
+    /**
+     * Preloads the asset data for a spawn controller.
+     *
+     * @returns A promise that indicates whether the operation succeeded.
+     */
+    load(): Promise<void>;
+    /**
+     * Pauses the spawning process for a spawn controller.
+     *
+     * @returns A promise that indicates whether the operation succeeded.
+     */
+    pause(): Promise<void>;
+    /**
+     * Unloads the spawn controller asset data. If the spawn controller
+     * isn't needed after the data is unloaded, call {@link dispose}.
+     *
+     * @returns A promise that indicates whether the operation succeeded.
+     */
+    unload(): Promise<void>;
+    /**
+     * Unloads the asset data of a spawn controller, and performs cleanup on
+     * the spawn controller object.
+     *
+     * @remarks
+     * This method is equivalent to {@link unload}, except afterwards the spawn controller
+     * is no longer available for use and all of its methods throw errors. Call
+     * `dispose` in order to clean up resources that are no longer needed.
+     *
+     * @returns A promise that indicates whether the dispose operation succeeded.
+     */
+    dispose(): Promise<unknown>;
+}
+```
 ## Sublevels
-
+`horizon/world_streaming`
+```ts
+/**
+ * A sublevel of a world that you can stream independentaly from the rest of
+ * the world at runtime.
+ *
+ * @remarks
+ * Sublevels are a way to break up a world into smaller pieces that you can
+ * stream separately from other portions of the world. for more information,
+ * see the {@link https://developers.meta.com/horizon-worlds/learn/documentation/typescript/asset-spawning/world-streaming | World Streaming} guide.
+ */
+export declare class SublevelEntity extends Entity {
+    /**
+     * Creates a human-readable representation of the SublevelEntity.
+     * @returns A string representation of the SublevelEntity.
+     */
+    toString(): string;
+    /**
+     * Gets the current state of the sublevel.
+     */
+    readonly currentState: ReadableHorizonProperty<SublevelStates>;
+    /**
+     * Gets the state the sublevel is attempting to reach.
+     */
+    readonly targetState: ReadableHorizonProperty<SublevelStates>;
+    /**
+     * Loads the sublevel's asset data if not already loaded and makes it active in the world.
+     *
+     * @returns A promise that resolves when the sublevel is active.
+     */
+    activate(): Promise<void>;
+    /**
+     * Despawns the sublevel and preloads the sublevel's asset data so it can be re-activated later.
+     *
+     * @returns A promise that resolves when the sublevel is loaded.
+     */
+    hide(): Promise<void>;
+    /**
+     * Preloads the sublevel's asset data so it can be activated later.
+     *
+     * @returns A promise that resolves when the sublevel is loaded.
+     */
+    load(): Promise<void>;
+    /**
+     * Pauses the sublevel's asset data loading.
+     *
+     * @returns A promise that resolves when the sublevel is paused.
+     */
+    pause(): Promise<void>;
+    /**
+     * Despawns the sublevel's asset data.
+     *
+     * @returns A promise that resolves when the sublevel is unloaded.
+     */
+    unload(): Promise<void>;
+}
+```
 # Custom UI
 
 Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
