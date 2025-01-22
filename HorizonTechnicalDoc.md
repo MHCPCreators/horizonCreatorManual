@@ -73,9 +73,8 @@ Current main assignments:
                 1. [Manual Properties](#manual-properties-3)
                 2. [Typescript API](#typescript-api-3)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-                1. [Purpose](#purpose-4)
-                1. [Manual Properties](#manual-properties-4)
-                2. [Typescript API](#typescript-api-4)
+            1. [Overview](#overview-2)
+            2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
@@ -90,7 +89,7 @@ Current main assignments:
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-2)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
     3. [Assets](#assets)
         1. [Uploads](#uploads)
@@ -163,7 +162,7 @@ Current main assignments:
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -216,7 +215,7 @@ Current main assignments:
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -797,19 +796,19 @@ Tag uses:
 
 
 #####  Manual Properties
-- 
+-
 
 ##### Typescript API
 - None
 
 !!! Note Notes
-    - 
+    -
 
 !!! Warning
-    - 
+    -
 
 !!! Bug Known Issues
-    - 
+    -
 
 
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. <mark>TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*. A: They are never referred to as a Gizmo anywhere in VR or the Desktop editor.</mark>
@@ -967,76 +966,42 @@ Allows creators to make changes to the properties  of their world like skydome, 
 !!! Bug Known Issues
     - None
 
-
-
 ### ParticleFx Gizmo
-##### Purpose
+#### Overview
 The particle gizmo allows you to play builtin effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
 
 There are two types of `ParticleFx`:
-1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab.
+1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
 2. `ParticleFx` created via `Asset Library` Menu/Tab under the `VFX` category.
-So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively.
+So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note the a number of these effects have *Custom FX Properties* (e.g. to set fire color).
 
-#####  Manual Properties
-`Gizmo ParticleFx`
- - Play on Start
-   - ON/OFF Toggle
- - Looping
-   - ON/OFF Toggle
- - Preset
-   - Default
-   - Smoke Poof
-   - Hit Spark
-   - Hit Ring
-   - Smoke Trail
-   - Confetti Burst
-   - Sparkles Aoe
-   - Water Spray
-   - Water Burst
-   - Fireworks
-   - Magic Collapse
-   - Magic Buildup
-   - Vertical Lines
- - Preview
-    - Play Button
+#### Playing and Stopping a Particle Effect
 
- `Asset ParticleFx`
- - Prefab Name
-   - Dropdown - Depends on ParticleFx
- - Play on Start
-   - ON/OFF Toggle
- - Looping
-   - ON/OFF Toggle
- - Preview
-    - Play Button
- - Custom FX Properties
-   - Each Prefab FX has its own Custom FX Properties
-
-TODO - Do we talk about those custom properties? There are many, but 100% undocumented and confusing at times.
-##### Typescript API
-https://horizon.meta.com/resources/scripting-api/core.particlegizmo.md/
+You can play and stop a particle effect gizmo with the TypeScript APIs:
 
 ```ts
-play(options?: ParticleFXPlayOptions): void; //Plays the particle effect.
-stop(options?: ParticleFXStopOptions): void; //Stops the particle effect.
+// Particle Gizmo
+play(options?: ParticleFXPlayOptions): void;
+stop(options?: ParticleFXStopOptions): void;
 
-//The settings for a particle effect.
-export declare type ParticleFXPlayOptions = {
-    fromStart?: boolean; //true to play the effect from the beginning even if already playing. Otherwise, the effect doesn't play if already playing.
-    players?: Array<Player>; //The array of players to apply the change to.
-    oneShot?: boolean; //If true, the effect emits a new particle that plays until its full duration completes. This does not interfere with other play interactions.
+type ParticleFXPlayOptions = {
+    fromStart?: boolean;
+    players?: Array<Player>;
+    oneShot?: boolean;
+};
+
+type ParticleFXStopOptions = {
+    players?: Array<Player>;
 };
 ```
 
-!!! Note Notes
-    - 
+When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting; `oneShot=true` will play once and `oneShot=false` will loop forever.
 
-!!! Warning
-    - High Performance Cost - Uses CPU and can easily impact frame-rate (FPS).
+When you **stop** an effect it will end quickly, yet smoothly end.
 
-!!! Bug Known Issues
-    - 
+**players**: `play` and `stop` both allow specifying which players will see the effect start / stop. The default value is [all players](#listing-all-players) in the world.
+
+**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
 
 ### TrailFx Gizmo
 Lines that follow the object when moved
@@ -1662,7 +1627,7 @@ Proved: each code block event handler is wrapped in a try.
 ## Clients (Devices and the Server)
 
 ## Ownership
-TODO - What is the entity's relationship to the server upon instantiation? 
+TODO - What is the entity's relationship to the server upon instantiation?
 How does the local script affect the entity?
 Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
 Explain framerate(cycle speed?) changes between local and server
@@ -2491,7 +2456,7 @@ class AchievementsGizmo extends Entity {
 # Spawning
 
 ## Assets
-Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts. 
+Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
 Assets must have an `Asset Type` and `Folder`.
 
