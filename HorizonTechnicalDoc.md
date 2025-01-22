@@ -2350,6 +2350,7 @@ Can be set in properties panel.
 Can be overridden programatically.
 
 #### Auto Scale to Anchor
+This settings currently has no effect on the attachable entities.
 
 ## Attach to 2D screen
 This toggle causes the attachable entity to become **screen-attached**. This means the entity's tranformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
