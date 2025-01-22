@@ -73,9 +73,8 @@ Current main assignments:
                 1. [Manual Properties](#manual-properties-3)
                 2. [Typescript API](#typescript-api-3)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-                1. [Purpose](#purpose-4)
-                1. [Manual Properties](#manual-properties-4)
-                2. [Typescript API](#typescript-api-4)
+            1. [Overview](#overview-2)
+            2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
@@ -90,7 +89,7 @@ Current main assignments:
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-2)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
     3. [Assets](#assets)
         1. [Uploads](#uploads)
@@ -131,10 +130,12 @@ Current main assignments:
     8. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
     9. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
+            1. [System Events](#system-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    10. [Frame Sequence](#frame-sequence)
+    10. [World Class](#world-class)
+    11. [Frame Sequence](#frame-sequence)
             1. [PrePhysics Phase](#prephysics-phase)
             1. [Physics Phase](#physics-phase)
             2. [OnUpdate Phase](#onupdate-phase)
@@ -147,12 +148,13 @@ Current main assignments:
             1. [Async Handling](#async-handling)
             2. [Network Sync](#network-sync)
         4. [Render](#render)
+    12. [Script File Execution](#script-file-execution)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
-    4. [Network Events](#network-events-1)
+    4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
     1. [Collisions and Triggers](#collisions-and-triggers)
@@ -160,7 +162,7 @@ Current main assignments:
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -179,6 +181,7 @@ Current main assignments:
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+    4. [Player Voice](#player-voice)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -213,7 +216,7 @@ Current main assignments:
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -274,6 +277,8 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 <mark>TODO</mark>
 
 ## Metadata and Publishing
+
+Let's *NOT* document all of what is below. These are here for reference to see which ones we want to document.
 
 <mark>TODO</mark>
 
@@ -792,19 +797,19 @@ Tag uses:
 
 
 #####  Manual Properties
-- 
+-
 
 ##### Typescript API
 - None
 
 !!! Note Notes
-    - 
+    -
 
 !!! Warning
-    - 
+    -
 
 !!! Bug Known Issues
-    - 
+    -
 
 
 There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. <mark>TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*. A: They are never referred to as a Gizmo anywhere in VR or the Desktop editor.</mark>
@@ -941,7 +946,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
   - Value between 0.0000 - 0.1000
 - Show Grid
   - ON/OFF Toggle
-- VOIP Settings
+- VOIP Settings (link to [player audio](#player-audio))
   - Environment
   - Default
   - Nearby
@@ -962,76 +967,42 @@ Allows creators to make changes to the properties  of their world like skydome, 
 !!! Bug Known Issues
     - None
 
-
-
 ### ParticleFx Gizmo
-##### Purpose
+#### Overview
 The particle gizmo allows you to play builtin effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
 
 There are two types of `ParticleFx`:
-1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab.
+1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
 2. `ParticleFx` created via `Asset Library` Menu/Tab under the `VFX` category.
-So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively.
+So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note the a number of these effects have *Custom FX Properties* (e.g. to set fire color).
 
-#####  Manual Properties
-`Gizmo ParticleFx`
- - Play on Start
-   - ON/OFF Toggle
- - Looping
-   - ON/OFF Toggle
- - Preset
-   - Default
-   - Smoke Poof
-   - Hit Spark
-   - Hit Ring
-   - Smoke Trail
-   - Confetti Burst
-   - Sparkles Aoe
-   - Water Spray
-   - Water Burst
-   - Fireworks
-   - Magic Collapse
-   - Magic Buildup
-   - Vertical Lines
- - Preview
-    - Play Button
+#### Playing and Stopping a Particle Effect
 
- `Asset ParticleFx`
- - Prefab Name
-   - Dropdown - Depends on ParticleFx
- - Play on Start
-   - ON/OFF Toggle
- - Looping
-   - ON/OFF Toggle
- - Preview
-    - Play Button
- - Custom FX Properties
-   - Each Prefab FX has its own Custom FX Properties
-
-TODO - Do we talk about those custom properties? There are many, but 100% undocumented and confusing at times.
-##### Typescript API
-https://horizon.meta.com/resources/scripting-api/core.particlegizmo.md/
+You can play and stop a particle effect gizmo with the TypeScript APIs:
 
 ```ts
-play(options?: ParticleFXPlayOptions): void; //Plays the particle effect.
-stop(options?: ParticleFXStopOptions): void; //Stops the particle effect.
+// Particle Gizmo
+play(options?: ParticleFXPlayOptions): void;
+stop(options?: ParticleFXStopOptions): void;
 
-//The settings for a particle effect.
-export declare type ParticleFXPlayOptions = {
-    fromStart?: boolean; //true to play the effect from the beginning even if already playing. Otherwise, the effect doesn't play if already playing.
-    players?: Array<Player>; //The array of players to apply the change to.
-    oneShot?: boolean; //If true, the effect emits a new particle that plays until its full duration completes. This does not interfere with other play interactions.
+type ParticleFXPlayOptions = {
+    fromStart?: boolean;
+    players?: Array<Player>;
+    oneShot?: boolean;
+};
+
+type ParticleFXStopOptions = {
+    players?: Array<Player>;
 };
 ```
 
-!!! Note Notes
-    - 
+When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting; `oneShot=true` will play once and `oneShot=false` will loop forever.
 
-!!! Warning
-    - High Performance Cost - Uses CPU and can easily impact frame-rate (FPS).
+When you **stop** an effect it will end quickly, yet smoothly end.
 
-!!! Bug Known Issues
-    - 
+**players**: `play` and `stop` both allow specifying which players will see the effect start / stop. The default value is [all players](#listing-all-players) in the world.
+
+**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
 
 ### TrailFx Gizmo
 Lines that follow the object when moved
@@ -1353,11 +1324,20 @@ Workflows / advice for greyboxing.
 
 # Scripting
 
-Creating scripting entities in Horizon involves creating [`Components`](#components) classes that you attach to `Entities` in the Desktop editor. In these classes you can specify [properties](#props-and-wiring) that will appear in the Property panel in the Desktop editor.
+Scripts are how you create dynamism in worlds. You use them to create interactivity and movement. You use scripts to make something simple like a door that opens when you approach it as well as the most complex things, such as an entire complex team-vs-team shooter game (which would use many separate scripts).
 
-In the classes you can send and receive [events](#events-sending-and-receiving) to perform actions in the world. The majority of code will interact with the core game types: [Entity](#entities), [Player](#players), and [Asset](#assets), as well as use the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations).
+**TypeScript**: Scripts are written in [TypeScript](https://www.typescriptlang.org/). They can be edited in the Desktop Editor as well as the scripts web tool (click [here](https://horizon.meta.com/creator/worlds_all_) and then select a world and then select "Scripts").
+
+
+**Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
+
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
+
+**Core types**: Component instances communicate with one another and [the world](#system-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
+
+An entity is marked as dynamic when a script is placed on it. You can disable it, as long as you don't mutate any scene graph state on it.
 
 ### Syncing Scripts
 
@@ -1508,6 +1488,8 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
+#### System Events
+
 ### Local Events
 
 ### Network Events
@@ -1515,6 +1497,8 @@ a few sentences and link to Physics
 ### Broadcast events
 
 Mention coalescence
+
+## World Class
 
 ## Frame Sequence
 
@@ -1637,12 +1621,14 @@ Proved: each code block event handler is wrapped in a try.
 
 ### Render
 
+## Script File Execution
+
 # Network
 
 ## Clients (Devices and the Server)
 
 ## Ownership
-TODO - What is the entity's relationship to the server upon instantiation? 
+TODO - What is the entity's relationship to the server upon instantiation?
 How does the local script affect the entity?
 Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
 Explain framerate(cycle speed?) changes between local and server
@@ -1670,7 +1656,7 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 
 Collisions and Grabbables
 
-## Network Events
+## Networking and Events
 
 ## Authority and Reconciliation
 
@@ -1914,13 +1900,13 @@ Players in Horizon all have a global "account id". There is no way to access thi
 
 Each `Player` instance has a `readonly id: number` property.
 
-!!! info Entering an instance assigns a new ID (for that instance)
+!!! info Entering an instance assigns a new ID (for that instance).
     When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
 
 !!! danger IDs are per-instance. Do not persist them.
     The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
 
-!!! warning IDs should be used rarely
+!!! warning IDs should be used rarely.
     Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
 
 ### Player Indices
@@ -2033,6 +2019,10 @@ OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
 
 ## Pose (Position and Body Parts)
 
+## Player Voice
+
+<mark>TODO</mark> mention player voice APIs and relation to [Environment Gizmo](#environment-gizmo) audio setting.
+
 # Grabbing and Holding Entities
 
 <mark>TODO</mark> overview.
@@ -2117,7 +2107,7 @@ setWhoCanGrab(players: Player[]): void;
 
 to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (<mark>TODO</mark> - everyone? no one?).
 
-!!! note setWhoCanGrab does not auto-update
+!!! note setWhoCanGrab does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
     There is no way to set an entity back to its "default behavior" (before the API is first called - <mark>TODO</mark> verify).
@@ -2134,10 +2124,10 @@ to change the list of players that are allowed to grab the entity. Until you cal
 
 ### Grab Distance
 
-!!! warning Grab distance varies between platforms
+!!! warning Grab distance varies between platforms.
     For example mobile players can grab entities when much farther away than VR players
 
-!!! tip Controlling grab-distance
+!!! tip Grab-distance cannot be configured.
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 ## Grabbing Entities
@@ -2200,21 +2190,21 @@ on the held object. If the entity was **force held** then this is how you remove
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
   hold0([Not Held])
   hold1([Held with 1 hand])
   hold2([Held with 2 hands])
 
-  hold0 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> ---> hold1
+  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> ---> hold1
 
-  hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs with second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr></table> --> hold2
+  hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs with<br/>second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> --> hold2
 
-  hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr></table> --> hold1
+  hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr></table> --> hold1
 
-   hold1 -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases hand or<code style="background-color:#0000">forceRelease</code> called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+   hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases hand or<br/><code style="background-color:#0000">forceRelease</code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
-    hold2 -- <table style="margin:0"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+    hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3,4 stroke:red,stroke-width:1px;
@@ -2282,18 +2272,18 @@ Attaching an entity to player can be done by the following:
 
 <mark>TODO</mark> - Explain what happens when multiple attached
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
   detach([Detached])
   attach([Attached])
 
-  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">player releases attachable entity on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases<br/>attachable entity<br/>on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
 
-  detach -- <table style="margin:0"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
 
-  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">player grabs attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b>[isRightHand,player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
 
-  attach -- <table style="margin:0"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3 stroke:red,stroke-width:1px;
@@ -2376,6 +2366,8 @@ Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable 
     The attachable follows their camera's position, but the orientation will be wrong.
 
 # Holstering Entities
+
+Grabbable and Attachable
 
 # Player Input
 
@@ -2481,7 +2473,7 @@ class AchievementsGizmo extends Entity {
 # Spawning
 
 ## Assets
-Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts. 
+Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
 Assets must have an `Asset Type` and `Folder`.
 
@@ -2723,3 +2715,4 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 - When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
+* when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
