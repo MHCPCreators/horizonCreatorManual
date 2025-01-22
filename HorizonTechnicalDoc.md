@@ -1513,6 +1513,13 @@ Proved: each code block event handler is wrapped in a try.
 ## Clients (Devices and the Server)
 
 ## Ownership
+TODO - What is the entity's relationship to the server upon instantiation? 
+How does the local script affect the entity?
+Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
+Explain framerate(cycle speed?) changes between local and server
+Explain the relationship of local to server modules and wired references
+Link to network/codeblock events
+Maybe ownership cleanup tip (transfer to server on exit world during edit)
 
 !!! danger Ownership does not cascade to children
     When you transfer ownership of an entity the ownership is _not_ automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
