@@ -2362,6 +2362,18 @@ Can be overridden programatically.
 #### Auto Scale to Anchor
 
 ## Attach to 2D screen
+This toggle causes the attachable entity to become **screen-attached**. This means the entity's tranformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
+
+Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable types.
+
+!!! note Attach to 2D screen is meant for cross-screen players
+    A VR player who attaches the entity will see the attachable attach to their body as expected.
+
+!!! warning Screen-attached entities will appear on every cross-screen player's screen by default
+    Consider setting [who can see](#visibility) an entity to avoid this issue.
+
+!!! bug VR players will see other players' screen-attached incorrectly
+    The attachable follows their camera's position, but the orientation will be wrong.
 
 # Holstering Entities
 
