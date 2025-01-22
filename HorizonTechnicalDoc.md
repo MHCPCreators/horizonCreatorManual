@@ -131,10 +131,12 @@ Current main assignments:
     8. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
     9. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
+            1. [System Events](#system-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    10. [Frame Sequence](#frame-sequence)
+    10. [World Class](#world-class)
+    11. [Frame Sequence](#frame-sequence)
             1. [PrePhysics Phase](#prephysics-phase)
             1. [Physics Phase](#physics-phase)
             2. [OnUpdate Phase](#onupdate-phase)
@@ -147,12 +149,13 @@ Current main assignments:
             1. [Async Handling](#async-handling)
             2. [Network Sync](#network-sync)
         4. [Render](#render)
+    12. [Script File Execution](#script-file-execution)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
-    4. [Network Events](#network-events-1)
+    4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
     1. [Collisions and Triggers](#collisions-and-triggers)
@@ -274,6 +277,8 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 <mark>TODO</mark>
 
 ## Metadata and Publishing
+
+Let's *NOT* document all of what is below. These are here for reference to see which ones we want to document.
 
 <mark>TODO</mark>
 
@@ -1353,11 +1358,20 @@ Workflows / advice for greyboxing.
 
 # Scripting
 
-Creating scripting entities in Horizon involves creating [`Components`](#components) classes that you attach to `Entities` in the Desktop editor. In these classes you can specify [properties](#props-and-wiring) that will appear in the Property panel in the Desktop editor.
+Scripts are how you create dynamism in worlds. You use them to create interactivity and movement. You use scripts to make something simple like a door that opens when you approach it as well as the most complex things, such as an entire complex team-vs-team shooter game (which would use many separate scripts).
 
-In the classes you can send and receive [events](#events-sending-and-receiving) to perform actions in the world. The majority of code will interact with the core game types: [Entity](#entities), [Player](#players), and [Asset](#assets), as well as use the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations).
+**TypeScript**: Scripts are written in [TypeScript](https://www.typescriptlang.org/). They can be edited in the Desktop Editor as well as the scripts web tool (click [here](https://horizon.meta.com/creator/worlds_all_) and then select a world and then select "Scripts").
+
+
+**Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
+
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
+
+**Core types**: Component instances communicate with one another and [the world](#system-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
+
+An entity is marked as dynamic when a script is placed on it. You can disable it, as long as you don't mutate any scene graph state on it.
 
 ### Syncing Scripts
 
@@ -1508,6 +1522,8 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
+#### System Events
+
 ### Local Events
 
 ### Network Events
@@ -1515,6 +1531,8 @@ a few sentences and link to Physics
 ### Broadcast events
 
 Mention coalescence
+
+## World Class
 
 ## Frame Sequence
 
@@ -1637,6 +1655,8 @@ Proved: each code block event handler is wrapped in a try.
 
 ### Render
 
+## Script File Execution
+
 # Network
 
 ## Clients (Devices and the Server)
@@ -1670,7 +1690,7 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 
 Collisions and Grabbables
 
-## Network Events
+## Networking and Events
 
 ## Authority and Reconciliation
 
@@ -1914,13 +1934,13 @@ Players in Horizon all have a global "account id". There is no way to access thi
 
 Each `Player` instance has a `readonly id: number` property.
 
-!!! info Entering an instance assigns a new ID (for that instance)
+!!! info Entering an instance assigns a new ID (for that instance).
     When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
 
 !!! danger IDs are per-instance. Do not persist them.
     The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
 
-!!! warning IDs should be used rarely
+!!! warning IDs should be used rarely.
     Since you can compare two `Player` instances directly with `===` and `!==` there is little reason to use the `id` property. You can even use `Player` instances as keys in a `Map`. If you have a reason to use the `id` field, be mindful that the association between a person and their `id` only exists until they leave that instance.
 
 ### Player Indices
@@ -2365,6 +2385,8 @@ Can be overridden programatically.
 
 # Holstering Entities
 
+Grabbable and Attachable
+
 # Player Input
 
 ## Actions on Held Items
@@ -2711,3 +2733,4 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 - When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
+* when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
