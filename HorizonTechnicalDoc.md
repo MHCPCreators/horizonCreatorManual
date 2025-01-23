@@ -2018,12 +2018,14 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Entering and Exiting a World
 
+<mark>TODO</mark> finish section
+
 There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
 | `OnPlayerEnterWorld`  | ? | `(player : Player)` |
-| `OnPlayerExitWorld`  | ? | `(player : Player)` |
+| `OnPlayerExitWorld`  | Note: player is gone from all-players array by now (unless they are in build mode) | `(player : Player)` |
 
 !!! tip Player-Enter and Player-Exit are sent to all entities.
 
@@ -2033,6 +2035,8 @@ There are two [CodeBlockEvents](#code-block-event) associated with player enter 
 When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
 
 ### AFK
+
+<mark>TODO</mark>
 
 ```ts
 // CodeBlockEvents
@@ -2779,9 +2783,7 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 **Yes, this triggers a release. On both in VR attach and programatic attach**
 **Demo code**
 ![[ horizonScripts/testAttachReleaseEvent.ts ]]
-- does ownership transfer while held send any events?
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
-  \*inside of `playerExit` callback is the player still in the array? Right after?
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 - When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
