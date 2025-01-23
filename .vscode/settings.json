@@ -1,5 +1,9 @@
 {
   "cSpell.words": [
-    "Grabbable"
+    "Collidability",
+    "grabbable",
+    "Grabbable",
+    "Raycast",
+    "Vec3"
   ]
 }
