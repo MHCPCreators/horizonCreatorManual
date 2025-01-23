@@ -2310,7 +2310,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 ### Grabbables and Ownership
 
-**Transfer-on-grab**: [Ownership](#ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events).
+**Transfer-on-grab**: [Ownership](#ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events). The ownership transfer occurs *before* the `OnGrabEvent`. When the `OnGrabEvent` is sent, the entity will already have the new owner. If the entity is released while the transfer is occurring you will get both `OnGrabStart` and `OnGrabEnd`.
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
@@ -2325,7 +2325,7 @@ Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties p
 ## Creating an Attachable
 
 ## Attachable By
-This setting defines the permissions of who the entity can attach to.
+This setting defines the permissions of which players can *manually* attach the entity (by releasing the entity while holding it over their body). This setting does not affect [scripted attach](#scripted-attach) with `attachToPlayer`.
 
 | Attachable By | Description |
 |---|---|
@@ -2423,7 +2423,7 @@ Can be overridden programatically.
 This settings currently has no effect on the attachable entities.
 
 ## Attach to 2D screen
-This toggle causes the attachable entity to become **screen-attached**. This means the entity's tranformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
+This toggle causes the attachable entity to become **screen-attached**. This means the entity's transformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
 
 Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable types.
 
