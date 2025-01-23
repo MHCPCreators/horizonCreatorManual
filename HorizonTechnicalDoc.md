@@ -1,15 +1,8 @@
-# Horizon Technical Specification {ignore=true}
+# Meta Horizon Worlds Technical Specification {ignore=true}
+
+**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, Shards632, and Tellous and help from HomeMed, SeeingBlue, and UnravelWinter.
 
 <div class="print-note">This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.</div>
-
-Current main assignments:
-  1. **EARLY** DRAFT READY: scene graph, grabbables, players,
-  1. wafflecopters - scripting
-  1. tellous - attachables (& holstering?)
-  1. pigeon - PPV
-  1. shards632 - networking
-  1. physics - TODO (will get easier after scripting and network are done)
-  1. UIGizmo, Camera, Player Inputs, Spawning - **tentative**, time may run out
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
@@ -199,6 +192,7 @@ Current main assignments:
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
+        3. [Grabbables and Ownership](#grabbables-and-ownership)
 14. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
@@ -1343,6 +1337,8 @@ An entity is marked as dynamic when a script is placed on it. You can disable it
 
 ### Syncing Scripts
 
+If issues, delete *.editor*, leave world and come back, quit app and reopen
+
 ### Scripts in Source Control
 
 Script directory: "auto-sync directory"
@@ -1350,6 +1346,17 @@ Script directory: "auto-sync directory"
 https://developers.meta.com/horizon-worlds/learn/documentation/typescript/recommended-version-control-strategies
 
 ## Horizon Properties
+
+Most data in the Horizon [scene graph](#scene-graph) is accessed via *Horizon Properties*:
+
+```ts
+const pos = entity.position.get()
+otherEntity.position.set(pos)
+```
+
+Properties can be **read-only**.
+
+which are Horizon-specific classes.
 
 ```ts
 interface ReadableHorizonProperty<T> {
@@ -1626,6 +1633,12 @@ Proved: each code block event handler is wrapped in a try.
 ## Script File Execution
 
 # Network
+
+WIP example terminology use:
+
+**Player owned entity** running **player-device executed script**.
+**Server owned entity** running **server executed script**.
+**Player owned entity** running **server executed script**.
 
 ## Clients (Devices and the Server)
 
@@ -2042,7 +2055,7 @@ Horizon has the ability control *who can hear a player and from how far away*.
 It call this the **VOIP Setting** which can be configured with a number of values: **mute, whisper, nearby, *default*, extended, global** which representing increases ranges of being heard. Mute means that no one can hear the player, global means that everyone can hear the player (and with full volume). The other values represent a spectrum in between mute and global, with **default** being the recommended setting for most experiences (people in your general vicinity can hear and so can people farther away if you are loud). There is one more special VOIP Setting **environment**, which is described below.
 
 !!! info There are no team-based voip settings (there are no "voice channels").
-    There is (currently) no way to configure voip settings between two specific players or to configure voice channels. Specifically you can't make a team game where a whole hears each other globally but the other team hears them whisper. When a player is set to global or whisper, **the setting controls how everyone else hears them**.
+    There is (currently) no way to configure voip  settings between two specific players or to configure voice channels. Specifically you can't make a team game where a whole hears each other globally but the other team hears them whisper. When a player is set to global or whisper, **the setting controls how everyone else hears them**.
 
 The **[environment gizmo](#environment-gizmo)** allows you to set a VOIP Setting for the whole world. All players will be assigned this value upon joining.
 
@@ -2071,6 +2084,7 @@ player.setVoipSetting(VoipSetting.Environment)
 
 <mark>TODO</mark> overview.
 <mark>TODO</mark> actions (onscreen buttons) and inputs.
+<mark>TODO</mark> explain that there is no current want to know who is holding something or if it is held (other than to track it yourself).
 
 ## Creating a Grabbable Entity
 
@@ -2180,6 +2194,8 @@ When a VR player grabs an entity is stays grabbed until they release the trigger
 
 A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
 
+When a player grabs an entity, [ownership](#ownership) is [transferred to that player](#grabbables-and-ownership).
+
 ### Grab Lock
 
 When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
@@ -2223,6 +2239,7 @@ on the held object. If the entity was **force held** then this is how you remove
     1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player it is forced released (after attaching to the player, meaning that it is momentarily held *and* attached at the same time).
     1. **Entity moves too far away from player** - either via scripting, animation, or physics "knocking it out of the hand".
     1. **Player moves too far away entity** - either via scripting, physics, or player movement input "walking away while grabbing physics locked object".
+    1. <span style="color:red">(Not recommended)</span> **[Ownership](#ownership) is [changed while held](#grabbables-and-ownership)** - changing the owner of a held entity will cause it to be force-release from the player. The `grabEnd` event will *not* be sent in this case.
 
     !!! info Disabling collidability does *not* cause a force release.
 
@@ -2240,7 +2257,7 @@ flowchart TD
   hold1([Held with 1 hand])
   hold2([Held with 2 hands])
 
-  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>with a hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> ---> hold1
+  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>with a hand</td></tr><tr><td style="background-color:#ffffcd"><code style="background-color:#0000"><a href="#grabbables-and-ownership">Ownership transfer</a></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> ---> hold1
 
   hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs with<br/>second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> --> hold2
 
@@ -2290,6 +2307,15 @@ Note that if the grabbed entity gets too far away from the avatar hand you will 
 Here is a simple example of a grabbable entity that is constrained to move along the y-axis (you can only move it up and down).
 
 ![[ horizonScripts/axisYConstrainedGrabbable.ts ]]
+
+### Grabbables and Ownership
+
+**Transfer-on-grab**: [Ownership](#ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events).
+
+**No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
+
+!!! danger Don't the owner of a held object
+    When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
 Entites can be attached to players.
