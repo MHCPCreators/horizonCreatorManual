@@ -35,3 +35,14 @@ This is a ==test==
 
 :fa-discord:
 https://kapeli.com/cheat_sheets/Font_Awesome.docset/Contents/Resources/Documents/index
+
+```blockdiag {kroki=true}
+blockdiag {
+  Kroki -> generates -> "Block **hi** diagrams";
+  Kroki -> is -> "very easy!";
+
+  Kroki [color = "greenyellow"];
+  "Block diagrams" [color = "pink"];
+  "very easy!" [color = "orange"];
+}
+```

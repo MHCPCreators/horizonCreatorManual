@@ -38,14 +38,16 @@
         7. [Pivot Points](#pivot-points)
 5. [Entities](#entities)
     1. [Overview](#overview-1)
-    2. [Static Entities](#static-entities)
-    3. [Dynamic Entities](#dynamic-entities)
+    2. [Entity Subtypes](#entity-subtypes)
+        1. [Entity as() method](#entity-as-method)
+    3. [Static Entities](#static-entities)
+    4. [Dynamic Entities](#dynamic-entities)
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
-    4. [Common Properties](#common-properties)
+    5. [Common Properties](#common-properties)
         1. [Simulated](#simulated)
         2. [Tags](#tags)
-    5. [Gizmos](#gizmos)
+    6. [Gizmos](#gizmos)
         1. [Gizmo Template](#gizmo-template)
                 1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties)
@@ -78,6 +80,11 @@
         16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
         17. [Spawn Point Gizmo](#spawn-point-gizmo)
         18. [Text Gizmo](#text-gizmo)
+            1. [Limitations](#limitations)
+            2. [Markup](#markup)
+                1. [Tags](#tags-1)
+                2. [Parameters](#parameters)
+            3. [Supported Tags](#supported-tags)
         19. [Trigger Gizmo](#trigger-gizmo)
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
@@ -107,8 +114,7 @@
         2. [Color](#color)
         3. [Vec3](#vec3)
         4. [Quaternion](#quaternion)
-        5. [Entity Subtypes](#entity-subtypes)
-            1. [Entity as() method](#entity-as-method)
+        5. [Entity](#entity)
     4. [Files](#files)
     5. [Components](#components)
         1. [Component Class](#component-class)
@@ -728,6 +734,9 @@ The transformation origin point of an entity is called its **pivot point**. It r
 
 # Entities
 
+<mark>TODO</mark>
+`GrabbableEntity`, `PhysicsEntity`, `AttachableEntity`, `AnimatedEntity`, `MeshEntity`,
+
 ## Overview
 
 Every "thing" in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
@@ -739,13 +748,27 @@ Every "thing" in the Horizon scene is an _entity_ (an grabbable item, a mesh, a 
 
 Gizmos, as, ...
 
+## Entity Subtypes
+
+### Entity as() method
+
 ## Static Entities
 
 ## Dynamic Entities
 
 ### Animated Entities
 
+`AnimatedEntity`
+
+```ts
+play(): void;
+pause(): void;
+stop(): void;
+```
+
 ### Interactive Entities
+
+<mark>TODO</mark> `interactionMode` in TS
 
 When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
@@ -992,7 +1015,7 @@ type ParticleFXStopOptions = {
 };
 ```
 
-When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting; `oneShot=true` will play once and `oneShot=false` will loop forever.
+When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will loop forever.
 
 When you **stop** an effect it will end quickly, yet smoothly end.
 
@@ -1159,18 +1182,62 @@ class SpawnPointGizmo extends Entity {
 
 ### Text Gizmo
 
-A way to display numbers and common English letters
-Font size can automatically scale when auto fit is on, or set manually when auto fit is off.
+The text gizmo is a 2D surface on which text gan be rendered. It supports a wide variety of [markup](#markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
 
-Can be used for clever texturing
-
-Is very costly to performance if overused due to draw call cost and lack of batching when rendering
+The initial text of a text gizmo can be set in the Property panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
 
 ```ts
-class TextGizmo extends Entity {
-  text: HorizonProperty<string>;
-}
+entity.as(TextGizmo).text.set('Hi!')
 ```
+
+!!! tip Auto Fit Property
+    The text gizmo has the property **auto fit**, which is only settable in the Property panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn this setting off**.
+
+!!! tip Text gizmos contribute to [draw calls](#draw-calls).
+    Watch your perf as you add many of them!
+
+#### Limitations
+
+The total length of the text, including all markup, cannot be longer than 1000 characters. If the text is longer than 1000 characters, the text will be truncated.
+
+The text gizmo only supports the English characters (essentially whatever can be typed on an English keyboard without any modifier keys). This means that the text gizmo is not capable of displaying any of the following: á ê ï o ū ç ñ ¿ 月 😂, for example.
+
+#### Markup
+
+Horizon exposes Unity's TextMeshPro markup. The rest of this guide is a summary of [Unity's TextMeshPro documentation](https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html).
+
+##### Tags
+
+Text markup is able to modify the contents (e.g. making all letters uppercase), styling (such as size or color), and layout (such as alignment, rotation, and spacing) of the text. Markup is specified using tags, which are a word surrounded in angle brackets (e.g. `<b>`). Once a tag is specified, all text that comes after it will have that attribute applied, until that tag "closes" by specifying the tag with a slash before the name (e.g. `</b>`).
+
+!!! example
+    `this is <b>bold</b> text`
+
+    will render as
+
+    > this is **bold** text
+
+**Tags that are never *closed* stay active**. The bold attribute starts being applied once `<b>` is encountered and stops when `</b>` is encountered. The closing tag is optional, and if it is omitted, the attribute will continue to be applied until the end of the text.
+
+!!! example
+    `this is <b>bold text`
+
+    will render as
+
+    > this is **bold text**
+
+##### Parameters
+
+Some tags accept a parameter, which is specified after the tag name and an equals sign.
+
+!!! example
+    `this is <size=75%>small</size>`
+
+    will render as
+
+    > This is <span style="font-size:75%">small</span>
+
+#### Supported Tags
 
 ![[ markup/TextGizmoTable.html ]]
 
@@ -1420,9 +1487,8 @@ Accessor mutations beware!
 
 - Euler Angles default: YXZ
 
-### Entity Subtypes
-
-#### Entity as() method
+### Entity
+[entity subtypes](#entity-subtypes) and [entity.as()](#entity-as-method)
 
 ## Files
 
@@ -2115,21 +2181,29 @@ For an entity to be grabbable it needs:
    1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
    1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
     style fail fill:#ffabbc,stroke:black;
     style success fill:#abffbc,stroke:black;
     style start fill:#ffffde,stroke:black;
 
-    start@{ shape: circle, label: "Can<br/>Grab?" } -.-> isInteractive@{ shape: dbl-circ, label: "Can<br/>Grab" }
+    start@{ shape: circle, label: "Can<br/>Grab?" } -.-> hasParent{{Does the entity<br/>have a <a href="#hierarchy">parent</a>?}}
+
+    hasParent -- no -->
+    isInteractive@{ shape: dbl-circ, label: "Can<br/>Grab" }
+
+    hasParent -- yes --> safeParents{{Is every <a href="#ancestors">ancestor</a><br/>an <a href="#empty-object-and-groups">empty object</a> with<br/>*Motion* set to *None*?}}
+
+    safeParents -- yes --> isInteractive
+    safeParents -- no --> fail
 
     isHeld -- no --> success@{ shape: dbl-circ, label: "Can<br/>Grab" }
 
-    isInteractive{{Does the entity have<br/>*Interactive* set to<br/> *Grabbable* or *Both*?}} -- yes --> activeCollider{{Does the entity contain<br/>an <a href="#collidability">active collider</a>?}}
+    isInteractive{{Does the entity have<br/><a href="#interactive-entities">Interactive</a> set to<br/> *Grabbable* or *Both*?}} -- yes --> activeCollider{{Does the entity contain<br/>an <a href="#collidability">active collider</a>?}}
 
     isInteractive -- no --> fail@{ shape: dbl-circ, label: "Cannot<br/>Grab" }
 
-    activeCollider -- yes --> simulated{{Is *simulated* set to *true*?}}
+    activeCollider -- yes --> simulated{{Is <a href="#simulated">simulated</a> set to *true*?}}
     activeCollider -- no --> fail
 
     simulated -- yes --> canGrab{{Is the player allowed by<br/><a href="#setting-who-can-grab">&quot;Who Can Grab&quot;?</a>}}
@@ -2143,8 +2217,8 @@ flowchart TD
     canTake -- yes --> success
     canTake -- no --> fail
 
-    linkStyle 1,3,5,7,9,10 stroke:red,stroke-width:1px;
-    linkStyle 2,4,6,8,11 stroke:green,stroke-width:1px;
+    linkStyle 1,4,5,7,9,11,13,16 stroke:red,stroke-width:1px;
+    linkStyle 2,3,6,8,10,12,14,15 stroke:green,stroke-width:1px;
 ```
 
 !!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
