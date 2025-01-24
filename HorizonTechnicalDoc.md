@@ -1191,7 +1191,7 @@ entity.as(TextGizmo).text.set('Hi!')
 ```
 
 !!! tip Auto Fit Property
-    The text gizmo has the property **auto fit**, which is only settable in the Property panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn this setting off**.
+    The text gizmo has the property **auto fit**, which is only settable in the Property panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
 
 !!! tip Text gizmos contribute to [draw calls](#draw-calls).
     Watch your perf as you add many of them!
