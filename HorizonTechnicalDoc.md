@@ -8,14 +8,18 @@
 
 <!-- code_chunk_output -->
 
-1. [Overview](#overview)
-2. [Worlds](#worlds)
+1. [Foo](#foo)
+    1. [Bar](#bar)
+    2. [Baz](#baz)
+2. [Qux](#qux)
+3. [Overview](#overview)
+4. [Worlds](#worlds)
     1. [Creating a World](#creating-a-world)
     2. [Metadata and Publishing](#metadata-and-publishing)
     3. [Editor Roles](#editor-roles)
     4. [World Snapshot](#world-snapshot)
     5. [World Backups](#world-backups)
-3. [Instances](#instances)
+5. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
         1. [Visitation Modes: Edit, Play, and Publish](#visitation-modes-edit-play-and-publish)
@@ -23,7 +27,7 @@
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
     5. [Travel, Doors, and Links](#travel-doors-and-links)
-4. [Scene Graph](#scene-graph)
+6. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
@@ -36,9 +40,9 @@
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
-5. [Entities](#entities)
+7. [Entities](#entities)
     1. [Overview](#overview-1)
-    2. [Entity Subtypes](#entity-subtypes)
+    2. [Entity Types](#entity-types)
         1. [Entity as() method](#entity-as-method)
     3. [Static Entities](#static-entities)
     4. [Dynamic Entities](#dynamic-entities)
@@ -52,59 +56,65 @@
                 1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
-        2. [Custom UI Gizmo](#custom-ui-gizmo)
-        3. [Debug Console Gizmo](#debug-console-gizmo)
-        4. [Custom UI Gizmo](#custom-ui-gizmo-1)
-        5. [Door Gizmo](#door-gizmo)
+        2. [Scene Graph Types](#scene-graph-types)
+        3. [Custom UI Gizmo](#custom-ui-gizmo)
+        4. [Debug Console Gizmo](#debug-console-gizmo)
+        5. [Custom UI Gizmo](#custom-ui-gizmo-1)
+        6. [Door Gizmo](#door-gizmo)
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        7. [NPC Gizmo](#npc-gizmo)
+        8. [In-World Item Gizmo](#in-world-item-gizmo)
+        9. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose-2)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
-        7. [Environment Gizmo](#environment-gizmo)
+        10. [Environment Gizmo](#environment-gizmo)
                 1. [Purpose](#purpose-3)
                 1. [Manual Properties](#manual-properties-3)
                 2. [Typescript API](#typescript-api-3)
-        8. [ParticleFx Gizmo](#particlefx-gizmo)
+        11. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
-        9. [TrailFx Gizmo](#trailfx-gizmo)
-        10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        11. [Quests Gizmo](#quests-gizmo)
-        12. [Raycast Gizmo](#raycast-gizmo)
-        13. [Script Gizmo](#script-gizmo)
-        14. [Snap Destination Gizmo](#snap-destination-gizmo)
-        15. [Sound Gizmo](#sound-gizmo)
-        16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        17. [Spawn Point Gizmo](#spawn-point-gizmo)
-        18. [Text Gizmo](#text-gizmo)
+        12. [TrailFx Gizmo](#trailfx-gizmo)
+        13. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        14. [Quests Gizmo](#quests-gizmo)
+        15. [Raycast Gizmo](#raycast-gizmo)
+        16. [Script Gizmo](#script-gizmo)
+        17. [Snap Destination Gizmo](#snap-destination-gizmo)
+        18. [Sound Gizmo](#sound-gizmo)
+        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        20. [Spawn Point Gizmo](#spawn-point-gizmo)
+        21. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
             2. [Markup](#markup)
                 1. [Tags](#tags-1)
                 2. [Parameters](#parameters)
             3. [Supported Tags](#supported-tags)
-        19. [Trigger Gizmo](#trigger-gizmo)
-        20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-6. [Custom Model Import](#custom-model-import)
+        22. [Trigger Gizmo](#trigger-gizmo)
+        23. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        24. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+8. [Assets](#assets)
+    1. [Asset Types](#asset-types)
+        1. [Mesh Asset](#mesh-asset)
+        2. [Text Asset](#text-asset)
+        3. [Image Asset (Textures)](#image-asset-textures)
+        4. [Asset Template](#asset-template)
+9. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
-    3. [Assets](#assets)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
-        3. [Asset Templates](#asset-templates)
-        4. [Textures](#textures)
-        5. [Materials](#materials)
-    4. [Performance](#performance)
+        3. [Textures](#textures)
+        4. [Materials](#materials)
+    3. [Performance](#performance)
         1. [Draw Calls](#draw-calls)
         2. [Vertices, Polygons, and Entities](#vertices-polygons-and-entities)
         3. [Memory](#memory)
-    5. [Horizon Lighting](#horizon-lighting)
-    6. [General Tips](#general-tips)
-7. [Text Importing / Text Assets](#text-importing--text-assets)
-8. [Scripting](#scripting)
+    4. [Horizon Lighting](#horizon-lighting)
+    5. [General Tips](#general-tips)
+10. [Scripting](#scripting)
     1. [Creating and Editing Scripts](#creating-and-editing-scripts)
         1. [Syncing Scripts](#syncing-scripts)
         2. [Scripts in Source Control](#scripts-in-source-control)
@@ -148,19 +158,19 @@
             2. [Network Sync](#network-sync)
         4. [Render](#render)
     12. [Script File Execution](#script-file-execution)
-9. [Network](#network)
+11. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-10. [Collision Detection](#collision-detection)
+12. [Collision Detection](#collision-detection)
     1. [Collisions and Triggers](#collisions-and-triggers)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
-11. [Physics](#physics)
+13. [Physics](#physics)
     1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
@@ -169,7 +179,7 @@
     6. [PhysicalEntity Class](#physicalentity-class)
     7. [Projectiles](#projectiles)
     8. [Player Physics](#player-physics)
-12. [Players](#players)
+14. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -181,7 +191,7 @@
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
-13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+15. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -199,7 +209,7 @@
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
         3. [Grabbables and Ownership](#grabbables-and-ownership)
-14. [Attaching Entities](#attaching-entities)
+16. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -211,21 +221,21 @@
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-15. [Holstering Entities](#holstering-entities)
-16. [Player Input](#player-input)
+17. [Holstering Entities](#holstering-entities)
+18. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
-17. [Persistence](#persistence)
+19. [Persistence](#persistence)
     1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [Spawning](#spawning)
+20. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Spawn Controller](#spawn-controller)
     3. [Sublevels](#sublevels)
-19. [Custom UI](#custom-ui)
+21. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
     2. [View Types](#view-types)
         1. [View](#view)
@@ -234,22 +244,24 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     3. [Animated Bindings](#animated-bindings)
-20. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+22. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-21. [Performance Optimization](#performance-optimization)
+23. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-24. [Glossary](#glossary)
+24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+26. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
 <div style="page-break-after: always;"></div>
+
+![[ Test.md ]]
 
 # Overview
 
@@ -748,9 +760,39 @@ Every "thing" in the Horizon scene is an _entity_ (an grabbable item, a mesh, a 
 
 Gizmos, as, ...
 
-## Entity Subtypes
+## Entity Types
+
+Every entity in Horizon has an underlying **base type** determined by how the entity was originally made (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
+
+Additionally, an entity can have (multiple) **behavior types**.
+
+!!! example Example:Base Type and Behavior Types
+    A *hat mesh that is grabbable and attachable* has a base type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
+
+Base Type:
+* MeshEntity
+* SpawnPointGizmo
+* TextGizmo
+* TriggerGizmo
+* ParticleGizmo
+* TrailGizmo
+* AudioGizmo
+* ProjectileLauncherGizmo
+* AchievementsGizmo
+* IWPSellerGizmo
+* RaycastGizmo
+* DynamicLightGizmo
+* AIAgentGizmo
+
+Configured Types:
+* AnimatedEntity
+* GrabbableEntity
+* PhysicalEntity
+* AttachableEntity
 
 ### Entity as() method
+
+!!! danger Do not us TypeScript's `as` operator on an `Entity`.
 
 ## Static Entities
 
@@ -827,27 +869,34 @@ Tag uses:
 !!! Bug Known Issues
     -
 
+### Scene Graph Types
 
-There are Mesh Entity, Group Entity, Empty Object, Box/Capsule/Sphere Collider, and a bunch of *Gizmos*. <mark>TODO is it "Box collider" or "Box collider Gizmo"? In scripting they are *all Entities*. A: They are never referred to as a Gizmo anywhere in VR or the Desktop editor.</mark>
+<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider; SubLevel; Empty Object; Group; Asset (which can be Mesh, ...)</mark>
 
-- [Custom UI Gizmo](#custom-ui-gizmo)
-- [Debug Console Gizmo](#debug-console-gizmo)
-- [Door Gizmo](#door-gizmo)
-- [Dynamic Light Gizmo](#dynamic-light-gizmo)
-- [Environment Gizmo](#environment-gizmo)
-- [ParticleFx Gizmo](#particlefx-gizmo)
-- [TrailFx Gizmo](#trailfx-gizmo)
-- [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-- [Quests Gizmo](#quests-gizmo)
-- [Raycast Gizmo](#raycast-gizmo)
-- [Script Gizmo](#script-gizmo)
-- [Snap Destination Gizmo](#snap-destination-gizmo)
-- [Sound Gizmo](#sound-gizmo)
-- [Sound Recorder Gizmo](#sound-recorder-gizmo)
-- [Spawn Point Gizmo](#spawn-point-gizmo)
-- [Text Gizmo](#text-gizmo)
-- [Trigger Gizmo](#trigger-gizmo)
-- [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+<mark>TODO: move this table to the Entity section; ensure most rows link to a larger section (where applicable)
+
+| Scene Graph Type | TypeScript [Base Type](#entity-types) |
+|---|---|
+| [Custom UI](#custom-ui-gizmo) | `Entity` |
+| [Debug Console](#debug-console-gizmo) | `Entity` |
+| [Door](#door-gizmo) | `Entity` |
+| [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
+| [Environment](#environment-gizmo) | `Entity` |
+| [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
+| [NPC](#npc-gizmo) | `AIAgentGizmo` |
+| [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
+| [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
+| [Quests](#quests-gizmo) | `AchievementsGizmo` |
+| [Raycast](#raycast-gizmo) | `RaycastGizmo` |
+| [Script](#script-gizmo) | `Entity` |
+| [Snap Destination](#snap-destination-gizmo) | `Entity` |
+| [Sound](#sound-gizmo) | `AudioGizmo` |
+| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
+| [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
+| [Text](#text-gizmo) | `TextGizmo` |
+| [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
+| [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
+| [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
@@ -883,6 +932,14 @@ Showcase and allow players to travel to selected worlds.
 
 !!! Bug Known Issues
     - None
+
+### NPC Gizmo
+
+<mark>TODO</mark>
+
+### In-World Item Gizmo
+
+<mark>TODO</mark>
 
 ### Dynamic Light Gizmo
 
@@ -1286,6 +1343,23 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 
 [In World Purchases](#in-world-purchases-iwp)
 
+# Assets
+
+<mark>TODO</mark> need some kind of "collection asset" when you select items and make an asset (separate from an Asset Template)
+
+## Asset Types
+
+### Mesh Asset
+
+### Text Asset
+
+### Image Asset (Textures)
+
+### Asset Template
+
+E.g. only root-level properties and scripts are maintained in an update.
+You CAN nest.
+
 # Custom Model Import
 
 ## Overview
@@ -1293,8 +1367,6 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 Assets, imports, templates, updates.
 
 ## SubD vs Custom Models
-
-## Assets
 
 ### Uploads
 
@@ -1309,11 +1381,6 @@ Assets, imports, templates, updates.
 ### Errors
 
 List and explanation of all possible errors
-
-### Asset Templates
-
-E.g. only root-level properties and scripts are maintained in an update.
-You CAN nest.
 
 ### Textures
 
@@ -1382,8 +1449,6 @@ GI overview and tips.
 
 Triangulate. Normals direction.
 Workflows / advice for greyboxing.
-
-# Text Importing / Text Assets
 
 # Scripting
 
@@ -1488,7 +1553,7 @@ Accessor mutations beware!
 - Euler Angles default: YXZ
 
 ### Entity
-[entity subtypes](#entity-subtypes) and [entity.as()](#entity-as-method)
+[entity types](#entity-types) and [entity.as()](#entity-as-method)
 
 ## Files
 
@@ -2142,7 +2207,7 @@ player.setVoipSetting(VoipSetting.Environment)
 ```
 
 !!! info Spawning Environment Gizmos
-    when a new environment gizmo is [spawned](#assets), all players will be updated to have its VOIP setting. If the spawned gizmo is set to `Environment` then all players will be returned to the setting in the last active gizmo.
+    when a new environment gizmo is [spawned](#spawning), all players will be updated to have its VOIP setting. If the spawned gizmo is set to `Environment` then all players will be returned to the setting in the last active gizmo.
 
 **World's Player Settings' VOIP Setting**: there is a top-level setting in *Player Settings* called *VOIP Settings* that can be set to `Global` and `Local`. When set to `Global` every player has **global** as their setting, it is not possible to change any VOIP settings further (all gizmos and TypeScript related to VOIP are ignored). The `Local` setting gives the world the **default** setting, which can then be further changed by environment gizmos and TypeScript.
 
@@ -2223,6 +2288,8 @@ flowchart TD
 
 !!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
     There is currently a bug where when an entity has a grab anchor it can still be grabbed even when collidable is set to false. If you want to make an entity, with a grab anchor, "disappear" you should move it far away (instead of just setting visibility and collidability to false).
+
+<mark>TODO</mark> does grab anchor override any other rules?
 
 ### Setting "Who Can Grab?"
 
@@ -2842,6 +2909,14 @@ e.g. alt-click to orbit
 - stop, reset, play (don't just hit escape)
 - leave and come back
 - let the instance die
+
+Go to your local directory where all the scripts are and copy all the .ts files that you created
+Save the copies in a different location (this is just-in-case backup, so you don't lose any work)
+Close the desktop editor
+Delete the directory from where you copied the files (like delete the entire world folder)
+Then open the desktop editor again, and go to the world
+Validate that the world folder has been created again
+And last, if needed, bring back the files that you copied with the first step
 
 # Glossary
 
