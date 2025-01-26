@@ -8,18 +8,14 @@
 
 <!-- code_chunk_output -->
 
-1. [Foo](#foo)
-    1. [Bar](#bar)
-    2. [Baz](#baz)
-2. [Qux](#qux)
-3. [Overview](#overview)
-4. [Worlds](#worlds)
+1. [Overview](#overview)
+2. [Worlds](#worlds)
     1. [Creating a World](#creating-a-world)
     2. [Metadata and Publishing](#metadata-and-publishing)
     3. [Editor Roles](#editor-roles)
     4. [World Snapshot](#world-snapshot)
     5. [World Backups](#world-backups)
-5. [Instances](#instances)
+3. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
         1. [Visitation Modes: Edit, Play, and Publish](#visitation-modes-edit-play-and-publish)
@@ -27,7 +23,7 @@
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
     5. [Travel, Doors, and Links](#travel-doors-and-links)
-6. [Scene Graph](#scene-graph)
+4. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
@@ -40,7 +36,7 @@
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
-7. [Entities](#entities)
+5. [Entities](#entities)
     1. [Overview](#overview-1)
     2. [Entity Types](#entity-types)
         1. [Entity as() method](#entity-as-method)
@@ -95,13 +91,13 @@
         22. [Trigger Gizmo](#trigger-gizmo)
         23. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         24. [In World Purchase Gizmo](#in-world-purchase-gizmo)
-8. [Assets](#assets)
+6. [Assets](#assets)
     1. [Asset Types](#asset-types)
         1. [Mesh Asset](#mesh-asset)
         2. [Text Asset](#text-asset)
         3. [Image Asset (Textures)](#image-asset-textures)
         4. [Asset Template](#asset-template)
-9. [Custom Model Import](#custom-model-import)
+7. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
@@ -114,36 +110,38 @@
         3. [Memory](#memory)
     4. [Horizon Lighting](#horizon-lighting)
     5. [General Tips](#general-tips)
-10. [Scripting](#scripting)
+8. [Scripting](#scripting)
     1. [Creating and Editing Scripts](#creating-and-editing-scripts)
         1. [Syncing Scripts](#syncing-scripts)
         2. [Scripts in Source Control](#scripts-in-source-control)
     2. [Horizon Properties](#horizon-properties)
+        1. [Horizon Property Subtleties](#horizon-property-subtleties)
     3. [Types](#types)
-        1. [In-Place Mutation](#in-place-mutation)
-        2. [Color](#color)
-        3. [Vec3](#vec3)
-        4. [Quaternion](#quaternion)
-        5. [Entity](#entity)
-    4. [Files](#files)
-    5. [Components](#components)
+        1. [Construction](#construction)
+        2. [Equality](#equality)
+        3. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
+        4. [Color](#color)
+        5. [Vec3](#vec3)
+        6. [Quaternion](#quaternion)
+    4. [World Class](#world-class)
+    5. [Files](#files)
+    6. [Components](#components)
         1. [Component Class](#component-class)
-        2. [Props (and wiring)](#props-and-wiring)
+        2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Lifecycle](#lifecycle)
             1. [Auto-Restart on Script Edit](#auto-restart-on-script-edit)
         4. [Sending and Receiving Events](#sending-and-receiving-events)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Subclasses](#subclasses)
-    6. [Async (Timers)](#async-timers)
-    7. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    8. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    9. [Events (Sending and Receiving)](#events-sending-and-receiving)
+    7. [Async (Timers)](#async-timers)
+    8. [Local Scripts and Ownership](#local-scripts-and-ownership)
+    9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    10. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
             1. [System Events](#system-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    10. [World Class](#world-class)
     11. [Frame Sequence](#frame-sequence)
             1. [PrePhysics Phase](#prephysics-phase)
             1. [Physics Phase](#physics-phase)
@@ -158,19 +156,19 @@
             2. [Network Sync](#network-sync)
         4. [Render](#render)
     12. [Script File Execution](#script-file-execution)
-11. [Network](#network)
+9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto-Transfers](#auto-transfers)
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
-12. [Collision Detection](#collision-detection)
+10. [Collision Detection](#collision-detection)
     1. [Collisions and Triggers](#collisions-and-triggers)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
-13. [Physics](#physics)
+11. [Physics](#physics)
     1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
@@ -178,8 +176,9 @@
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
     6. [PhysicalEntity Class](#physicalentity-class)
     7. [Projectiles](#projectiles)
-    8. [Player Physics](#player-physics)
-14. [Players](#players)
+    8. [Applying Forces and Torque](#applying-forces-and-torque)
+    9. [Player Physics](#player-physics)
+12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -191,7 +190,7 @@
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
-15. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -209,7 +208,7 @@
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
         3. [Grabbables and Ownership](#grabbables-and-ownership)
-16. [Attaching Entities](#attaching-entities)
+14. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -221,21 +220,21 @@
             2. [Socket Attachment](#socket-attachment)
             3. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-17. [Holstering Entities](#holstering-entities)
-18. [Player Input](#player-input)
+15. [Holstering Entities](#holstering-entities)
+16. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
-19. [Persistence](#persistence)
+17. [Persistence](#persistence)
     1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-20. [Spawning](#spawning)
+18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Spawn Controller](#spawn-controller)
     3. [Sublevels](#sublevels)
-21. [Custom UI](#custom-ui)
+19. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
     2. [View Types](#view-types)
         1. [View](#view)
@@ -244,18 +243,18 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     3. [Animated Bindings](#animated-bindings)
-22. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+20. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-23. [Performance Optimization](#performance-optimization)
+21. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
     2. [Gizmos](#gizmos-1)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-26. [Glossary](#glossary)
+22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+24. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -762,14 +761,14 @@ Gizmos, as, ...
 
 ## Entity Types
 
-Every entity in Horizon has an underlying **base type** determined by how the entity was originally made (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
+Every entity in Horizon has an underlying **intrinsic type** determined by how the entity was originally made (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
 
 Additionally, an entity can have (multiple) **behavior types**.
 
-!!! example Example:Base Type and Behavior Types
-    A *hat mesh that is grabbable and attachable* has a base type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
+!!! example Example: Intrinsic Type and Behavior Types
+    A *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
-Base Type:
+intrinsic Type:
 * MeshEntity
 * SpawnPointGizmo
 * TextGizmo
@@ -875,7 +874,7 @@ Tag uses:
 
 <mark>TODO: move this table to the Entity section; ensure most rows link to a larger section (where applicable)
 
-| Scene Graph Type | TypeScript [Base Type](#entity-types) |
+| Editor Type | TypeScript [Intrinsic Type](#entity-types) |
 |---|---|
 | [Custom UI](#custom-ui-gizmo) | `Entity` |
 | [Debug Console](#debug-console-gizmo) | `Entity` |
@@ -1081,11 +1080,12 @@ When you **stop** an effect it will end quickly, yet smoothly end.
 **fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
 
 ### TrailFx Gizmo
-Lines that follow the object when moved
 
-Can have a flat or tapered end
+The trail effect is a "line emitter". Moving the emitter changes the next parts of the line emitted but the rest stays the same. Tail eventually depletes.
 
-Is very costly to performance if overused due to per frame rendering
+Can have a flat or tapered end.
+
+Costly to performance if overused.
 
 Same API as [particle gizmo](#particlefx-gizmo)
 
@@ -1486,53 +1486,123 @@ const pos = entity.position.get()
 otherEntity.position.set(pos)
 ```
 
-Properties can be **read-only**.
+Properties can be
+1. **read-only**: only a `get()` method. Uses `ReadableHorizonProperty`.
+1. **write-only**: only a `set()` method. Uses `WritableHorizonProperty`.
+1. **read-write**: `get()` and `set()` methods. Uses `HorizonProperty`.
 
-which are Horizon-specific classes.
+!!! example Horizon Property Example
+    Here is some of the [`PhysicalEntity`](#physicalentity-class) class:
 
-```ts
-interface ReadableHorizonProperty<T> {
-    get(): T;
-}
-```
+    ```ts
+    class PhysicalEntity extends Entity {
+      gravityEnabled: WritableHorizonProperty<boolean>
+      locked: HorizonProperty<boolean>
+      velocity: ReadableHorizonProperty<Vec3>
+      // ...
+    }
+    ```
 
-```ts
-interface WritableHorizonProperty<T, U = never> {
-    set(value: T, ...values: [U?]): void;
-}
+    From the above definition we can discern that we can do the following with a physical entity:
 
-// Example use of the `U`
- volume: WritableHorizonProperty<number, AudioOptions>
- myGizmo.volume.set(9, {})
-```
+    * `set` if is gravity enabled, as a `boolean`, but can't get the current setting.
+    * `set` if it is locked, as a `boolean`, and `get` if it is locked.
+    * `get` the current velocity, as a `Vec3`, but not set the velocity (instead, you must use [forces](#applying-forces-and-torque)).
 
-```ts
-class  HorizonProperty<T> implements ReadableHorizonProperty<T>, WritableHorizonProperty<T> {
-    get(): T;
-    set(value: T): void;
-```
+!!! info Writable properties may accept a second argument.
+    Consider this snippet of the [AudioGizmo](#sound-gizmo) class
 
-Note: getting a property returns a copy of
+    ```ts
+    class AudioGizmo extends Entity {
+      pitch: WritableHorizonProperty<number>;
+      volume: WritableHorizonProperty<number, AudioOptions>;
+      // ...
+    }
+    ```
 
-The following code is RISKY.... (you should clone pos before mutate because anyone else who get the position this frame will get a wrong value... mention the per-frame bridge cache).
+    We can `set` the current pitch and volume (but not get them):
 
-```ts
-// RISKY!
-const p = entity.position.get()
-p.x += 10
-entity.position.set(p)
+    ```ts
+    audioGizmo.pitch.set(12)
+    audioGizmo.volume.set(0.5)
+    ```
 
-// OK #1
-const p = entity.position.get().clone()
-p.x += 10
-entity.position.set(p)
+    The `set()` on `volume` takes an additional second parameter of type `AudioOptions`, allowing further configuration (duration of the fade, in this case).
 
-// OK #2
-const p = entity.position.get()
-entity.position.set(new Vec3(p.x, p.y += 10, p.z))
-```
+    ```ts
+    audioGizmo.volume.set(0.5, { fade: 1 })
+    ```
+
+### Horizon Property Subtleties
+
+!!! warning Horizon Property's `set()` is not immediate.
+    When you `set` a Horizon property the value is not immediately saved back to the [scene graph](#scene-graph). This allows different scripts to all "see the same state of the world" regardless of what order they run in. This means that if you `get` a value right after setting it that you will still get the old value.
+
+    In the following code `pos1` and `pos2` will have the same value.
+
+    ```ts
+    const pos1 = entity.position.get()
+    entity.position.set(Vec3.zero)
+    const pos2 = entity.position.get()
+    ```
+
+    Read about the [frame sequence](#frame-sequence) to learn more about when properties update.
+
+    !!! tip Track your scene graph value updates when needed.
+        If you need to know values after `set`ting but before they are committed to the scene graph, you should track the values manually (such as in a class variable).
+
+!!! danger Never modify the result of `get()`.
+    Horizon properties cache their values until the scene graph is updated (see [frame sequence](#frame-sequence) for when). This means that `get()` keeps returning the same value until the update occurs. The following code is then dangerous:
+
+    ```ts
+    // BAD #1!
+    const p = entity.position.get()
+    p.x += 10
+
+    // BAD #1!
+    const p = entity.position.get()
+    p.addInPlace(new Vec3(0, 10, 0))
+    ```
+
+    In any code now reads that object's position it will get the wrong value, until the next time the property is updated in the [frame sequence](#frame-sequence).
+
+    You should always `clone` a Horizon property's value before modifying it (or add a [method that creates a new value](#copying-vs-mutating-methods)).
+
+    ```ts
+    // OK #1
+    const p = entity.position.get().clone()
+    p.x += 10
+
+    // OK #2
+    const p = entity.position.get().add(new Vec3(0, 10, 0))
+    ```
+
+!!! danger [TypeScript's class property setters and getters](https://www.typescriptlang.org/docs/handbook/2/classes.html#getters--setters) do not work with Horizon properties.
+    Horizon does not use standard TypeScript properties. You must do
+    ```ts
+    entity.position.set(newPosition)
+    ```
+
+    and will get an error if you do:
+
+    <pre class="language-ts ts"><span class="errorCode"><code>entity.position</code></span><span><code> = newPosition</code></span></pre>
 
 ## Types
+
+There are many TypeScript types in Horizon; however, there are a few that form the backbone of most scripts:
+
+| Type | Description |
+|---|---|
+| [Component](#components)  | Add interactivity and logic to a world (by creating a [subclasses](#component-class) and attaching it to an entity). |
+| [World](#world-class) | Information and methods related to the current [instance](#instance). |
+| [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types). |
+| [Player](#players) | A [player](#players) in the world ([instance](#instances)), including the "[server player](#server-player)" and [NPC players](#npc-gizmo). |
+| [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#text-asset), [textures](#textures), and ["prefabs"](#asset-template)). |
+| [Vec3](#vec3) | A "3D quantity" which can be used to represent [position](#position), [velocity, acceleration, force, torque](#physics), [scale](#scale), and more. |
+| [Quaternion](#quaternion) | An abstract mathematical object primarily used for representing *rotations*. |
+| [Color](#color) | An RGB Color with each component between 0 and 1. |
+
+ and [entity.as()](#entity-as-method)
 
 Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
 
@@ -1540,7 +1610,15 @@ Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risk
 
 Accessor mutations beware!
 
-### In-Place Mutation
+### Construction
+
+Don't `new` player or entity or component or world. Asset it ok to new.
+
+### Equality
+
+Most
+
+### Copying vs Mutating Methods
 
 .*inPlace() methods
 
@@ -1552,8 +1630,7 @@ Accessor mutations beware!
 
 - Euler Angles default: YXZ
 
-### Entity
-[entity types](#entity-types) and [entity.as()](#entity-as-method)
+## World Class
 
 ## Files
 
@@ -1570,7 +1647,9 @@ Accessor mutations beware!
 1. [optional] initializeUI()
 1. [optional] dispose
 
-### Props (and wiring)
+### Attaching Components to Entities
+
+Props (and wiring)
 
 Props definition uses an untyped object (be careful).
 Keys are prop names. Values are of the form {type: PropsTypes[...], defaultValue?: ... }
@@ -1637,8 +1716,6 @@ a few sentences and link to Physics
 ### Broadcast events
 
 Mention coalescence
-
-## World Class
 
 ## Frame Sequence
 
@@ -2012,6 +2089,8 @@ export declare class PhysicalEntity extends Entity {
 ```
 
 ## Projectiles
+
+## Applying Forces and Torque
 
 ## Player Physics
 
