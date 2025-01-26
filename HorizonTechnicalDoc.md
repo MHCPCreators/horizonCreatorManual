@@ -117,12 +117,10 @@
     2. [Horizon Properties](#horizon-properties)
         1. [Horizon Property Subtleties](#horizon-property-subtleties)
     3. [Types](#types)
-        1. [Construction](#construction)
-        2. [Equality](#equality)
-        3. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
-        4. [Color](#color)
-        5. [Vec3](#vec3)
-        6. [Quaternion](#quaternion)
+        1. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
+        2. [Color](#color)
+        3. [Vec3](#vec3)
+        4. [Quaternion](#quaternion)
     4. [World Class](#world-class)
     5. [Files](#files)
     6. [Components](#components)
@@ -1595,32 +1593,39 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 |---|---|
 | [Component](#components)  | Add interactivity and logic to a world (by creating a [subclasses](#component-class) and attaching it to an entity). |
 | [World](#world-class) | Information and methods related to the current [instance](#instance). |
-| [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types). |
+| [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types) available via [entity.as()](#entity-as-method). |
 | [Player](#players) | A [player](#players) in the world ([instance](#instances)), including the "[server player](#server-player)" and [NPC players](#npc-gizmo). |
 | [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#text-asset), [textures](#textures), and ["prefabs"](#asset-template)). |
 | [Vec3](#vec3) | A "3D quantity" which can be used to represent [position](#position), [velocity, acceleration, force, torque](#physics), [scale](#scale), and more. |
 | [Quaternion](#quaternion) | An abstract mathematical object primarily used for representing *rotations*. |
 | [Color](#color) | An RGB Color with each component between 0 and 1. |
 
- and [entity.as()](#entity-as-method)
+**Construction / new**: `Component`s, `Entity`s, `Player`s, and the `World` are all created by the system. You should never instantiate these directly with `new`. You can (and will) instantiate `Vec3`, `Quaternion`, and `Color`. You can allocate `Asset`s directly with their asset ids.
 
-Player, Asset, Entity can be compared by equality. Vec3, Quaternion, Color can be compared approximately; these classes have mutable and immutable versions. There is a special `as` method on Entities.
+**Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use builtin TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement `Comparable<T>` which provides the methods `equal(other: T): boolean` and `equalApprox(other: T, epsilon?: number): boolean`.
 
-Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risks property coherence if it came from a `.get()` and link to the [Horizon Properties](#horizon-properties).
+!!! example Example: Comparing Vec3 instances
+    ```ts
+    const a = new Vec3(1, 2, 3)
+    const b = new Vec3(1, 2, 3)
 
-Accessor mutations beware!
+    console.log(a === b)            // false ❌
+    console.log(a.equal(b))         // true  ✅
 
-### Construction
+    const c = new Vec3(1, 2, 3.000000001)
 
-Don't `new` player or entity or component or world. Asset it ok to new.
-
-### Equality
-
-Most
+    console.log(a.equal(c))         // false ❌
+    console.log(a.equalApprox(c))   // true  ✅
+    ```
 
 ### Copying vs Mutating Methods
 
 .*inPlace() methods
+copy()
+clone()
+`out?: T`
+
+Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risks property coherence if it came from a `.get()` and link to the [Horizon Properties](#horizon-properties).
 
 ### Color
 
@@ -2109,13 +2114,17 @@ TODO - Velocity, locomotion speed, jump speed
 
 # Players
 
-The `Player` class represents a person in an instance. Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
+The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
-`Player` instances are allocated by the system; you should never attempt to allocate them. `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
+**Max player count**: Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
 
-There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the <a href="#maximum-player-count">maximum player count</a> being reached.
+**Construction / New**: `Player` instances are allocated by the system; you should *never allocate them directly* (never use `new Player`).
 
-Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
+**Equality Comparison**: `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
+
+**Server Player**: There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the <a href="#maximum-player-count">maximum player count</a> being reached.
+
+**Id and Index**: Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
 
 ## Identifying Players
 
