@@ -1,8 +1,8 @@
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
-**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, Shards632, and Tellous and help from HomeMed, SeeingBlue, and UnravelWinter.
+This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.
 
-<div class="print-note">This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.</div>
+**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, Shards632, and Tellous and help from HomeMed, SeeingBlue, and UnravelWinter.
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
@@ -789,13 +789,15 @@ Configured Types:
 
 ### Entity as() method
 
-!!! danger Do not us TypeScript's `as` operator on an `Entity`.
+!!! danger Do not use TypeScript's `as` operator on an `Entity`.
 
 ## Static Entities
 
 ## Dynamic Entities
 
 ### Animated Entities
+
+Doing `play()` in *start* doesn't alway
 
 `AnimatedEntity`
 
@@ -1940,6 +1942,33 @@ Trigger detection is done at the _collider_ level. When a collider enters/leaves
 This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
 
 # Physics
+
+<mark>TODO</mark> random notes
+
+VelocityChange: veloc += arg
+Force: veloc += arg/mass * deltaTime
+Impulse: veloc += arg/mass
+
+applyLocalForce(force, mode)
+  assumes force is in the coordinate system of the object
+
+applyForceAtPosition(force, position, mode)
+  .Force not supported
+  .Impulse works
+  .VelocityChange not supported
+
+  Computes torque as standard r x F
+
+
+DO NOT PHYSICS ON EMPTY OBJECTS: - behavior is highly inconsistent across force / torque APIs
+
+Facts that should be ignored because
+
+Don't run physics on empty objects; only use physical at the root OR groups
+  applyForce on empty object fails silently for Force/Impulse and is ok for VelChange
+
+Empty object center-of-mass is at the bounding box center for torque / localTorque
+  But it is at the empty object's position for forceAtPosition
 
 ## Overview
 
