@@ -781,11 +781,39 @@ intrinsic Type:
 * DynamicLightGizmo
 * AIAgentGizmo
 
-Configured Types:
-* AnimatedEntity
-* GrabbableEntity
-* PhysicalEntity
-* AttachableEntity
+An entity can have multiple behavior types, which can be enabled using the properties **Motion**, **Interaction**, and **Avatar Attachable**.
+
+<table style="border-collapse: collapse; text-align: center;">
+  <tr>
+    <th>Motion</th>
+    <th>None</th>
+    <th>Animated</th>
+    <th colspan="3">Interactive</th>
+  </tr>
+  <tr>
+    <th >Interaction</th>
+    <th>n/a</th>
+    <th>n/a</th>
+    <th>Grabbable</th>
+    <th>Physics</th>
+    <th>Both</th>
+  </tr>
+  <tr>
+    <th>Entity Behavior Type</th>
+    <td>Static Entity</td>
+    <td>AnimatedEntity</td>
+    <td>GrabbableEntity</td>
+    <td>PhysicalEntity</td>
+    <td>GrabbableEntity & PhysicalEntity</td>
+  </tr>
+</table>
+
+* [Static Entity](#static-entities) - A read-only unmovable entity that cannot be modified via scripts. Only non-static entities can dynamically set properties from the Entity class such as position and color.  
+* [AnimatedEntity](#animated-entities) - An entity with an optional hand-recorded animation that can be played, paused, and stopped.
+* GrabbableEntity - An entity that can be grabbed and held in one or both hands of a player.
+* PhysicalEntity - An entity governed by rigid body simulations, that reacts to forces like gravity, friction, and collisions.
+* [AttachableEntity](#Attaching-Entities) - An entity that can be attached to a player's avatar or screen on mobile. Enable this behavior on an entity by setting __Avatar Attachable__ to Anchor or Sticky.
+
 
 ### Entity as() method
 
@@ -797,15 +825,33 @@ Configured Types:
 
 ### Animated Entities
 
-Doing `play()` in *start* doesn't alway
+When an entity's **Motion** is set to **Animated**, its properties, such as color and position, can be modified at runtime using scripts.
 
-`AnimatedEntity`
+Additionally, you can manually record animations for an entity's position, rotation, and scale without scripting. To do this, set Motion to Animated, press **Record**, adjust the entity’s position, rotation, or scale, then press Stop. Press **Play** to preview the recorded animation.
 
+Animations recorded by hand can be controlled in scripts,
 ```ts
-play(): void;
-pause(): void;
-stop(): void;
+class AnimatedEntity extends Entity {
+    // Play the animation from the current frame.
+    play(): void
+    
+    // Freeze the animation at the current frame.
+    pause(): void
+
+    // Reset the current frame of the animation to the first frame, meaning the
+    // entity's position/rotation/scale are set to the state of the first recorded frame.
+    stop(): void  
+}
 ```
+
+!!! Warning Animated Entities with recorded animations can only be moved as children of a group
+    To set positions of an AnimatedEntity with recorded animations, set the AnimatedEntity as the child of a Motion=Animated Group Entity or  Empty Object, and modify the parent in scripts. 
+
+!!! Note Play on Start
+    To play an animation from the first frame on world start, toggle on **Play on Start**. Note when Play on Start is toggled off, calling `play()` in `start()` may not work.
+
+!!! Note AnimatedEntities can be nested
+    Recorded animations can be nested within a hierarchy because an Animated Entity records its changes relative to its parent. This means you can animate a bee to fly around one spot, set the bee as a child of a flower, then hand-animate the flower and have the bee follow.
 
 ### Interactive Entities
 
@@ -2164,7 +2210,7 @@ Players in Horizon all have a global "account id". There is no way to access thi
 Each `Player` instance has a `readonly id: number` property.
 
 !!! info Entering an instance assigns a new ID (for that instance).
-    When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If they leave the instance and later return, they will get yet another `id`.
+    When a person enters an instance they are assigned an `id` that has not yet been used in that instance. If a player switches devices, or leave the instance and later return, they will be given a new `id`.
 
 !!! danger IDs are per-instance. Do not persist them.
     The `id` that a player gets in one instance of a world has nothing to do with the `id` they might get in another instance. If a person gets assigned `id` 42 in one instance then the moment they leave that instance you should no longer associate them with the `id`.
@@ -2609,7 +2655,7 @@ flowchart TD
   detach([Detached])
   attach([Attached])
 
-  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases<br/>attachable entity<br/>on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases<br/>attachable entity<br/>on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color: #0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
 
   detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
 
