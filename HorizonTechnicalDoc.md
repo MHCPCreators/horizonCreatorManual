@@ -1,6 +1,7 @@
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
-This is an in-development (Jan '25) <b>community-written</b> document. For questions contact <i>wafflecopters</i>.
+> This is an in-development (Jan '25) <b>community-written</b> document.
+> For questions contact <i>wafflecopters</i>.
 
 **Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, Shards632, and Tellous and help from HomeMed, SeeingBlue, and UnravelWinter.
 
@@ -37,60 +38,54 @@ This is an in-development (Jan '25) <b>community-written</b> document. For quest
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
 5. [Entities](#entities)
-    1. [Overview](#overview-1)
-    2. [Entity Types](#entity-types)
+    1. [Entity Types](#entity-types)
         1. [Entity as() method](#entity-as-method)
-    3. [Static Entities](#static-entities)
-    4. [Dynamic Entities](#dynamic-entities)
+    2. [Static Entities](#static-entities)
+    3. [Dynamic Entities](#dynamic-entities)
         1. [Animated Entities](#animated-entities)
         2. [Interactive Entities](#interactive-entities)
-    5. [Common Properties](#common-properties)
+    4. [Common Properties](#common-properties)
         1. [Simulated](#simulated)
         2. [Tags](#tags)
-    6. [Gizmos](#gizmos)
-        1. [Gizmo Template](#gizmo-template)
+    5. [Intrinsic Entity Types](#intrinsic-entity-types)
+        1. [Custom UI Gizmo](#custom-ui-gizmo)
+        2. [Debug Console Gizmo](#debug-console-gizmo)
+        3. [Custom UI Gizmo](#custom-ui-gizmo-1)
+        4. [Door Gizmo](#door-gizmo)
                 1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
-        2. [Scene Graph Types](#scene-graph-types)
-        3. [Custom UI Gizmo](#custom-ui-gizmo)
-        4. [Debug Console Gizmo](#debug-console-gizmo)
-        5. [Custom UI Gizmo](#custom-ui-gizmo-1)
-        6. [Door Gizmo](#door-gizmo)
+        5. [NPC Gizmo](#npc-gizmo)
+        6. [In-World Item Gizmo](#in-world-item-gizmo)
+        7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        7. [NPC Gizmo](#npc-gizmo)
-        8. [In-World Item Gizmo](#in-world-item-gizmo)
-        9. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        8. [Environment Gizmo](#environment-gizmo)
                 1. [Purpose](#purpose-2)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
-        10. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-3)
-                1. [Manual Properties](#manual-properties-3)
-                2. [Typescript API](#typescript-api-3)
-        11. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-2)
+        9. [ParticleFx Gizmo](#particlefx-gizmo)
+            1. [Overview](#overview-1)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
-        12. [TrailFx Gizmo](#trailfx-gizmo)
-        13. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        14. [Quests Gizmo](#quests-gizmo)
-        15. [Raycast Gizmo](#raycast-gizmo)
-        16. [Script Gizmo](#script-gizmo)
-        17. [Snap Destination Gizmo](#snap-destination-gizmo)
-        18. [Sound Gizmo](#sound-gizmo)
-        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        20. [Spawn Point Gizmo](#spawn-point-gizmo)
-        21. [Text Gizmo](#text-gizmo)
+        10. [TrailFx Gizmo](#trailfx-gizmo)
+        11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        12. [Quests Gizmo](#quests-gizmo)
+        13. [Raycast Gizmo](#raycast-gizmo)
+        14. [Script Gizmo](#script-gizmo)
+        15. [Snap Destination Gizmo](#snap-destination-gizmo)
+        16. [Sound Gizmo](#sound-gizmo)
+        17. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        18. [Spawn Point Gizmo](#spawn-point-gizmo)
+        19. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
             2. [Markup](#markup)
                 1. [Tags](#tags-1)
                 2. [Parameters](#parameters)
             3. [Supported Tags](#supported-tags)
-        22. [Trigger Gizmo](#trigger-gizmo)
-        23. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        24. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+        20. [Trigger Gizmo](#trigger-gizmo)
+        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        22. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
     1. [Asset Types](#asset-types)
         1. [Mesh Asset](#mesh-asset)
@@ -98,7 +93,7 @@ This is an in-development (Jan '25) <b>community-written</b> document. For quest
         3. [Image Asset (Textures)](#image-asset-textures)
         4. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-2)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -167,7 +162,7 @@ This is an in-development (Jan '25) <b>community-written</b> document. For quest
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-3)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -223,7 +218,7 @@ This is an in-development (Jan '25) <b>community-written</b> document. For quest
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-5)
+    1. [Overview](#overview-4)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -245,7 +240,7 @@ This is an in-development (Jan '25) <b>community-written</b> document. For quest
     1. [Camera](#camera)
 21. [Performance Optimization](#performance-optimization)
     1. [Physics](#physics-1)
-    2. [Gizmos](#gizmos-1)
+    2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
@@ -332,10 +327,10 @@ Name, description, comfort setting, player count, etc.
 
 The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. Other people, called **collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [play mode](#visitation-modes-edit-play-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-play-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
-| *Editor* | ✅ | ✅ | ❌ | ❌ | ❌ |
+| *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
 | *Tester* |  ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ## World Snapshot
@@ -461,13 +456,11 @@ flowchart TD
 
 # Scene Graph
 
-**Maximum bounds**: Worlds exist in [a cube that is 10,000 meters in each direction from the origin](#world-max-bounds).
-
-TODO: Nerd comment: why graph instead of tree
+Every world in Horizon is made out of [entities](#entities) each of which has an [intrinsic type](#entity-types) such as being a mesh or a particle effect. Entities can be configured to have *behaviors* (such as being [grabbable](#grabbing-entities) or [attachable](#attaching-entities)) and be have other entities as their children (or as a parent). The collection of all of these entities, their attributes, and relationships is called the **scene graph**. When you modify the scene graph in the editor, those changes are saved in the [world snapshot](#world-snapshot).
 
 ## Hierarchy
 
-Any entity can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
+Any [entity](#entities) can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
 
 1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
 2. To create "layers" or "folders" in the editor (e.g. putting all trees in a ["collection"](#empty-object-and-groups) to make them easier to manage).
@@ -665,8 +658,6 @@ When you want to set the position of an entity in relation to the current positi
     Offsetting scale works similarly.
 
 !!! example Offsetting rotation
-    <mark>TODO - Probably want to mention how the rotation is counter-clockwise when facing towards the positive direction of the axis</mark>
-
     To rotate an entity 90 degrees around the world's y-axis, from its current rotation, you can do:
     ```ts
     const offset = Quaternion.fromEuler(new Vec3(0, 90, 0))
@@ -694,7 +685,6 @@ Each entity has a transform property that can be accessed via `entity.transform`
 ```ts
 class Entity {
   readonly transform: Transform
-
   // ...
 }
 ```
@@ -743,25 +733,20 @@ The transformation origin point of an entity is called its **pivot point**. It r
 
 # Entities
 
-<mark>TODO</mark>
-`GrabbableEntity`, `PhysicsEntity`, `AttachableEntity`, `AnimatedEntity`, `MeshEntity`,
+Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
 
-## Overview
-
-Every "thing" in the Horizon scene is an _entity_ (an grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
-
-!!! info Note Entity and Object mean the same thing (except in TypeScript)
+!!! info Entity and Object mean the same thing (except in TypeScript)
     Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
 
     In TypeScript `Object` is a builtin for managing data, whereas `Entity` is a Horizon-specific class.
 
-Gizmos, as, ...
+<mark>TODO</mark>
 
 ## Entity Types
 
 Every entity in Horizon has an underlying **intrinsic type** determined by how the entity was originally made (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
 
-Additionally, an entity can have (multiple) **behavior types**.
+Additionally, an entity can have (multiple) **behavior types** based on settings in the Property Panel.
 
 !!! example Example: Intrinsic Type and Behavior Types
     A *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
@@ -893,30 +878,9 @@ Tag uses:
   * Triggers
   * Collisions
 
-## Gizmos
+## Intrinsic Entity Types
 
-### Gizmo Template
-##### Purpose
-
-
-#####  Manual Properties
--
-
-##### Typescript API
-- None
-
-!!! Note Notes
-    -
-
-!!! Warning
-    -
-
-!!! Bug Known Issues
-    -
-
-### Scene Graph Types
-
-<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider; SubLevel; Empty Object; Group; Asset (which can be Mesh, ...)</mark>
+<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider</mark>
 
 <mark>TODO: move this table to the Entity section; ensure most rows link to a larger section (where applicable)
 
@@ -926,8 +890,11 @@ Tag uses:
 | [Debug Console](#debug-console-gizmo) | `Entity` |
 | [Door](#door-gizmo) | `Entity` |
 | [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
+| [Empty Object](#empty-object-and-groups) | `Entity` |
 | [Environment](#environment-gizmo) | `Entity` |
+| [Group](#empty-object-and-groups) | `Entity` |
 | [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
+| [Mesh](#mesh-asset) | `MeshEntity` |
 | [NPC](#npc-gizmo) | `AIAgentGizmo` |
 | [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
 | [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
@@ -938,6 +905,7 @@ Tag uses:
 | [Sound](#sound-gizmo) | `AudioGizmo` |
 | [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
 | [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
+| [Sublevel](#sublevels) | `SublevelEntity` |
 | [Text](#text-gizmo) | `TextGizmo` |
 | [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
 | [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
@@ -1798,7 +1766,7 @@ flowchart LR
   end
 
   subgraph Events
-    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handler) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
   end
 
   subgraph EndFrame [End Phase]
@@ -1816,6 +1784,7 @@ flowchart LR
   style Pre-Physics fill:#dfe,stroke:#8a9
   style On-Update fill:#dfe,stroke:#8a9
   style NetworkEvents fill:#dfe,stroke:#8a9
+  style PlayerInputHandlers fill:#dfe,stroke:#8a9
   style CodeBlockEvents fill:#dfe,stroke:#8a9
   style Components fill:#dfe,stroke:#8a9
 ```
@@ -1827,7 +1796,7 @@ flowchart LR
   end
 
   subgraph Events
-    NetworkEvents --> CodeBlockEvents
+    NetworkEvents --> PlayerInputHandlers(Player Input Handlers) --> CodeBlockEvents
   end
 
   subgraph EndFrame [End Phase]
@@ -1845,6 +1814,7 @@ flowchart LR
   style Pre-Physics fill:#dfe,stroke:#8a9
   style On-Update fill:#dfe,stroke:#8a9
   style NetworkEvents fill:#dfe,stroke:#8a9
+  style PlayerInputHandlers fill:#dfe,stroke:#8a9
   style CodeBlockEvents fill:#dfe,stroke:#8a9
 ```
 
@@ -2865,7 +2835,6 @@ Saved Asset will receive an ID that is used for spawning.
 !!! warning Assets can be used across worlds, but using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
 
 !!! note Asset Folders can be shared with other users.
-
 
 ## Simple Spawning
 ```ts
