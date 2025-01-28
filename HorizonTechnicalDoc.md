@@ -797,8 +797,7 @@ An entity can have multiple behavior types, which can be enabled using the prope
 * [AnimatedEntity](#animated-entities) - An entity with an optional hand-recorded animation that can be played, paused, and stopped.
 * GrabbableEntity - An entity that can be grabbed and held in one or both hands of a player.
 * PhysicalEntity - An entity governed by rigid body simulations, that reacts to forces like gravity, friction, and collisions.
-* [AttachableEntity](#Attaching-Entities) - An entity that can be attached to a player's avatar or screen on mobile. Enable this behavior on an entity by setting __Avatar Attachable__ to Anchor or Sticky.
-
+* [AttachableEntity](#attaching-entities) - An entity that can be attached to a player's avatar or screen on mobile. Enable this behavior on an entity by setting __Avatar Attachable__ to Anchor or Sticky.
 
 ### Entity as() method
 
@@ -806,15 +805,31 @@ An entity can have multiple behavior types, which can be enabled using the prope
 
 ## Static Entities
 
+A **Static Entity** is an entity whose **Motion** is set to **None**. It is read-only and cannot be changed in scripts.
+
 ## Dynamic Entities
+
+A **Dynamic Entity** is an entity whose **Motion** is *not* set to **None**. Its properties -- such as color, position, or visibility to specific players -- can be modified in scripts.
 
 ### Animated Entities
 
-When an entity's **Motion** is set to **Animated**, its properties, such as color and position, can be modified at runtime using scripts.
+An **`AnimatedEntity`** is an entity with an optional hand-recorded animation that can be played, paused, and stopped. 
 
-Additionally, you can manually record animations for an entity's position, rotation, and scale without scripting. To do this, set Motion to Animated, press **Record**, adjust the entity’s position, rotation, or scale, then press Stop. Press **Play** to preview the recorded animation.
+An Animated Entity has these properties in the properties panel,
 
-Animations recorded by hand can be controlled in scripts,
+* **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
+
+* **Play on Start** - To play/stop an animation on the first frame on world start, enable/disable **Play on Start**. Note that you calling `play()`/`pause()`/`stop()` in `start()` may not always achieve the same behavior.
+
+* **Loop** - Controls whether an animation loops after it finishes playing.
+    - **Never** - After an animation finishes playing, do nothing.
+    - **Continously** - After an animation finishes playing, replay the animation from the first frame.
+    - **Back and Forth** - After an animation finishes playing, replay the animation in the opposite direction, starting from the current frame.
+
+* **Speed** - Playback speed of the animation. Defaults to 1.
+
+
+Recorded Animation can be controlled in scripts,
 ```ts
 class AnimatedEntity extends Entity {
     // Play the animation from the current frame.
@@ -829,15 +844,12 @@ class AnimatedEntity extends Entity {
 }
 ```
 
-!!! Warning Animated Entities with recorded animations can only be moved as children of a group
-    To set positions of an AnimatedEntity with recorded animations, set the AnimatedEntity as the child of a Motion=Animated Group Entity or  Empty Object, and modify the parent in scripts. 
+!!! Warning You cannot set position/rotation/scale on an AnimatedEntity with a recorded animation
+    To move/rotate/scale an AnimatedEntity with recorded animations in a script, give that AnimatedEntity a parent (i.e. a Group Entity or Empty Object), set the parent's Motion to Animated. Then you can set position/rotation/scale on the parent in a script.
 
-!!! Note Play on Start
-    To play an animation from the first frame on world start, toggle on **Play on Start**. Note when Play on Start is toggled off, calling `play()` in `start()` may not work.
-
-!!! Note AnimatedEntities can be nested
-    Recorded animations can be nested within a hierarchy because an Animated Entity records its changes relative to its parent. This means you can animate a bee to fly around one spot, set the bee as a child of a flower, then hand-animate the flower and have the bee follow.
-
+!!! Hint Recorded animations can be nested in a hierachy
+    Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
+    
 ### Interactive Entities
 
 <mark>TODO</mark> `interactionMode` in TS
@@ -2592,7 +2604,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
-!!! danger Don't the owner of a held object
+!!! danger Don't change the owner of a held object
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
