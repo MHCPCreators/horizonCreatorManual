@@ -39,53 +39,53 @@
         7. [Pivot Points](#pivot-points)
 5. [Entities](#entities)
     1. [Entity Types](#entity-types)
-        1. [Entity as() method](#entity-as-method)
-    2. [Static Entities](#static-entities)
-    3. [Dynamic Entities](#dynamic-entities)
-        1. [Animated Entities](#animated-entities)
-        2. [Interactive Entities](#interactive-entities)
-    4. [Common Properties](#common-properties)
+        1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
+        2. [Intrinsic Entity Types](#intrinsic-entity-types)
+        3. [Behavior Entity Types](#behavior-entity-types)
+        4. [Entity as() method](#entity-as-method)
+        5. [Animated Entities](#animated-entities)
+        6. [Interactive Entities](#interactive-entities)
+    2. [Common Properties](#common-properties)
         1. [Simulated](#simulated)
         2. [Tags](#tags)
-    5. [Intrinsic Entity Types](#intrinsic-entity-types)
-        1. [Custom UI Gizmo](#custom-ui-gizmo)
-        2. [Debug Console Gizmo](#debug-console-gizmo)
-        3. [Custom UI Gizmo](#custom-ui-gizmo-1)
-        4. [Door Gizmo](#door-gizmo)
+        3. [Custom UI Gizmo](#custom-ui-gizmo)
+        4. [Debug Console Gizmo](#debug-console-gizmo)
+        5. [Custom UI Gizmo](#custom-ui-gizmo-1)
+        6. [Door Gizmo](#door-gizmo)
                 1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
-        5. [NPC Gizmo](#npc-gizmo)
-        6. [In-World Item Gizmo](#in-world-item-gizmo)
-        7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        7. [NPC Gizmo](#npc-gizmo)
+        8. [In-World Item Gizmo](#in-world-item-gizmo)
+        9. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        8. [Environment Gizmo](#environment-gizmo)
+        10. [Environment Gizmo](#environment-gizmo)
                 1. [Purpose](#purpose-2)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
-        9. [ParticleFx Gizmo](#particlefx-gizmo)
+        11. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-1)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
-        10. [TrailFx Gizmo](#trailfx-gizmo)
-        11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        12. [Quests Gizmo](#quests-gizmo)
-        13. [Raycast Gizmo](#raycast-gizmo)
-        14. [Script Gizmo](#script-gizmo)
-        15. [Snap Destination Gizmo](#snap-destination-gizmo)
-        16. [Sound Gizmo](#sound-gizmo)
-        17. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        18. [Spawn Point Gizmo](#spawn-point-gizmo)
-        19. [Text Gizmo](#text-gizmo)
+        12. [TrailFx Gizmo](#trailfx-gizmo)
+        13. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        14. [Quests Gizmo](#quests-gizmo)
+        15. [Raycast Gizmo](#raycast-gizmo)
+        16. [Script Gizmo](#script-gizmo)
+        17. [Snap Destination Gizmo](#snap-destination-gizmo)
+        18. [Sound Gizmo](#sound-gizmo)
+        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        20. [Spawn Point Gizmo](#spawn-point-gizmo)
+        21. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
             2. [Markup](#markup)
                 1. [Tags](#tags-1)
                 2. [Parameters](#parameters)
             3. [Supported Tags](#supported-tags)
-        20. [Trigger Gizmo](#trigger-gizmo)
-        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        22. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+        22. [Trigger Gizmo](#trigger-gizmo)
+        23. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        24. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
     1. [Asset Types](#asset-types)
         1. [Mesh Asset](#mesh-asset)
@@ -744,72 +744,91 @@ Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a l
 
 ## Entity Types
 
-Every entity in Horizon has an underlying **intrinsic type** determined by how the entity was originally made (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
+Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-types)** determined by how the entity was originally created (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
 
-Additionally, an entity can have (multiple) **behavior types** based on settings in the Property Panel.
+Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Property Panel (such as being [grabbable](#grabbing-entities), [attachable](#attaching-entities), etc).
 
-!!! example Example: Intrinsic Type and Behavior Types
-    A *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
+For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
-intrinsic Type:
-* MeshEntity
-* SpawnPointGizmo
-* TextGizmo
-* TriggerGizmo
-* ParticleGizmo
-* TrailGizmo
-* AudioGizmo
-* ProjectileLauncherGizmo
-* AchievementsGizmo
-* IWPSellerGizmo
-* RaycastGizmo
-* DynamicLightGizmo
-* AIAgentGizmo
 
-An entity can have multiple behavior types, which can be enabled using the properties **Motion**, **Interaction**, and **Avatar Attachable**.
+### Static vs Dynamic Entities
 
-<table style="border-collapse: collapse; text-align: center;">
-  <tr>
-    <th>Motion</th>
-    <th>None</th>
-    <th>Animated</th>
-    <th colspan="3">Interactive</th>
-  </tr>
-  <tr>
-    <th >Interaction</th>
-    <th>n/a</th>
-    <th>n/a</th>
-    <th>Grabbable</th>
-    <th>Physics</th>
-    <th>Both</th>
-  </tr>
-  <tr>
-    <th>Entity Behavior Type</th>
-    <td>Static Entity</td>
-    <td>AnimatedEntity</td>
-    <td>GrabbableEntity</td>
-    <td>PhysicalEntity</td>
-    <td>GrabbableEntity & PhysicalEntity</td>
-  </tr>
-</table>
+All entities in Horizon are either **static** or **dynamic**.
 
-* [Static Entity](#static-entities) - A read-only unmovable entity that cannot be modified via scripts. Only non-static entities can dynamically set properties from the Entity class such as position and color.  
-* [AnimatedEntity](#animated-entities) - An entity with an optional hand-recorded animation that can be played, paused, and stopped.
-* GrabbableEntity - An entity that can be grabbed and held in one or both hands of a player.
-* PhysicalEntity - An entity governed by rigid body simulations, that reacts to forces like gravity, friction, and collisions.
-* [AttachableEntity](#attaching-entities) - An entity that can be attached to a player's avatar or screen on mobile. Enable this behavior on an entity by setting __Avatar Attachable__ to Anchor or Sticky.
+**Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-types) An entity **is static when `Motion` is set to `None` in the property panel**.
+
+**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the property panel**.
+
+!!! note Parents don't affect static vs dynamic.
+    A static entity can have a dyanmic parent  and vice versa.
+
+### Intrinsic Entity Types
+
+The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are access simply as `Entity` instances. Every entity only has **one instrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
+
+<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider</mark>
+
+| [Intrinsic Type](#entity-types) | TypeScript Class |
+|---|---|
+| [Custom UI](#custom-ui-gizmo) | `Entity` |
+| [Debug Console](#debug-console-gizmo) | `Entity` |
+| [Door](#door-gizmo) | `Entity` |
+| [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
+| [Empty Object](#empty-object-and-groups) | `Entity` |
+| [Environment](#environment-gizmo) | `Entity` |
+| [Group](#empty-object-and-groups) | `Entity` |
+| [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
+| [Mesh](#mesh-asset) | `MeshEntity` |
+| [NPC](#npc-gizmo) | `AIAgentGizmo` |
+| [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
+| [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
+| [Quests](#quests-gizmo) | `AchievementsGizmo` |
+| [Raycast](#raycast-gizmo) | `RaycastGizmo` |
+| [Script](#script-gizmo) | `Entity` |
+| [Snap Destination](#snap-destination-gizmo) | `Entity` |
+| [Sound](#sound-gizmo) | `AudioGizmo` |
+| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
+| [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
+| [Sublevel](#sublevels) | `SublevelEntity` |
+| [Text](#text-gizmo) | `TextGizmo` |
+| [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
+| [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
+| [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
+
+### Behavior Entity Types
+
+ A [dynamic entity](#static-vs-dynamic-entities) can have **multiple behavior types** which can be accessed via the [entity.as()](#entity-as-method) method.
+
+| Behavior Type  | Description | TypeScript Class | How to Enable |
+|---|---|---|---|
+| [Animated (Recording)](#animated-entities) | An entity that has a recording on it. | `AnimatedEntity` | Set `Motion` to `Animated`. Use the `Record` button in the property panel.
+| [Attachable](#attaching-entities) | An entity that can be attached to a [Player](#players). | `AttachableEntity` | Set `Motion` to `Animated` or `Interactive`. Set `Avatar Attachable` to `Sticky` or `Anchor` in the property panel.
+| [Grabbable](#grabbing-and-holding-entities) | An entity that can be grabbed and held. | `GrabbableEntity` | Set `Motion` to `Interactive`. Set `Interaction` to `Grabbable` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)`. |
+| [Physics-Simulated](#physicalentity-class) | An entity that can respond to [forces and torques](#physics). | `PhysicalEntity`  | Set `Motion` to `Interactive`. Set `Interaction` to `Physics` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)` |
 
 ### Entity as() method
 
-!!! danger Do not use TypeScript's `as` operator on an `Entity`.
+You can convert an entity instance into its [instrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) types using the entity `as()` method.
 
-## Static Entities
+For example:
 
-A **Static Entity** is an entity whose **Motion** is set to **None**. It is read-only and cannot be changed in scripts.
+```ts
+const particleEffect: ParticleGizmo = entity.as(ParticleGizmo)
+```
 
-## Dynamic Entities
+Once you call `as()` on an entity, you can store that "casted" entity (in a `let`, `const`, or `class` member) and you don't need to call `as()` on it again.
 
-A **Dynamic Entity** is an entity whose **Motion** is *not* set to **None**. Its properties -- such as color, position, or visibility to specific players -- can be modified in scripts.
+Note that `as()` returns the same entity back, preserving equality. Thus after the line above `particleEffect === entity` would evaluate to `true`.
+
+!!! danger `as()` always succeeds! Do not cast to the wrong type!
+    The `as()` method will always return an instance of the requested type. This means that you can convert a text gizmo entity into an `AudioGizmo` without error or warning. However if you then attempt to use it as an `AudioGizmo` you will get errors, warnings, and unexpected behavior. Don't cast entities, with `as()` to classes they are not. **This is a brittle part of Horizon's TypeScript API that has no workaround.**
+
+!!! danger Do not use TypeScript's builtin `as` operator on an `Entity`.
+    The `as()` method on `Entity` actually does work at runtime; it is not just a type-cast. That means the following two lines are **not the same**:
+    ```ts
+    ✅ const sound = entity.as(AudioGizmo)
+    ❌ const sound = entity as AudioGizmo
+    ```
 
 ### Animated Entities
 
@@ -828,7 +847,6 @@ Animated Entity has these properties in the properties panel,
 
 * **Speed** - Playback speed of the animation. Defaults to 1.
 
-
 Use the `AnimatedEntity` class to control recorded animations.
 | **Method**     | **Description** |
 |---------------|----------------------------------------------------------------|
@@ -844,7 +862,7 @@ Use the `AnimatedEntity` class to control recorded animations.
 
 !!! Hint Recorded animations can be nested in a hierarchy
     Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
-    
+
 ### Interactive Entities
 
 <mark>TODO</mark> `interactionMode` in TS
@@ -885,38 +903,6 @@ Tag uses:
   * Triggers
   * Collisions
 
-## Intrinsic Entity Types
-
-<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider</mark>
-
-<mark>TODO: move this table to the Entity section; ensure most rows link to a larger section (where applicable)
-
-| Editor Type | TypeScript [Intrinsic Type](#entity-types) |
-|---|---|
-| [Custom UI](#custom-ui-gizmo) | `Entity` |
-| [Debug Console](#debug-console-gizmo) | `Entity` |
-| [Door](#door-gizmo) | `Entity` |
-| [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
-| [Empty Object](#empty-object-and-groups) | `Entity` |
-| [Environment](#environment-gizmo) | `Entity` |
-| [Group](#empty-object-and-groups) | `Entity` |
-| [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
-| [Mesh](#mesh-asset) | `MeshEntity` |
-| [NPC](#npc-gizmo) | `AIAgentGizmo` |
-| [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
-| [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
-| [Quests](#quests-gizmo) | `AchievementsGizmo` |
-| [Raycast](#raycast-gizmo) | `RaycastGizmo` |
-| [Script](#script-gizmo) | `Entity` |
-| [Snap Destination](#snap-destination-gizmo) | `Entity` |
-| [Sound](#sound-gizmo) | `AudioGizmo` |
-| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
-| [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
-| [Sublevel](#sublevels) | `SublevelEntity` |
-| [Text](#text-gizmo) | `TextGizmo` |
-| [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
-| [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
-| [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
@@ -2599,7 +2585,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
-!!! danger Don't change the owner of a held object
+!!! danger Don't the owner of a held object
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
