@@ -819,7 +819,7 @@ An Animated Entity has these properties in the properties panel,
 
 * **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
 
-* **Play on Start** - To play/stop an animation on the first frame on world start, enable/disable **Play on Start**. Note that you calling `play()`/`pause()`/`stop()` in `start()` may not always achieve the same behavior.
+* **Play on Start** - To play/stop an animation on the first frame on world start, enable/disable **Play on Start**.
 
 * **Loop** - Controls whether an animation loops after it finishes playing.
     - **Never** - After an animation finishes playing, do nothing.
@@ -829,20 +829,15 @@ An Animated Entity has these properties in the properties panel,
 * **Speed** - Playback speed of the animation. Defaults to 1.
 
 
-Recorded Animation can be controlled in scripts,
-```ts
-class AnimatedEntity extends Entity {
-    // Play the animation from the current frame.
-    play(): void
-    
-    // Freeze the animation at the current frame.
-    pause(): void
+Use the `AnimatedEntity` class to control recorded animations.
+| **Method**     | **Description** |
+|---------------|----------------------------------------------------------------|
+| **`play()`**  | Play the animation from the current frame.                     |
+| **`pause()`** | Freeze the animation at the current frame.                     |
+| **`stop()`**  | Reset the animation to the first frame, restoring the entity’s position/rotation/scale to its initial state. |
 
-    // Reset the current frame of the animation to the first frame, meaning the
-    // entity's position/rotation/scale are set to the state of the first recorded frame.
-    stop(): void  
-}
-```
+!!! Warning Do not call `play()`, `pause()`, or `stop()` in `preStart()` or `start()`
+    It does not always work. Use **Play on Start** instead.  
 
 !!! Warning You cannot set position/rotation/scale on an AnimatedEntity with a recorded animation
     To move/rotate/scale an AnimatedEntity with recorded animations in a script, give that AnimatedEntity a parent (i.e. a Group Entity or Empty Object), set the parent's Motion to Animated. Then you can set position/rotation/scale on the parent in a script.
