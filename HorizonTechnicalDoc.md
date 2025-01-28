@@ -832,33 +832,36 @@ Note that `as()` returns the same entity back, preserving equality. Thus after t
 
 ### Animated Entities
 
-When an entity's **Motion** is set to **Animated**, its properties, such as color and position, can be modified at runtime using scripts.
+An **`AnimatedEntity`** is an entity whose **Motion** is set to **Animated** with an optional hand-recorded animation that can be played, paused, and stopped. 
 
-Additionally, you can manually record animations for an entity's position, rotation, and scale without scripting. To do this, set Motion to Animated, press **Record**, adjust the entity’s position, rotation, or scale, then press Stop. Press **Play** to preview the recorded animation.
+Animated Entity has these properties in the properties panel,
 
-Animations recorded by hand can be controlled in scripts,
-```ts
-class AnimatedEntity extends Entity {
-    // Play the animation from the current frame.
-    play(): void
+* **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
 
-    // Freeze the animation at the current frame.
-    pause(): void
+* **Play on Start** - To play/stop an animation on the first frame on world start, enable/disable **Play on Start**.
 
-    // Reset the current frame of the animation to the first frame, meaning the
-    // entity's position/rotation/scale are set to the state of the first recorded frame.
-    stop(): void
-}
-```
+* **Loop** - Controls whether an animation loops after it finishes playing.
+    - **Never** - After an animation finishes playing, do nothing.
+    - **Continously** - After an animation finishes playing, replay the animation from the first frame.
+    - **Back and Forth** - After an animation finishes playing, replay the animation in the opposite direction, starting from the current frame.
 
-!!! Warning Animated Entities with recorded animations can only be moved as children of a group
-    To set positions of an AnimatedEntity with recorded animations, set the AnimatedEntity as the child of a Motion=Animated Group Entity or  Empty Object, and modify the parent in scripts.
+* **Speed** - Playback speed of the animation. Defaults to 1.
 
-!!! Note Play on Start
-    To play an animation from the first frame on world start, toggle on **Play on Start**. Note when Play on Start is toggled off, calling `play()` in `start()` may not work.
+Use the `AnimatedEntity` class to control recorded animations.
+| **Method**     | **Description** |
+|---------------|----------------------------------------------------------------|
+| **`play()`**  | Play the animation from the current frame.                     |
+| **`pause()`** | Freeze the animation at the current frame.                     |
+| **`stop()`**  | Reset the animation to the first frame, restoring the entity’s position/rotation/scale to its initial state. |
 
-!!! Note AnimatedEntities can be nested
-    Recorded animations can be nested within a hierarchy because an Animated Entity records its changes relative to its parent. This means you can animate a bee to fly around one spot, set the bee as a child of a flower, then hand-animate the flower and have the bee follow.
+!!! Warning Do not call `play()`, `pause()`, or `stop()` in `preStart()` or `start()`
+    It does not always work. Use **Play on Start** instead.  
+
+!!! Warning You cannot set position/rotation/scale on an AnimatedEntity with a recorded animation
+    To move/rotate/scale an AnimatedEntity with recorded animations in a script, give that AnimatedEntity a parent (i.e. a Group Entity or Empty Object), set the parent's Motion to Animated. Then you can set position/rotation/scale on the parent in a script.
+
+!!! Hint Recorded animations can be nested in a hierarchy
+    Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
 
 ### Interactive Entities
 
