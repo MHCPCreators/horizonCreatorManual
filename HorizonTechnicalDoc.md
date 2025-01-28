@@ -261,12 +261,17 @@
     3. [Player Controls](#player-controls)
     4. [Focused Interaction](#focused-interaction)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-5)
-    2. [Quests](#quests)
-    3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
-19. [NPCs](#npcs)
-20. [Spawning](#spawning)
+    1. [Overview](#overview-4)
+    2. [Leaderboards](#leaderboards)
+            1. [Limitations](#limitations-1)
+            1. [Creation](#creation)
+            2. [Modifying the Leaderboard](#modifying-the-leaderboard)
+            3. [Using the Gizmo](#using-the-gizmo)
+            4. [APIs](#apis)
+    3. [Quests](#quests)
+    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+    5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
     3. [Advanced Spawning](#advanced-spawning)
@@ -4949,9 +4954,117 @@ Grabbable and Attachable
 # Persistence
 
 ## Overview
+Used to store information that persist beyond the duration of a session, or if a player leaves and returns to the same instance. The persistent data categories are:
+1. Leaderboards
+1. Quests
+1. In-World Purchases
+1. Player Persistent Variables
 
 - Cloning a world
 - World persistence does not exists
+Currently, world persistent data is not available; the player that owns the data must be present to be able to retrieve their information. The [Leaderboards](#leaderboards) is an exception to this rule (see its chapter for more info).
+
+## Leaderboards
+
+Leaderboards are used to track scores and compare/compete against friends and other visitors asynchronously. Are tied to a gizmo that displays player names and ranked/ordered values in ascending or descending order. The leaderboard data can only be set, it can't be retrieved.
+
+The leaderboard data is the only type of persistent storage that captures and displays the player information even when they have left the the world or if the session has ended. This data is also updated across sessions when a world has multiple concurrent instance open at the same time. For these reasons, the leaderboards are often used to gain insight about how the experience is being used
+
+!!! info The Leaderboards are often used as a mechanism to gain insight about the world experience. Common examples are tracking how often players enter an area, or how frequently the visitors interact with elements in the world.
+
+Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard tracking and to delete previously stored values. Players can find this option in the in-app menu, General tab, "Leaderboard participation" and "Leaderboard data".
+
+
+#### Limitations
+
+| Data Type | Intake Data Type | Display Limitations |
+|---|---|---|
+| *Raw Value* | Integers | Int values, from -2,147,483,648 to 2,147,483,647 (min value for the overflow) |
+| *Time in Secs* | Integers | <mark>TODO</mark> Time data range |
+
+!!! warning Leaderboards do not have limits for the intake values, but the information will be truncated according to the Display Limitations.
+
+#### Creation
+There is a limit of 10 leaderboards per world. To create it using the Desktop Editor:
+1. Access the Systems menu and select the Leaderboards option
+1. Click on "Create Leaderboard" indicated with the + symbol
+1. Add a Name, preferably without spaces. This is the leaderboard ID that will be used in the scripting
+1. Select the display order: Descending or Ascending
+1. Indicate how frequently the leaderboard must be reset
+
+| Parameter | Cutoff Time |
+|---|---|
+| *Never* | Data persist, and doesn't reset |
+| *Daily* | each day at 12:00 AM PST |
+| *Weekly* | Mondays at 12:00 AM PST |
+| *Monthly* | First day of the calendar month at 12:00 AM PST |
+6. In case of selecting a reset frequency, the "Reset persistent variable" toggle will be activated. This is for the scenarios when a player persistent variable is used to track the current value of a leaderboard.
+
+<mark>TODO</mark> I didn't validate the reset parameters, I copied those descriptions from the desktop editor
+
+#### Modifying the Leaderboard
+After creating the leaderboard, its name will appear under the same creation menu of the Desktop Editor. If more than one leaderbard is available, they can be sorted by clicking on the "Sort" icon next to the + symbol. Hovering over the leaderboard name will enable the following actions:
+1. Edit, indicated by the pencil icon: All leaderboard attributes are editable.
+1. Delete, indicated by the trash can icon: It removes its data storage from the world.
+
+!!! warning Exercise caution when changing the name id or deleting the leaderboard: scripts that are referencing this leaderboard will have to be updated, otherwise it will cause compiling errors.
+
+#### Using the Gizmo
+The Leaderboard gizmo can be found in the Destop Editor under the Build Menu, Gizmos option. Search for the "World Leaderboard" option, and drag it into the world scene. Its properties are:
+
+- Leaderboard: a drop down to select what leaderboard data to display on the gizmo.
+- Display Title: front facing header. This doesn't have any relevance from the scripting perspective.
+- \# of Entries Per Page: controls how many records can be displayed at the same time (between 1 and 10).
+- UI Anchor Style: selecting `Static` (default) will display the show the gizmo in preview mode without any dynamic transformations. `Billboard` will make the gizmo rotate to intersect the POV of the observer.
+- Panel UI Mode: this can be set to `Light Mode` (white background) or `Dark Mode` (black background).
+- Entry Display Mode: `Raw Value` will show the score as an integer; `Time in Secs` will display the score in the `h:m:s` format.
+
+
+#### APIs
+The Leaderboard doesn't have a dedicated type. It's values can be updated invocating the World.leaderboards.setScoreForPlayer API.
+
+```ts
+/**
+ * Sets the leaderboard score for a player.
+ * @param leaderboardName - The name of the leader board.
+ * @param player - The player for whom the score is updated.
+ * @param score - The new score.
+ * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
+ */
+setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
+```
+
+By default, the leaderboard retains the value that is higher, when the display order is Descending; or the lowest value reported for a player, when the display order is Ascending. However, when the override parameter is set to true, any new score will be retained as the value to be displayed in the leaderboard gizmo.
+
+Theoretical scenarios:
+
+| Leaderboard Display Order | New Value Is | Override Parameter | Final Leaderboard Value |
+|---------------------------|--------------|--------------------|-------------------------|
+| Descending                | Lower        | False              | No change               |
+| Descending                | Lower        | True               | New value               |
+| Ascending                 | Higher       | False              | No change               |
+| Ascending                 | Higher       | True               | New value               |
+
+A few examples:
+
+| Leaderboard Display Order | Current Value | Incoming Score | Override Parameter | New Leaderboard Value |
+|---------------------------|---------------|----------------|--------------------|-----------------------|
+| Descending                | 5             | 4              | False              | 5                     |
+| Descending                | 5             | 4              | True               | 4                     |
+| Ascending                 | 5             | 6              | False              | 5                     |
+| Ascending                 | 5             | 6              | True               | 6                     |
+
+For all other configuration combinations, the new value will be displayed.
+
+
+
+
+
+
+
+
+
+
 
 ## Quests
 
