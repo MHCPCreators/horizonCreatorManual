@@ -813,9 +813,9 @@ A **Dynamic Entity** is an entity whose **Motion** is *not* set to **None**. Its
 
 ### Animated Entities
 
-An **`AnimatedEntity`** is an entity with an optional hand-recorded animation that can be played, paused, and stopped. 
+An **`AnimatedEntity`** is an entity whose **Motion** is set to **Animated** with an optional hand-recorded animation that can be played, paused, and stopped. 
 
-An Animated Entity has these properties in the properties panel,
+Animated Entity has these properties in the properties panel,
 
 * **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
 
