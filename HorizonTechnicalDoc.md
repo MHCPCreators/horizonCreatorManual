@@ -843,7 +843,7 @@ Use the `AnimatedEntity` class to control recorded animations.
     To move/rotate/scale an AnimatedEntity with recorded animations in a script, give that AnimatedEntity a parent (i.e. a Group Entity or Empty Object), set the parent's Motion to Animated. Then you can set position/rotation/scale on the parent in a script.
 
 !!! Hint Recorded animations can be nested in a hierachy
-    Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
+    Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
     
 ### Interactive Entities
 
