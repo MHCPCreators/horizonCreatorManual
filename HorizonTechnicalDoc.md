@@ -28,7 +28,7 @@
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
         2. [Empty Object and Groups](#empty-object-and-groups)
-    2. [Coordinates System](#coordinates-system)
+    2. [Coordinate System](#coordinate-system)
     3. [Transforms](#transforms)
         1. [Position](#position)
         2. [Rotation](#rotation)
@@ -37,6 +37,7 @@
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
+        8. [Transform Relative To](#transform-relative-to)
 5. [Entities](#entities)
     1. [Entity Types](#entity-types)
         1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
@@ -45,47 +46,48 @@
         4. [Entity as() method](#entity-as-method)
         5. [Animated Entities](#animated-entities)
         6. [Interactive Entities](#interactive-entities)
-    2. [Common Properties](#common-properties)
+    2. [Entity Properties](#entity-properties)
         1. [Simulated](#simulated)
         2. [Tags](#tags)
-        3. [Custom UI Gizmo](#custom-ui-gizmo)
-        4. [Debug Console Gizmo](#debug-console-gizmo)
-        5. [Custom UI Gizmo](#custom-ui-gizmo-1)
-        6. [Door Gizmo](#door-gizmo)
+        3. [Entity Visibility](#entity-visibility)
+    3. [Scene Graph Elements](#scene-graph-elements)
+        1. [Custom UI Gizmo](#custom-ui-gizmo)
+        2. [Debug Console Gizmo](#debug-console-gizmo)
+        3. [Door Gizmo](#door-gizmo)
                 1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
-        7. [NPC Gizmo](#npc-gizmo)
-        8. [In-World Item Gizmo](#in-world-item-gizmo)
-        9. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        4. [NPC Gizmo](#npc-gizmo)
+        5. [In-World Item Gizmo](#in-world-item-gizmo)
+        6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        10. [Environment Gizmo](#environment-gizmo)
+        7. [Environment Gizmo](#environment-gizmo)
                 1. [Purpose](#purpose-2)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
-        11. [ParticleFx Gizmo](#particlefx-gizmo)
+        8. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-1)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
-        12. [TrailFx Gizmo](#trailfx-gizmo)
-        13. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        14. [Quests Gizmo](#quests-gizmo)
-        15. [Raycast Gizmo](#raycast-gizmo)
-        16. [Script Gizmo](#script-gizmo)
-        17. [Snap Destination Gizmo](#snap-destination-gizmo)
-        18. [Sound Gizmo](#sound-gizmo)
-        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        20. [Spawn Point Gizmo](#spawn-point-gizmo)
-        21. [Text Gizmo](#text-gizmo)
+        9. [TrailFx Gizmo](#trailfx-gizmo)
+        10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        11. [Quests Gizmo](#quests-gizmo)
+        12. [Raycast Gizmo](#raycast-gizmo)
+        13. [Script Gizmo](#script-gizmo)
+        14. [Snap Destination Gizmo](#snap-destination-gizmo)
+        15. [Sound Gizmo](#sound-gizmo)
+        16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        17. [Spawn Point Gizmo](#spawn-point-gizmo)
+        18. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
-            2. [Markup](#markup)
-                1. [Tags](#tags-1)
-                2. [Parameters](#parameters)
-            3. [Supported Tags](#supported-tags)
-        22. [Trigger Gizmo](#trigger-gizmo)
-        23. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        24. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+            2. [Text Gizmo Markup](#text-gizmo-markup)
+            3. [Text Gizmo Tags](#text-gizmo-tags)
+                1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
+            4. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
+        19. [Trigger Gizmo](#trigger-gizmo)
+        20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
     1. [Asset Types](#asset-types)
         1. [Mesh Asset](#mesh-asset)
@@ -97,8 +99,9 @@
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
-        3. [Textures](#textures)
-        4. [Materials](#materials)
+        3. [Tinting](#tinting)
+        4. [Textures](#textures)
+        5. [Materials](#materials)
     3. [Performance](#performance)
         1. [Draw Calls](#draw-calls)
         2. [Vertices, Polygons, and Entities](#vertices-polygons-and-entities)
@@ -157,7 +160,8 @@
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
-    1. [Collisions and Triggers](#collisions-and-triggers)
+    1. [Colliders](#colliders)
+    2. [Trigger Entry and Exit](#trigger-entry-and-exit)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
@@ -225,9 +229,11 @@
     5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
-    2. [Spawn Controller](#spawn-controller)
-    3. [Sublevels](#sublevels)
-19. [Custom UI](#custom-ui)
+    2. [Despawning](#despawning)
+    3. [Advanced Controller](#advanced-controller)
+    4. [Sublevels](#sublevels)
+19. [Tooltips and Popups](#tooltips-and-popups)
+20. [Custom UI](#custom-ui)
     1. [Bindings](#bindings)
     2. [View Types](#view-types)
         1. [View](#view)
@@ -236,18 +242,18 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     3. [Animated Bindings](#animated-bindings)
-20. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-21. [Performance Optimization](#performance-optimization)
-    1. [Physics](#physics-1)
+22. [Performance Optimization](#performance-optimization)
+    1. [Physics Performance](#physics-performance)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-22. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-23. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-24. [Glossary](#glossary)
+23. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+25. [Glossary](#glossary)
 
 <!-- /code_chunk_output -->
 
@@ -486,7 +492,7 @@ Empty Objects and Groups behave identically in regards to collisions and trigger
 
 <mark>TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".</mark>
 
-## Coordinates System
+## Coordinate System
 
 **Axes**. Following standard convention, the editor uses *red* for the *<span style="color:red">x-axis</span>*, *green* for the *<span style="color:green">y-axis</span>*, and *blue* for the *<span style="color:blue">z-axis</span>* when displaying "manipulation handles" to move, rotate, or scale an entity.
 
@@ -535,7 +541,7 @@ digraph {
 
 ## Transforms
 
-Entities have three transform properties: position, rotation, and scale. You can use the properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modifying the values using scripting.
+Entities have three transform properties: [position](#position), [rotation](#rotation), and [scale](#scale). You can use the properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modify the values using scripting.
 
 In the desktop editor you can switch quickly between transform tools via the keyboard.
 | Manipulation Tool  |  Keyboard Shortcut |
@@ -543,6 +549,8 @@ In the desktop editor you can switch quickly between transform tools via the key
 | Move | W |
 | Rotate | E |
 | Scale | R |
+
+Entities can be transformed globally and [locally](#local-transforms), they have [pivot points](#pivot-points), and can be [transformed relative to other entities or players](#transform-relative-to).
 
 !!! note No Arbitrary Matrix Transforms
     Horizon does not currently allow matrix transforms. You can achieve some skew effects by rotating an entity inside a non-uniformly scaled one. Arbitrary matrix transforms are not exposed to the developer.
@@ -731,6 +739,19 @@ The transformation origin point of an entity is called its **pivot point**. It r
 !!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
     The desktop editor lets you choose to put the "manipulator handlers" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
 
+### Transform Relative To
+
+<mark>TODO</mark>
+
+```ts
+/// Entity
+lookAt(target: Vec3, up?: Vec3): void;
+moveRelativeTo(target: Entity, relativePosition: Vec3, space?: Space): void;
+moveRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativePosition: Vec3, space?: Space): void;
+rotateRelativeTo(target: Entity, relativeRotation: Quaternion, space?: Space): void;
+rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRotation: Quaternion, space?: Space): void;
+```
+
 # Entities
 
 Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
@@ -757,7 +778,9 @@ All entities in Horizon are either **static** or **dynamic**.
 
 **Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-types) An entity **is static when `Motion` is set to `None` in the property panel**.
 
-**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the property panel**.
+**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the property panel**
+  * When `Motion` is set to `Animated` you can [record a "hand animation"](#animated-entities) on the entity.
+  * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-entities), [physics-simulated](#physicalentity-class), or both.
 
 !!! note Parents don't affect static vs dynamic.
     A static entity can have a dyanmic parent  and vice versa.
@@ -765,6 +788,8 @@ All entities in Horizon are either **static** or **dynamic**.
 ### Intrinsic Entity Types
 
 The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are access simply as `Entity` instances. Every entity only has **one instrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
+
+The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
 <mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider</mark>
 
@@ -799,6 +824,8 @@ The table below lists all intrinsic types, which are subclasses of `Entity`. Not
 
  A [dynamic entity](#static-vs-dynamic-entities) can have **multiple behavior types** which can be accessed via the [entity.as()](#entity-as-method) method.
 
+ The behavior type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
+
 | Behavior Type  | Description | TypeScript Class | How to Enable |
 |---|---|---|---|
 | [Animated (Recording)](#animated-entities) | An entity that has a recording on it. | `AnimatedEntity` | Set `Motion` to `Animated`. Use the `Record` button in the property panel.
@@ -832,42 +859,61 @@ Note that `as()` returns the same entity back, preserving equality. Thus after t
 
 ### Animated Entities
 
-An **`AnimatedEntity`** is an entity whose **Motion** is set to **Animated** with an optional hand-recorded animation that can be played, paused, and stopped. 
+An **`AnimatedEntity`** is an entity whose **Motion** is set to **Animated** and has a "hand-recorded animation" (created with the "Record" button) which can be played, paused, and stopped.
 
-Animated Entity has these properties in the properties panel,
+Animated Entity has these properties in the properties panel:
 
 * **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
 
 * **Play on Start** - To play/stop an animation on the first frame on world start, enable/disable **Play on Start**.
 
-* **Loop** - Controls whether an animation loops after it finishes playing.
+* **Loop** - Controls whether an animation loops again (forever) after it finishes playing.
     - **Never** - After an animation finishes playing, do nothing.
-    - **Continously** - After an animation finishes playing, replay the animation from the first frame.
-    - **Back and Forth** - After an animation finishes playing, replay the animation in the opposite direction, starting from the current frame.
+    - **Continously** - After an animation finishes playing, replay the animation again from the first frame.
+    - **Back and Forth** - After an animation finishes playing, replay the animation in the opposite direction, starting from the current frame. When that animation finishes, play it again in the forward direction. Repeat alternating forward and backward playback.
 
-* **Speed** - Playback speed of the animation. Defaults to 1.
+* **Speed** - Playback speed of the animation. Defaults to 1. A 0.5 speed would take twice as long to play back.
 
 Use the `AnimatedEntity` class to control recorded animations.
 | **Method**     | **Description** |
 |---------------|----------------------------------------------------------------|
-| **`play()`**  | Play the animation from the current frame.                     |
-| **`pause()`** | Freeze the animation at the current frame.                     |
+| **`play()`**  | Play the animation from the current frame, or from the beginning if the animation last completed. |
+| **`pause()`** | Pause the animation at the current frame. Playing again will resume, starting at this frame. |
 | **`stop()`**  | Reset the animation to the first frame, restoring the entity’s position/rotation/scale to its initial state. |
 
-!!! Warning Do not call `play()`, `pause()`, or `stop()` in `preStart()` or `start()`
-    It does not always work. Use **Play on Start** instead.  
 
-!!! Warning You cannot set position/rotation/scale on an AnimatedEntity with a recorded animation
-    To move/rotate/scale an AnimatedEntity with recorded animations in a script, give that AnimatedEntity a parent (i.e. a Group Entity or Empty Object), set the parent's Motion to Animated. Then you can set position/rotation/scale on the parent in a script.
 
-!!! Hint Recorded animations can be nested in a hierarchy
-    Since Animated Entity records local position/rotation/scale, entities with recorded animations can be nested within a hierarchy. This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
+!!! bug `AnimatedEntity` is not yet "active" `preStart()` and `start()`.
+    Calling `play()` in `preStart()` or `start()` doesn't always work. If you always want to play at start, use the **Play on Start** setting. If you want to do it conditionally, then use a small timeout to delay it.
+
+!!! Warning You cannot directly transform an `AnimatedEntity` with a recorded animation.
+    An animated entity ignores any calls to `set()` its position, rotation, or scale.
+
+    An `AnimatedEntity` performs its recorded animation [locally](#local-transforms) when it has a [parent](#ancestors). Thus you can essentially move, rotate, or scale an `AnimatedEntity` by putting it in a [group or empty object](#empty-object-and-groups) and transforming that parent.
+
+!!! Hint Recorded animations can be nested.
+    Since an `AnimatedEntity` performs its recorded animation [locally](#local-transforms), entities with recorded animations can be children of other `AnimatedEntity`s.
+
+    This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
 
 ### Interactive Entities
 
-<mark>TODO</mark> `interactionMode` in TS
+When a [dynamic entity](#static-vs-dynamic-entities)'s `Motion` is set to `Interactive` in the properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
-When an entity's `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
+An interactive entity's [behavior types](#behavior-entity-types) can be changed at runtime
+```ts
+entity.interactionMode.set(EntityInteractionMode.Grabbable)
+```
+
+with any of the following options:
+
+| Value  | Behavior |
+|---|---|
+| `EntityInteractionMode.Grabbable`  | The entity is a [GrabbableEntity](#grabbing-entities) |
+| `EntityInteractionMode.Physics`  | The entity is a [PhysicalEntity](#physicalentity-class) |
+| `EntityInteractionMode.Both`  | The entity is both a [GrabbableEntity](#grabbing-entities) and a [PhysicalEntity](#physicalentity-class) |
+| `EntityInteractionMode.Invalid`  | The entity is neither grabbable nor interactive. It remains [dynamic](#static-vs-dynamic-entities). |
+
 
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
     If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
@@ -878,17 +924,42 @@ When an entity's `Motion` is set to `Interactive` in the Properties panel it can
 
     If there are any ancestors other than Mesh Entities, Empty Objects, and Group Entities then it is undefined whether or not interaction is disabled.
 
-<mark>TODO - GrabbableEntity, PhysicalEntity classes (which should be mentioned in grabbing and physics sections too)</mark>
+## Entity Properties
 
-## Common Properties
+All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [trasnforming relative to an entity or player](#transform-relative-to), and checking if an entity [exists](#entity-exists).
 
-- Motion and Interaction (Animated, Grabbable, Physics, Both)
-- Parents and Children
-- Visible and Collidable
-    - These 2 toggle independently
-- Transform (position, rotation, scale, forward, up, right)
+| **[Scene Graph](#scene-graph)** | Property Type | Description |
+|---|---|---|
+| id | `bigint` | A unique value representing this entity in this instance. `id`s are not reused (within an instance). |
+| name | `ReadableHorizonProperty`<br/>`<string>` | The name the Entity has in property panel. |
+| [parent](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity \| null>` | The entity's parent (if there is one). |
+| [children](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity[]>` | The entity's children. |
+| [tags](#tags) | `HorizonSetProperty`<br/>`<string>` | The array of tags on the entity. |
+| **[Transform](#transforms)** |
+| [position](#position) | `HorizonProperty`<br/>`<Vec3>` | The entity's *global* position. |
+| [rotation](#rotation) | `HorizonProperty`<br/>`<Quaternion>` | The entity's *global* rotation. |
+| [scale](#scale) | `HorizonProperty`<br/>`<Vec3>` | The entity's *global* scale. |
+| [transform](#transform-property) | `Transform` | The entity's transform instance (containing properties for [local](#local-transforms) and global values). |
+| **[Local Coordinates](#local-transforms)** |
+| forward | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive z-axis](#local-transforms). |
+| up | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive y-axis](#local-transforms). |
+| right | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive x-axis](#local-transforms). |
+| **Rendering** |
+| color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-asset) use [tinting](#tinting). |
+| visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
+| **[Behavior](#interactive-entities)** |
+| [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collision-detection), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
+| [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
+| [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics phase](#physics-phase) of the frame). |
+| **Ownership** |
+| [owner](#ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
+
+**<a name="entity-exists">exists() method</a>**: When an entity is [depawned](#despawning) it's `Entity` instances will then have `exists()` return `false`. Additionally, in Horizon's code block system it is possible to create an `Entity` variable, never set it to anything, and then send it in an event. TypeScript will also see this as an `Entity` instance with `exists()` returning `false`. Non-existent entities return "default values" (e.g. [position](#position) returns the [origin](#coordinate-system)); you should not `set()` any properties on one.
 
 ### Simulated
+
+<mark>TODO</mark>
+
 When false the only way to move and rotated is `position.set` and `rotation.set`. The physics system is disabled, grabbing is disabled (any avatar interactions), etc.
 
 When simulated is set to false, an attached stays detached.
@@ -897,12 +968,40 @@ When simulated is set to false, an attached stays detached.
 
 ### Tags
 
+<mark>TODO</mark>
+
 Getting entities with tags.
+
+```ts
+enum EntityTagMatchOperation {
+  HasAnyExact = 0,
+  HasAllExact = 1
+}
+
+// World
+getEntitiesWithTags(tags: string[], matchOperation?: EntityTagMatchOperation): Entity[];
+
+// Entity
+tags: HorizonSetProperty<string>;
+```
 
 Tag uses:
   * Triggers
   * Collisions
 
+### Entity Visibility
+
+<mark>TODO</mark>
+```ts
+  visible: HorizonProperty<boolean>;
+  setVisibilityForPlayers(players: Array<Player>, mode: PlayerVisibilityMode): void;
+  resetVisibilityForPlayers(): void;
+  isVisibleToPlayer(player: Player): boolean;
+  ```
+
+## Scene Graph Elements
+
+<mark>TODO</mark>Gizmo vs entity vs collider etc
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
@@ -911,9 +1010,6 @@ See details in [Custom UI](#custom-ui)
 
 <mark>TODO</mark>
 Visibility: control which [visitation mode](#visitation-modes-edit-play-and-publish) the gizmo is visible in.
-
-### Custom UI Gizmo
-See details in [Custom UI](#custom-ui)
 
 ### Door Gizmo
 
@@ -1246,7 +1342,7 @@ class SpawnPointGizmo extends Entity {
 
 ### Text Gizmo
 
-The text gizmo is a 2D surface on which text gan be rendered. It supports a wide variety of [markup](#markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
+The text gizmo is a 2D surface on which text gan be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
 
 The initial text of a text gizmo can be set in the Property panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
 
@@ -1266,11 +1362,11 @@ The total length of the text, including all markup, cannot be longer than 1000 c
 
 The text gizmo only supports the English characters (essentially whatever can be typed on an English keyboard without any modifier keys). This means that the text gizmo is not capable of displaying any of the following: á ê ï o ū ç ñ ¿ 月 😂, for example.
 
-#### Markup
+#### Text Gizmo Markup
 
 Horizon exposes Unity's TextMeshPro markup. The rest of this guide is a summary of [Unity's TextMeshPro documentation](https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html).
 
-##### Tags
+#### Text Gizmo Tags
 
 Text markup is able to modify the contents (e.g. making all letters uppercase), styling (such as size or color), and layout (such as alignment, rotation, and spacing) of the text. Markup is specified using tags, which are a word surrounded in angle brackets (e.g. `<b>`). Once a tag is specified, all text that comes after it will have that attribute applied, until that tag "closes" by specifying the tag with a slash before the name (e.g. `</b>`).
 
@@ -1290,7 +1386,7 @@ Text markup is able to modify the contents (e.g. making all letters uppercase), 
 
     > this is **bold text**
 
-##### Parameters
+##### Text Gizmo Tag Parameters
 
 Some tags accept a parameter, which is specified after the tag name and an equals sign.
 
@@ -1301,7 +1397,7 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
     > This is <span style="font-size:75%">small</span>
 
-#### Supported Tags
+#### Supported Text Gizmo Tags
 
 ![[ markup/TextGizmoTable.html ]]
 
@@ -1388,6 +1484,8 @@ Assets, imports, templates, updates.
 ### Errors
 
 List and explanation of all possible errors
+
+### Tinting
 
 ### Textures
 
@@ -1705,6 +1803,8 @@ a few notes but link to the events section
 
 ### Converting Between Components and Entities
 
+`getComponents<T extends Component<unknown, SerializableState> = Component>(type?: (new () => T) | null): T[];`
+
 ### Subclasses
 
 ## Async (Timers)
@@ -1903,7 +2003,9 @@ What happens if two scripts are setting an entity's position at the "same time"?
 
 # Collision Detection
 
-## Collisions and Triggers
+## Colliders
+
+## Trigger Entry and Exit
 
 - Colliding with dynamic vs static.
 - Colliding with player vs entities.
@@ -2842,7 +2944,9 @@ Saved Asset will receive an ID that is used for spawning.
     spawnAsset(asset: Asset, position: Vec3, rotation?: Quaternion, scale?: Vec3): Promise<Entity[]>;
 ```
 
-## Spawn Controller
+## Despawning
+
+## Advanced Controller
 ```ts
 export declare class SpawnControllerBase {
     /**
@@ -2967,6 +3071,9 @@ export declare class SublevelEntity extends Entity {
     unload(): Promise<void>;
 }
 ```
+
+# Tooltips and Popups
+
 # Custom UI
 
 Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
@@ -3007,7 +3114,7 @@ Limits of type, amount, and frequency.
 
 # Performance Optimization
 
-## Physics
+## Physics Performance
 
 Colliders, triggers,
 
