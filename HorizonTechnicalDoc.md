@@ -53,11 +53,17 @@
     3. [Scene Graph Elements](#scene-graph-elements)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
         2. [Debug Console Gizmo](#debug-console-gizmo)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties)
+            3. [Typescript API](#typescript-api)
         3. [Door Gizmo](#door-gizmo)
-                1. [Purpose](#purpose)
+                1. [Overview](#overview-1)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
         4. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Overview](#overview-1)
@@ -67,6 +73,10 @@
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
+        7. [Environment Gizmo](#environment-gizmo)
+                1. [Purpose](#purpose-2)
+                1. [Manual Properties](#manual-properties-3)
+                2. [Typescript API](#typescript-api-3)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
@@ -1008,36 +1018,69 @@ See details in [Custom UI](#custom-ui)
 
 ### Debug Console Gizmo
 
-<mark>TODO</mark>
-Visibility: control which [visitation mode](#visitation-modes-edit-play-and-publish) the gizmo is visible in.
+#### Overview
+
+Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-play-and-publish).
+
+<mark>TODO</mark> Determine which visiblitiy settings apply to Owner, Editor, or Tester
+
+#### Manual Properties
+ - Visiblity
+    - Edit Mode Only
+    - Edit and Preview Mode
+    - In Published World
+
+#### Typescript API
+ - None
 
 ### Door Gizmo
 
-##### Purpose
-Showcase and allow players to travel to selected worlds.
+##### Overview
+Showcase and allow players to travel to selected public worlds or your private worlds. 
 
 #####  Manual Properties
-- Change (door)
+- Change
+    - (selected door)
 - Visible
+    - Toggle(ON/OFF)
 
 ##### Typescript API
 - None
 
-!!! Note Notes
-    - Can select any public world.
-    - Cannot be transformed programatically, but can manually. Give it a parent (such as a group), and transform the parent instead, if you want to transform it. Same for the visible property.
-    - Can be grouped to inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+!!! Note Cannot be transformed by script.
 
-!!! Warning
-    - Costly to performance if overused due to expensive VFXs
-    - You can not change or stop the default door animation or sound.
+<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
+
+!!! Note Can inherit group entity properties.
+    If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+
+!!! Warning Costly to performance if overused due to expensive VFXs
+
+!!! Warning Can not change or stop the door animation or sound.
 
 !!! Bug Known Issues
-    - None
+    - <mark>TODO</mark> list known issues or delete
 
 ### NPC Gizmo
 
-<mark>TODO</mark>
+#### Overview
+Spawns an NPC Avatar (bot).
+
+#### Manual Properties
+- Character Name
+    - Text
+- Spawn On Start
+    - ON/OFF Toggle
+- Appearance
+    - Edit Avatar (button)
+    - Refresh (button)
+
+!!!WARNING Costly to performance. Considered the same cost as a real player.
+
+#### Typescript API
+
+<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/ 
+    
 
 ### In-World Item Gizmo
 
@@ -1082,9 +1125,7 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
     - <mark>TODO</mark> list known issues or delete
 ### Environment Gizmo
 
-<mark>TODO</mark> only one allowed active at a time; active not scriptable; spawning overwrites all values (VOIP=Env will pass back to last env gizmo)
-
-##### Purpose
+##### Overview
 Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
 #####  Manual Properties
@@ -1125,7 +1166,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 - Show Grid
   - ON/OFF Toggle
 - VOIP Settings (link to [player audio](#player-audio))
-  - Environment
+  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
   - Default
   - Nearby
   - Extended
@@ -1135,15 +1176,14 @@ Allows creators to make changes to the properties  of their world like skydome, 
 ##### Typescript API
 - None
 
-!!! Note Notes
-    - Multiple allowed in world. Only one can be active at a time.
-    - You can use asset spawing to change the enviroment dynamically.
+!!! Note Multiple Environment Gizmos Allowed
+    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the enviroment dynamically.
 
-!!! Warning
-    - When spawning multiple environment gizmos, the original environment gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original environment gizmo when needed.
+!!! Warning Spawning Multiple Environment Gizmos
+    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
 !!! Bug Known Issues
-    - None
+    - <mark>TODO</mark> list known issues or delete
 
 ### ParticleFx Gizmo
 #### Overview
