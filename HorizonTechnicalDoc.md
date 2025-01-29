@@ -53,6 +53,9 @@
     3. [Scene Graph Elements](#scene-graph-elements)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
         2. [Debug Console Gizmo](#debug-console-gizmo)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties)
+            3. [Typescript API](#typescript-api)
         3. [Door Gizmo](#door-gizmo)
                 1. [Overview](#overview-1)
                 1. [Manual Properties](#manual-properties)
@@ -67,6 +70,10 @@
                 1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
+        7. [Environment Gizmo](#environment-gizmo)
+                1. [Purpose](#purpose-2)
+                1. [Manual Properties](#manual-properties-3)
+                2. [Typescript API](#typescript-api-3)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
@@ -1008,8 +1015,20 @@ See details in [Custom UI](#custom-ui)
 
 ### Debug Console Gizmo
 
-<mark>TODO</mark>
-Visibility: control which [visitation mode](#visitation-modes-edit-play-and-publish) the gizmo is visible in.
+#### Overview
+
+Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-play-and-publish).
+
+<mark>TODO</mark> Determine which visiblitiy settings apply to Owner, Editor, or Tester
+
+#### Manual Properties
+ - Visiblity
+    - Edit Mode Only
+    - Edit and Preview Mode
+    - In Published World
+
+#### Typescript API
+ - None
 
 ### Door Gizmo
 
