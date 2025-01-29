@@ -64,11 +64,11 @@
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
         7. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-2)
+                1. [Overview](#overview-1)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-1)
+            1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
@@ -95,7 +95,7 @@
         3. [Image Asset (Textures)](#image-asset-textures)
         4. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-2)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -166,7 +166,7 @@
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -222,7 +222,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1082,9 +1082,7 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
 
 ### Environment Gizmo
 
-<mark>TODO</mark> only one allowed active at a time; active not scriptable; spawning overwrites all values (VOIP=Env will pass back to last env gizmo)
-
-##### Purpose
+##### Overview
 Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
 #####  Manual Properties
@@ -1125,7 +1123,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 - Show Grid
   - ON/OFF Toggle
 - VOIP Settings (link to [player audio](#player-audio))
-  - Environment
+  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
   - Default
   - Nearby
   - Extended
@@ -1135,15 +1133,14 @@ Allows creators to make changes to the properties  of their world like skydome, 
 ##### Typescript API
 - None
 
-!!! Note Notes
-    - Multiple allowed in world. Only one can be active at a time.
-    - You can use asset spawing to change the enviroment dynamically.
+!!! Note Multiple Environment Gizmos Allowed
+    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the enviroment dynamically.
 
-!!! Warning
-    - When spawning multiple environment gizmos, the original environment gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original environment gizmo when needed.
+!!! Warning Spawning Multiple Environment Gizmos
+    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
 !!! Bug Known Issues
-    - None
+    - <mark>TODO</mark> list known issues or delete
 
 ### ParticleFx Gizmo
 #### Overview
