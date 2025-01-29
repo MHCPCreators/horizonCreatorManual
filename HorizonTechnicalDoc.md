@@ -61,6 +61,9 @@
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
         4. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose)
@@ -1060,7 +1063,24 @@ Showcase and allow players to travel to selected public worlds or your private w
 
 ### NPC Gizmo
 
-<mark>TODO</mark>
+#### Overview
+Spawns an NPC Avatar (bot).
+
+#### Manual Properties
+- Character Name
+    - Text
+- Spawn On Start
+    - ON/OFF Toggle
+- Appearance
+    - Edit Avatar (button)
+    - Refresh (button)
+
+!!!WARNING Costly to performance. Considered the same cost as a real player.
+
+#### Typescript API
+
+<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/ 
+    
 
 ### In-World Item Gizmo
 
