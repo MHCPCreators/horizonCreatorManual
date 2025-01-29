@@ -2377,37 +2377,47 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Entering and Exiting a World
 
-<mark>TODO</mark> finish section
-
 There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
-
-| CodeBlockEvent | Description | Parameters |
-|---|---|---|
-| `OnPlayerEnterWorld`  | ? | `(player : Player)` |
-| `OnPlayerExitWorld`  | Note: player is gone from all-players array by now (unless they are in build mode) | `(player : Player)` |
-
-!!! tip Player-Enter and Player-Exit are sent to all entities.
-
-!!! danger Player-Enter and Player-Exit events are not sent to locally-owned entities.
-
 
 When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
 
+| CodeBlockEvent | Description | Parameters |
+|---|---|---|
+| `OnPlayerEnterWorld`  | Occurs when a player enters the world. The player is in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world, and the player will be gone from the  `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player will stay in the `getPlayers()` array. | `(player : Player)` |
+
+!!! tip Player-Enter and Player-Exit are sent to only server-owned entities.
+
+!!! warning In build mode, OnPlayerEnterWorld can occur twice in a row for one player.
+    In published mode, Player-Enter occurs only once per player. In build mode, a player on the desktop editor triggers Player-Enter twice when entering Preview from a stopped world.  This means that if you're tracking a list of players using the Player-Enter event, add the players to a set or dictionary instead of an array.
+
 ### AFK
 
-<mark>TODO</mark>
+| CodeBlockEvent | Description | Parameters |
+|---|---|---|
+| `OnPlayerEnterAFK`  | Occurs when a player goes AFK. e.g. The player opens the Oculus menu, takes their headset off, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
+| `OnPlayerExitAFK`  | Occurs when a player returns to the world after being AFK. e.g. The player could close the Oculus menu, press their keyboard, etc... | `(player : Player)` |
 
-```ts
-// CodeBlockEvents
-/**
- * The event that is triggered when a player goes AFK (opens the Oculus menu, takes their headset off, etc)
- */
-OnPlayerEnterAFK: CodeBlockEvent<[player: Player]>;
-/**
- * The event that is triggered when a player comes back from being AFK.
- */
-OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
+```mermaid {align="center"}
+flowchart TD
+    notInWorld([Player is not in the world])
+    inWorld([Player is in the world])
+    inWorldAndAFK([Player is AFK in the world])   
+
+    notInWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterWorld</b>[player]</div> --> inWorld
+
+    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+
+    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterAFK</b>[player]</div> --> inWorldAndAFK
+
+    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always trigger)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+
+    inWorldAndAFK -- <div style="background-color:#cbffcd"><b>OnPlayerExitAFK</b>[player]</div> --> inWorld
 ```
+
+!!! tip OnPlayerEnterAFK and OnPlayerExitAFK are sent to only server-owned entities.
+
+!!! Warning If a player kills the app after going AFK, OnPlayerExitWorld is not triggered.
 
 ## Pose (Position and Body Parts)
 
