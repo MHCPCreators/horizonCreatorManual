@@ -1005,13 +1005,65 @@ Tag uses:
 
 ### Entity Visibility
 
+Entities can be rendered ("visible") or not rendered ("invisible"). When an entity is rendered for a specific player we say that it is *visible to that player*. Visibility is controlled in the [world snapshot](#world-snapshot) by setting the **visible** property in the property panel. In scripting, visibility is controlled by:
+
 <mark>TODO</mark>
+
+| Entity Method / Property  |   |
+|---|---|
+| `visible : HorizonProperty<boolean>`  |   |
+
 ```ts
+  export declare enum PlayerVisibilityMode {
+    /**
+     * The entity is visible to the specified players.
+     */
+    VisibleTo = 0,
+    /**
+     * The entity is not visible to the specified players.
+     */
+    HiddenFrom = 1
+}
+
   visible: HorizonProperty<boolean>;
   setVisibilityForPlayers(players: Array<Player>, mode: PlayerVisibilityMode): void;
   resetVisibilityForPlayers(): void;
   isVisibleToPlayer(player: Player): boolean;
   ```
+
+
+Every entity has a `visible` property (a [read-write boolean Horizon Property](#horizon-properties)). Additionally there are settings for per-player visibility.
+
+When `visible` is set to `false`, the entity is invisible to all players, regardless of per-player settings. When `visible` is set to `true`, the entity it is visible to players according to the per-player rules (which default to being visible for everyone).
+
+Changing the `visible` property does not change the visibility rules. When `visible` is changed to `false` the entity becomes invisible to everyone, but the per-player rules are intact and will begin acting again if the entity has `visible` changed to `true`.
+
+!!! note Visibility and Collidability are separate.
+    Making an entity invisible (by setting `visible` to `false` or by using per-player visibility controls) does not impact [collidability](#collidability). Even if an entity is invisible it can still be collided with (if it has an [active collider](#collidability)). If you want an invisible entity to not be a "blocker" then set `collidable` to `false` as well. At this time **there is no per-player collidability**.
+
+!!! example Example
+    Let `entity` be a cube with `visible` set to `true` in the property panel. Let `playerA` and `playerB` be the two [players](#players) in the [instance](#instances).
+
+    ```ts
+    // Initially, both players can see it.
+    entity.visible.set(false) // now no one can see it
+    entity.visible.set(true) // both can see it
+
+    // This makes it so only playerA can see it
+    entity.setVisibilityForPlayers([playerA], PlayerVisibilityMode.VisibleTo)
+
+    entity.visible.set(false) // no one can see it
+    entity.visible.set(true) // only player A can see it
+
+    entity.visible.set(false) // no one can see it
+
+    // This changes the rules, but still no one can see it
+    entity.setVisibilityForPlayers([playerB], PlayerVisibilityMode.VisibleTo)
+
+    entity.visible.set(true) // only player B can see it
+    ```
+
+<mark>TODO</mark>
 
 ## Scene Graph Elements
 
