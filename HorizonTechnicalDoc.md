@@ -57,28 +57,24 @@
             2. [Manual Properties](#manual-properties)
             3. [Typescript API](#typescript-api)
         3. [Door Gizmo](#door-gizmo)
-                1. [Overview](#overview-1)
-                1. [Manual Properties](#manual-properties)
-                2. [Typescript API](#typescript-api)
-        4. [NPC Gizmo](#npc-gizmo)
-            1. [Overview](#overview-1)
-            2. [Manual Properties](#manual-properties-1)
-            3. [Typescript API](#typescript-api-1)
-        5. [In-World Item Gizmo](#in-world-item-gizmo)
-        6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-                1. [Overview](#overview-1)
+                1. [Overview](#overview-2)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        7. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-1)
-                1. [Manual Properties](#manual-properties-2)
-                2. [Typescript API](#typescript-api-2)
-        7. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-2)
+        4. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-3)
+            2. [Manual Properties](#manual-properties-2)
+            3. [Typescript API](#typescript-api-2)
+        5. [In-World Item Gizmo](#in-world-item-gizmo)
+        6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+                1. [Overview](#overview-4)
                 1. [Manual Properties](#manual-properties-3)
                 2. [Typescript API](#typescript-api-3)
+        7. [Environment Gizmo](#environment-gizmo)
+                1. [Overview](#overview-5)
+                1. [Manual Properties](#manual-properties-4)
+                2. [Typescript API](#typescript-api-4)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-2)
+            1. [Overview](#overview-6)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
@@ -101,11 +97,13 @@
 6. [Assets](#assets)
     1. [Asset Types](#asset-types)
         1. [Mesh Asset](#mesh-asset)
-        2. [Text Asset](#text-asset)
-        3. [Image Asset (Textures)](#image-asset-textures)
-        4. [Asset Template](#asset-template)
+            1. [Mesh Asset Style](#mesh-asset-style)
+        2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
+        3. [Texture Asset](#texture-asset)
+        4. [Material Asset](#material-asset)
+        5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-7)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -148,7 +146,8 @@
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    11. [Frame Sequence](#frame-sequence)
+    11. [Disposing Objects](#disposing-objects)
+    12. [Frame Sequence](#frame-sequence)
             1. [PrePhysics Phase](#prephysics-phase)
             1. [Physics Phase](#physics-phase)
             2. [OnUpdate Phase](#onupdate-phase)
@@ -161,12 +160,13 @@
             1. [Async Handling](#async-handling)
             2. [Network Sync](#network-sync)
         4. [Render](#render)
-    12. [Script File Execution](#script-file-execution)
+    13. [Script File Execution](#script-file-execution)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
-        1. [Auto-Transfers](#auto-transfers)
+        1. [Auto Ownerhip Transfers](#auto-ownerhip-transfers)
+        2. [Transfering Data Across Owners](#transfering-data-across-owners)
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
@@ -176,7 +176,7 @@
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-8)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -185,6 +185,7 @@
     7. [Projectiles](#projectiles)
     8. [Applying Forces and Torque](#applying-forces-and-torque)
     9. [Player Physics](#player-physics)
+    10. [Springs](#springs)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -197,6 +198,8 @@
         2. [AFK](#afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
+    5. [Haptics](#haptics)
+    6. [Throwing](#throwing)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -232,7 +235,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-5)
+    1. [Overview](#overview-9)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -240,7 +243,7 @@
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
-    3. [Advanced Controller](#advanced-controller)
+    3. [Advanced Spawning](#advanced-spawning)
     4. [Sublevels](#sublevels)
 19. [Tooltips and Popups](#tooltips-and-popups)
 20. [Custom UI](#custom-ui)
@@ -264,6 +267,7 @@
 23. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
 24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
 25. [Glossary](#glossary)
+    1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
 
 <!-- /code_chunk_output -->
 
@@ -1036,7 +1040,7 @@ Allows creators to monitor the console for messages in Play and Publish [visitat
 ### Door Gizmo
 
 ##### Overview
-Showcase and allow players to travel to selected public worlds or your private worlds. 
+Showcase and allow players to travel to selected public worlds or your private worlds.
 
 #####  Manual Properties
 - Change
@@ -1079,8 +1083,8 @@ Spawns an NPC Avatar (bot).
 
 #### Typescript API
 
-<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/ 
-    
+<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
+
 
 ### In-World Item Gizmo
 
@@ -1494,9 +1498,65 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 
 ### Mesh Asset
 
-### Text Asset
+type SetTextureOptions = {
+    players?: Array<Player>;
+};
 
-### Image Asset (Textures)
+type SetMaterialOptions = {
+    materialSlot?: number | string;
+}
+
+type SetMeshOptions = {
+    updateMaterial?: boolean;
+};
+
+class MeshEntity extends Entity {
+    style: EntityStyle;
+
+    setTexture(texture: TextureAsset, options?: SetTextureOptions): Promise<void>;
+
+    setMesh(mesh: Asset, options: SetMeshOptions): Promise<void>;
+
+    setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
+}
+
+#### Mesh Asset Style
+
+interface EntityStyle {
+    /**
+     * @example
+     * ```
+     * // Augment base color as such:
+     *
+     * outColor.rgb = lerp(inColor.rgb, Luminance(inColor.rgb) * tintColor, tintStrength) * brightness;
+     * ```
+     */
+    /**
+     * Color in the RGB range of 0 - 1; defaults to 1, 1, 1 (no tint color).
+     */
+    tintColor: HorizonProperty<Color>;
+    /**
+     * Tint strength in the range of 0 - 1; where 0 is no tint and 1 is fully tinted; defaults to 0.
+     */
+    tintStrength: HorizonProperty<number>;
+    /**
+     * Brightness in the range of 0 - 100; where 0 is black, 1 is no adjustment, and 100 is very bright; defaults to 1.
+     */
+    brightness: HorizonProperty<number>;
+}
+
+### Data Asset (Text and JSON)
+```ts
+DefaultFetchAsDataOptions:false
+type FetchAsDataOptions = {
+    skipCache: boolean;
+};
+fetchAsData(options?: Partial<FetchAsDataOptions>): Promise<AssetContentData>;
+```
+
+### Texture Asset
+
+### Material Asset
 
 ### Asset Template
 
@@ -1742,7 +1802,7 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 | [World](#world-class) | Information and methods related to the current [instance](#instance). |
 | [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types) available via [entity.as()](#entity-as-method). |
 | [Player](#players) | A [player](#players) in the world ([instance](#instances)), including the "[server player](#server-player)" and [NPC players](#npc-gizmo). |
-| [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#text-asset), [textures](#textures), and ["prefabs"](#asset-template)). |
+| [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#data-asset), [textures](#textures), and ["prefabs"](#asset-template)). |
 | [Vec3](#vec3) | A "3D quantity" which can be used to represent [position](#position), [velocity, acceleration, force, torque](#physics), [scale](#scale), and more. |
 | [Quaternion](#quaternion) | An abstract mathematical object primarily used for representing *rotations*. |
 | [Color](#color) | An RGB Color with each component between 0 and 1. |
@@ -1783,6 +1843,32 @@ Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risk
 - Euler Angles default: YXZ
 
 ## World Class
+
+World
+onUpdate
+onPrePhysicsUpdate
+id
+reset
+getServerPlayer()
+getLocalPlayer()
+getPlayerFromIndex(index: number): Player : null
+getPlayers(): Player[]
+getEntitiesWithTags(tags: string[], matchOperation?: EntityTagMatchOperation): Entity[]
+spawnAsset(asset: Asset, position: Vec3, rotation?: Quaternion, scale?: Vec3): Promise<Entity[]>
+deleteAsset(entity: Entity, fullDelete?: boolean): Promise<undefined>
+update(updateType: WorldUpdateType, deltaTime: number): undefined
+matchmaking: {
+        /**
+         * Indicates whether more players can join the world.
+         *
+         * @param allow - `true`, to allow more players to join the world; `false` to prevent additional
+         * players from joining the world. The default value is `true`.
+         */
+        allowPlayerJoin(allow: boolean): Promise<void>;
+    }
+leaderboards: ILeaderboards;
+persistentStorage: IPersistentStorage
+ui: IUI
 
 ## Files
 
@@ -1870,6 +1956,36 @@ a few sentences and link to Physics
 ### Broadcast events
 
 Mention coalescence
+
+## Disposing Objects
+
+Instances of `DisposableObject`: Component,
+
+// Players Controls
+static connectLocalInput(input: PlayerInputAction, icon: ButtonIcon, disposableObject: DisposableObject, options?: PlayerControlsConnectOptions): PlayerInput;
+
+```ts
+DisposableObject
+DisposeOperation
+DisposeOperationRegistration
+
+// Component
+registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration
+
+export interface DisposableObject {
+    /**
+     * Called when the disposable object is cleaned up.
+     */
+    dispose(): void;
+    /**
+     * Called to register a single dispose operation. The operation is run automatically
+     * at Object dispose time, unless it is manually run or canceled before the object is disposed.
+     * @param operation - A function called to perform a single dispose operation.
+     * @returns A registration object that can be used to manually run or cancel the operation before dispose.
+     */
+    registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration;
+}
+```
 
 ## Frame Sequence
 
@@ -2031,9 +2147,15 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 - Full-details sequencing diagrams.
 - Clarify how scripts are instantiated per-owner as part of entity transfer.
 
-### Auto-Transfers
+### Auto Ownerhip Transfers
 
 Collisions and Grabbables
+
+### Transfering Data Across Owners
+
+SerializableState
+transferOwnership(_oldOwner: Player, _newOwner: Player): TSerializableState;
+receiveOwnership(_serializableState: TSerializableState | null, _oldOwner: Player, _newOwner: Player): void;
 
 ## Networking and Events
 
@@ -2292,6 +2414,13 @@ Setting a player's position will require a network trip from server to player si
 
 TODO - Velocity, locomotion speed, jump speed
 
+## Springs
+
+SpringOptions
+DefaultSpringOptions
+springPushTowardPosition
+springSpinTowardRotation
+
 # Players
 
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
@@ -2482,6 +2611,67 @@ player.setVoipSetting(VoipSetting.Environment)
 !!! danger Never use the World's Player Settings' `Global` VOIP Setting.
     The World's Player Settings' VOIP Settings toggle has bugs. We recommend that you **set it to `Local`** (or just never touch it after creating a new world).
 
+## Haptics
+
+```ts
+Handedness {Left, Right}
+
+export declare enum HapticStrength {
+    /**
+     * The player is not touching the controller, so no haptic pulse will be fired.
+     */
+    VeryLight = 0,
+    /**
+     * The player is touching the controller and should fire a light haptic.
+     */
+    Light = 1,
+    /**
+     * The player is touching the controller and should fire a medium haptic.
+     */
+    Medium = 2,
+    /**
+     * The player is touching the controller and should fire a strong haptic.
+     */
+    Strong = 3
+}
+/**
+ * The sharpness of the haptic pulse.
+ */
+export declare enum HapticSharpness {
+    /**
+     * The pulse is sharp.
+     */
+    Sharp = 0,
+    /**
+     * The pulse is medium.
+     */
+    Coarse = 1,
+    /**
+     * The pulse is soft.
+     */
+    Soft = 2
+}
+
+// Player hand
+playHaptics(duration: number, strength: HapticStrength, sharpness: HapticSharpness): void;
+```
+
+## Throwing
+
+```ts
+export declare type ThrowOptions = {
+    speed?: number | null;
+    pitch?: number | null;
+    yaw?: number | null;
+    playThrowAnimation?: boolean | null;
+    hand?: Handedness | null;
+};
+
+export declare const DefaultThrowOptions: ThrowOptions;
+
+// Player
+throwHeldItem(options?: Partial<ThrowOptions>): void;
+```
 
 # Grabbing and Holding Entities
 
@@ -2986,7 +3176,7 @@ Saved Asset will receive an ID that is used for spawning.
 
 ## Despawning
 
-## Advanced Controller
+## Advanced Spawning
 ```ts
 export declare class SpawnControllerBase {
     /**
@@ -3114,6 +3304,85 @@ export declare class SublevelEntity extends Entity {
 
 # Tooltips and Popups
 
+```ts
+
+export interface IUI {
+    /**
+     * Shows a popup modal to all players.
+     * @param text - The text to display in the popup.
+     * @param displayTime - The duration, in seconds, to display the popup.
+     * @param options - The configuration, such as color or position, for the popup.
+     */
+    showPopupForEveryone(text: string | i18n_utils.LocalizableText, displayTime: number, options?: Partial<PopupOptions>): void;
+    /**
+     * Shows a popup modal to a player.
+     * @param player - The player to whom the popup is to displayed.
+     * @param text - The text to display in the popup.
+     * @param displayTime - The duration, in seconds, to display the popup.
+     * @param options - The configuration, such as color or position, for the popup.
+     */
+    showPopupForPlayer(player: Player, text: string | i18n_utils.LocalizableText, displayTime: number, options?: Partial<PopupOptions>): void;
+    /**
+     * Shows a tooltip modal to a specific player
+     * @param player - the player this tooltip displays for
+     * @param tooltipAnchorLocation - the anchor point that is used to determine the tooltip display location
+     * @param tooltipText - the message the tooltip displays
+     * @param options - configuration for the tooltip (display line, play sounds, attachment entity, etc)
+     */
+    showTooltipForPlayer(player: Player, tooltipAnchorLocation: TooltipAnchorLocation, tooltipText: string | i18n_utils.LocalizableText, options?: Partial<TooltipOptions>): void;
+    /**
+     * Dismisses any active tooltip for the target player
+     * @param player - the player that has their tooltip dismissed
+     * @param playSound - determines if a default "close sound" should play when the tooltip is closed
+     */
+    dismissTooltip(player: Player, playSound?: boolean): void;
+}
+
+export declare type PopupOptions = {
+    position: Vec3;
+    fontSize: number;
+    fontColor: Color;
+    backgroundColor: Color;
+    playSound: boolean;
+    showTimer: boolean;
+};
+
+export declare const DefaultPopupOptions: PopupOptions;
+
+export declare enum TooltipAnchorLocation {
+    /**
+     * The tooltip is anchored at the left wrist.
+     */
+    LEFT_WRIST = "LEFT_WRIST",
+    /**
+     * The tooltip is anchored at the right wrist.
+     */
+    RIGHT_WRIST = "RIGHT_WRIST",
+    /**
+     * The tooltip is anchored at the torso.
+     */
+    TORSO = "TORSO"
+}
+/*
+
+export declare type TooltipOptions = {
+    tooltipAnchorOffset?: Vec3;
+    displayTooltipLine?: boolean;
+    tooltipLineAttachmentProperties?: TooltipLineAttachmentProperties;
+    playSound?: boolean;
+};
+
+export declare type TooltipLineAttachmentProperties = {
+    lineAttachmentEntity?: Entity | PlayerBodyPartType;
+    lineAttachmentLocalOffset?: Vec3;
+    lineAttachmentRounded?: boolean;
+    lineChokeStart?: number;
+    lineChokeEnd?: number;
+};
+
+DefaultTooltipOptions
+```
+
 # Custom UI
 
 Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
@@ -3193,6 +3462,135 @@ And last, if needed, bring back the files that you copied with the first step
 # Glossary
 
 *[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
+
+## Horizon TypeScript Symbols
+
+[AchievementsGizmo](#quests)
+[AIAgentGizmo](#npc-gizmo)
+AimAssistOptions
+[AnimatedEntity](#animated-entities)
+AnimationCallbackReason
+AnimationCallbackReason
+AnimationCallbackReasons
+assert
+[Asset](#assets)
+[AssetContentData](#data-asset-text-and-json)
+[AttachableEntity](#attaching-entities)
+[AttachablePlayerAnchor](#attaching-entities)
+[AudioGizmo](#sound-gizmo)
+[AudibilityMode](#sound-gizmo)
+[AudioOptions](#sound-gizmo)
+AvatarGripPose
+AvatarGripPoseAnimationNames
+[BaseRaycastHit](#raycast-gizmo)
+BuiltInVariableType
+ButtonIcon
+ButtonPlacement
+clamp
+[Color](#color)
+[CodeBlockEvents](#code-block-event)
+Comparable
+[Component](#component-class)
+[CodeBlockEvent](#code-block-event)
+[DefaultFetchAsDataOptions](#data-asset-text-and-json)
+DefaultFocusedInteractionTapOptions
+DefaultFocusedInteractionTrailOptions
+[DefaultPopupOptions](#tooltips-and-popups)
+[DefaultSpringOptions](#springs)
+[DefaultThrowOptions](#throwing)
+[DefaultTooltipOptions](#tooltips-and-popups)
+degreesToRadians
+[DisposableObject](#disposing-objects)
+[DisposableOperation](#disposing-objects)
+[DisposableOperationRegistration](#disposing-objects)
+[DynamicLightGizmo](#dynamic-light-gizmo)
+[EntityInteractionMode](#interactive-entities)
+[EntityRaycastHit](#raycast-gizmo)
+[EntityStyle](#mesh-asset-style)
+[EntityTagMatchOperation](#tags)
+[EulerOrder](#quaternion)
+[EventSubscription](#events-sending-and-receiving)
+[FetchAsDataOptions](#data-asset-text-and-json)
+FocusedInteraction
+FocusedInteractionTapOptions
+FocusedInteractionTrailOptions
+[GrabbableEntity](#grabbing-entities)
+Handedness: [force hold](#force-holding), [haptics](#haptics), [throwing](#throwing)
+[HapticSharpness](#haptics)
+[HapticStrength](#haptics)
+[HorizonProperty](#horizon-properties)
+[HorizonSetProperty](#horizon-properties)
+[ILeaderboards](#leaderboards)
+InteractionInfo
+[IPersistentStorage](#persistence)
+[IUI](#tooltips-and-popups)
+[IWPSellerGizmo](#in-world-item-gizmo)
+[LaunchProjectileOptions](#projectile-launcher-gizmo)
+LayerType
+[LocalEvent](#local-events)
+[LocalEventData](#local-events)
+[MaterialAsset](#material-asset)
+[MeshEntity](#mesh-asset)
+MonetizationTimeOption
+[NetworkEvent](#network-events)
+[NetworkEventData](#network-events)
+[ParticleFXPlayOptions](#particlefx-gizmo)
+[ParticleFXStopOptions](#particlefx-gizmo)
+[ParticleGizmo](#particlefx-gizmo)
+[PersistentSerializableState](#persistence)
+[PhysicalEntity](#physicalentity-class)
+[PhysicsForceMode](#applying-forces-and-torque)
+PlayAnimationOptions
+[Player](#players)
+[PlayerBodyPart](#pose-position-and-body-parts)
+[PlayerBodyPartType](#pose-position-and-body-parts)
+PlayerDeviceType
+[PlayerHand](#pose-position-and-body-parts)
+PlayerControls
+PlayerControlsConnectOptions
+PlayerInput
+PlayerInputAction
+PlayerInputStateChangeCallback
+[PlayerRaycastHit](#raycast-gizmo)
+[PlayerVisibilityMode](#entity-visibility)
+[PopupOptions](#tooltips-and-popups)
+[ProjectileLauncherGizmo](#projectile-launcher-gizmo)
+PropTypes
+[Quaternion](#quaternion)
+radiansToDegrees
+[RaycastGizmo](#raycast-gizmo)
+[RaycastHit](#raycast-gizmo)
+[RaycastTargetType](#raycast-gizmo)
+[ReadableHorizonProperty](#horizon-properties)
+[SerializableState](#transfering-data-across-owners)
+[SetMaterialOptions](#mesh-asset)
+[SetMeshOptions](#mesh-asset)
+[SetTextureOptions](#mesh-asset)
+Space
+[SpawnController](#advanced-spawning)
+[SpawnControllerBase](#advanced-spawning)
+[SpawnError](#advanced-spawning)
+[SpawnPointGizmo](#spawn-point-gizmo)
+[SpawnState](#advanced-spawning)
+[SpringOptions](#springs)
+[StaticRaycastHit](#raycast-gizmo)
+StopAnimationOptions
+[TextGizmo](#text-gizmo)
+[TextureAsset](#texture-asset)
+[ThrowOptions](#throwing)
+[TooltipAnchorLocation](#tooltips-and-popups)
+[TooltipLineAttachmentProperties](#tooltips-and-popups)
+[TooltipOptions](#tooltips-and-popups)
+[TrailGizmo](#trailfx-gizmo)
+[Transform](#transforms)
+[TriggerGizmo](#trigger-gizmo)
+[Vec3](#vec3)
+[VoipSettingValues](#voip-settings)
+[World](#world-class)
+WorldUpdateType
+[WritableHorizonProperty](#horizon-properties)
+
+
 
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
