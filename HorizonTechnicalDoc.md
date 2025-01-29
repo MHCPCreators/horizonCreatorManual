@@ -3596,12 +3596,6 @@ WorldUpdateType
 
 NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
-- does despawn cause grab "release"?
-
-- does "attach" cause "release"?
-**Yes, this triggers a release. On both in VR attach and programatic attach**
-**Demo code**
-![[ horizonScripts/testAttachReleaseEvent.ts ]]
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 - What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
