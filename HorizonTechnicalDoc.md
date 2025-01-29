@@ -66,7 +66,7 @@
             3. [Typescript API](#typescript-api-1)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-                1. [Purpose](#purpose)
+                1. [Overview](#overview-1)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
         7. [Environment Gizmo](#environment-gizmo)
@@ -1088,8 +1088,8 @@ Spawns an NPC Avatar (bot).
 
 ### Dynamic Light Gizmo
 
-##### Purpose
-Used to cast light dynamically, meaning you can transform the light's properties during run-time.
+##### Overview
+Used to cast light dynamically, meaning you can move the light during run-time. Should be used in conjuction with dynamics, otherwise use a Static Light Gizmo. <mark>TODO</mark> - Link to Static Light Gizmo
 
 #####  Manual Properties
 - Light Type
@@ -1112,17 +1112,17 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
 ```
 
 
-!!! Note Notes
-    - Max of 20 allowed at once.
-    - Should be used in conjuction with dynamics, otherwise use a Static Light Gizmo.
-    - Can be grouped to inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+!!! Note Only allowed a maximum  of 20 Dynamic Lights per world.
 
-!!! Warning
-    - Is very costly to performance if overused due to light/shadow per frame processing.
+<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
+
+!!! Note Can inherit group entity properties.
+    If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+
+!!! Warning Costly to performance if overused due to light/shadow per frame processing.
 
 !!! Bug Known Issues
-    - None
-
+    - <mark>TODO</mark> list known issues or delete
 ### Environment Gizmo
 
 ##### Overview
