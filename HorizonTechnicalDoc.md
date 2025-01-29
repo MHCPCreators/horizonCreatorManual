@@ -1086,9 +1086,7 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
 
 ### Environment Gizmo
 
-<mark>TODO</mark> only one allowed active at a time; active not scriptable; spawning overwrites all values (VOIP=Env will pass back to last env gizmo)
-
-##### Purpose
+##### Overview
 Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
 #####  Manual Properties
@@ -1129,7 +1127,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 - Show Grid
   - ON/OFF Toggle
 - VOIP Settings (link to [player audio](#player-audio))
-  - Environment
+  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
   - Default
   - Nearby
   - Extended
@@ -1139,15 +1137,14 @@ Allows creators to make changes to the properties  of their world like skydome, 
 ##### Typescript API
 - None
 
-!!! Note Notes
-    - Multiple allowed in world. Only one can be active at a time.
-    - You can use asset spawing to change the enviroment dynamically.
+!!! Note Multiple Environment Gizmos Allowed
+    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the enviroment dynamically.
 
-!!! Warning
-    - When spawning multiple environment gizmos, the original environment gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original environment gizmo when needed.
+!!! Warning Spawning Multiple Environment Gizmos
+    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
 !!! Bug Known Issues
-    - None
+    - <mark>TODO</mark> list known issues or delete
 
 ### ParticleFx Gizmo
 #### Overview
