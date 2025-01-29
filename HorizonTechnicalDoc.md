@@ -269,9 +269,12 @@
             3. [Using the Gizmo](#using-the-gizmo)
             4. [APIs](#apis)
     3. [Quests](#quests)
-    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
             1. [Creation](#creation-1)
             1. [Using the Gizmo](#using-the-gizmo-1)
+            2. [Resetting](#resetting)
+    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+            1. [Creation](#creation-2)
+            1. [Using the Gizmo](#using-the-gizmo-2)
             2. [APIs Overview](#apis-overview)
             3. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
             4. [Broadcast Events](#broadcast-events-1)
@@ -5074,23 +5077,80 @@ A few examples:
 For all other configuration combinations, the new value will be displayed.
 
 ## Quests
+Quests (formerly known as achievements) are trackable goals to motivate players to engage with the world experiece. These goals can be related or not to the game progression.
 
-- Overview
-  - Tracked
-- Creation
-- Using the Gizmo
-  - Which are visible
-- APIs
-- Resetting
+#### Creation
+Quests can be created through the Desktop Editor by navigating to the Qeusts section, under the Systems menu. Clicking on `Create Quest` will open the configuration panel with the following mandatory fields:
 
-<mark>TODO</mark>- Can be moved to dedicated quest reference
-Exactly like achievements on Steam, Xbox, Playstation. Quests help direct visitors around your experience
+| Field | Description | Limitations |
+|---|---|---|
+| Script ID | Reference ID that will be used in scriptiong calls. This ID can't be changed after the quest is created. The visitors will not see this information | 20 characters |
+| Name | Name that will be displayed on the Quest UI. | 40 characters |
+| Description | Quest description that will be displayed on the Quest UI. | 100 characters |
+| Quest Type | ***Simple***: must be marked as completed with a script API.  ***Tracked***: must be linked to a player persistent variable. The quest will be marked as completed once the PPV reaches a specific value. |  |
+| Persistent Variables | ***Tracked Quests Only*** The player persisten variable that the quest will track to determine the completion of the goal. This PPV must be created in advanced, as it can't be configured from the quest creation UI. |  |
+| Completion Threshold | ***Tracked Quests Only*** The value that the PPV must reach before the quest is marked as complete. |  |
 
-Must be created in Quest tab in creator menu
 
-Simple means you can complete the quest through an achievement event
+#### Using the Gizmo
+The Quests gizmo can be found in the Desktop Editor under the Build Menu, Gizmos option. Search for the "Quests" option, and drag it into the world scene. Its relevant properties are:
+- Displayed Title: 
+- \# of Entries Per Page: 
+- Panel UI Mode: `Light Mode` for white background and `Dark Mode` for black background.
+` LoD Radius: 
 
-Tracked means you can set a player persistent variable to a specified number to complete it
+
+
+```ts
+
+#### APIs
+/**
+ * Represents an achievement gizmo in the world.
+ */
+export declare class AchievementsGizmo extends Entity {
+/**
+    * Creates a human-readable representation of the entity.
+    * @returns A string representation
+    */
+toString(): string;
+/**
+    * Displays the achievements.
+    *
+    * @param achievementScriptIDs - List of achievement script IDs.
+    */
+displayAchievements(achievementScriptIDs: Array<string>): void;
+}
+
+/**
+    * Indicates whether a player has completed an achievement.
+    * @param achievementScriptID - The scriptID of the achievement. This can be accessed
+    * and set on the Achievements page in the VR creator UI.
+    * @returns `true` if the player has the achievement, `false` otherwise.
+    *
+    * @example
+    * var WonAGameAchievementScriptID = "wonAGame"
+    * var hasAchievement = player.hasCompletedAchievement(WonAGameAchievementScriptID)
+    */
+hasCompletedAchievement(achievementScriptID: string): boolean;
+/**
+    * Specifies whether the player's achievement is complete.
+    * @param achievementScriptID - The scriptID of the achievement. This can be accessed/set on the Achievements page in the VR creator UI.
+    * @param complete - `true` sets the achievement to complete; `false` sets the achievement to incomplete.
+    *
+    * @example
+    * ```
+    * var WonAGameAchievementScriptID = "wonAGame"
+    * player.setAchievementComplete(WonAGameAchievementScriptID, true)
+    * ```
+    */
+setAchievementComplete(achievementScriptID: string, complete: boolean): void;
+
+ /**
+    * The event that is triggered when an achievement is completed.
+    */
+OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
+
+```
 
 ```ts
 class AchievementsGizmo extends Entity {
@@ -5109,6 +5169,14 @@ class AchievementsGizmo extends Entity {
      */
     OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
 ```
+
+#### Resetting
+There are two ways of resetting the achievement completion or progression:
+1. Using scripting, by invoking the setAchievementComplete with the parameter complete set to false
+1. Through the systems menu > Quests. Click `Debug Quests` (represented with a gear icon). From here, click on Reset all quests or toggle off the individual quests to reset.
+
+!!! warning For tracked quests, the ppv variable has to be reset first, otherwise the quest will change back to completed.
+
 
 ## In-World Purchases (IWP)
 In-World Purchases (IWP) are transactions where players can use their Meta Credits to acquire in game items, enhancements or entitlements, and to give kudos to the world creator. Currently there is no limit to the number of transactions, but the individual pricing can only be set between 25 to 20,000 Meta Credits.
