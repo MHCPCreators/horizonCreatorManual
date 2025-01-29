@@ -54,21 +54,21 @@
         1. [Custom UI Gizmo](#custom-ui-gizmo)
         2. [Debug Console Gizmo](#debug-console-gizmo)
         3. [Door Gizmo](#door-gizmo)
-                1. [Purpose](#purpose)
+                1. [Overview](#overview-1)
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
         4. [NPC Gizmo](#npc-gizmo)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-                1. [Purpose](#purpose-1)
+                1. [Purpose](#purpose)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
         7. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-2)
+                1. [Purpose](#purpose-1)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-1)
+            1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
@@ -95,7 +95,7 @@
         3. [Image Asset (Textures)](#image-asset-textures)
         4. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-2)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -166,7 +166,7 @@
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -222,7 +222,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1013,27 +1013,31 @@ Visibility: control which [visitation mode](#visitation-modes-edit-play-and-publ
 
 ### Door Gizmo
 
-##### Purpose
-Showcase and allow players to travel to selected worlds.
+##### Overview
+Showcase and allow players to travel to selected public worlds or your private worlds. 
 
 #####  Manual Properties
-- Change (door)
+- Change
+    - (selected door)
 - Visible
+    - Toggle(ON/OFF)
 
 ##### Typescript API
 - None
 
-!!! Note Notes
-    - Can select any public world.
-    - Cannot be transformed programatically, but can manually. Give it a parent (such as a group), and transform the parent instead, if you want to transform it. Same for the visible property.
-    - Can be grouped to inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+!!! Note Cannot be transformed by script.
 
-!!! Warning
-    - Costly to performance if overused due to expensive VFXs
-    - You can not change or stop the default door animation or sound.
+<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
+
+!!! Note Can inherit group entity properties.
+    If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+
+!!! Warning Costly to performance if overused due to expensive VFXs
+
+!!! Warning Can not change or stop the door animation or sound.
 
 !!! Bug Known Issues
-    - None
+    - <mark>TODO</mark> list known issues or delete
 
 ### NPC Gizmo
 
