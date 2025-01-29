@@ -5094,10 +5094,10 @@ Quests can be created through the Desktop Editor by navigating to the Qeusts sec
 
 #### Using the Gizmo
 The Quests gizmo can be found in the Desktop Editor under the Build Menu, Gizmos option. Search for the "Quests" option, and drag it into the world scene. Its relevant properties are:
-- Displayed Title: 
-- \# of Entries Per Page: 
+- Displayed Title:
+- \# of Entries Per Page:
 - Panel UI Mode: `Light Mode` for white background and `Dark Mode` for black background.
-` LoD Radius: 
+` LoD Radius:
 
 
 
@@ -5333,6 +5333,32 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnItemConsumeStart, (pla
 
 ## Player Persistent Variables (PPV)
 Player Persistent Variables (PPV) retain the player information beyond the duration of the session. This information is tied to the player's profile, therefore it's only possible to retrieve it or modify it while the player is in the world.
+
+```ts
+    /**
+     * A persistent storage object, which contains a set of functions that interact with player variables.
+     *
+     * For information about using player variables, see the
+     * {@link https://developers.meta.com/horizon-worlds/learn/documentation/typescript/getting-started/object-type-persistent-variables | Persistent Variables} guide.
+     */
+    persistentStorage: IPersistentStorage;
+
+
+    /**
+     * Gets the value of a persistent player variable.
+     * @param player - The player for whom to get the value.
+     * @param key - The name of the variable to get.
+     * @returns The value of the variable as some PersistentSerializableState, defaulting to number.
+     */
+    getPlayerVariable<T extends PersistentSerializableState = number>(player: Player, key: string): T extends number ? T : T | null;
+    /**
+     * Sets a persistent player variable
+     * @param player - The player for whom to set the value.
+     * @param key - The name of the variable to set.
+     * @param value - The value to assign to the variable.
+     */
+    setPlayerVariable<T extends PersistentSerializableState>(player: Player, key: string, value: T): void;
+```
 
   - Variable Groups
   - Types: `number` and JSON-serializable `object`.
