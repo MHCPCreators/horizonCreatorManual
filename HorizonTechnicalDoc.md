@@ -1859,7 +1859,7 @@ flowchart LR
   end
 
   subgraph Events
-    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handler) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
   end
 
   subgraph EndFrame [End Phase]
@@ -1889,7 +1889,7 @@ flowchart LR
   end
 
   subgraph Events
-    NetworkEvents --> PlayerInputHandlers(Player Input Handlers) --> CodeBlockEvents
+    NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents
   end
 
   subgraph EndFrame [End Phase]
@@ -1923,6 +1923,8 @@ Proved: creating a timeout / interval in start() with timeout of 0ms will run in
 Proved: 0ms is the default time when omitted.
 
 Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
+
+Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world. 
 
 Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you get an error (and none of the events are processed that frame). Note 2047 times is allowed; 2048 is not. There is a bug where the thrown error implies that 2048 is allowed (it's not!).
 
@@ -2687,7 +2689,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
-!!! danger Don't the owner of a held object
+!!! danger Don't change the owner of a held object
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
