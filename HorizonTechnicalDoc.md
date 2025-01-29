@@ -58,17 +58,20 @@
                 1. [Manual Properties](#manual-properties)
                 2. [Typescript API](#typescript-api)
         4. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Purpose](#purpose-1)
-                1. [Manual Properties](#manual-properties-1)
-                2. [Typescript API](#typescript-api-1)
-        7. [Environment Gizmo](#environment-gizmo)
-                1. [Purpose](#purpose-2)
                 1. [Manual Properties](#manual-properties-2)
                 2. [Typescript API](#typescript-api-2)
+        7. [Environment Gizmo](#environment-gizmo)
+                1. [Purpose](#purpose-2)
+                1. [Manual Properties](#manual-properties-3)
+                2. [Typescript API](#typescript-api-3)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-1)
+            1. [Overview](#overview-2)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
@@ -95,7 +98,7 @@
         3. [Image Asset (Textures)](#image-asset-textures)
         4. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-2)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -166,7 +169,7 @@
         2. [Controlling Collisions](#controlling-collisions)
         3. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-3)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -222,7 +225,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
+    1. [Overview](#overview-5)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1037,7 +1040,24 @@ Showcase and allow players to travel to selected worlds.
 
 ### NPC Gizmo
 
-<mark>TODO</mark>
+#### Overview
+Spawns an NPC Avatar (bot).
+
+#### Manual Properties
+- Character Name
+    - Text
+- Spawn On Start
+    - ON/OFF Toggle
+- Appearance
+    - Edit Avatar (button)
+    - Refresh (button)
+
+!!!WARNING Costly to performance. Considered the same cost as a real player.
+
+#### Typescript API
+
+<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/ 
+    
 
 ### In-World Item Gizmo
 
