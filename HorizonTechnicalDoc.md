@@ -2735,64 +2735,34 @@ player.setVoipSetting(VoipSetting.Environment)
 
 A VR player's controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
 
-To vibrate a VR player's controllers, choose a [player hand](#pose-position-and-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength, and a sharpness. For example:
+To vibrate a VR player's controllers, choose a [player hand](#pose-position-and-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength (via the `HapticsStrength` enum), and a sharpness (via the `HapticsSharpness` enum). For example:
 
 ```ts
 player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
 ```
 
-Ths supported values for haptics strength are:
+**Strength**: the overall intensity of the vibration. For example, imagine a constant unchanging vibration; that vibration should occur at different levels of "intensity" or "volume". This is the *strength* of the haptic effect.
+
+**Sharpness**: the texture or "shape" of the vibration. It's about if the effect ramps up slowly or starts immdiately at full strength and if it's a fast vibration vs a slower "pulsing".
+
+!!! tip Analogy: think of strength like "volume" and sharpness like "melody".
+
+The supported values for haptics strength are:
 
 | `HapticsStrength` | Meaning |
 |---|---|
-| `VeryLight` | ? |
-| `Light` | ? |
-| `Medium` | ? |
-| `Strong` | ? |
+| `VeryLight` | A barely noticeable vibration, just enough to create a faint tactile response without drawing attention. |
+| `Light` | A subtle vibration, likely intended for gentle feedback, such as indicating a soft touch or a minor interaction. |
+| `Medium` | A more noticeable vibration, suitable for standard feedback like button presses or interactions that require a stronger confirmation. |
+| `Strong` | A powerful vibration, used for significant events, such as impacts, collisions, or urgent notifications. |
 
+The supported values for haptics sharpness are:
 
-```ts
-Handedness {Left, Right}
-
-export declare enum HapticStrength {
-    /**
-     * The player is not touching the controller, so no haptic pulse will be fired.
-     */
-    VeryLight = 0,
-    /**
-     * The player is touching the controller and should fire a light haptic.
-     */
-    Light = 1,
-    /**
-     * The player is touching the controller and should fire a medium haptic.
-     */
-    Medium = 2,
-    /**
-     * The player is touching the controller and should fire a strong haptic.
-     */
-    Strong = 3
-}
-/**
- * The sharpness of the haptic pulse.
- */
-export declare enum HapticSharpness {
-    /**
-     * The pulse is sharp.
-     */
-    Sharp = 0,
-    /**
-     * The pulse is medium.
-     */
-    Coarse = 1,
-    /**
-     * The pulse is soft.
-     */
-    Soft = 2
-}
-
-// Player hand
-playHaptics(duration: number, strength: HapticStrength, sharpness: HapticSharpness): void;
-```
+| `HapticsSharpness` | Meaning |
+|---|---|
+| `Sharp` | A high-frequency vibration with a quick onset and quick decay. Ideal for rapid alerts or precision interactions. |
+| `Coarse` | A moderate vibration with a slightly longer duration, striking a balance between sharp and soft. Ideal for interactions that need to feel distinct without being abrupt. |
+| `Soft` | A low-frequency, smooth vibration that builds and fades gradually, creating a more diffuse, gentle sensation. Ideal for subtle cues or immersive environmental effects. |
 
 ## Throwing
 
