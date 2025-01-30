@@ -974,13 +974,15 @@ All `Entity` instances have the class properties in the table below. Additionall
 
 ### Simulated
 
-<mark>TODO</mark>
+The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics phase](#physics-phase) of the frame.
 
-When false the only way to move and rotated is `position.set` and `rotation.set`. The physics system is disabled, grabbing is disabled (any avatar interactions), etc.
+When an [entity](#entities) has **`simulated` set to `false`**:
+* It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
+* It **cannot have [forces applied](#applying-forces-and-torque)** ❌ (even if it is [physical](#physicalentity-class)).
+* It **can be attached via scripting** ✅  (if it is [attachable](#attaching-entities)) though it [may push the player](#scripted-attach) (if `collidable` is `true`). If an attached entity has it's `simulated` set to `false` it *will NOT detach*.
+* It **can be moved** ✅ via `position.set(...)` and `rotation.set(...)` (if it is [dynamic](#static-vs-dynamic-entities)).
 
-When simulated is set to false, an attached stays detached.
-
-"Simulated=false is like setting Motion=None."
+The `simulated` property defaults to `true`.
 
 ### Tags
 
@@ -3084,7 +3086,7 @@ Entities can be attached to players and detached from players in scripting using
 **Anchor**: The anchor is specified by the `AttachablePlayerAnchor` enum which currently has values for `Head` and `Torso`. See [socket attachment](#socket-attachment) for changing the exact position and rotation of where an attachable attaches.
 
 !!! bug Non-grabbable collidable attachables can continuously push the player when they are attached.
-    When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics**, the entity can continuously push the player (forever). To mitigate this, disable collision on the entity before calling `attachToPlayer`.
+    When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics** or `simulated` set to `false`, the entity can continuously push the player (forever). To mitigate this, disable collision on the entity before calling `attachToPlayer`.
 
 ### Socket Attachment
 
