@@ -2893,23 +2893,20 @@ flowchart TD
 
 | Setting | Behavior |
 |---|---|
-| *Anyone* | Any player is eligible to grab the entity. |
-| *First To Grab Only* | If the entity has never been grabbed then any player is eligible to grab it. Once it is grabbed then only that player can ever grab it again (unless the grabbing is reset - see below). |
-| *Script Assignee(s)* | A player is only eligible to grab the entity if they are in the list of allowed players. |
+| **Anyone** | Any player is eligible to grab the entity. |
+| **First To Grab Only** | If an entity has never been grabbed then any player can grab it. Once a player grabs it, only that player can re-grab it until [they exit the world instance](#entering-and-exiting-a-world). Then anyone can grab the entity, and only next player to grab it can re-grab it until they exit the instance, and so on. |
+| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players assigned with `setWhoCanGrab`. |
 
-Use the API
-
+Only `GrabbableEntity`s with **Who Can Grab** set to **Script Assignee(s)** can use `setWhoCanGrab` to change the list of players who are allowed to grab the entity. Other settings on **Who Can Grab** results in a no-op when `setWhoCanGrab` is called. In a world instance, no one can grab the entity before this API is called for the first time with a player. 
 ```ts
-// GrabbableEntity
 setWhoCanGrab(players: Player[]): void;
 ```
 
-to change the list of players that are allowed to grab the entity. Until you call the API the first time it behaves as (<mark>TODO</mark> - everyone? no one?).
+!!! bug **First To Grab Only** can cause an entity to be grabbable by no one, even after the player is no longer in the world.
+    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts.
 
 !!! note setWhoCanGrab does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
-
-    There is no way to set an entity back to its "default behavior" (before the API is first called - <mark>TODO</mark> verify).
 
 ### Setting "Who Can Take From Holder?"
 
@@ -3737,7 +3734,6 @@ TODO: player locomotion speed, jump speed, grounded, apply force (and put a list
 NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
-- What is the initial behavior for "Script Assignee(s)" for grabbing? Can you ever reset it back?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 - When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
 * when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?

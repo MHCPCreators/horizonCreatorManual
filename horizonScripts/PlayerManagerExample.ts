@@ -8,7 +8,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
 
     private events: EventSubscription[] = []
-    private allPlayers = new Map<Player, PlayerState>
+    private allPlayers = new Map<Player, PlayerState>()
 
     preStart(): void {
         this.events = [
