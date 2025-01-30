@@ -195,7 +195,7 @@
         5. [Local Player](#local-player)
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
-        2. [AFK](#afk)
+        2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
     5. [Haptics](#haptics)
@@ -2548,37 +2548,47 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Entering and Exiting a World
 
-<mark>TODO</mark> finish section
-
 There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
-
-| CodeBlockEvent | Description | Parameters |
-|---|---|---|
-| `OnPlayerEnterWorld`  | ? | `(player : Player)` |
-| `OnPlayerExitWorld`  | Note: player is gone from all-players array by now (unless they are in build mode) | `(player : Player)` |
-
-!!! tip Player-Enter and Player-Exit are sent to all entities.
-
-!!! danger Player-Enter and Player-Exit events are not sent to locally-owned entities.
-
 
 When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
 
-### AFK
+| CodeBlockEvent | Description | Parameters |
+|---|---|---|
+| `OnPlayerEnterWorld`  | Occurs when a player enters the world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player won't be in the `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
 
-<mark>TODO</mark>
+!!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
 
-```ts
-// CodeBlockEvents
-/**
- * The event that is triggered when a player goes AFK (opens the Oculus menu, takes their headset off, etc)
- */
-OnPlayerEnterAFK: CodeBlockEvent<[player: Player]>;
-/**
- * The event that is triggered when a player comes back from being AFK.
- */
-OnPlayerExitAFK: CodeBlockEvent<[player: Player]>;
+!!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
+    In published mode, OnPlayerEnterWorld occurs only once per player id. However in build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
+
+### Player Enter and Exit AFK
+
+| CodeBlockEvent | Description | Parameters |
+|---|---|---|
+| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
+| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `(player : Player)` |
+
+```mermaid {align="center"}
+flowchart TD
+    notInWorld([Player is not in the world])
+    inWorld([Player is in the world])
+    inWorldAndAFK([Player is AFK in the world])   
+
+    notInWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterWorld</b>[player]</div> --> inWorld
+
+    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+
+    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterAFK</b>[player]</div> --> inWorldAndAFK
+
+    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always occur)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+
+    inWorldAndAFK -- <div style="background-color:#cbffcd"><b>OnPlayerExitAFK</b>[player]</div> --> inWorld
 ```
+
+!!! tip OnPlayerEnterAFK and OnPlayerExitAFK are sent to only server-owned entities.
+
+!!! Warning If a player kills the app after going AFK, OnPlayerExitWorld is not triggered.
 
 ## Pose (Position and Body Parts)
 
