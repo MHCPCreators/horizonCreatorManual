@@ -3120,11 +3120,9 @@ The following is a list of player body parts that the attachable entity may stic
 ### Anchor
 When attached, an anchored entity will position its [pivot point](#pivot-points) at a specified anchor position.
 
-The anchor position is a body part specified in [Anchor To](#anchor-to). Anchor position can be altered by setting a offset values in [Socket Attachment](#socket-attachment).
+The anchor position is a body part specified in [Anchor To](#anchor-to). Anchor position can be altered by setting [socket attachment](#socket-attachment) offset values.
 
-By default an anchored entity's [rotation](#rotation) is as follows:
-    - Z+ pointing from the center to the player's head towards the player's facing direction
-    - Y+ pointing from the center of the player's head towards the top player's head.
+By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#pose-position-and-body-parts) it is attached to. E.g. by default a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
 
 !!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
 
