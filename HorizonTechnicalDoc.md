@@ -166,7 +166,7 @@
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
         1. [Auto Ownership Transfers](#auto-ownership-transfers)
-        2. [Transfering Data Across Owners](#transfering-data-across-owners)
+        2. [Transferring Data Across Owners](#transferring-data-across-owners)
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
@@ -799,11 +799,11 @@ All entities in Horizon are either **static** or **dynamic**.
   * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-entities), [physics-simulated](#physicalentity-class), or both.
 
 !!! note Parents don't affect static vs dynamic.
-    A static entity can have a dyanmic parent  and vice versa.
+    A static entity can have a dynamic parent  and vice versa.
 
 ### Intrinsic Entity Types
 
-The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are access simply as `Entity` instances. Every entity only has **one instrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
+The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are access simply as `Entity` instances. Every entity only has **one intrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
 
 The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
@@ -851,7 +851,7 @@ The intrinsic type classes (in the table below) all subclass `Entity`. All the [
 
 ### Entity as() method
 
-You can convert an entity instance into its [instrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) types using the entity `as()` method.
+You can convert an entity instance into its [intrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) types using the entity `as()` method.
 
 For example:
 
@@ -885,7 +885,7 @@ Animated Entity has these properties in the properties panel:
 
 * **Loop** - Controls whether an animation loops again (forever) after it finishes playing.
     - **Never** - After an animation finishes playing, do nothing.
-    - **Continously** - After an animation finishes playing, replay the animation again from the first frame.
+    - **Continuously** - After an animation finishes playing, replay the animation again from the first frame.
     - **Back and Forth** - After an animation finishes playing, replay the animation in the opposite direction, starting from the current frame. When that animation finishes, play it again in the forward direction. Repeat alternating forward and backward playback.
 
 * **Speed** - Playback speed of the animation. Defaults to 1. A 0.5 speed would take twice as long to play back.
@@ -940,7 +940,7 @@ with any of the following options:
 
 ## Entity Properties
 
-All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [trasnforming relative to an entity or player](#transform-relative-to), and checking if an entity [exists](#entity-exists).
+All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [transforming relative to an entity or player](#transform-relative-to), and checking if an entity [exists](#entity-exists).
 
 | **[Scene Graph](#scene-graph)** | Property Type | Description |
 |---|---|---|
@@ -1083,10 +1083,10 @@ See details in [Custom UI](#custom-ui)
 
 Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
 
-<mark>TODO</mark> Determine which visiblitiy settings apply to Owner, Editor, or Tester
+<mark>TODO</mark> Determine which visibility settings apply to Owner, Editor, or Tester
 
 #### Manual Properties
- - Visiblity
+ - Visibility
     - Edit Mode Only
     - Edit and Preview Mode
     - In Published World
@@ -1113,7 +1113,7 @@ Showcase and allow players to travel to selected public worlds or your private w
 <mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
 
 !!! Note Can inherit group entity properties.
-    If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+    If placed in a group, can inherit group entity properties like visibility, billboarding, attaching, animation, grabbable, etc..
 
 !!! Warning Costly to performance if overused due to expensive VFXs
 
@@ -1150,7 +1150,7 @@ Spawns an NPC Avatar (bot).
 ### Dynamic Light Gizmo
 
 ##### Overview
-Used to cast light dynamically, meaning you can move the light during run-time. Should be used in conjuction with dynamics, otherwise use a Static Light Gizmo. <mark>TODO</mark> - Link to Static Light Gizmo
+Used to cast light dynamically, meaning you can move the light during run-time. Should be used in conjunction with dynamics, otherwise use a Static Light Gizmo. <mark>TODO</mark> - Link to Static Light Gizmo
 
 #####  Manual Properties
 - Light Type
@@ -1178,7 +1178,7 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
 <mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
 
 !!! Note Can inherit group entity properties.
-    If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+    If placed in a group, can inherit group entity properties like visibility, billboarding, attaching, animation, grabbable, etc..
 
 !!! Warning Costly to performance if overused due to light/shadow per frame processing.
 
@@ -1238,7 +1238,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 - None
 
 !!! Note Multiple Environment Gizmos Allowed
-    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the enviroment dynamically.
+    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
 
 !!! Warning Spawning Multiple Environment Gizmos
     When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
@@ -1293,7 +1293,7 @@ Costly to performance if overused.
 
 Same API as [particle gizmo](#particlefx-gizmo)
 
-!!! info Using stop on TrailFX will derender the Trail.
+!!! info Using stop on TrailFX will de-render the Trail.
 
 ### Projectile Launcher Gizmo
 A turnkey way to launch small objects
@@ -1378,7 +1378,7 @@ No TS type.
 
 ### Sound Gizmo
 AI gen
-Many premade sound effects, loops, songs, atmospheric sounds.
+Many pre-made sound effects, loops, songs, atmospheric sounds.
 
 Can be stopped and started via scripts
 
@@ -1968,7 +1968,7 @@ Array types are unsupported.
 
 Is anything other than props unavailable in property initializers?
 
-Subscriptions are NOT cleaned up when a script autorestarts
+Subscriptions are NOT cleaned up when a script auto-restarts
 
 **DO NOT** implement the constructor, use property initializers instead.
 
@@ -2055,7 +2055,7 @@ export interface DisposableObject {
 
 <mark>TODO: where in the frame are spawned components allocated</mark>
 <mark>TODO: does first frame</mark>
-NOTE: a prephysics handler in code blocks scripts runs before start
+NOTE: a pre-physics handler in code blocks scripts runs before start
 
 `async` runs AFTER default.
 
@@ -2217,7 +2217,7 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 
 Collisions and Grabbables
 
-### Transfering Data Across Owners
+### Transferring Data Across Owners
 
 SerializableState
 transferOwnership(_oldOwner: Player, _newOwner: Player): TSerializableState;
@@ -2284,9 +2284,9 @@ This means that whenever it seems both a parent and a child could get a trigger 
 
 <mark>TODO</mark> random notes
 
-VelocityChange: veloc += arg
-Force: veloc += arg/mass * deltaTime
-Impulse: veloc += arg/mass
+VelocityChange: velocity += arg
+Force: velocity += arg/mass * deltaTime
+Impulse: velocity += arg/mass
 
 applyLocalForce(force, mode)
   assumes force is in the coordinate system of the object
@@ -2334,7 +2334,7 @@ Angular force
 Torque
 
 
-!!! note Scripting agular force allows for the use of radians
+!!! note Scripting torque allows for the use of radians
     See [rotational force API](#)
 
 TODO - Shouldn't the in-between frames be ignored? In other words, how is it doing FixedUpdate?
@@ -2467,7 +2467,7 @@ export declare class PhysicalEntity extends Entity {
 
 ## Player Physics
 
-Setting player position (locally) in Prephysics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
 
 Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
     NOT async
@@ -2753,7 +2753,7 @@ player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
 
 **Strength**: the overall intensity of the vibration. For example, imagine a constant unchanging vibration; that vibration should occur at different levels of "intensity" or "volume". This is the *strength* of the haptic effect.
 
-**Sharpness**: the texture or "shape" of the vibration. It's about if the effect ramps up slowly or starts immdiately at full strength and if it's a fast vibration vs a slower "pulsing".
+**Sharpness**: the texture or "shape" of the vibration. It's about if the effect ramps up slowly or starts immediately at full strength and if it's a fast vibration vs a slower "pulsing".
 
 !!! tip Analogy: think of strength like "volume" and sharpness like "melody".
 
@@ -3035,7 +3035,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
-Entites can be attached to players.
+Entities can be attached to players.
 Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
 Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties panel.
 
@@ -3054,7 +3054,7 @@ Attaching an entity to player can be done by the following:
 
 | Attach Method | Description |
 |---|---|
-| *Release on body part* | Upon releasing the held entity, the entity checks if collision has occured between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
+| *Release on body part* | Upon releasing the held entity, the entity checks if collision has occurred between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
 | *Script* | See attachables API.|
 
 <mark>TODO</mark> - Explain what happens when multiple attached
@@ -3108,7 +3108,7 @@ attachable.socketAttachmentPosition.set(new Vec3(0, 0, 1))
 ```
 
 ### Sticky
-Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
+Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entities work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
 
 #### Stick To
 The following is a list of player body parts that the attachable entity may stick to.
@@ -3277,7 +3277,7 @@ class AchievementsGizmo extends Entity {
 
 # Spawning
 
-Entities and heirarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
+Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
 Assets must have an `Asset Type` and `Folder`.
 
@@ -3378,7 +3378,7 @@ export declare class SpawnControllerBase {
 `horizon/world_streaming`
 ```ts
 /**
- * A sublevel of a world that you can stream independentaly from the rest of
+ * A sublevel of a world that you can stream independently from the rest of
  * the world at runtime.
  *
  * @remarks

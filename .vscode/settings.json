@@ -1,10 +1,39 @@
 {
   "cSpell.diagnosticLevel": "Hint",
   "cSpell.words": [
+    "ASTC",
+    "attachables",
+    "billboarding",
     "Collidability",
+    "collidable",
+    "Cubemap",
+    "depawned",
+    "despawn",
+    "Despawning",
+    "Despawns",
+    "Flexbox",
+    "fontcolor",
+    "grabbability",
     "grabbable",
     "Grabbable",
+    "Grabbables",
+    "graphviz",
+    "greyboxing",
+    "headshot",
+    "improv",
+    "lerp",
+    "Metaverse",
+    "Pressable",
     "Raycast",
-    "Vec3"
+    "respawn",
+    "royale",
+    "skydome",
+    "Tellous",
+    "ungrabbable",
+    "Vec3",
+    "wafflecopters"
+  ],
+  "cSpell.ignoreWords": [
+    "eyboard"
   ]
 }
