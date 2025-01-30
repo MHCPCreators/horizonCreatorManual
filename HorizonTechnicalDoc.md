@@ -2383,8 +2383,8 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Occurs when a player enters a world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
-| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player will be gone from the  `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerEnterWorld`  | Occurs when a player enters the world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player won't be in the `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
 
 !!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
 
