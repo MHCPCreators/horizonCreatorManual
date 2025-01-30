@@ -1724,17 +1724,19 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 ## Creating and Editing Scripts
 
+<mark>TODO</mark>
+
 An entity is marked as dynamic when a script is placed on it. You can disable it, as long as you don't mutate any scene graph state on it.
 
 ### Syncing Scripts
 
-If issues, delete *.editor*, leave world and come back, quit app and reopen
+When you create, edit, or delete scripts in a world's scripts folder, Horizon automatically tracks and syncs those edits to the [world snapshot](#world-snapshot).
+
+!!! tip If syncing doesn't appear to be working, delete the  *.editor* file, leave world, and come back.
 
 ### Scripts in Source Control
 
-Script directory: "auto-sync directory"
-
-https://developers.meta.com/horizon-worlds/learn/documentation/typescript/recommended-version-control-strategies
+When you open a world in the editor, Horizon checks to see if the scripts match what is saved in the [world snapshot](#world-snapshot). If they don't match, it will ask if you want to update the world with the scripts you have in the folder. Thus, the scripts folder acts like an "auto-sync directory". This means that you can put a git repo in the scripts folder, share the same repo with different "forks" of a world, use submodules to share scripts, and more!
 
 ## Horizon Properties
 
