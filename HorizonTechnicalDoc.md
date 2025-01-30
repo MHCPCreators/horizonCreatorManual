@@ -19,7 +19,7 @@
 3. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
-        1. [Visitation Modes: Edit, Play, and Publish](#visitation-modes-edit-play-and-publish)
+        1. [Visitation Modes: Edit, Preview, and Publish](#visitation-modes-edit-preview-and-publish)
     3. [Available Instances](#available-instances)
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
@@ -347,7 +347,7 @@ Name, description, comfort setting, player count, etc.
 
 The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. Other people, called **collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-play-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
@@ -397,9 +397,9 @@ There are two types of instances: **published instances** and **editor instances
 |  *Published*  | Use the "Visit World" button, or [travel](#travel-doors-and-links) to a friend, travel via a door. | No | No limit |
 | *Editor* | Use the "Edit World" button if you are the [world owner, editor, or a tester](#editor-roles). | Yes, if you are the [owner or a editor](#editor-roles). | 1 |
 
-### Visitation Modes: Edit, Play, and Publish
+### Visitation Modes: Edit, Preview, and Publish
 
-"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and editors can switch back and forth between edit and play modes; testers are always in play mode.
+"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and editors can switch back and forth between edit and preview modes; testers are always in preview mode.
 
 | Mode  |  Description | Instance Type | Required Role |
 |---|---|---|---|
@@ -1076,7 +1076,7 @@ See details in [Custom UI](#custom-ui)
 
 #### Overview
 
-Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-play-and-publish).
+Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
 
 <mark>TODO</mark> Determine which visiblitiy settings apply to Owner, Editor, or Tester
 
@@ -2604,22 +2604,24 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 | CodeBlockEvent | Description | Parameter(s) |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to play mode](#visitation-modes-edit-play-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. | `Player` |
-| `OnPlayerExitWorld`  | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[play mode to edit mode](#visitation-modes-edit-play-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). | `Player` |
+| `OnPlayerEnterWorld`  | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. | `Player` |
+| `OnPlayerExitWorld`  | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). | `Player` |
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
     If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
     <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
-!!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
-    In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
+!!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
+    In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
 
 ### Player Enter and Exit AFK
 
+A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard).
+
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
-| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `(player : Player)` |
+| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `Player` |
+| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `Player` |
 
 ```mermaid {align="center"}
 flowchart TD
@@ -2627,7 +2629,7 @@ flowchart TD
     inWorld([Player is active<br/>in the instance])
     inWorldAndAFK([Player is AFK<br/>in the instance])
 
-    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-play-and-publish">enters play mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b><br/>[player]</code></td></tr></table> --> inWorld
+    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b><br/>[player]</code></td></tr></table> --> inWorld
 
     inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
 
@@ -2647,6 +2649,8 @@ flowchart TD
 !!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
 
 ## Pose (Position and Body Parts)
+
+<mark>TODO</mark>
 
 ## VOIP Settings
 
@@ -2680,6 +2684,24 @@ player.setVoipSetting(VoipSetting.Environment)
     The World's Player Settings' VOIP Settings toggle has bugs. We recommend that you **set it to `Local`** (or just never touch it after creating a new world).
 
 ## Haptics
+
+A VR player's controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
+
+To vibrate a VR player's controllers, choose a [player hand](#pose-position-and-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength, and a sharpness. For example:
+
+```ts
+player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
+```
+
+Ths supported values for haptics strength are:
+
+| `HapticsStrength` | Meaning |
+|---|---|
+| `VeryLight` | ? |
+| `Light` | ? |
+| `Medium` | ? |
+| `Strong` | ? |
+
 
 ```ts
 Handedness {Left, Right}
