@@ -50,7 +50,8 @@
         1. [Simulated](#simulated)
         2. [Entity Tags](#entity-tags)
         3. [Entity Visibility](#entity-visibility)
-    3. [Scene Graph Elements](#scene-graph-elements)
+            1. [Entity Visibility Permissions](#entity-visibility-permissions)
+    3. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
         2. [Debug Console Gizmo](#debug-console-gizmo)
             1. [Overview](#overview-1)
@@ -1008,38 +1009,36 @@ The method takes an list of tags (a string array) and optionally a match operati
 
 ### Entity Visibility
 
-Entities can be rendered ("visible") or not rendered ("invisible"). When an entity is rendered for a specific player we say that it is *visible to that player*. Visibility is controlled in the [world snapshot](#world-snapshot) by setting the **visible** property in the property panel. In scripting, visibility is controlled by:
+Entities can be rendered ("visible") or not rendered ("invisible"). When an entity is rendered for a specific player we say that it is *visible to that player*. Visibility is controlled in the [world snapshot](#world-snapshot) by setting the **visible** property in the property panel. Visibility at runtime is controlled by the `visible` Horizon property on `Entity` and by **player [visibility permissions](#entity-visibility-permissions)**.
 
-<mark>TODO</mark>
 
-| Entity Method / Property  |   |
-|---|---|
-| `visible : HorizonProperty<boolean>`  |   |
+**Invisibility cascades down**: If an entity is invisible then so are all of its children (and all [descendants](#ancestors)).
+
+**Visible=false overrides permissions**: When `visible` is set to `false`, the entity is invisible to all players, regardless of player permissions. When `visible` is set to `true`, the entity is visible to players according to the per-player permissions (which default to being visible for everyone).
+
+**Permissions persist when Visible=false**: Changing the `visible` property does not change the visibility permissions. When `visible` is changed to `false` the entity becomes invisible to everyone, but the per-player permissions are intact and will begin acting again if the entity has `visible` changed to `true`.
+
+#### Entity Visibility Permissions
+
+Initially an entity's permissions allow the entity to be seen by all players (when `visible` is set to `true`). You can then modify the settings with the entity method:
 
 ```ts
-  export declare enum PlayerVisibilityMode {
-    /**
-     * The entity is visible to the specified players.
-     */
-    VisibleTo = 0,
-    /**
-     * The entity is not visible to the specified players.
-     */
-    HiddenFrom = 1
-}
+// Entity
+setVisibilityForPlayers(
+  players: Array<Player>,
+  mode: PlayerVisibilityMode
+  ): void;
+```
 
-  visible: HorizonProperty<boolean>;
-  setVisibilityForPlayers(players: Array<Player>, mode: PlayerVisibilityMode): void;
-  resetVisibilityForPlayers(): void;
-  isVisibleToPlayer(player: Player): boolean;
-  ```
+where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When you call this method, it sets the entire permissions for the entity.
 
+**VisibleTo**: only the specified players can see the entity (when it is `visible`) until the permissions are modified again.
 
-Every entity has a `visible` property (a [read-write boolean Horizon Property](#horizon-properties)). Additionally there are settings for per-player visibility.
+**HiddenFrom**: everyone other than  the specified players can see the entity (when it is `visible`) until the permissions are modified again.
 
-When `visible` is set to `false`, the entity is invisible to all players, regardless of per-player settings. When `visible` is set to `true`, the entity it is visible to players according to the per-player rules (which default to being visible for everyone).
+**Resetting permissions**: you can reset the permissions to be "visible to everyone" via `entity.resetVisibilityForPlayers()` which acts the same as `entity.setVisibilityForPlayers([], PlayerVisibilityMode.HiddenFrom)`.
 
-Changing the `visible` property does not change the visibility rules. When `visible` is changed to `false` the entity becomes invisible to everyone, but the per-player rules are intact and will begin acting again if the entity has `visible` changed to `true`.
+**Checking permissions**: `entity.isVisibleToPlayer(player)` allows you to check if `player` can see the `entity` according to the *permissions*. This method is unaffected by the `visible` property; it is telling you if the `player` can see the `entity` *when the entity has `visible` set to `true`*.
 
 !!! note Visibility and Collidability are separate.
     Making an entity invisible (by setting `visible` to `false` or by using per-player visibility controls) does not impact [collidability](#collidability). Even if an entity is invisible it can still be collided with (if it has an [active collider](#collidability)). If you want an invisible entity to not be a "blocker" then set `collidable` to `false` as well. At this time **there is no per-player collidability**.
@@ -1066,9 +1065,7 @@ Changing the `visible` property does not change the visibility rules. When `visi
     entity.visible.set(true) // only player B can see it
     ```
 
-<mark>TODO</mark>
-
-## Scene Graph Elements
+## All Intrinsic Entity Types
 
 <mark>TODO</mark>Gizmo vs entity vs collider etc
 
