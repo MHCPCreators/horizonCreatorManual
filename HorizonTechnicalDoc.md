@@ -275,8 +275,6 @@
 
 <div style="page-break-after: always;"></div>
 
-![[ Test.md ]]
-
 # Overview
 
 Meta Horizon Worlds (called "Horizon" for the rest of this document) is a Metaverse content platform where people can find and create 3D immersive content to play, explore, and socialize in. Horizon calls each experience a **world**. The content can be accessed on:
@@ -441,7 +439,7 @@ When a player travels to a world, Horizon will determine which instance to send 
 !!! info The Editor Instance
     There is only ever (at most) one **editor instance** of a given world. When that one instance is full, no other editors can load the world to edit.
 
-```mermaid
+```mermaid {align="center"}
 flowchart TD
   playerTravel@{ shape: circle, label: "How was<br/>travel initiated?" } --"**Edit World**"--> isEditorFull{{Is the Editor<br/>Instance <a href="#available-instances">available</a>?}}
 
@@ -2070,7 +2068,7 @@ NOTE: a pre-physics handler in code blocks scripts runs before start
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
 FULL
-```mermaid
+```mermaid {align="center"}
 flowchart LR
   subgraph Physics [Physics Phase]
     locomotion(Update players from<br/>locomotion and pose) --> animation(Update recorded animation playback)
@@ -2102,7 +2100,7 @@ flowchart LR
   style Components fill:#dfe,stroke:#8a9
 ```
 SIMPLER
-```mermaid
+```mermaid {align="center"}
 flowchart LR
   subgraph Physics [Physics Phase]
     locomotion(Update players from<br/>locomotion and pose.<br/>Update recorded<br/>animations) --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)

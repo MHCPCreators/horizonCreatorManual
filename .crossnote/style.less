@@ -10,33 +10,9 @@
   page-break-before: always;
 }
 
-.print-note {
-  display: none;
-}
-
-/* Specific styles for printed documents */
 @media print {
-  /* Ensure the note appears at the top of every printed page */
-  .print-note {
-    display: block;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background-color: white;
-    text-align: center;
-    font-size: 12px;
-    font-style: italic;
-    border-bottom: 0.5px solid rgb(127, 127, 127);
-    padding: 5px;
-    z-index: 10
-  }
-
   @page {
-    margin-top: 64px;
-}
-
-  body {
-      margin: 0;
+    margin: 20mm;
   }
 }
 
