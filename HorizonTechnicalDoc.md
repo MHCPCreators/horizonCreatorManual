@@ -142,7 +142,7 @@
     9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
     10. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
-            1. [System Events](#system-events)
+            1. [System Code Block Events](#system-code-block-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
@@ -154,7 +154,7 @@
         2. [Scripting Phase](#scripting-phase)
             1. [Component Initialization](#component-initialization)
             2. [Network Events Handling](#network-events-handling)
-            3. [Code Block Events Handing](#code-block-events-handing)
+            3. [Code Block Events Handling](#code-block-events-handling)
             4. [Committing Scene Graph Mutations](#committing-scene-graph-mutations)
         3. [End Phase](#end-phase)
             1. [Async Handling](#async-handling)
@@ -197,6 +197,8 @@
         1. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
         2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+        1. [Player Body Part](#player-body-part)
+        2. [Player Hand](#player-hand)
     4. [VOIP Settings](#voip-settings)
     5. [Haptics](#haptics)
     6. [Throwing](#throwing)
@@ -1718,7 +1720,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
 
-**Core types**: Component instances communicate with one another and [the world](#system-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
+**Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
 
@@ -1999,7 +2001,7 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
-#### System Events
+#### System Code Block Events
 
 ### Local Events
 
@@ -2152,7 +2154,7 @@ Proved: each code block event handler is wrapped in a try.
 
 #### Network Events Handling
 
-#### Code Block Events Handing
+#### Code Block Events Handling
 
 #### Committing Scene Graph Mutations
 
@@ -2600,7 +2602,7 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Player Entering and Exiting a World
 
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [system CodeBlockEvent](#system-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | CodeBlockEvent | Description | Parameter(s) |
 |---|---|---|
@@ -2616,12 +2618,18 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 ### Player Enter and Exit AFK
 
-A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard).
+A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
+
+**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen or when they temporarily switch to a different app. A VR player goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
+
+**Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
+
+There are two [system code block events](#system-code-block-events) associated with inactivity / AFK:
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `Player` |
-| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `Player` |
+| `OnPlayerEnterAFK`  | Sent when a player becomes inactive.  | `Player` |
+| `OnPlayerExitAFK`  | Sent when a player is no longer inactive. | `Player` |
 
 ```mermaid {align="center"}
 flowchart TD
@@ -2651,6 +2659,42 @@ flowchart TD
 ## Pose (Position and Body Parts)
 
 <mark>TODO</mark>
+
+### Player Body Part
+
+A [player](#players) has a number of properties for accessing body parts: `head`, `torso`, `foot`, `leftHand`, and `rightHand`; each return an instance of the class `PlayerBodyPart` (or the more specific `PlayerHand`). They are [Horizon properties](#horizon-properties) and so you must use `get()`:
+
+```ts
+const torso = player.torso.get()
+```
+
+Each body part has a has the standard global transform properties: [position](#position), [rotation](#rotation), and [scale](#scale) as well as [local](#local-transforms) versions: `localPosition`, `localRotation`, and `localScale`. There is also `forward` and `up`.
+
+Additionally you can use `bodyPart.player` to identify which [player](#players) the part belongs to and `bodyPart.type` to identify which part of the body it is (e.g. `player.leftHand.get().type` returns `PlayerBodyPartType.LeftHand`).
+
+Body parts have two helper methods: `getPosition` and `getRotation` that let you conditionally pass in an instance of the `Space` enum:
+* `bodyPart.getPosition(Space.World)` is the same as `bodyPart.position.get()`.
+* `bodyPart.getPosition(Space.Local)` is the same as `bodyPart.localPosition.get()`.
+
+!!! tip Getting a body part's local *right* vector.
+    Unlike for entities, there is no builtin `right` property to get the [local position x-axis](#local-transforms) direction. You can compute it yourself with:
+    ```ts
+    const torso = player.torso.get()
+    const torsoUp = torso.up.get()
+    const torsoForward = torso.forward.get()
+
+    const torsoRight = torsoUp.cross(torsoForward)
+    ```
+    We did "up cross forward" because [Horizon is left-handed](#coordinate-system); "forward cross up" gives the local *left* axis instead.
+
+
+### Player Hand
+
+`PlayerHand` is a subclass of [PlayerBodyPart](#player-body-part), thus inheriting all of the behaviors and properties outlined above.
+
+`PlayerHand` also has a property `handedness`, returning either `Handedness.Left` or `Handedness.Right`.
+
+Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a VR player's controllers vibrate](#haptics).
 
 ## VOIP Settings
 
