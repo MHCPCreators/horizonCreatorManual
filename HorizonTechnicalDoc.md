@@ -19,7 +19,7 @@
 3. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
-        1. [Visitation Modes: Edit, Play, and Publish](#visitation-modes-edit-play-and-publish)
+        1. [Visitation Modes: Edit, Preview, and Publish](#visitation-modes-edit-preview-and-publish)
     3. [Available Instances](#available-instances)
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
@@ -142,7 +142,7 @@
     9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
     10. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
-            1. [System Events](#system-events)
+            1. [System Code Block Events](#system-code-block-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
@@ -154,7 +154,7 @@
         2. [Scripting Phase](#scripting-phase)
             1. [Component Initialization](#component-initialization)
             2. [Network Events Handling](#network-events-handling)
-            3. [Code Block Events Handing](#code-block-events-handing)
+            3. [Code Block Events Handling](#code-block-events-handling)
             4. [Committing Scene Graph Mutations](#committing-scene-graph-mutations)
         3. [End Phase](#end-phase)
             1. [Async Handling](#async-handling)
@@ -194,9 +194,11 @@
         4. [Server Player](#server-player)
         5. [Local Player](#local-player)
     2. [Player Events and Actions](#player-events-and-actions)
-        1. [Entering and Exiting a World](#entering-and-exiting-a-world)
+        1. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
         2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+        1. [Player Body Part](#player-body-part)
+        2. [Player Hand](#player-hand)
     4. [VOIP Settings](#voip-settings)
     5. [Haptics](#haptics)
     6. [Throwing](#throwing)
@@ -347,7 +349,7 @@ Name, description, comfort setting, player count, etc.
 
 The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. Other people, called **collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-play-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
@@ -397,9 +399,9 @@ There are two types of instances: **published instances** and **editor instances
 |  *Published*  | Use the "Visit World" button, or [travel](#travel-doors-and-links) to a friend, travel via a door. | No | No limit |
 | *Editor* | Use the "Edit World" button if you are the [world owner, editor, or a tester](#editor-roles). | Yes, if you are the [owner or a editor](#editor-roles). | 1 |
 
-### Visitation Modes: Edit, Play, and Publish
+### Visitation Modes: Edit, Preview, and Publish
 
-"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and editors can switch back and forth between edit and play modes; testers are always in play mode.
+"Visiting" a world in Horizon is done in one of three modes: edit, play, and publish. In a [published instance](#instance-types), all players are always in "publish mode". In an [editor instance](#instance-types), the creator and editors can switch back and forth between edit and preview modes; testers are always in preview mode.
 
 | Mode  |  Description | Instance Type | Required Role |
 |---|---|---|---|
@@ -1076,7 +1078,7 @@ See details in [Custom UI](#custom-ui)
 
 #### Overview
 
-Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-play-and-publish).
+Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
 
 <mark>TODO</mark> Determine which visiblitiy settings apply to Owner, Editor, or Tester
 
@@ -1718,7 +1720,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
 
-**Core types**: Component instances communicate with one another and [the world](#system-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
+**Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
 
@@ -1999,7 +2001,7 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
-#### System Events
+#### System Code Block Events
 
 ### Local Events
 
@@ -2132,7 +2134,7 @@ Proved: 0ms is the default time when omitted.
 
 Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
 
-Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world. 
+Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world.
 
 Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you get an error (and none of the events are processed that frame). Note 2047 times is allowed; 2048 is not. There is a bug where the thrown error implies that 2048 is allowed (it's not!).
 
@@ -2152,7 +2154,7 @@ Proved: each code block event handler is wrapped in a try.
 
 #### Network Events Handling
 
-#### Code Block Events Handing
+#### Code Block Events Handling
 
 #### Committing Scene Graph Mutations
 
@@ -2462,7 +2464,7 @@ Player positions are committed to the scene graph after prePhysics (and used in 
 
   When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
 
-Note: player position refers to the location in the world of the "navel" (it is the hip joint in the skeleton)
+Note: player position refers to the location in the world of the "center of the hips" (it is the hip joint in the skeleton)
 
 Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
@@ -2598,51 +2600,105 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Events and Actions
 
-### Entering and Exiting a World
+### Player Entering and Exiting a World
 
-There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [system CodeBlockEvent](#system-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
-
-| CodeBlockEvent | Description | Parameters |
+| CodeBlockEvent | Description | Parameter(s) |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Occurs when a player enters the world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
-| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player won't be in the `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerEnterWorld`  | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. | `Player` |
+| `OnPlayerExitWorld`  | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). | `Player` |
 
-!!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
+!!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
+    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
-!!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
-    In published mode, OnPlayerEnterWorld occurs only once per player id. However in build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
+!!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
+    In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
 
 ### Player Enter and Exit AFK
 
+A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
+
+**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen or when they temporarily switch to a different app. A VR player goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
+
+**Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
+
+There are two [system code block events](#system-code-block-events) associated with inactivity / AFK:
+
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
-| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `(player : Player)` |
+| `OnPlayerEnterAFK`  | Sent when a player becomes inactive.  | `Player` |
+| `OnPlayerExitAFK`  | Sent when a player is no longer inactive. | `Player` |
 
 ```mermaid {align="center"}
 flowchart TD
-    notInWorld([Player is not in the world])
-    inWorld([Player is in the world])
-    inWorldAndAFK([Player is AFK in the world])   
+    notInWorld([Player is not<br/>in the instance])
+    inWorld([Player is active<br/>in the instance])
+    inWorldAndAFK([Player is AFK<br/>in the instance])
 
-    notInWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterWorld</b>[player]</div> --> inWorld
+    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b><br/>[player]</code></td></tr></table> --> inWorld
 
-    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
 
-    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterAFK</b>[player]</div> --> inWorldAndAFK
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b><br/>[player]</code></td></tr></table> --> inWorldAndAFK
 
-    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always occur)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
 
-    inWorldAndAFK -- <div style="background-color:#cbffcd"><b>OnPlayerExitAFK</b>[player]</div> --> inWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b><br/>[player]</code></td></tr></table> --> inWorld
+
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr></table> --> notInWorld
 ```
 
-!!! tip OnPlayerEnterAFK and OnPlayerExitAFK are sent to only server-owned entities.
+!!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
+    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
-!!! bug If a player kills the app after going AFK, OnPlayerExitWorld is not triggered.
+!!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
 
 ## Pose (Position and Body Parts)
+
+The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
+
+There are additional properties for reading the positions and rotations of the [head, torso, feet, left hand, and right hand](#player-body-part).
+
+### Player Body Part
+
+A [player](#players) has a number of properties for accessing body parts: `head`, `torso`, `foot`, `leftHand`, and `rightHand`; each return an instance of the class `PlayerBodyPart` (or the more specific `PlayerHand`). They are [Horizon properties](#horizon-properties) and so you must use `get()`:
+
+```ts
+const torso = player.torso.get()
+```
+
+The `foot` body part is an "abstract" location in between the two feet (directly below the avatar center point near the hips).
+
+Each body part has a has the standard global transform properties: [position](#position), [rotation](#rotation), and [scale](#scale) as well as [local](#local-transforms) versions: `localPosition`, `localRotation`, and `localScale`. There is also `forward` and `up`.
+
+Additionally you can use `bodyPart.player` to identify which [player](#players) the part belongs to and `bodyPart.type` to identify which part of the body it is (e.g. `player.leftHand.get().type` returns `PlayerBodyPartType.LeftHand`).
+
+Body parts have two helper methods: `getPosition` and `getRotation` that let you conditionally pass in an instance of the `Space` enum:
+* `bodyPart.getPosition(Space.World)` is the same as `bodyPart.position.get()`.
+* `bodyPart.getPosition(Space.Local)` is the same as `bodyPart.localPosition.get()`.
+
+!!! tip Getting a body part's local *right* vector.
+    Unlike for entities, there is no builtin `right` property to get the [local position x-axis](#local-transforms) direction. You can compute it yourself with:
+    ```ts
+    const torso = player.torso.get()
+    const torsoUp = torso.up.get()
+    const torsoForward = torso.forward.get()
+
+    const torsoRight = torsoUp.cross(torsoForward)
+    ```
+    We did "up cross forward" because [Horizon is left-handed](#coordinate-system); "forward cross up" gives the local *left* axis instead.
+
+
+### Player Hand
+
+`PlayerHand` is a subclass of [PlayerBodyPart](#player-body-part), thus inheriting all of the behaviors and properties outlined above.
+
+`PlayerHand` also has a property `handedness`, returning either `Handedness.Left` or `Handedness.Right`.
+
+Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a VR player's controllers vibrate](#haptics).
 
 ## VOIP Settings
 
@@ -2676,6 +2732,24 @@ player.setVoipSetting(VoipSetting.Environment)
     The World's Player Settings' VOIP Settings toggle has bugs. We recommend that you **set it to `Local`** (or just never touch it after creating a new world).
 
 ## Haptics
+
+A VR player's controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
+
+To vibrate a VR player's controllers, choose a [player hand](#pose-position-and-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength, and a sharpness. For example:
+
+```ts
+player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
+```
+
+Ths supported values for haptics strength are:
+
+| `HapticsStrength` | Meaning |
+|---|---|
+| `VeryLight` | ? |
+| `Light` | ? |
+| `Medium` | ? |
+| `Strong` | ? |
+
 
 ```ts
 Handedness {Left, Right}
@@ -3654,6 +3728,8 @@ WorldUpdateType
 
 
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
+
+TODO: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
 
 NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
