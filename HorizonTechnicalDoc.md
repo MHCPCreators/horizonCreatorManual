@@ -48,7 +48,7 @@
         6. [Interactive Entities](#interactive-entities)
     2. [Entity Properties](#entity-properties)
         1. [Simulated](#simulated)
-        2. [Tags](#tags)
+        2. [Entity Tags](#entity-tags)
         3. [Entity Visibility](#entity-visibility)
     3. [Scene Graph Elements](#scene-graph-elements)
         1. [Custom UI Gizmo](#custom-ui-gizmo)
@@ -897,8 +897,6 @@ Use the `AnimatedEntity` class to control recorded animations.
 | **`pause()`** | Pause the animation at the current frame. Playing again will resume, starting at this frame. |
 | **`stop()`**  | Reset the animation to the first frame, restoring the entity’s position/rotation/scale to its initial state. |
 
-
-
 !!! bug `AnimatedEntity` is not yet "active" `preStart()` and `start()`.
     Calling `play()` in `preStart()` or `start()` doesn't always work. If you always want to play at start, use the **Play on Start** setting. If you want to do it conditionally, then use a small timeout to delay it.
 
@@ -950,7 +948,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | name | `ReadableHorizonProperty`<br/>`<string>` | The name the Entity has in property panel. |
 | [parent](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity \| null>` | The entity's parent (if there is one). |
 | [children](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity[]>` | The entity's children. |
-| [tags](#tags) | `HorizonSetProperty`<br/>`<string>` | The array of tags on the entity. |
+| [tags](#entity-tags) | `HorizonSetProperty`<br/>`<string>` | The array of tags on the entity. |
 | **[Transform](#transforms)** |
 | [position](#position) | `HorizonProperty`<br/>`<Vec3>` | The entity's *global* position. |
 | [rotation](#rotation) | `HorizonProperty`<br/>`<Quaternion>` | The entity's *global* rotation. |
@@ -984,28 +982,31 @@ When an [entity](#entities) has **`simulated` set to `false`**:
 
 The `simulated` property defaults to `true`.
 
-### Tags
+### Entity Tags
 
-<mark>TODO</mark>
+Entities in Horizon can be assigned a list of **tags** which are used of "classifying" entities. Tags are just `string`s. Tags can be assigned in the property panel; they can also be modified in scripting with the `Entity` property `tags: HorizonSetProperty<string>`.
 
-Getting entities with tags.
+When `entity.tags.get().contains(thing)` returns `true` we say that the **`entity` has the tag** `thing`.
+
+Tags (currently) have three primary use cases:
+1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) has a property panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
+1. **Controlling collisions**: [Entities](#entity) have a property panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-detection) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
+1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
 ```ts
-enum EntityTagMatchOperation {
-  HasAnyExact = 0,
-  HasAllExact = 1
-}
-
 // World
-getEntitiesWithTags(tags: string[], matchOperation?: EntityTagMatchOperation): Entity[];
-
-// Entity
-tags: HorizonSetProperty<string>;
+getEntitiesWithTags(
+  tags: string[],
+  matchOperation?: EntityTagMatchOperation
+): Entity[];
 ```
 
-Tag uses:
-  * Triggers
-  * Collisions
+The method takes an list of tags (a string array) and optionally a match operation (the enum `EntityTagMatchOperation` has `HasAnyExact` and `HasAllExact`) which defaults to `HasAnyExact` if not specified.
+* `HasAnyExact`: return all entities in the world that have at least one of the tags in the `tags` argument.
+* `HasAllExact`: return all entities in the world that have all of the tags in the `tags` argument.
+
+!!! warning Horizon does not auto-check for duplicate tags.
+    Be careful not to give an entity the same tag more than once. Doing so may result in certain events happening more than once or the entity appearing multiple times in lists.
 
 ### Entity Visibility
 
@@ -1753,6 +1754,11 @@ Properties can be
 1. **read-only**: only a `get()` method. Uses `ReadableHorizonProperty`.
 1. **write-only**: only a `set()` method. Uses `WritableHorizonProperty`.
 1. **read-write**: `get()` and `set()` methods. Uses `HorizonProperty`.
+
+There is an additional class `HorizonSetProperty` which is used for managing properties that act like Sets such as [entity tags](#entity-tags). You can `get()` and `set(values)` the values; additionally there are methods for `length()`, `contains()`, `clear()`, `add(value)`, and `remove(value)`.
+
+!!! warning `Set` versus `Array`
+    The `HorizonSetProperty` is meant to act like a `Set`. However the `get()` and `set()` methods both use arrays, for convenience and simplicity.
 
 !!! example Horizon Property Example
     Here is some of the [`PhysicalEntity`](#physicalentity-class) class:
@@ -3632,7 +3638,7 @@ degreesToRadians
 [EntityInteractionMode](#interactive-entities)
 [EntityRaycastHit](#raycast-gizmo)
 [EntityStyle](#mesh-asset-style)
-[EntityTagMatchOperation](#tags)
+[EntityTagMatchOperation](#entity-tags)
 [EulerOrder](#quaternion)
 [EventSubscription](#events-sending-and-receiving)
 [FetchAsDataOptions](#data-asset-text-and-json)
