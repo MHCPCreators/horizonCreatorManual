@@ -165,7 +165,7 @@
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
     3. [Ownership Transfer](#ownership-transfer)
-        1. [Auto Ownerhip Transfers](#auto-ownerhip-transfers)
+        1. [Auto Ownership Transfers](#auto-ownership-transfers)
         2. [Transfering Data Across Owners](#transfering-data-across-owners)
     4. [Networking and Events](#networking-and-events)
     5. [Authority and Reconciliation](#authority-and-reconciliation)
@@ -225,12 +225,12 @@
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
         1. [Scripted Attach](#scripted-attach)
-        2. [Sticky](#sticky)
+        2. [Socket Attachment](#socket-attachment)
+        3. [Sticky](#sticky)
             1. [Stick To](#stick-to)
-        3. [Anchor](#anchor)
+        4. [Anchor](#anchor)
             1. [Anchor To](#anchor-to)
-            2. [Socket Attachment](#socket-attachment)
-            3. [Auto Scale to Anchor](#auto-scale-to-anchor)
+            2. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
 15. [Holstering Entities](#holstering-entities)
 16. [Player Input](#player-input)
@@ -2205,7 +2205,7 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 - Full-details sequencing diagrams.
 - Clarify how scripts are instantiated per-owner as part of entity transfer.
 
-### Auto Ownerhip Transfers
+### Auto Ownership Transfers
 
 Collisions and Grabbables
 
@@ -3077,58 +3077,27 @@ flowchart TD
 
 ### Scripted Attach
 
-Use `attachToPlayer` to and `detach` to control attachment in scripts. These APIs are unaffected by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in the properties panel. [Avatar Attachable](#avatar-attachable) must be enabled.
+Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the properties panel.
 
-When `attachToPlayer` is called with a player, ownership of the parent entity is automatically transfered to that player.
+**Attach and ownership**: When `entity.attachToPlayer(player, anchor)`, `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#auto-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
-See [Anchor To](#anchor-to) for the locations of the `AttachablePlayerAnchor`s.
+**Anchor**: The anchor is specified by the `AttachablePlayerAnchor` enum which currently has values for `Head` and `Torso`. See [socket attachment](#socket-attachment) for changing the exact position and rotation of where an attachable attaches.
+
+!!! bug Non-grabbable collidable attachables can continuously push the player when they are attached.
+    When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics**, the entity can continuously push the player (forever). To mitigate this, disable collision on the entity before calling `attachToPlayer`.
+
+### Socket Attachment
+
+By default, attachables anchor their [pivot point](#pivot-points) to the attach point with no local rotation (e.g. attaching a hat to a head will have the hat's [up vector](#local-transforms) aligned with the head's up vector, and likewise for right and forward vectors).
+
+You can modify the attachment position and rotation (expressed as a local offset) in the property panel by setting `Anchor Position` and `Anchor Rotation` on the attachable entity. In scripting, you can get and set the attachment offsets with `socketAttachmentPosition : HorizonProperty<Vec3>` and `socketAttachmentRotation : HorizonProperty<Quaternion>` on the `AttachableEntity` class.
+
+!!! example Attach 1 meter in front of a player's torso.
+The code below will attach `attachable` to `player` on their torso. Moving the socket position forward a meter, via `new Vec3(0, 0, 1)`, moves `attachable` to always be 1 meter forward from `player`'s torso.
 ```ts
-/**
- * The location of an attachment point on a player.
- */
-declare enum AttachablePlayerAnchor {
-    /**
-     * Front-center of the player's forehead
-     */
-     Head = "Head",
-    /**
-     * Front-center-bottom of the player's ribcage.
-     */
-    Torso = "Torso" 
-}
-
-class AttachableEntity extends Entity {
-    /**
-     * Attaches the entity to a player so it moves as if it's a child of the player.
-     * @param player - The player to attach the entity to.
-     * @param anchor - The attachment point to use.
-     */
-    attachToPlayer(player: Player, anchor: AttachablePlayerAnchor): void;
-    /**
-     * Releases an attachment to a player so that it no longer moves with the player.
-     */
-    detach(): void;
-    /**
-     * The local position offset of the attachment in the coordinates of the `AttachablePlayerAnchor`.
-     */
-    socketAttachmentPosition: HorizonProperty<Vec3>;
-    /**
-     * The local rotation offset of the attachment in the coordinates of the `AttachablePlayerAnchor`.
-     */
-    socketAttachmentRotation: HorizonProperty<Quaternion>;
-}
+attachable.attachToPlayer(player, AttachablePlayerAnchor.Torso)
+attachable.socketAttachmentPosition.set(new Vec3(0, 0, 1))
 ```
-
-Usage example:
-```ts
-// Attach to the player's torso
-this.entity?.as(AttachableEntity).attachToPlayer(player, AttachablePlayerAnchor.Torso)
-// Move the entity to be 1 meter in the local forward direction of the `AttachablePlayerAnchor`.
-this.entity?.as(AttachableEntity).socketAttachmentPosition.set(new Vec3(0, 0, 1))
-```
-
-!!! bug Non-grabbable collidable attachables can continuously push the player when they are attached
-    When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics**, the entity can continuously push the player if it collides with the player. To mitigate this, disable collision on that entity and its [descendents](#ancestors) before calling `attachToPlayer`.
 
 ### Sticky
 Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
@@ -3168,20 +3137,15 @@ The following is a list of player body parts that the attachable entity may anch
 |---|---|
 | *Head* | Front-center of the player's forehead.|
 | *Torso* | Front-center-bottom of the player's ribcage. |
-| *Left/Right Hip* | Left/right of the bottom of the player's pelvis. |
+| *Left Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
+| *Right Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
 
-This image illustrates the local XYZ axis of 4 attachables attached at each of the 4 anchors:
+This image illustrates the [local coordinate axes](#local-transforms) of 4 attachables attached at each of the 4 anchors:
 
 ![head, torso, left and right hip](images/attachableAnchors.png)
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
-    Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
-
-#### Socket Attachment
-Allows you to set a position and rotation offset from the selected anchor
-
-Can be set in properties panel.
-Can be overridden programatically.
+    Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
 
 #### Auto Scale to Anchor
 This settings currently has no effect on the attachable entities.
