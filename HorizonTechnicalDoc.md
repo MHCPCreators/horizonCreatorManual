@@ -2874,7 +2874,7 @@ When the **Who Can Grab** setting is set to **Script Assignee(s)**, no one can g
 When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCanGrab` method does nothing when called.
 
 !!! bug **First To Grab Only** can cause an entity to be grabbable by no one, even after the player is no longer in the world.
-    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts.
+    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player and releasing held and attached entities. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts. Instead, set **Can Grab** to **Anyone**, or to **Script Assignee(s)** and `forceRelease` any held entity when a player is AFK.
 
 !!! note `setWhoCanGrab` does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
@@ -3115,9 +3115,11 @@ The following is a list of player body parts that the attachable entity may anch
 
 | Body Part Setting | Sets the attachment point to |
 |---|---|
-| *Head* | center of the player's head.|
-| *Torso* | center of the player's torso. |
-| *Left/Right Hip* | the side (left or right) of the player's waist. |
+| *Head* | Front-center of the player's forehead.|
+| *Torso* | Slightly above the player's navel. |
+| *Left/Right Hip* | Left/right of the bottom of the player's pelvis. |
+
+![head, torso, left and right hip](images/attachableAnchors.png)
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
