@@ -3732,6 +3732,8 @@ WorldUpdateType
 
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
+TODO: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
+
 NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
 
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
