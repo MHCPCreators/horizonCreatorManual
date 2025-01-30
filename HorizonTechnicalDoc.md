@@ -2389,7 +2389,7 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 !!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
 
 !!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
-    In published mode, OnPlayerEnterWorld occurs only once per player id. In build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
+    In published mode, OnPlayerEnterWorld occurs only once per player id. However in build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
 
 ### Player Enter and Exit AFK
 
