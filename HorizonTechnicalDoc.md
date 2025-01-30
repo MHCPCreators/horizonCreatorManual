@@ -2895,17 +2895,16 @@ flowchart TD
 |---|---|
 | **Anyone** | Any player is eligible to grab the entity. |
 | **First To Grab Only** | If an entity has never been grabbed then any player can grab it. Once a player grabs it, only that player can re-grab it until [they exit the world instance](#entering-and-exiting-a-world). Then anyone can grab the entity, and only next player to grab it can re-grab it until they exit the instance, and so on. |
-| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players assigned with `setWhoCanGrab`. |
+| **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players assigned with `entity.setWhoCanGrab(listOfPlayers)`. |
 
-Only `GrabbableEntity`s with **Who Can Grab** set to **Script Assignee(s)** can use `setWhoCanGrab` to change the list of players who are allowed to grab the entity. Other settings on **Who Can Grab** results in a no-op when `setWhoCanGrab` is called. In a world instance, no one can grab the entity before this API is called for the first time with a player. 
-```ts
-setWhoCanGrab(players: Player[]): void;
-```
+When the **Who Can Grab** setting is set to **Script Assignee(s)**, no one can grab the entity until `setWhoCanGrab` is called with an array of some players. You can pass an empty array to make an entity not grabbable.
+
+When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCanGrab` method does nothing when called.
 
 !!! bug **First To Grab Only** can cause an entity to be grabbable by no one, even after the player is no longer in the world.
     If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts.
 
-!!! note setWhoCanGrab does not auto-update.
+!!! note `setWhoCanGrab` does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
 
 ### Setting "Who Can Take From Holder?"
