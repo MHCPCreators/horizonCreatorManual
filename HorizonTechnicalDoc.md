@@ -2464,7 +2464,7 @@ Player positions are committed to the scene graph after prePhysics (and used in 
 
   When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
 
-Note: player position refers to the location in the world of the "navel" (it is the hip joint in the skeleton)
+Note: player position refers to the location in the world of the "center of the hips" (it is the hip joint in the skeleton)
 
 Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
@@ -2658,7 +2658,9 @@ flowchart TD
 
 ## Pose (Position and Body Parts)
 
-<mark>TODO</mark>
+The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
+
+There are additional properties for reading the positions and rotations of the [head, torso, feet, left hand, and right hand](#player-body-part).
 
 ### Player Body Part
 
@@ -2667,6 +2669,8 @@ A [player](#players) has a number of properties for accessing body parts: `head`
 ```ts
 const torso = player.torso.get()
 ```
+
+The `foot` body part is an "abstract" location in between the two feet (directly below the avatar center point near the hips).
 
 Each body part has a has the standard global transform properties: [position](#position), [rotation](#rotation), and [scale](#scale) as well as [local](#local-transforms) versions: `localPosition`, `localRotation`, and `localScale`. There is also `forward` and `up`.
 
