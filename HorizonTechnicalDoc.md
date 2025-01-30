@@ -2874,7 +2874,7 @@ When the **Who Can Grab** setting is set to **Script Assignee(s)**, no one can g
 When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCanGrab` method does nothing when called.
 
 !!! bug **First To Grab Only** can cause an entity to be grabbable by no one, even after the player is no longer in the world.
-    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts.
+    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player and releasing held and attached entities. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts. Instead, set **Can Grab** to **Anyone**, or to **Script Assignee(s)** and `forceRelease` any held entity when a player is AFK.
 
 !!! note `setWhoCanGrab` does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
@@ -3077,7 +3077,58 @@ flowchart TD
 
 ### Scripted Attach
 
-<mark>TODO<mark>
+Use `attachToPlayer` to and `detach` to control attachment in scripts. These APIs are unaffected by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in the properties panel. [Avatar Attachable](#avatar-attachable) must be enabled.
+
+When `attachToPlayer` is called with a player, ownership of the parent entity is automatically transfered to that player.
+
+See [Anchor To](#anchor-to) for the locations of the `AttachablePlayerAnchor`s.
+```ts
+/**
+ * The location of an attachment point on a player.
+ */
+declare enum AttachablePlayerAnchor {
+    /**
+     * Front-center of the player's forehead
+     */
+     Head = "Head",
+    /**
+     * Front-center-bottom of the player's ribcage.
+     */
+    Torso = "Torso" 
+}
+
+class AttachableEntity extends Entity {
+    /**
+     * Attaches the entity to a player so it moves as if it's a child of the player.
+     * @param player - The player to attach the entity to.
+     * @param anchor - The attachment point to use.
+     */
+    attachToPlayer(player: Player, anchor: AttachablePlayerAnchor): void;
+    /**
+     * Releases an attachment to a player so that it no longer moves with the player.
+     */
+    detach(): void;
+    /**
+     * The local position offset of the attachment in the coordinates of the `AttachablePlayerAnchor`.
+     */
+    socketAttachmentPosition: HorizonProperty<Vec3>;
+    /**
+     * The local rotation offset of the attachment in the coordinates of the `AttachablePlayerAnchor`.
+     */
+    socketAttachmentRotation: HorizonProperty<Quaternion>;
+}
+```
+
+Usage example:
+```ts
+// Attach to the player's torso
+this.entity?.as(AttachableEntity).attachToPlayer(player, AttachablePlayerAnchor.Torso)
+// Move the entity to be 1 meter in the local forward direction of the `AttachablePlayerAnchor`.
+this.entity?.as(AttachableEntity).socketAttachmentPosition.set(new Vec3(0, 0, 1))
+```
+
+!!! bug Non-grabbable collidable attachables can continuously push the player when they are attached
+    When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics**, the entity can continuously push the player if it collides with the player. To mitigate this, disable collision on that entity and its [descendents](#ancestors) before calling `attachToPlayer`.
 
 ### Sticky
 Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entites work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
@@ -3115,9 +3166,13 @@ The following is a list of player body parts that the attachable entity may anch
 
 | Body Part Setting | Sets the attachment point to |
 |---|---|
-| *Head* | center of the player's head.|
-| *Torso* | center of the player's torso. |
-| *Left/Right Hip* | the side (left or right) of the player's waist. |
+| *Head* | Front-center of the player's forehead.|
+| *Torso* | Front-center-bottom of the player's ribcage. |
+| *Left/Right Hip* | Left/right of the bottom of the player's pelvis. |
+
+This image illustrates the local XYZ axis of 4 attachables attached at each of the 4 anchors:
+
+![head, torso, left and right hip](images/attachableAnchors.png)
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use `socketAttachmentPosition.set()` and `socketAttachmentRotation.set()` with `AttachablePlayerAnchor.Torso` to get around this.
@@ -3706,5 +3761,4 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
-- When Attachable By is set to owner, can I programatically attach the entity to anyone in the world? Can I attach to one player, detach, then attach to another player?
 * when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
