@@ -184,7 +184,7 @@
         5. [Local Player](#local-player)
     2. [Player Events and Actions](#player-events-and-actions)
         1. [Entering and Exiting a World](#entering-and-exiting-a-world)
-        2. [AFK](#afk)
+        2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
@@ -2383,20 +2383,20 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Occurs when a player enters the world. The player is in the `getPlayers()` array. | `(player : Player)` |
-| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world, and the player will be gone from the  `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player will stay in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerEnterWorld`  | Occurs when a player enters a world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player will be gone from the  `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
 
-!!! tip Player-Enter and Player-Exit are sent to only server-owned entities.
+!!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
 
-!!! warning In build mode, OnPlayerEnterWorld can occur twice in a row for one player.
-    In published mode, Player-Enter occurs only once per player. In build mode, a player on the desktop editor triggers Player-Enter twice when entering Preview from a stopped world.  This means that if you're tracking a list of players using the Player-Enter event, add the players to a set or dictionary instead of an array.
+!!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
+    In published mode, OnPlayerEnterWorld occurs only once per player id. In build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
 
-### AFK
+### Player Enter and Exit AFK
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
-| `OnPlayerEnterAFK`  | Occurs when a player goes AFK. e.g. The player opens the Oculus menu, takes their headset off, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
-| `OnPlayerExitAFK`  | Occurs when a player returns to the world after being AFK. e.g. The player could close the Oculus menu, press their keyboard, etc... | `(player : Player)` |
+| `OnPlayerEnterAFK`  | Occurs when a player is still in the instance but is not moving. e.g. The takes their headset off, opens the Oculus menu, waits 2 minutes without touching the screen on mobile, backgrounds the Horizon app, etc...  | `(player : Player)` |
+| `OnPlayerExitAFK`  | Occurs when a player moves again after being AFK in the same world instance. e.g. The player could close the Oculus menu, touches the screen, press the keyboard, etc... | `(player : Player)` |
 
 ```mermaid {align="center"}
 flowchart TD
@@ -2410,7 +2410,7 @@ flowchart TD
 
     inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterAFK</b>[player]</div> --> inWorldAndAFK
 
-    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always trigger)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always occur)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
 
     inWorldAndAFK -- <div style="background-color:#cbffcd"><b>OnPlayerExitAFK</b>[player]</div> --> inWorld
 ```
