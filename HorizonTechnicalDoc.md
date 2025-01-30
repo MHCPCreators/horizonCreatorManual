@@ -194,7 +194,7 @@
         4. [Server Player](#server-player)
         5. [Local Player](#local-player)
     2. [Player Events and Actions](#player-events-and-actions)
-        1. [Entering and Exiting a World](#entering-and-exiting-a-world)
+        1. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
         2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
     4. [VOIP Settings](#voip-settings)
@@ -2132,7 +2132,7 @@ Proved: 0ms is the default time when omitted.
 
 Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
 
-Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world. 
+Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world.
 
 Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you get an error (and none of the events are processed that frame). Note 2047 times is allowed; 2048 is not. There is a bug where the thrown error implies that 2048 is allowed (it's not!).
 
@@ -2598,21 +2598,21 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Events and Actions
 
-### Entering and Exiting a World
+### Player Entering and Exiting a World
 
-There are two [CodeBlockEvents](#code-block-event) associated with player enter and exit.
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [CodeBlockEvent](#code-block-event) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it.
-
-| CodeBlockEvent | Description | Parameters |
+| CodeBlockEvent | Description | Parameter(s) |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Occurs when a player enters the world instance in published mode, or when a player enters preview from build mode. The player is in the `getPlayers()` array. | `(player : Player)` |
-| `OnPlayerExitWorld`  | In published mode, this occurs when a player leaves the world instance, and the player won't be in the `getPlayers()` array. In build mode, this event occurs when the player exits preview, but the player remains in the `getPlayers()` array. | `(player : Player)` |
+| `OnPlayerEnterWorld`  | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to play mode](#visitation-modes-edit-play-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. | `Player` |
+| `OnPlayerExitWorld`  | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[play mode to edit mode](#visitation-modes-edit-play-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). | `Player` |
 
-!!! tip OnPlayerEnterWorld and OnPlayerExitWorld are sent to only server-owned entities.
+!!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
+    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! warning In build mode, OnPlayerEnterWorld can occur twice in succession for one player id.
-    In published mode, OnPlayerEnterWorld occurs only once per player id. However in build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
+    In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers OnPlayerEnterWorld twice when they enter Preview from a stopped instance. This means that if you're tracking a list of all players using OnPlayerEnterWorld, add the new player to a set or dictionary instead of an array.
 
 ### Player Enter and Exit AFK
 
@@ -2623,24 +2623,28 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 ```mermaid {align="center"}
 flowchart TD
-    notInWorld([Player is not in the world])
-    inWorld([Player is in the world])
-    inWorldAndAFK([Player is AFK in the world])   
+    notInWorld([Player is not<br/>in the instance])
+    inWorld([Player is active<br/>in the instance])
+    inWorldAndAFK([Player is AFK<br/>in the instance])
 
-    notInWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterWorld</b>[player]</div> --> inWorld
+    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-play-and-publish">enters play mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b><br/>[player]</code></td></tr></table> --> inWorld
 
-    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
 
-    inWorld -- <div style="background-color:#cbffcd"><b>OnPlayerEnterAFK</b>[player]</div> --> inWorldAndAFK
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b><br/>[player]</code></td></tr></table> --> inWorldAndAFK
 
-    inWorldAndAFK -- <div style="background-color:#cbffcd">(Does not always occur)<br><b>OnPlayerExitWorld</b>[player]</div> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
 
-    inWorldAndAFK -- <div style="background-color:#cbffcd"><b>OnPlayerExitAFK</b>[player]</div> --> inWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b><br/>[player]</code></td></tr></table> --> inWorld
+
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr></table> --> notInWorld
 ```
 
-!!! tip OnPlayerEnterAFK and OnPlayerExitAFK are sent to only server-owned entities.
+!!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
+    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
-!!! Warning If a player kills the app after going AFK, OnPlayerExitWorld is not triggered.
+!!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
 
 ## Pose (Position and Body Parts)
 
