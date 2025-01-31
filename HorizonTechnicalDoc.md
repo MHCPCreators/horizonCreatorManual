@@ -124,10 +124,31 @@
     2. [Horizon Properties](#horizon-properties)
         1. [Horizon Property Subtleties](#horizon-property-subtleties)
     3. [Types](#types)
-        1. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
-        2. [Color](#color)
+        1. [Comparable<T> Interface](#comparablet-interface)
+        2. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
         3. [Vec3](#vec3)
-        4. [Quaternion](#quaternion)
+            1. [Vector Creation](#vector-creation)
+            2. [Vector Properties](#vector-properties)
+            3. [Vector Operations](#vector-operations)
+            4. [Dot Product](#dot-product)
+            5. [Cross Product](#cross-product)
+            6. [Vector Reflect](#vector-reflect)
+            7. [Vector Linear Interpolation (Lerp)](#vector-linear-interpolation-lerp)
+        4. [Color](#color)
+            1. [Creation](#creation)
+            2. [Color Properties](#color-properties)
+            3. [Color Operations](#color-operations)
+            4. [Color Space Conversions (HSV)](#color-space-conversions-hsv)
+            5. [Hex Colors](#hex-colors)
+            6. [Color Blending](#color-blending)
+        5. [Quaternion](#quaternion)
+            1. [Quaternion Creation](#quaternion-creation)
+            2. [Quaternion Properties](#quaternion-properties)
+            3. [Quaternion Operations](#quaternion-operations)
+            4. [Euler Angles](#euler-angles)
+            5. [Axis and Angle](#axis-and-angle)
+            6. [Look Rotation](#look-rotation)
+            7. [Spherical Linear Interpolation (Slerp)](#spherical-linear-interpolation-slerp)
     4. [World Class](#world-class)
     5. [Files](#files)
     6. [Components](#components)
@@ -175,7 +196,8 @@
     2. [Trigger Entry and Exit](#trigger-entry-and-exit)
         1. [Collidability](#collidability)
         2. [Controlling Collisions](#controlling-collisions)
-        3. [Triggers](#triggers)
+        3. [Collision Events](#collision-events)
+        4. [Triggers](#triggers)
 11. [Physics](#physics)
     1. [Overview](#overview-8)
     2. [Units](#units)
@@ -1713,7 +1735,6 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **TypeScript**: Scripts are written in [TypeScript](https://www.typescriptlang.org/). They can be edited in the Desktop Editor as well as the scripts web tool (click [here](https://horizon.meta.com/creator/worlds_all_) and then select a world and then select "Scripts").
 
-
 **Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
 
 **Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
@@ -1722,9 +1743,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 ## Creating and Editing Scripts
 
-<mark>TODO</mark>
-
-An entity is marked as dynamic when a script is placed on it. You can disable it, as long as you don't mutate any scene graph state on it.
+You can create scripts by using the create button in the scripts dropdown or simply creating a new file in the scripts folder. Click the [≣] button in the editor and then "Launch TypeScript Editor". You can then create and edit files.
 
 ### Syncing Scripts
 
@@ -1815,7 +1834,9 @@ There is an additional class `HorizonSetProperty` which is used for managing pro
     !!! tip Track your scene graph value updates when needed.
         If you need to know values after `set`ting but before they are committed to the scene graph, you should track the values manually (such as in a class variable).
 
-!!! danger Never modify the result of `get()`.
+!!! danger Never modify the result of `get()`. Create a new instance, or [clone()](#copying-vs-mutating-methods), first.
+    **Never mutate the result of a `get()`.** Don't do direct field mutation (e.g. `v.x += 4` on a vector) or use [mutating methods](#copying-vs-mutating-methods) such as `v.addInPlace(w)` or `v.copy(w)`. These **will "corrupt" the property value**.
+
     Horizon properties cache their values until the scene graph is updated (see [frame sequence](#frame-sequence) for when). This means that `get()` keeps returning the same value until the update occurs. The following code is then dangerous:
 
     ```ts
@@ -1828,7 +1849,7 @@ There is an additional class `HorizonSetProperty` which is used for managing pro
     p.addInPlace(new Vec3(0, 10, 0))
     ```
 
-    In any code now reads that object's position it will get the wrong value, until the next time the property is updated in the [frame sequence](#frame-sequence).
+    If any code now reads that object's position it will get the wrong value, until the next time the property is updated in the [frame sequence](#frame-sequence).
 
     You should always `clone` a Horizon property's value before modifying it (or add a [method that creates a new value](#copying-vs-mutating-methods)).
 
@@ -1868,7 +1889,26 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 
 **Construction / new**: `Component`s, `Entity`s, `Player`s, and the `World` are all created by the system. You should never instantiate these directly with `new`. You can (and will) instantiate `Vec3`, `Quaternion`, and `Color`. You can allocate `Asset`s directly with their asset ids.
 
-**Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use builtin TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement `Comparable<T>` which provides the methods `equal(other: T): boolean` and `equalApprox(other: T, epsilon?: number): boolean`.
+**Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use builtin TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement [Comparable<T>](#comparable-interface)
+
+### Comparable<T> Interface
+`Vec3`, `Quaternion`, and `Color` implement `Comparable<T>` which provides the methods `equal(other: T): boolean` and `equalApprox(other: T, epsilon?: number): boolean`.
+
+**Epsilon**: represents the maximum distance the two can be apart and still be considered equal (it defaults to a small number around `1e-6` which is 0.000001).
+
+All three classes also implement static versions of these methods. For clarity here is a subset of the `Vec3` class:
+
+```ts
+class Vec3 implements Comparable<Vec3> {
+  equals(vec: Vec3): boolean;
+  equalsApprox(vec: Vec3, epsilon?: number): boolean;
+
+  static equals(vecA: Vec3, vecB: Vec3): boolean;
+  static equalsApprox(vecA: Vec3, vecB: Vec3, epsilon?: number): boolean;
+
+  // ...
+}
+```
 
 !!! example Example: Comparing Vec3 instances
     ```ts
@@ -1884,22 +1924,496 @@ There are many TypeScript types in Horizon; however, there are a few that form t
     console.log(a.equalApprox(c))   // true  ✅
     ```
 
+If you compare `Vec3`, `Quaternion`, and `Color` with `===` or `!==` then you are doing *referential* equality which means "is this the exact same instance?". In the above example `a === b` is `false` because `a` and `b` are different class instances (even though they represent the same vector); however `a === a` is `true` because both sides are the same class instance (the same *reference*).
+
 ### Copying vs Mutating Methods
 
-.*inPlace() methods
-copy()
-clone()
-`out?: T`
+`Vec3`, `Quaternion`, and `Color` all implement a number of patterns around mutability. This section only refers to those 3 classes.
 
-Put a note here that directly modifying keys (such as `v.x += 4` on a Vec3) risks property coherence if it came from a `.get()` and link to the [Horizon Properties](#horizon-properties).
+1. **inPlace methods**: methods that end with the suffix `...InPlace` will mutate the `this` they are called on. Thus `vec.mulInPlace(2)` is the same as `vec.x *= 2; vec.y *= 2; vec.z *= 2`. In place methods return `this` for convenience (chaining operations).
+1. **new by default**: in contrast to the above point, if a method *does not end with `...InPlace` then it creates a *new* instance. Thus `vec.mul(2)` is the same as `new Vec3(vec.x * 2, vec.y * 2, vec.z * 2)`. The one exception is `copy()`.
+1. **copy(input)**: this method should really be called `copyInPlace`. It takes the `input` argument and makes `this` be `equal()` to it. It returns `this` again for convenience (chaining operations). Thus `vec.copy(other)` is the same as `vec.x = other.x; vec.y = other.y; vec.z = other.z`.
+1. **clone()**: creates a new equivalent instance ([which would return true with `equal()` but not `===`](#comparable-interface)). Thus `vec.clone()` is the same as `new Vec3(vec.x, vec.y, vec.z)`.
+1. **out argument**: some methods (e.g. `Vec3.add`) take an optional `out` argument. If the `out` argument is provided then the result is "created" inside of that argument (similar to `out.copy(result)`) and also returned. If the *out* argument is not provided then a new instance is created and returns. Thus `Vec3.add(a, b)` is the same as `a.add(b)`, whereas `Vec3.add(a, b, result)` is equivalent to `result.copy(a).addInPlace(b)`.
 
-### Color
+!!! danger Don't mutate the result of a [Horizon Property](#horizon-properties) `get()`.
+    Mutating the result of a property `get()` -- either by mutating a field, such as `v.x += 4` on a vector or via an *in place* method such as `v.addInPlace(w)` or `v.copy(w)` -- will cause the property to [report the wrong value](#horizon-property-subtleties) to future `get()`s.
 
 ### Vec3
 
+The `Vec3` class represents a 3-dimensional quantity which is usually a 3D [position](#position). It can also be used to represent an [offset](#offsets---move-rotate-and-scale), [velocity, force, torque](#physics), [scale](#scale), [Euler Angles](#euler-angles), and more.
+
+#### Vector Creation
+
+`Vec3s` can be created in several ways:
+
+```ts
+// Direct construction
+const vec = new Vec3(1, 2, 3)
+
+// Static convenience vectors
+const origin = Vec3.zero      // ( 0,  0,  0)
+const unit = Vec3.one         // ( 1,  1,  1)
+const right = Vec3.right      // ( 1,  0,  0)
+const up = Vec3.up            // ( 0,  1,  0)
+const forward = Vec3.forward  // ( 0,  0,  1)
+const down = Vec3.left        // (-1,  0,  0)
+const down = Vec3.down        // ( 0, -1,  0)
+const forward = Vec3.backward // ( 0,  0, -1)
+```
+
+#### Vector Properties
+
+* `x: number` - The magnitude along the X axis
+* `y: number` - The magnitude along the Y axis
+* `z: number` - The magnitude along the Z axis
+
+#### Vector Operations
+
+`Vec3` has the `equal(other: Vec3)` and `equalApprox(other: Vec3, epsilon?: number)` methods from [Comparable<T>](#comparable-interface), and their `static` counterparts. It also has `copy(other)` and `clone()` [methods](#copying-vs-mutating-methods).
+
+`Vec3`s support many common mathematical operations which support both [copying and mutating versions](#copying-vs-mutating-methods):
+
+```ts
+const v1 = new Vec3(1, 0, 0)
+const v2 = new Vec3(0, 1, 0)
+
+// Addition and subtraction
+const sum = v1.add(v2)       // (1,  1, 0)
+const diff = v1.sub(v2)      // (1, -1, 0)
+
+// Scalar multiplication and division
+const doubled = v1.mul(2)    // (2,   0, 0)
+const halved = v1.div(2)     // (0.5, 0, 0)
+
+// Length operations
+const length = v1.magnitude()           // 1
+const lengthSqr = v1.magnitudeSquared() // 1
+
+// Normalization (makes length 1)
+const normalized = v1.normalize() // (1, 0, 0)
+
+// Vector products
+const dot = v1.dot(v2)       // 0
+const cross = v1.cross(v2)   // (0, 0, 1)
+
+// Get distance between vectors
+const dist = v1.distance(v2)           // 1.414...
+const distSqr = v1.distanceSquared(v2) // 2
+```
+
+The following table assumes that `v`, `w`, `r`, and `out` are `Vec3`s; `s` and `n` are `number`s.
+| Operation  | Code | Math | Description |
+|---|---|---|---|
+| Addition | `r = v.add(w)`<br/>`v.addInPlace(w)`<br/>`Vec3.add(v, w, out)` | $$\vec v + \vec w$$ | Get the sum of two vectors. |
+| Subtraction | `r = v.sub(w)`<br/>`v.subInPlace(w)`<br/>`Vec3.sub(v, w, out)` | $$\vec v - \vec w$$ | Get the difference of two vectors. |
+| Scalar Multiplication | `r = v.mul(w)`<br/>`v.mulInPlace(w)`<br/>`Vec3.mul(v, s, out)` | $$\vec v s$$ | Scale a vector. |
+| Scalar Division | `r = v.div(w)`<br/>`v.divInPlace(w)`<br/>`Vec3.div(v, s, out)` | $$\vec v \frac{1}{s}$$ | Inverse-scale a vector. |
+| Component-wise Multiplication | `r = v.componentMul(w)`<br/>`v.componentMulInPlace(w)` | $$\vec v \otimes \vec w$$ | Multiply the two vectors component-by-component. |
+| Component-wise Division | `r = v.componentDiv(w)`<br/>`v.componentDivInPlace(w)` | $$\vec v \oslash \vec w$$ | Divide the two vectors component-by-component. |
+| Magnitude (Length) | `n = v.magnitude()` | $$\|\vec v\|$$ | Compute the Euclidean magnitude (length or norm) of the vector. |
+| Magnitude (Length) Squared | `n = v.magnitudeSquared()` | $$\|\vec v\|^2$$ | Compute the Euclidean magnitude (length or norm) squared of the vector. |
+| Normalize | `r = v.normalize()`<br/>`v.normalizeInPlace()`<br/>`Vec3.normalize(v, out)` | $$\frac{\vec v}{\|\vec v\|}$$ | Divide a vector by its length to product a vector with a length of 1 (in the same direction). Exception: the zero-vector normalizes to the zero-vector. |
+| Distance | `n = v.distance(w)` | $$\|\vec v - \vec w\|$$ | The (Euclidean) distance between `v` and `w`. |
+| Distance Squared | `n = v.distanceSquared(w)` | $$\|\vec v - \vec w\|^2$$ | The squared (Euclidean) distance between `v` and `w`. |
+| Dot Product | `n = v.dot(w)`<br/>`n = Vec3.dot(v, w)` | $$\vec v\cdot \vec w$$ | The [dot product](#dot-product) of `v` and `w`. |
+| Cross Product | `r = v.cross(w)`<br/>`v.crossInPlace(w)`<br/>`Vec3.cross(v, w, out)` | $$\vec v\times \vec w$$ | The [cross product](#cross-product) of `v` and `w`. |
+| Reflection | `r = v.reflect(w)`<br/>`v.reflectInPlace(w)` | $$\vec v - \frac{2(\vec v \cdot \vec w)}{\|\vec w\|^2}\vec w$$ | [Reflect](#vector-reflect) `v` across `w`. |
+| Lerp | `Vec3.lerp(v, w, s, out)` | $$\vec v + (\vec w - \vec v)s$$ | Compute the [linear interpolation](#vector-linear-interpolation-lerp) `v` and `w` the amount `s`.
+
+#### Dot Product
+
+The **dot product** is a fundamental vector operation that multiples the lengths of the two vectors together and then multiples in a "sameness value"; that value is 1 if they are parallel, 0 if they are perpendicular, and -1 if the are facing opposite directions (anti-parallel). If the two vectors both have length 1 then the dot product gives you a number between -1 and 1. The length of the dot product in general is $$|\vec v\cdot \vec w| = |\vec v||\vec w|\cos\theta$$ where $\theta$ is the angle between the two vectors.
+
+Common uses for dot product include:
+* Determining if vectors are **perpendicular** (dot product is 0)
+* Testing if vectors are pointing in **similar directions** (dot product > 0)
+* Testing if vectors are **pointing apart** (dot product < 0)
+* Finding the **angle between** vectors. The angle (in radians) between `v` and `w` is $$\arccos\left(\frac{\vec v\cdot \vec w}{|\vec v|\, |\vec w|}\right)$$ which in code is
+```ts
+Math.acos(v.dot(w).div(v.magnitude() * w.magnitude()))
+```
+* Calculating the **projection** of one vector onto another. To find the vector you get when "flattening" `v` onto `w` you do $$\frac{\vec v \cdot \vec w}{|\vec w|^2}\vec w$$ which in code is
+```ts
+w.mul(v.dot(w) / w.magnitudeSquared())
+```
+
+The diagram below shows the "projection of `v` only `w`" as the orange arrow; it's like the "shadow" of `v` on `w`.
+```graphviz {align="center"}
+digraph {
+  layout=neato
+
+  O [pos="0,0!" shape=point width=0.08]
+  w [pos="1.75,0!" width=0 height=0 shape=none fontcolor=black]
+  p [label="" pos="0.9,0!" width=0 height=0 shape=none fontcolor=orange]
+  v [pos="0.9,0.9!" width=0 height=0 shape=none fontcolor=blue]
+
+  O -> w [color="black" style=dashed]
+  O -> p [color="orange" penwidth=3]
+  O -> v [color="blue"]
+}
+```
+
+#### Cross Product
+
+The cross product produces a new vector that is perpendicular to both input vectors. It's length is $$|\vec v\times \vec w| = |\vec v||\vec w|\sin\theta$$ where $\theta$ is the angle between the two vectors.
+
+This is especially useful for:
+* Finding perpendicular directions
+* Determining surface normals
+* Creating coordinate systems (e.g. finding the `right` vector from `up` and `forward`).
+
+!!! tip Cross product order matters.
+    The cross product is not commutative: `up.cross(forward)` produces `right`, whereas `forward.cross(up)` produces `left`.
+
+```ts
+const right = new Vec3(1, 0, 0)
+const up = new Vec3(0, 1, 0)
+
+// Cross product returns a vector perpendicular to both inputs
+const forward = right.cross(up)    // (0,  0,  1)
+const backward = up.cross(right)   // (0,  0, -1)
+
+// Building a coordinate system
+const normal = surfaceNormal.normalize()
+const tangent = normal.cross(Vec3.up).normalize()
+const bitangent = normal.cross(tangent)
+
+// Static method with optional output vector
+const result = new Vec3(0, 0, 0)
+Vec3.cross(right, up, result)  // Stores result in existing vector
+```
+
+#### Vector Reflect
+
+Vector reflection, via `v.reflect(n)`, calculates how a vector bounces off a surface. Given a vector `n`, it acts like that vector is pointing directly out from a surface. Then it takes the `v` and gives the direction after `v` "bounces" off the surface.
+
+```graphviz {align="center"}
+digraph {
+  layout=neato
+
+  a [pos="-1.25,0!" label="" width=0 height=0 shape=none]
+  b [pos="1.25,0!" label="" width=0 height=0 shape=none]
+
+  O [pos="0,0!" shape=point width=0.08]
+  v [pos="-0.9,0.9!" width=0 height=0 shape=none fontcolor=blue]
+  n [pos="0,1.5!" width=0 height=0 shape=none fontcolor=black]
+  r [pos="0.9,0.9!" width=0 height=0 shape=none fontcolor=orange]
+
+  a -> b [color="grey" style=dashed arrowhead=none]
+
+  v -> O [color="blue"]
+  O -> n [color="black"]
+  O -> r [color="orange"]
+}
+```
+
+Vector reflection is most often used for:
+* [Collision](#collision-events) calculations
+* Physics simulations
+* Ray calculations
+
+The code `v.reflect(n)` is equivalent to
+```ts
+v.sub(n.mul(2 * v.dot(n) / n.magnitudeSquared()))
+```
+which in math is:
+$$\vec v - 2\frac{\vec v \cdot \vec n}{\|\vec n\|^2}\vec n$$
+
+#### Vector Linear Interpolation (Lerp)
+
+Linear interpolation is the act of smoothly blending between two values (linearly) and is usually abbreviated as "Lerp" (<u>L</u>inear int<u>erp</u>olation).
+
+**Blend value**: Lerp takes a start a value, an end value, and a "blend" number. If the blend value is 0 then you get back the start value. If the blend value is 1 then you get the end value. A blend value of 0.5 gives you the value halfway between the start and the end. A blend value of 0.25 gives the point one-fourth of the way from the start to the end. And so on.
+
+```ts
+const start = new Vec3(0, 0, 0)
+const end = new Vec3(10, 0, 0)
+
+const mid = Vec3.lerp(start, end, 0.5)        //  (5, 0, 0)
+const nearStart = Vec3.lerp(start, end, 0.3)  //  (3, 0, 0)
+const atEnd = Vec3.lerp(start, end, 1.0)      // (10, 0, 0)
+```
+
+### Color
+
+The `Color` class represents an RGB color where each component (red, green, blue) is stored as a floating-point number between 0 and 1. It supports color space conversions (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), supports [operations](#color-operations) that can be used for many effects, such as [blending and filtering](#color-blending).
+
+#### Creation
+
+Colors can be created in several ways:
+
+```ts
+// Direct construction with RGB values (0-1)
+const red = new Color(1, 0, 0)
+const purple = new Color(0.5, 0, 0.5)
+
+// Static convenience colors
+const r = Color.red    // (1, 0, 0)
+const g = Color.green  // (0, 1, 0)
+const b = Color.blue   // (0, 0, 1)
+const w = Color.white  // (1, 1, 1)
+const k = Color.black  // (0, 0, 0)
+
+// From hex string
+const fromHex = Color.fromHex("#ff0000")  // (1, 0, 0)
+
+// From HSV (hue, saturation, value)
+const fromHSV = Color.fromHSV(new Vec3(0, 1, 1))  // red
+```
+
+#### Color Properties
+
+* `r: number` - The red component (0 to 1)
+* `g: number` - The green component (0 to 1)
+* `b: number` - The blue component (0 to 1)
+
+#### Color Operations
+`Color` has the `equals(other: Color)` and `equalsApprox(other: Color, epsilon?: number)` methods from [Comparable<T>](#comparable-interface), and their `static` counterparts. It also has `copy(other)` and `clone()` [methods](#copying-vs-mutating-methods).
+
+Colors support several common operations which have both copying and mutating versions:
+
+```ts
+const c1 = new Color(1, 0, 0)
+const c2 = new Color(0, 1, 0)
+
+// Addition and subtraction
+const sum = c1.add(c2)       // (1, 1, 0)
+const diff = c1.sub(c2)      // (1, -1, 0)
+
+// Scalar multiplication and division
+const darker = c1.mul(0.5)   // (0.5, 0, 0)
+const brighter = c1.div(0.5) // (1, 0, 0) - clamped to 1
+
+// Component-wise multiplication
+const mixed = c1.componentMul(c2)  // (0, 0, 0)
+
+// Color space conversions
+const hsv = c1.toHSV()       // (0, 1, 1)
+const hex = c1.toHex()       // "#ff0000"
+const vec = c1.toVec3()      // Vec3(1, 0, 0)
+```
+
+The following table assumes that `c`, `d`, and `out` are `Color`s; `s` is a number; `v` is a `Vec3`.
+
+| Operation | Code | Description |
+|---|---|---|
+| Addition| `r = c.add(d)`<br/>`c.addInPlace(d)`<br/>`Color.add(c, d, out)` | Adds two colors component-wise. |
+| Subtraction | `r = c.sub(d)`<br/>`c.subInPlace(d)`<br/>`Color.sub(c, d, out)` | Subtracts colors component-wise. |
+| Scalar Multiplication | `r = c.mul(s)`<br/>`c.mulInPlace(s)`<br/>`Color.mul(c, s, out)` | Multiplies each component by a scalar. |
+| Scalar Division | `r = c.div(s)`<br/>`c.divInPlace(s)`<br/>`Color.div(c, s, out)` | Divides each component by a scalar. |
+| Component-wise Multiplication | `r = c.componentMul(d)`<br/>`c.componentMulInPlace(d)` | Multiplies two colors component-by-component. Useful for color filtering, e.g. `color.componentMul(new Color(0, 0.5, 1))` "deletes" the red component, cuts the green component in half, and leaves the blue component alone. |
+| To Vec3 | `v = c.toVec3()` | Convenience method to move the `r`, `g`, and `b` values into a `Vec3`'s `x`, `y`, and `z`, respectively.
+
+#### Color Space Conversions (HSV)
+The `Color` class supports conversions between RGB and HSV (Hue, Saturation, Value):
+
+```ts
+// RGB to HSV
+const red = new Color(1, 0, 0)
+const hsv = red.toHSV() // Vec3(0, 1, 1)
+                        // x: hue (0-1)
+                        // y: saturation (0-1)
+                        // z: value (0-1)
+
+// HSV to RGB
+const purple = Color.fromHSV(new Vec3(0.83, 1, 1))
+```
+
+#### Hex Colors
+
+Hex color codes are a common way to specify colors using six hexadecimal digits representing RGB values. The `Color` class supports direct conversion to and from hex format:
+
+```ts
+// From hex to Color
+const red = Color.fromHex("#ff0000")
+const purple = Color.fromHex("#800080")
+const navy = Color.fromHex("#000080")
+
+// From Color to hex
+const color = new Color(1, 0, 0)
+const hex = color.toHex()  // "#ff0000"
+```
+
+Note that hex colors must include the `#` prefix and use two digits for each of red, green, and blue (with `00` being the lowest value and `ff` being the highest for each component).
+
+#### Color Blending
+Colors can be blended using the various mathematical operations:
+
+```ts
+// Mix two colors equally
+const color1 = new Color(1, 0, 0)  // red
+const color2 = new Color(0, 0, 1)  // blue
+const purple = color1.mul(0.5).add(color2.mul(0.5))
+
+// Create a darker version
+const darker = color1.mul(0.5)
+
+// Color filtering using component multiplication
+const filter = new Color(1, 0.8, 0.8)  // slight red tint
+const filtered = color1.componentMul(filter)
+```
+
 ### Quaternion
 
-- Euler Angles default: YXZ
+The `Quaternion` class represents an abstract mathematical object which is often used to represent rotations in 3D space, as they avoid issues like gimbal lock that can occur with Euler angles.
+
+#### Quaternion Creation
+`Quaternion`s can be created in several ways:
+
+```ts
+// Direct construction
+const quat = new Quaternion(0, 0, 0, 1)
+
+// Static convenience quaternions
+const zero = Quaternion.zero     // (0, 0, 0, 0)
+const identity = Quaternion.one  // (0, 0, 0, 1)
+const xRot = Quaternion.i        // (1, 0, 0, 0)
+const yRot = Quaternion.j        // (0, 1, 0, 0)
+const zRot = Quaternion.k        // (0, 0, 1, 0)
+
+// From Euler angles (in degrees)
+const fromEuler = Quaternion.fromEuler(new Vec3(90, 0, 0))
+
+// From axis-angle (angle in radians)
+const fromAxisAngle = Quaternion.fromAxisAngle(Vec3.up, Math.PI/2)
+
+// From forward and up vectors
+const lookRot = Quaternion.lookRotation(Vec3.forward)
+```
+
+!!! warning `Quaternion.one` means "no rotation".
+    Do not use `Quaternion.zero` when you mean "a rotation of 0 degrees". It turns out that `Quaternion.zero` isn't even a rotation and should (nearly) never be used unless you truly know what you are doing math-wise.
+
+!!! tip Don't `new` a `Quaternion`, unless you know the math!
+    `Quaternion`s are complex beasts. You can't just pass any 4 values into the constructor (you might not even get a valid rotation). Instead always create a rotation from [euler angles](#euler-angles), [axis and angle](#axis-and-angle), or a [look rotation](#look-rotation).
+
+#### Quaternion Properties
+
+* `x: number` - The x component of the quaternion
+* `y: number` - The y component of the quaternion
+* `z: number` - The z component of the quaternion
+* `w: number` - The w component of the quaternion (scalar part)
+
+#### Quaternion Operations
+`Quaternion` has the `equals(other: Quaternion)` and `equalsApprox(other: Quaternion, epsilon?: number)` methods from [Comparable<T>](#comparable-interface), and their `static` counterparts. It also has `copy(other)` and `clone()` [methods](#copying-vs-mutating-methods). Note that quaternion equality is special: two quaternions are considered equal if their components are equal OR if the negation of their components are equal, since both represent the same rotation. Only every compare with the methods above.
+
+`Quaternion`s support several common operations which have both copying and mutating versions:
+
+```ts
+const q1 = new Quaternion(0, 0, 0, 1)
+const q2 = new Quaternion(0, 1, 0, 0)
+
+// Multiplication (combines rotations)
+const combined = q1.mul(q2)
+
+// Inversion (reverses rotation)
+const inverse = q1.inverse()
+
+// Normalization (ensures unit length)
+const normalized = q1.normalize()
+
+// Conjugate
+const conjugate = q1.conjugate()
+
+// Convert to Euler angles (in degrees)
+const euler = q1.toEuler()
+
+// Get rotation axis and angle
+const axis = q1.axis()
+const angle = q1.angle() // in radians
+```
+
+The following table assumes that `q`, `r`, and `out` are `Quaternion`s; `v` and `w` are `Vec3`s; `t` is a `number`.
+
+| Operation  | Code | Math | Description |
+|---|---|---|---|
+| Multiplication | `r = p.mul(q)`<br/>`p.mulInPlace(q)` | $$pq$$ | Combines two rotations. Order matters: `p.mul(q)` means apply `q` rotation first, then `p`. |
+| Inversion | `r = q.inverse()`<br/>`q.inverseInPlace()`<br/>`r = Quaternion.inverse(q)` | $$q^{-1}$$ | Creates a quaternion that represents the opposite rotation (negative angle around the same axis). |
+| Normalization | `r = q.normalize()`<br/> `q.normalizeInPlace() `<br/>`Quaternion.normalize(q, out)` | $$\frac{q}{\|q\|}$$ | Ensures the quaternion has unit length. *If it doesn't have unit length then it isn't a valid rotation!* |
+| Conjugate | `r = q.conjugate()`<br/>`q.conjugateInPlace() `<br/>`Quaternion.conjugate(q, out)` | $$q^\ast$$ | Negates the x, y, and z components. For unit quaternions, this is the same as `inverse`. |
+| Vector Rotation | `w = Quaternion.mulVec3(q, v)` | $$q\vec vq^\ast$$ | Rotates a `v` by `q`, producing a new `Vec3`. |
+| Interpolation | `Quaternion.slerp(q, p, t, out)` | $$\left(pq^{-1}\right)^tq$$ | Smoothly interpolates between two rotations via [Spherical Linear Interpolation (Slerp)](#spherical-linear-interpolation-slerp) |
+| Vector Quaternion | `q = Quaternion.fromVec3(v)` | $$(\vec v, 0)$$ | Create a quaternion with values `(v.x, v.y, v.z, 0)`. Note that this will likely not be a valid rotation and is only useful for advanced math techniques.
+
+#### Euler Angles
+
+**Euler angles** are one intuitive way to think about rotations (they are similar to "yaw, pitch, and roll"). When you type a rotation into the desktop editor as 3 values, you are describing a rotation via Euler angles.
+
+The `Quaternion` class provides methods to convert between the quaternions and Euler angles:
+
+```ts
+// Convert from Euler angles (in degrees)
+const quat = Quaternion.fromEuler(new Vec3(90, 0, 0), EulerOrder.XYZ)
+
+// Convert to Euler angles (in degrees)
+const euler = quat.toEuler(EulerOrder.XYZ)
+```
+
+**Rotation order** matters: rotating around the y-axis by 90 degrees and then the x-axis by 90 degrees is *not* the same as doing those rotations in the other order. So when you specify Euler angle, it is important to specify the order the 3 numbers are applied in. The desktop editor uses the order: rotate around y ("yaw"), then rotate around x ("pitch"), then rotate around z ("roll"). This order is called "YXZ" since it matches the order the values are applied.
+
+The `EulerOrder` enum specifies the order in which rotations are applied. The default value for `fromEuler` and `toEuler` is `EulerOrder.YXZ`. All possible orders are supported: `XYZ`, `XZY`, `YXZ`, `YZX`, `ZXY`, and `ZYX`.
+
+#### Axis and Angle
+
+Every rotation can be represented as rotating around some axis by some angle. Given an `axis` vector and an  `angle` (in radians) you can create a quaternion. The `axis` does *not* need to be normalized.
+
+```ts
+const axis = new Vec3(0, 1, 0)  // rotate around y-axis
+const angle = Math.PI / 4       // rotate by 45 degrees
+
+const q = Quaternion.fromAxisAngle(axis, angle)
+```
+
+which will create a quaternion with the components:
+```ts
+const a = axis.normalized()
+const s = Math.sin(angle/2)
+const c = Math.cos(angle/2)
+const q = new Quaternion(a.x * s, a.y * s, a.z * s, c)
+```
+
+You can also go the other way - extracting the axis and angle from a quaternion:
+
+```ts
+const quat = Quaternion.fromAxisAngle(Vec3.up, Math.PI/2)
+
+const axis = quat.axis()    // (0, 1, 0)
+const angle = quat.angle()  // ~1.57 radians (90 degrees)
+```
+
+Axis-angle representation is particularly useful for:
+* Understanding rotations geometrically
+* Rotating around specific axes like joints or hinges
+* Creating smooth circular motion by incrementing the angle
+* Converting between different rotation representations
+
+#### Look Rotation
+
+Look rotation is particularly useful for cameras and objects that need to orient themselves to face a particular direction. You specify which direction you want the `forward` to point in and then what direction the `up` should point in (or point as closely as possible to). The `up` value is optional and defaults to `Vec3.up`. The two input vectors *do not need to be normalized*.
+
+```ts
+// Look down the world's x-axis with your up pointing along the world's z-axis
+const quat = Quaternion.lookRotation(Vec3.right, Vec3.forward)
+```
+
+This is commonly used to:
+* Orient cameras to look at targets
+* Make objects face their direction of movement
+* Align objects with surface normals
+
+#### Spherical Linear Interpolation (Slerp)
+
+Similar to [lerp](#vector-linear-interpolation-lerp), **Slerp** (<u>S</u>pherical <u>Lerp</u>) provides smooth interpolation between two quaternion rotations. Like vector lerp, it takes a blend value between 0 and 1:
+
+```ts
+const start = Quaternion.fromEuler(new Vec3(0, 0, 0))
+const end = Quaternion.fromEuler(new Vec3(0, 90, 0))
+
+const halfway = Quaternion.slerp(start, end, 0.5)    // 45 degree rotation
+const quarter = Quaternion.slerp(start, end, 0.25)   // 22.5 degree rotation
+const complete = Quaternion.slerp(start, end, 1.0)   // 90 degree rotation
+```
 
 ## World Class
 
@@ -2268,6 +2782,8 @@ and is otherwise ignored by the physics system. For example if the floor's colli
 
 - Turn collidable on / off
 - Control can collide with players, entities, or both
+
+### Collision Events
 
 ### Triggers
 
