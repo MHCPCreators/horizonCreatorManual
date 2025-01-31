@@ -79,18 +79,22 @@
                 1. [Manual Properties](#manual-properties-5)
                 2. [Typescript API](#typescript-api-5)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-6)
+            1. [Overview](#overview-7)
             2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
             3. [Asset ParticleFx Properties](#asset-particlefx-properties)
-                1. [Typescript API](#typescript-api-5)
+                1. [Typescript API](#typescript-api-6)
             4. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
-            1. [Overview](#overview-7)
-            2. [Manual Properties](#manual-properties-5)
-            3. [Typescript API](#typescript-api-5)
+            1. [Overview](#overview-8)
+            2. [Manual Properties](#manual-properties-6)
+            3. [Typescript API](#typescript-api-7)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
         12. [Raycast Gizmo](#raycast-gizmo)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-8)
+            4. [How to Raycast](#how-to-raycast)
         13. [Script Gizmo](#script-gizmo)
         14. [Snap Destination Gizmo](#snap-destination-gizmo)
         15. [Sound Gizmo](#sound-gizmo)
@@ -113,7 +117,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-8)
+    1. [Overview](#overview-10)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -203,7 +207,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-9)
+    1. [Overview](#overview-11)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -266,7 +270,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-10)
+    1. [Overview](#overview-12)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1212,6 +1216,7 @@ OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
 OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
 OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 ```
+
 !!!INFO Only Owners can make test purchases in while in Edit/Play modes.
 ### Dynamic Light Gizmo
 
@@ -1436,49 +1441,70 @@ OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, veloc
 [Quests](#quests)
 
 ### Raycast Gizmo
-Invisible laser that can be activated in a script to collide with players and/or objects.
+#### Overview
+Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
+#### Manual Properties
+- Collide With
+    - Players
+    - Objects Tagged
+    - Both
+- Object Tag
+    - Text field
+- Raycast Distance
+    - Numeric value, accepts any number
 
-Retrieves hit object/player, collision point, and collision normal
+#### Typescript API
+[Raycast Gizmo Class](https://horizon.meta.com/resources/scripting-api/core.raycastgizmo.md/)
 
 ```ts
+//Casts a ray from the Raycast gizmo using the given origin and direction and then retrieves collision information.
+raycast(origin: Vec3, direction: Vec3, options?: {
+    layerType?: LayerType;
+    maxDistance?: number;
+}): RaycastHit | null;
+
+//The type of layer in the world.
+enum LayerType {
+  Player = 0, //The layer is for both players and objects.
+  Objects = 1, //The layer is for objects.
+  Both = 2 //The layer for players.
+}
+
+//The results of a raycast collision
+export declare type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
+
 enum RaycastTargetType {
   Player = 0,
   Entity = 1,
   Static = 2
 }
+
 type BaseRaycastHit = {
   distance: number; // meters
   hitPoint: Vec3;
   normal: Vec3;
 };
+
 type StaticRaycastHit = BaseRaycastHit & {
   targetType: RaycastTargetType.Static;
 };
+
 type EntityRaycastHit = BaseRaycastHit & {
   targetType: RaycastTargetType.Entity;
   target: Entity;
 };
+
 type PlayerRaycastHit = BaseRaycastHit & {
   targetType: RaycastTargetType.Player;
   target: Player;
 };
 
-type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
-
-enum LayerType {
-  Player = 0,
-  Objects = 1,
-  Both = 2
-}
-
-class RaycastGizmo extends Entity {
-  raycast(origin: Vec3, direction: Vec3, options?: {
-    layerType?: LayerType;
-    maxDistance?: number;
-  }): RaycastHit | null;
-}
 ```
+#### How to Raycast
+<mark>TODO</mark>
 
+!!! warning Costly to performance if used too rapidly.
+    While the gizmo isn't costly, raycasting too often in a short period of time can hurt performance.
 ### Script Gizmo
 See FBS or [Script API](#scripting)
 
