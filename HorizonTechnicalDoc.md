@@ -1156,17 +1156,17 @@ Spawns an NPC Avatar (bot).
     - Edit Avatar (button)
     - Refresh (button)
 
-!!!WARNING Costly to performance. Considered the same cost as a real player.
-
 #### Typescript API
 
 <mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
 
+!!!WARNING Costly to performance. Considered the same cost as a real player.
 
 ### In-World Item Gizmo
 
 #### Overview
 Used to sell In-World Items to users in your worlds.
+<mark>TODO</mark> Needs a lot more explaining
 
 #### Manual Properties
 - Visible
@@ -1193,7 +1193,19 @@ playerOwnsItem(player, item) //Indicates whether the player owns a specific item
 quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
 timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
 ```
-
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+```ts
+OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
+```
+!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
 ### Dynamic Light Gizmo
 
 ##### Overview
