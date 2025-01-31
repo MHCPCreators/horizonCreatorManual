@@ -38,6 +38,7 @@
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
         8. [Transform Relative To](#transform-relative-to)
+        9. [Billboarding](#billboarding)
 5. [Entities](#entities)
     1. [Entity Types](#entity-types)
         1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
@@ -78,9 +79,15 @@
                 1. [Manual Properties](#manual-properties-5)
                 2. [Typescript API](#typescript-api-5)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-7)
-            2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
+            1. [Overview](#overview-6)
+            2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
+            3. [Asset ParticleFx Properties](#asset-particlefx-properties)
+                1. [Typescript API](#typescript-api-5)
+            4. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
+            1. [Overview](#overview-7)
+            2. [Manual Properties](#manual-properties-5)
+            3. [Typescript API](#typescript-api-5)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
         12. [Raycast Gizmo](#raycast-gizmo)
@@ -99,13 +106,12 @@
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
-    1. [Asset Types](#asset-types)
-        1. [Mesh Asset](#mesh-asset)
-            1. [Mesh Asset Style](#mesh-asset-style)
-        2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
-        3. [Texture Asset](#texture-asset)
-        4. [Material Asset](#material-asset)
-        5. [Asset Template](#asset-template)
+    1. [Mesh Asset](#mesh-asset)
+        1. [Mesh Style](#mesh-style)
+    2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
+    3. [Texture Asset](#texture-asset)
+    4. [Material Asset](#material-asset)
+    5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-8)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -153,8 +159,7 @@
             6. [Look Rotation](#look-rotation)
             7. [Spherical Linear Interpolation (Slerp)](#spherical-linear-interpolation-slerp)
     4. [World Class](#world-class)
-    5. [Files](#files)
-    6. [Components](#components)
+    5. [Components](#components)
         1. [Component Class](#component-class)
         2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Lifecycle](#lifecycle)
@@ -162,30 +167,26 @@
         4. [Sending and Receiving Events](#sending-and-receiving-events)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Subclasses](#subclasses)
-    7. [Async (Timers)](#async-timers)
-    8. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    10. [Events (Sending and Receiving)](#events-sending-and-receiving)
+        7. [Async (Timers)](#async-timers)
+        8. [Local Scripts and Ownership](#local-scripts-and-ownership)
+        9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
             1. [System Code Block Events](#system-code-block-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    11. [Disposing Objects](#disposing-objects)
-    12. [Frame Sequence](#frame-sequence)
-            1. [PrePhysics Phase](#prephysics-phase)
-            1. [Physics Phase](#physics-phase)
-            2. [OnUpdate Phase](#onupdate-phase)
-        2. [Scripting Phase](#scripting-phase)
-            1. [Component Initialization](#component-initialization)
-            2. [Network Events Handling](#network-events-handling)
-            3. [Code Block Events Handling](#code-block-events-handling)
-            4. [Committing Scene Graph Mutations](#committing-scene-graph-mutations)
-        3. [End Phase](#end-phase)
-            1. [Async Handling](#async-handling)
-            2. [Network Sync](#network-sync)
-        4. [Render](#render)
-    13. [Script File Execution](#script-file-execution)
+    7. [Disposing Objects](#disposing-objects)
+    8. [Frame Sequence](#frame-sequence)
+        1. [PrePhysics Phase](#prephysics-phase)
+        2. [Physics Phase](#physics-phase)
+        3. [OnUpdate Phase](#onupdate-phase)
+        4. [Scripting Phase](#scripting-phase)
+        5. [End Phase](#end-phase)
+            1. [Network Sync](#network-sync)
+        6. [Render](#render)
+    9. [Script File Execution](#script-file-execution)
+    10. [Helper Functions](#helper-functions)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
@@ -212,6 +213,8 @@
     8. [Applying Forces and Torque](#applying-forces-and-torque)
     9. [Player Physics](#player-physics)
     10. [Springs](#springs)
+        1. [Spring Push](#spring-push)
+        2. [Spring Spin](#spring-spin)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -792,6 +795,10 @@ rotateRelativeTo(target: Entity, relativeRotation: Quaternion, space?: Space): v
 rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRotation: Quaternion, space?: Space): void;
 ```
 
+### Billboarding
+
+<mark>TODO</mark>
+
 # Entities
 
 Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a light, a particle effect, a sound, a group of other entities, etc).
@@ -1312,47 +1319,94 @@ The particle gizmo allows you to play builtin effects such as a smoke burst, wat
 There are two types of `ParticleFx`:
 1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
 2. `ParticleFx` created via `Asset Library` Menu/Tab under the `VFX` category.
-So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note the a number of these effects have *Custom FX Properties* (e.g. to set fire color).
+So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note a number of these effects have *Custom FX Properties* (e.g. to set fire color).
 
-#### Playing and Stopping a Particle Effect
+#### Gizmo ParticleFx Properties
+- Play on Start
+    - ON/OFF Toggle
+- Looping
+    - ON/OFF Toggle
+- Preset
+    - Dropdown list of predefined particles.
+- Preview
+    - Play Button
 
-You can play and stop a particle effect gizmo with the TypeScript APIs:
+#### Asset ParticleFx Properties
+- Prefab  Name
+    - Dropdown  list of predefined particles.
+- Play on Start
+    - ON/OFF Toggle
+- Looping
+    - ON/OFF Toggle
+- Preview
+    - Play Button
+- Custom  FX  Properties
+    - Variety of Prefab specific properties.
 
+##### Typescript API
+[ParticleGizmo Class](https://horizon.meta.com/resources/scripting-api/core.particlegizmo.md/)
 ```ts
-// Particle Gizmo
-play(options?: ParticleFXPlayOptions): void;
-stop(options?: ParticleFXStopOptions): void;
+play(options?: ParticleFXPlayOptions): void; //Plays the particle effect.
+stop(options?: ParticleFXStopOptions): void; //Stops the particle effect.
 
-type ParticleFXPlayOptions = {
+//(Optional) Controls how the effect is played.
+export declare type ParticleFXPlayOptions = {
     fromStart?: boolean;
     players?: Array<Player>;
     oneShot?: boolean;
 };
 
-type ParticleFXStopOptions = {
+//(Optional) The options that control how the effect is stopped.
+export declare type ParticleFXStopOptions = {
     players?: Array<Player>;
 };
+
 ```
 
-When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will loop forever.
-
-When you **stop** an effect it will end quickly, yet smoothly end.
+#### Playing and Stopping a Particle Effect
+**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
 
 **players**: `play` and `stop` both allow specifying which players will see the effect start / stop. The default value is [all players](#listing-all-players) in the world.
 
-**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
+**oneShot**:  When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will revert to the `looping` property.
+
+!!!BUG oneShot is currently being ignored. ParticleFx always obeys `looping` property.
+
 
 ### TrailFx Gizmo
 
-The trail effect is a "line emitter". Moving the emitter changes the next parts of the line emitted but the rest stays the same. Tail eventually depletes.
+#### Overview
+The TrailFx Gizmo emits a colored line behind it as it moves. Its length, width, & color can be changed.
 
-Can have a flat or tapered end.
 
-Costly to performance if overused.
+#### Manual Properties
+- Play on Start
+    - ON/OFF Toggle
+- Length
+    - Numeric Value - Accepts any number, length measured in meters.
+- Width
+    - Numerica Value - Accepts any number, width measured in meters.
+- Start Color 
+    - RGB values between 0.0 - 1.0
+- End Color
+    - RGB values between 0.0 - 1.0
+- Preset
+    - Simple Trail
+    - Tapered Trail 
 
-Same API as [particle gizmo](#particlefx-gizmo)
+#### Typescript API
+[TrailGizmo Class](https://horizon.meta.com/resources/scripting-api/core.trailgizmo.md/)
+```ts
+length: HorizonProperty<number>; //The length of the trail, in meters.
+width: HorizonProperty<number>; //The width of the trail, in meters.
 
-!!! info Using stop on TrailFX will de-render the Trail.
+play(): void; //Plays the trail effect
+stop(): void; //Stops the trail effect
+```
+
+!!! info Stopping the trail effect will remove the entire drawn trail.
+
+!!! warning Costly to performance if overused. 
 
 ### Projectile Launcher Gizmo
 A turnkey way to launch small objects
@@ -1610,9 +1664,7 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 
 <mark>TODO</mark> need some kind of "collection asset" when you select items and make an asset (separate from an Asset Template)
 
-## Asset Types
-
-### Mesh Asset
+## Mesh Asset
 
 type SetTextureOptions = {
     players?: Array<Player>;
@@ -1636,7 +1688,7 @@ class MeshEntity extends Entity {
     setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
 }
 
-#### Mesh Asset Style
+### Mesh Style
 
 interface EntityStyle {
     /**
@@ -1661,7 +1713,7 @@ interface EntityStyle {
     brightness: HorizonProperty<number>;
 }
 
-### Data Asset (Text and JSON)
+## Data Asset (Text and JSON)
 ```ts
 DefaultFetchAsDataOptions:false
 type FetchAsDataOptions = {
@@ -1670,11 +1722,11 @@ type FetchAsDataOptions = {
 fetchAsData(options?: Partial<FetchAsDataOptions>): Promise<AssetContentData>;
 ```
 
-### Texture Asset
+## Texture Asset
 
-### Material Asset
+## Material Asset
 
-### Asset Template
+## Asset Template
 
 E.g. only root-level properties and scripts are maintained in an update.
 You CAN nest.
@@ -2485,11 +2537,11 @@ leaderboards: ILeaderboards;
 persistentStorage: IPersistentStorage
 ui: IUI
 
-## Files
-
 ## Components
 
 ### Component Class
+
+Avoid anything in the name other than alphanumeric and _
 
 1. extend Component
 1. typeof "Name" for generic
@@ -2548,13 +2600,13 @@ a few notes but link to the events section
 
 ### Subclasses
 
-## Async (Timers)
+### Async (Timers)
 
-## Local Scripts and Ownership
+### Local Scripts and Ownership
 
 a few sentences and link to Networking
 
-## PrePhysics vs OnUpdate Updates
+### PrePhysics vs OnUpdate Updates
 
 a few sentences and link to Physics
 
@@ -2620,30 +2672,34 @@ NOTE: a pre-physics handler in code blocks scripts runs before start
 >
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
-FULL
 ```mermaid {align="center"}
 flowchart LR
+  subgraph Early [Early Phase]
+    Pre-Physics --> Physics --> On-Update
+  end
+
   subgraph Physics [Physics Phase]
     locomotion(Update players from<br/>locomotion and pose) --> animation(Update recorded animation playback)
 
     animation --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
   end
 
-  subgraph Events
-    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
+  subgraph Scripting [Scripting Phase]
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations) --> Async
   end
 
-  subgraph EndFrame [End Phase]
-    Async --> receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
+  subgraph Late [Late Phase]
+    receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
   end
 
-  Pre-Physics --> Physics --> On-Update --> Events --> EndFrame
+  Early --> Scripting --> Late
 
-  style Physics fill:#eee,stroke:#aaa
-  style Events fill:#eee,stroke:#aaa
-  style EndFrame fill:#eee,stroke:#aaa
+  style Physics fill:#def,stroke:#aaa
 
-  %% Scripting
+  style Scripting fill:#eee,stroke:#aaa
+  style Early fill:#eee,stroke:#aaa
+  style Late fill:#eee,stroke:#aaa
+
   style Async fill:#dfe,stroke:#8a9
   style Pre-Physics fill:#dfe,stroke:#8a9
   style On-Update fill:#dfe,stroke:#8a9
@@ -2652,36 +2708,6 @@ flowchart LR
   style CodeBlockEvents fill:#dfe,stroke:#8a9
   style Components fill:#dfe,stroke:#8a9
 ```
-SIMPLER
-```mermaid {align="center"}
-flowchart LR
-  subgraph Physics [Physics Phase]
-    locomotion(Update players from<br/>locomotion and pose.<br/>Update recorded<br/>animations) --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
-  end
-
-  subgraph Events
-    NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents
-  end
-
-  subgraph EndFrame [End Phase]
-    broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
-  end
-
-  Pre-Physics --> Physics --> On-Update --> Events --> Async --> EndFrame
-
-  style Physics fill:#eee,stroke:#aaa
-  style Events fill:#eee,stroke:#aaa
-  style EndFrame fill:#eee,stroke:#aaa
-
-  %% Scripting
-  style Async fill:#dfe,stroke:#8a9
-  style Pre-Physics fill:#dfe,stroke:#8a9
-  style On-Update fill:#dfe,stroke:#8a9
-  style NetworkEvents fill:#dfe,stroke:#8a9
-  style PlayerInputHandlers fill:#dfe,stroke:#8a9
-  style CodeBlockEvents fill:#dfe,stroke:#8a9
-```
-
 
 Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
 
@@ -2703,31 +2729,47 @@ Proved: code block event handlers will eventually timeout but it seems to be upw
 
 Proved: each code block event handler is wrapped in a try.
 
-#### PrePhysics Phase
+### PrePhysics Phase
 
-#### Physics Phase
+### Physics Phase
 
-#### OnUpdate Phase
+### OnUpdate Phase
 
 ### Scripting Phase
 
-#### Component Initialization
-
-#### Network Events Handling
-
-#### Code Block Events Handling
-
-#### Committing Scene Graph Mutations
+* Component Initialization
+* Network Events Handling
+* Player Input Handling
+* Code Block Events Handling
+* Committing Scene Graph Mutations
+* Async Handling
 
 ### End Phase
-
-#### Async Handling
 
 #### Network Sync
 
 ### Render
 
 ## Script File Execution
+
+## Helper Functions
+
+Horizon has a few helper functions in `horizon/core`:
+
+* **clamp**: ensures that a given number stays within a specified range. `clamp(value: number, min: number, max: number): number`
+  * If `value` is less than `min`, it returns `min`.
+  * If `value` is greater than `max`, it returns `max`.
+  * Otherwise, it returns `value` unchanged.
+  * Examples: `clamp(15, 10, 20)` is `15`, `clamp(5, 10, 20)` is `10`, `clamp(25, 10, 20)` is `20`.
+* **assert**: throws an error if the given condition is false. `assert(condition: boolean): void`
+  * This is typically used for debugging and enforcing invariants.
+  * Example: `assert(user !== null)` // Throws if user is null
+* **radian to degree conversion**: converts an angle from radians to degrees. `radiansToDegrees(radians: number): number`
+  * Uses the formula: $\text{degrees} = \text{radians}\frac{180}{\pi}$.
+  * Example: `radiansToDegrees(Math.PI)` is `180`
+* **degree to radian conversion**: converts an angle from degrees to radians. `degreesToRadians(degrees: number): number`
+  * Uses the formula: $\text{radians} = \text{degrees}\frac{\pi}{180}$.
+  * Example: `degreesToRadians(180)` is `3.141...`
 
 # Network
 
@@ -3031,16 +3073,77 @@ Note: player position refers to the location in the world of the "center of the 
 
 Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
-TODO - Velocity, locomotion speed, jump speed
-
 ## Springs
 
-SpringOptions
-DefaultSpringOptions
-springPushTowardPosition
-springSpinTowardRotation
+Spring physics allows entities to move and rotate as if they were attached to a spring. This system provides smooth, natural motion that can be adjusted using stiffness and damping parameters. The spring helper methods are **intended to be called every frame**.
+
+**Spring Options**: spring behavior is controlled through the `SpringOptions` type, which defines key parameters for spring-based movement.
+
+```ts
+type SpringOptions = {
+  stiffness: number;
+  damping: number;
+  axisIndependent: boolean;
+};
+```
+* `stiffness`: The stiffness of the spring, which controls the amount of force applied to the object. Higher values represent a spring that "pulls harder".
+* `damping`: The damping ratio of the spring, which reduces oscillation and prevents excessive bouncing. Higher values reduce in a faster "loss of energy".
+* `axisIndependent`: If `true`, the object's motion is parallel to the push direction; if `false`, rotation and movement may interact.
+
+**Default Spring Options**: if no options are provided, the following defaults are used.
+
+```ts
+const DefaultSpringOptions: SpringOptions = {
+  stiffness: 2,
+  damping: 0.5,
+  axisIndependent: true
+};
+```
+
+These values are intended to provide a balanced spring motion that feels natural without excessive oscillation.
+
+### Spring Push
+
+`springPushTowardPosition` pushes an entity toward a target position as if attached to (and pulled by) a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+
+```ts
+// PhysicalEntity
+springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+```
+
+* `position`: the target position, which acts as the origin of the spring force.
+* `options` (optional): overrides the spring behavior (stiffness, damping, and axis independence).
+
+!!! example
+    ```ts
+    const physEnt = this.props.obj1.as(PhysicalEntity);
+    this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
+      physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
+    });
+    ```
+
+### Spring Spin
+
+`springSpinTowardRotation` rotates an entity toward a target rotation as if attached to a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+
+```ts
+// PhysicalEntity
+springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+```
+* `rotation`: the target rotation, represented as a quaternion.
+* `options` (optional): overrides the spring behavior.
+
+!!! example
+    ```ts
+    const physEnt = this.props.obj1.as(PhysicalEntity);
+    this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
+      physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
+    });
+    ```
 
 # Players
+
+<mark>TODO</mark> - Velocity, locomotion speed, jump speed, player device type
 
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
@@ -4156,7 +4259,7 @@ AimAssistOptions
 AnimationCallbackReason
 AnimationCallbackReason
 AnimationCallbackReasons
-assert
+[assert](#helper-functions)
 [Asset](#assets)
 [AssetContentData](#data-asset-text-and-json)
 [AttachableEntity](#attaching-entities)
@@ -4170,10 +4273,10 @@ AvatarGripPoseAnimationNames
 BuiltInVariableType
 ButtonIcon
 ButtonPlacement
-clamp
+[clamp](#helper-functions)
 [Color](#color)
 [CodeBlockEvents](#code-block-event)
-Comparable
+[Comparable](#comparable-interface)
 [Component](#component-class)
 [CodeBlockEvent](#code-block-event)
 [DefaultFetchAsDataOptions](#data-asset-text-and-json)
@@ -4183,7 +4286,7 @@ DefaultFocusedInteractionTrailOptions
 [DefaultSpringOptions](#springs)
 [DefaultThrowOptions](#throwing)
 [DefaultTooltipOptions](#tooltips-and-popups)
-degreesToRadians
+[degreesToRadians](#helper-functions)
 [DisposableObject](#disposing-objects)
 [DisposableOperation](#disposing-objects)
 [DisposableOperationRegistration](#disposing-objects)
@@ -4241,7 +4344,7 @@ PlayerInputStateChangeCallback
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
 PropTypes
 [Quaternion](#quaternion)
-radiansToDegrees
+[radiansToDegrees](#helper-functions)
 [RaycastGizmo](#raycast-gizmo)
 [RaycastHit](#raycast-gizmo)
 [RaycastTargetType](#raycast-gizmo)
@@ -4250,7 +4353,7 @@ radiansToDegrees
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space
+Space: [player body part](#Player Body Part), [transform relative to](#transform-relative-to)
 [SpawnController](#advanced-spawning)
 [SpawnControllerBase](#advanced-spawning)
 [SpawnError](#advanced-spawning)
@@ -4271,10 +4374,7 @@ StopAnimationOptions
 [Vec3](#vec3)
 [VoipSettingValues](#voip-settings)
 [World](#world-class)
-WorldUpdateType
 [WritableHorizonProperty](#horizon-properties)
-
-
 
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
