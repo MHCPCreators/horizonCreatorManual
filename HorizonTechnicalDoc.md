@@ -67,14 +67,17 @@
             2. [Manual Properties](#manual-properties-2)
             3. [Typescript API](#typescript-api-2)
         5. [In-World Item Gizmo](#in-world-item-gizmo)
+            1. [Overview](#overview-4)
+            2. [Manual Properties](#manual-properties-3)
+            3. [Typescript API](#typescript-api-3)
         6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-                1. [Overview](#overview-4)
-                1. [Manual Properties](#manual-properties-3)
-                2. [Typescript API](#typescript-api-3)
-        7. [Environment Gizmo](#environment-gizmo)
                 1. [Overview](#overview-5)
                 1. [Manual Properties](#manual-properties-4)
                 2. [Typescript API](#typescript-api-4)
+        7. [Environment Gizmo](#environment-gizmo)
+                1. [Overview](#overview-6)
+                1. [Manual Properties](#manual-properties-5)
+                2. [Typescript API](#typescript-api-5)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-6)
             2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
@@ -1160,17 +1163,56 @@ Spawns an NPC Avatar (bot).
     - Edit Avatar (button)
     - Refresh (button)
 
-!!!WARNING Costly to performance. Considered the same cost as a real player.
-
 #### Typescript API
 
 <mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
 
+!!!WARNING Costly to performance. Considered the same cost as a real player.
 
 ### In-World Item Gizmo
 
-<mark>TODO</mark>
+#### Overview
+Used to sell In-World Items to users in your worlds.
+<mark>TODO</mark> Needs a lot more explaining
 
+#### Manual Properties
+- Visible
+    - ON/OFF Toggle
+- In-world Item
+    - Dropdown list of all avaliable Items
+- Customize Purchase Dialog Position
+    - ON/OFF Toggle
+    - If ON, Purchase Diaglog Position is avaliable
+        - Vector(X,Y,Z)
+- UI Property
+    - Trigger
+    - Button
+    - Icon
+
+#### Typescript API
+
+[IWPSellerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.iwpsellergizmo.md/)
+
+```ts
+consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
+playerHasConsumedItem(player, item) //Indicates whether a player used a specific item.
+playerOwnsItem(player, item) //Indicates whether the player owns a specific item.
+quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
+timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
+```
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+```ts
+OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
+```
+!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
 ### Dynamic Light Gizmo
 
 ##### Overview
