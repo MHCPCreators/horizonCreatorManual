@@ -203,6 +203,8 @@
     8. [Applying Forces and Torque](#applying-forces-and-torque)
     9. [Player Physics](#player-physics)
     10. [Springs](#springs)
+        1. [Spring Push](#spring-push)
+        2. [Spring Spin](#spring-spin)
 12. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
@@ -2969,16 +2971,77 @@ Note: player position refers to the location in the world of the "center of the 
 
 Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
-TODO - Velocity, locomotion speed, jump speed
-
 ## Springs
 
-SpringOptions
-DefaultSpringOptions
-springPushTowardPosition
-springSpinTowardRotation
+Spring physics allows entities to move and rotate as if they were attached to a spring. This system provides smooth, natural motion that can be adjusted using stiffness and damping parameters. The spring helper methods are **intended to be called every frame**.
+
+**Spring Options**: spring behavior is controlled through the `SpringOptions` type, which defines key parameters for spring-based movement.
+
+```ts
+type SpringOptions = {
+  stiffness: number;
+  damping: number;
+  axisIndependent: boolean;
+};
+```
+* `stiffness`: The stiffness of the spring, which controls the amount of force applied to the object. Higher values represent a spring that "pulls harder".
+* `damping`: The damping ratio of the spring, which reduces oscillation and prevents excessive bouncing. Higher values reduce in a faster "loss of energy".
+* `axisIndependent`: If `true`, the object's motion is parallel to the push direction; if `false`, rotation and movement may interact.
+
+**Default Spring Options**: if no options are provided, the following defaults are used.
+
+```ts
+const DefaultSpringOptions: SpringOptions = {
+  stiffness: 2,
+  damping: 0.5,
+  axisIndependent: true
+};
+```
+
+These values are intended to provide a balanced spring motion that feels natural without excessive oscillation.
+
+### Spring Push
+
+`springPushTowardPosition` pushes an entity toward a target position as if attached to (and pulled by) a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+
+```ts
+// PhysicalEntity
+springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+```
+
+* `position`: the target position, which acts as the origin of the spring force.
+* `options` (optional): overrides the spring behavior (stiffness, damping, and axis independence).
+
+!!! example
+    ```ts
+    const physEnt = this.props.obj1.as(PhysicalEntity);
+    this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
+      physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
+    });
+    ```
+
+### Spring Spin
+
+`springSpinTowardRotation` rotates an entity toward a target rotation as if attached to a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+
+```ts
+// PhysicalEntity
+springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+```
+* `rotation`: the target rotation, represented as a quaternion.
+* `options` (optional): overrides the spring behavior.
+
+!!! example
+    ```ts
+    const physEnt = this.props.obj1.as(PhysicalEntity);
+    this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
+      physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
+    });
+    ```
 
 # Players
+
+<mark>TODO</mark> - Velocity, locomotion speed, jump speed, player device type
 
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
@@ -4210,8 +4273,6 @@ StopAnimationOptions
 [VoipSettingValues](#voip-settings)
 [World](#world-class)
 [WritableHorizonProperty](#horizon-properties)
-
-
 
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
