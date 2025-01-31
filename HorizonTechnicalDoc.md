@@ -38,6 +38,7 @@
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
         8. [Transform Relative To](#transform-relative-to)
+        9. [Billboarding](#billboarding)
 5. [Entities](#entities)
     1. [Entity Types](#entity-types)
         1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
@@ -784,6 +785,10 @@ moveRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativePosit
 rotateRelativeTo(target: Entity, relativeRotation: Quaternion, space?: Space): void;
 rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRotation: Quaternion, space?: Space): void;
 ```
+
+### Billboarding
+
+<mark>TODO</mark>
 
 # Entities
 
@@ -2440,6 +2445,8 @@ ui: IUI
 ## Components
 
 ### Component Class
+
+Avoid anything in the name other than alphanumeric and _
 
 1. extend Component
 1. typeof "Name" for generic
