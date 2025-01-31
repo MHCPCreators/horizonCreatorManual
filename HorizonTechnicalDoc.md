@@ -96,13 +96,12 @@
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
-    1. [Asset Types](#asset-types)
-        1. [Mesh Asset](#mesh-asset)
-            1. [Mesh Asset Style](#mesh-asset-style)
-        2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
-        3. [Texture Asset](#texture-asset)
-        4. [Material Asset](#material-asset)
-        5. [Asset Template](#asset-template)
+    1. [Mesh Asset](#mesh-asset)
+        1. [Mesh Style](#mesh-style)
+    2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
+    3. [Texture Asset](#texture-asset)
+    4. [Material Asset](#material-asset)
+    5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-7)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -150,8 +149,7 @@
             6. [Look Rotation](#look-rotation)
             7. [Spherical Linear Interpolation (Slerp)](#spherical-linear-interpolation-slerp)
     4. [World Class](#world-class)
-    5. [Files](#files)
-    6. [Components](#components)
+    5. [Components](#components)
         1. [Component Class](#component-class)
         2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Lifecycle](#lifecycle)
@@ -159,17 +157,17 @@
         4. [Sending and Receiving Events](#sending-and-receiving-events)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Subclasses](#subclasses)
-    7. [Async (Timers)](#async-timers)
-    8. [Local Scripts and Ownership](#local-scripts-and-ownership)
-    9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
-    10. [Events (Sending and Receiving)](#events-sending-and-receiving)
+        7. [Async (Timers)](#async-timers)
+        8. [Local Scripts and Ownership](#local-scripts-and-ownership)
+        9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+    6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
             1. [System Code Block Events](#system-code-block-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
-    11. [Disposing Objects](#disposing-objects)
-    12. [Frame Sequence](#frame-sequence)
+    7. [Disposing Objects](#disposing-objects)
+    8. [Frame Sequence](#frame-sequence)
             1. [PrePhysics Phase](#prephysics-phase)
             1. [Physics Phase](#physics-phase)
             2. [OnUpdate Phase](#onupdate-phase)
@@ -182,7 +180,8 @@
             1. [Async Handling](#async-handling)
             2. [Network Sync](#network-sync)
         4. [Render](#render)
-    13. [Script File Execution](#script-file-execution)
+    9. [Script File Execution](#script-file-execution)
+    10. [Helper Functions](#helper-functions)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
@@ -1568,9 +1567,7 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 
 <mark>TODO</mark> need some kind of "collection asset" when you select items and make an asset (separate from an Asset Template)
 
-## Asset Types
-
-### Mesh Asset
+## Mesh Asset
 
 type SetTextureOptions = {
     players?: Array<Player>;
@@ -1594,7 +1591,7 @@ class MeshEntity extends Entity {
     setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
 }
 
-#### Mesh Asset Style
+### Mesh Style
 
 interface EntityStyle {
     /**
@@ -1619,7 +1616,7 @@ interface EntityStyle {
     brightness: HorizonProperty<number>;
 }
 
-### Data Asset (Text and JSON)
+## Data Asset (Text and JSON)
 ```ts
 DefaultFetchAsDataOptions:false
 type FetchAsDataOptions = {
@@ -1628,11 +1625,11 @@ type FetchAsDataOptions = {
 fetchAsData(options?: Partial<FetchAsDataOptions>): Promise<AssetContentData>;
 ```
 
-### Texture Asset
+## Texture Asset
 
-### Material Asset
+## Material Asset
 
-### Asset Template
+## Asset Template
 
 E.g. only root-level properties and scripts are maintained in an update.
 You CAN nest.
@@ -2443,8 +2440,6 @@ leaderboards: ILeaderboards;
 persistentStorage: IPersistentStorage
 ui: IUI
 
-## Files
-
 ## Components
 
 ### Component Class
@@ -2506,13 +2501,13 @@ a few notes but link to the events section
 
 ### Subclasses
 
-## Async (Timers)
+### Async (Timers)
 
-## Local Scripts and Ownership
+### Local Scripts and Ownership
 
 a few sentences and link to Networking
 
-## PrePhysics vs OnUpdate Updates
+### PrePhysics vs OnUpdate Updates
 
 a few sentences and link to Physics
 
@@ -2686,6 +2681,25 @@ Proved: each code block event handler is wrapped in a try.
 ### Render
 
 ## Script File Execution
+
+## Helper Functions
+
+Horizon has a few helper functions in `horizon/core`:
+
+* **clamp**: ensures that a given number stays within a specified range. `clamp(value: number, min: number, max: number): number`
+  * If `value` is less than `min`, it returns `min`.
+  * If `value` is greater than `max`, it returns `max`.
+  * Otherwise, it returns `value` unchanged.
+  * Examples: `clamp(15, 10, 20)` is `15`, `clamp(5, 10, 20)` is `10`, `clamp(25, 10, 20)` is `20`.
+* **assert**: throws an error if the given condition is false. `assert(condition: boolean): void`
+  * This is typically used for debugging and enforcing invariants.
+  * Example: `assert(user !== null)` // Throws if user is null
+* **radian to degree conversion**: converts an angle from radians to degrees. `radiansToDegrees(radians: number): number`
+  * Uses the formula: $\text{degrees} = \text{radians}\frac{180}{\pi}$.
+  * Example: `radiansToDegrees(Math.PI)` is `180`
+* **degree to radian conversion**: converts an angle from degrees to radians. `degreesToRadians(degrees: number): number`
+  * Uses the formula: $\text{radians} = \text{degrees}\frac{\pi}{180}$.
+  * Example: `degreesToRadians(180)` is `3.141...`
 
 # Network
 
@@ -4114,7 +4128,7 @@ AimAssistOptions
 AnimationCallbackReason
 AnimationCallbackReason
 AnimationCallbackReasons
-assert
+[assert](#helper-functions)
 [Asset](#assets)
 [AssetContentData](#data-asset-text-and-json)
 [AttachableEntity](#attaching-entities)
@@ -4128,10 +4142,10 @@ AvatarGripPoseAnimationNames
 BuiltInVariableType
 ButtonIcon
 ButtonPlacement
-clamp
+[clamp](#helper-functions)
 [Color](#color)
 [CodeBlockEvents](#code-block-event)
-Comparable
+[Comparable](#comparable-interface)
 [Component](#component-class)
 [CodeBlockEvent](#code-block-event)
 [DefaultFetchAsDataOptions](#data-asset-text-and-json)
@@ -4141,7 +4155,7 @@ DefaultFocusedInteractionTrailOptions
 [DefaultSpringOptions](#springs)
 [DefaultThrowOptions](#throwing)
 [DefaultTooltipOptions](#tooltips-and-popups)
-degreesToRadians
+[degreesToRadians](#helper-functions)
 [DisposableObject](#disposing-objects)
 [DisposableOperation](#disposing-objects)
 [DisposableOperationRegistration](#disposing-objects)
@@ -4199,7 +4213,7 @@ PlayerInputStateChangeCallback
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
 PropTypes
 [Quaternion](#quaternion)
-radiansToDegrees
+[radiansToDegrees](#helper-functions)
 [RaycastGizmo](#raycast-gizmo)
 [RaycastHit](#raycast-gizmo)
 [RaycastTargetType](#raycast-gizmo)
@@ -4208,7 +4222,7 @@ radiansToDegrees
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space
+Space: [player body part](#Player Body Part), [transform relative to](#transform-relative-to)
 [SpawnController](#advanced-spawning)
 [SpawnControllerBase](#advanced-spawning)
 [SpawnError](#advanced-spawning)
@@ -4229,7 +4243,6 @@ StopAnimationOptions
 [Vec3](#vec3)
 [VoipSettingValues](#voip-settings)
 [World](#world-class)
-WorldUpdateType
 [WritableHorizonProperty](#horizon-properties)
 
 
