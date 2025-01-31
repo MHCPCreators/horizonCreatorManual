@@ -76,7 +76,10 @@
                 2. [Typescript API](#typescript-api-4)
         8. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-6)
-            2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
+            2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
+            3. [Asset ParticleFx Properties](#asset-particlefx-properties)
+                1. [Typescript API](#typescript-api-5)
+            4. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
@@ -1270,35 +1273,59 @@ The particle gizmo allows you to play builtin effects such as a smoke burst, wat
 There are two types of `ParticleFx`:
 1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
 2. `ParticleFx` created via `Asset Library` Menu/Tab under the `VFX` category.
-So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note the a number of these effects have *Custom FX Properties* (e.g. to set fire color).
+So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note a number of these effects have *Custom FX Properties* (e.g. to set fire color).
 
-#### Playing and Stopping a Particle Effect
+#### Gizmo ParticleFx Properties
+- Play on Start
+    - ON/OFF Toggle
+- Looping
+    - ON/OFF Toggle
+- Preset
+    - Dropdown list of predefined particles.
+- Preview
+    - Play Button
 
-You can play and stop a particle effect gizmo with the TypeScript APIs:
+#### Asset ParticleFx Properties
+- Prefab  Name
+    - Dropdown  list of predefined particles.
+- Play on Start
+    - ON/OFF Toggle
+- Looping
+    - ON/OFF Toggle
+- Preview
+    - Play Button
+- Custom  FX  Properties
+    - Variety of Prefab specific properties.
 
+##### Typescript API
+[ParticleGizmo Class](https://horizon.meta.com/resources/scripting-api/core.particlegizmo.md/)
 ```ts
-// Particle Gizmo
-play(options?: ParticleFXPlayOptions): void;
-stop(options?: ParticleFXStopOptions): void;
+play(options?: ParticleFXPlayOptions): void; //Plays the particle effect.
+stop(options?: ParticleFXStopOptions): void; //Stops the particle effect.
 
-type ParticleFXPlayOptions = {
+//(Optional) Controls how the effect is played.
+export declare type ParticleFXPlayOptions = {
     fromStart?: boolean;
     players?: Array<Player>;
     oneShot?: boolean;
 };
 
-type ParticleFXStopOptions = {
+//(Optional) The options that control how the effect is stopped.
+export declare type ParticleFXStopOptions = {
     players?: Array<Player>;
 };
+
 ```
 
-When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will loop forever.
-
-When you **stop** an effect it will end quickly, yet smoothly end.
+#### Playing and Stopping a Particle Effect
+**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
 
 **players**: `play` and `stop` both allow specifying which players will see the effect start / stop. The default value is [all players](#listing-all-players) in the world.
 
-**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
+**oneShot**:  When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will revert to the `looping` property.
+
+!!!BUG oneShot is currently being ignored. ParticleFx always obeys `looping` property.
+
 
 ### TrailFx Gizmo
 
