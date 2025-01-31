@@ -53,73 +53,74 @@
         3. [Entity Visibility](#entity-visibility)
             1. [Entity Visibility Permissions](#entity-visibility-permissions)
     3. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
-        1. [Custom UI Gizmo](#custom-ui-gizmo)
-        2. [Debug Console Gizmo](#debug-console-gizmo)
+        1. [Collider Gizmo](#collider-gizmo)
+        2. [Custom UI Gizmo](#custom-ui-gizmo)
+        3. [Debug Console Gizmo](#debug-console-gizmo)
             1. [Overview](#overview-1)
             2. [Manual Properties](#manual-properties)
             3. [Typescript API](#typescript-api)
-        3. [Door Gizmo](#door-gizmo)
+        4. [Door Gizmo](#door-gizmo)
                 1. [Overview](#overview-2)
                 1. [Manual Properties](#manual-properties-1)
                 2. [Typescript API](#typescript-api-1)
-        4. [NPC Gizmo](#npc-gizmo)
+        5. [NPC Gizmo](#npc-gizmo)
             1. [Overview](#overview-3)
             2. [Manual Properties](#manual-properties-2)
             3. [Typescript API](#typescript-api-2)
-        5. [In-World Item Gizmo](#in-world-item-gizmo)
+        6. [In-World Item Gizmo](#in-world-item-gizmo)
             1. [Overview](#overview-4)
             2. [Manual Properties](#manual-properties-3)
             3. [Typescript API](#typescript-api-3)
-        6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
                 1. [Overview](#overview-5)
                 1. [Manual Properties](#manual-properties-4)
                 2. [Typescript API](#typescript-api-4)
-        7. [Environment Gizmo](#environment-gizmo)
+        8. [Environment Gizmo](#environment-gizmo)
                 1. [Overview](#overview-6)
                 1. [Manual Properties](#manual-properties-5)
                 2. [Typescript API](#typescript-api-5)
-        8. [ParticleFx Gizmo](#particlefx-gizmo)
+        9. [ParticleFx Gizmo](#particlefx-gizmo)
             1. [Overview](#overview-7)
             2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
             3. [Asset ParticleFx Properties](#asset-particlefx-properties)
                 1. [Typescript API](#typescript-api-6)
             4. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
-        9. [TrailFx Gizmo](#trailfx-gizmo)
+        10. [TrailFx Gizmo](#trailfx-gizmo)
             1. [Overview](#overview-8)
             2. [Manual Properties](#manual-properties-6)
             3. [Typescript API](#typescript-api-7)
-        10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
             1. [Overview](#overview-9)
             2. [Manual Properties](#manual-properties-7)
             3. [Typescript API](#typescript-api-8)
             4. [Using a Projectile Launcher](#using-a-projectile-launcher)
-        11. [Quests Gizmo](#quests-gizmo)
-        12. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-8)
-            4. [How to Raycast](#how-to-raycast)
-        13. [Script Gizmo](#script-gizmo)
-        14. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript  API](#typescript--api)
-        15. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        12. [Quests Gizmo](#quests-gizmo)
+        13. [Raycast Gizmo](#raycast-gizmo)
             1. [Overview](#overview-10)
+            2. [Manual Properties](#manual-properties-8)
+            3. [Typescript API](#typescript-api-9)
+            4. [How to Raycast](#how-to-raycast)
+        14. [Script Gizmo](#script-gizmo)
+        15. [Snap Destination Gizmo](#snap-destination-gizmo)
+            1. [Overview](#overview-11)
+            2. [Manual Properties](#manual-properties-9)
+            3. [Typescript  API](#typescript--api)
+        16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+            1. [Overview](#overview-12)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-8)
-        16. [Spawn Point Gizmo](#spawn-point-gizmo)
-        17. [Text Gizmo](#text-gizmo)
+            5. [Typescript API](#typescript-api-10)
+        17. [Spawn Point Gizmo](#spawn-point-gizmo)
+        18. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
             2. [Text Gizmo Markup](#text-gizmo-markup)
             3. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             4. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-        18. [Trigger Gizmo](#trigger-gizmo)
-        19. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-        20. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+        19. [Trigger Gizmo](#trigger-gizmo)
+        20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -128,7 +129,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-10)
+    1. [Overview](#overview-13)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -218,7 +219,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-11)
+    1. [Overview](#overview-14)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -281,7 +282,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-12)
+    1. [Overview](#overview-15)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -316,6 +317,7 @@
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
 
 <!-- /code_chunk_output -->
+
 
 <div style="page-break-after: always;"></div>
 
@@ -853,34 +855,16 @@ The table below lists all intrinsic types, which are subclasses of `Entity`. Not
 
 The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
-<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion; Box Collider, Capsule Collider, Sphere Collider</mark>
+[Intrinsic entity types](#intrinsic-entity-types) are organized in the desktop editor into a few top-level categories:
+* **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#mesh-asset).
+* **Gizmos**: entities that have in-world behavior (such as for spawning a player at a location, showing UI, rendering a particle effect, launching a projectile, and so much more). These are all listed in the [table below](#intrinsic-entity-types) and enumerated in full detail [below](#all-intrinsic-entity-types).
+* **Colliders**: mesh-less entities that still have [a "shape" that can be collided with](#collider-gizmo) (such as sphere, cube, and capsule). It's type is just `Entity`.
+* **Sounds**: a large library of pre-made sound effects; you can also create more using the AI sound feature. These all instantiate [sounds gizmos](#sound-gizmo) (which have the type `AudioGizmo`).
+* **Empty Object**: a special ["collection" entity](#empty-object-and-groups). It's TypeScript type is just `Entity`.
+* **Group**: another special ["collection" entity](#empty-object-and-groups). It's TypeScript type is just `Entity`.
+* **Sublevel**: an abstract entity containing information for spawning in [portions of levels](#sublevels).
 
-| [Intrinsic Type](#entity-types) | TypeScript Class |
-|---|---|
-| [Custom UI](#custom-ui-gizmo) | `Entity` |
-| [Debug Console](#debug-console-gizmo) | `Entity` |
-| [Door](#door-gizmo) | `Entity` |
-| [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
-| [Empty Object](#empty-object-and-groups) | `Entity` |
-| [Environment](#environment-gizmo) | `Entity` |
-| [Group](#empty-object-and-groups) | `Entity` |
-| [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
-| [Mesh](#mesh-asset) | `MeshEntity` |
-| [NPC](#npc-gizmo) | `AIAgentGizmo` |
-| [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
-| [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
-| [Quests](#quests-gizmo) | `AchievementsGizmo` |
-| [Raycast](#raycast-gizmo) | `RaycastGizmo` |
-| [Script](#script-gizmo) | `Entity` |
-| [Snap Destination](#snap-destination-gizmo) | `Entity` |
-| [Sound](#sound-gizmo) | `AudioGizmo` |
-| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
-| [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
-| [Sublevel](#sublevels) | `SublevelEntity` |
-| [Text](#text-gizmo) | `TextGizmo` |
-| [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
-| [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
-| [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
+There is a [full list of all intrinsic entity types and their documentation](#all-intrinsic-entity-types) below.
 
 ### Behavior Entity Types
 
@@ -1114,7 +1098,43 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
 
 ## All Intrinsic Entity Types
 
-<mark>TODO</mark>Gizmo vs entity vs collider etc
+All [intrinsic entity types](#intrinsic-entity-types) are listed in the table below, each of which link to detailed documentation.
+
+<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion</mark>
+
+| [Intrinsic Type](#entity-types) | TypeScript Class |
+|---|---|
+| [Box Collider](#collider-gizmo) | `Entity` |
+| [Capsule Collider](#collider-gizmo) | `Entity` |
+| [Custom UI](#custom-ui-gizmo) | `Entity` |
+| [Debug Console](#debug-console-gizmo) | `Entity` |
+| [Door](#door-gizmo) | `Entity` |
+| [Dynamic Light](#dynamic-light-gizmo) | `DynamicLightGizmo` |
+| [Empty Object](#empty-object-and-groups) | `Entity` |
+| [Environment](#environment-gizmo) | `Entity` |
+| [Group](#empty-object-and-groups) | `Entity` |
+| [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
+| [Mesh](#mesh-asset) | `MeshEntity` |
+| [NPC](#npc-gizmo) | `AIAgentGizmo` |
+| [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
+| [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
+| [Quests](#quests-gizmo) | `AchievementsGizmo` |
+| [Raycast](#raycast-gizmo) | `RaycastGizmo` |
+| [Script](#script-gizmo) | `Entity` |
+| [Snap Destination](#snap-destination-gizmo) | `Entity` |
+| [Sound](#sound-gizmo) | `AudioGizmo` |
+| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
+| [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
+| [Sphere Collider](#collider-gizmo) | `Entity` |
+| [Sublevel](#sublevels) | `SublevelEntity` |
+| [Text](#text-gizmo) | `TextGizmo` |
+| [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
+| [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
+| [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
+
+### Collider Gizmo
+
+<mark>TODO</mark>
 
 ### Custom UI Gizmo
 See details in [Custom UI](#custom-ui)
@@ -1402,13 +1422,13 @@ The TrailFx Gizmo emits a colored line behind it as it moves. Its length, width,
     - Numeric Value - Accepts any number, length measured in meters.
 - Width
     - Numeric Value - Accepts any number, width measured in meters.
-- Start Color 
+- Start Color
     - RGB values between 0.0 - 1.0
 - End Color
     - RGB values between 0.0 - 1.0
 - Preset
     - Simple Trail
-    - Tapered Trail 
+    - Tapered Trail
 
 #### Typescript API
 [TrailGizmo Class](https://horizon.meta.com/resources/scripting-api/core.trailgizmo.md/)
@@ -1422,7 +1442,7 @@ stop(): void; //Stops the trail effect
 
 !!! info Stopping the trail effect will remove the entire drawn trail.
 
-!!! warning Costly to performance if overused. 
+!!! warning Costly to performance if overused.
 
 ### Projectile Launcher Gizmo
 #### Overview
@@ -1572,7 +1592,7 @@ Designed to help position and orientate players that land on it using teleport.
 ### Sound Recorder Gizmo
 #### Overview
 Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horzion.
-We have 3 different types: 
+We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
 - `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music.
 - `Audio Graph` generated by Gen AI. Allows you playback audio generated by the Gen AI in the Desktop Editor.
@@ -1602,7 +1622,7 @@ We have 3 different types:
 - Preview
     - Play Button
 - Play on Start
-    - ON/OFF Toggle    
+    - ON/OFF Toggle
 - Volume
     - Numeric value between 0.0 - 1.0
 - Pitch
