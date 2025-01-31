@@ -78,6 +78,9 @@
             1. [Overview](#overview-6)
             2. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         9. [TrailFx Gizmo](#trailfx-gizmo)
+            1. [Overview](#overview-7)
+            2. [Manual Properties](#manual-properties-5)
+            3. [Typescript API](#typescript-api-5)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         11. [Quests Gizmo](#quests-gizmo)
         12. [Raycast Gizmo](#raycast-gizmo)
@@ -104,7 +107,7 @@
         4. [Material Asset](#material-asset)
         5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-7)
+    1. [Overview](#overview-8)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -199,7 +202,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-8)
+    1. [Overview](#overview-9)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -260,7 +263,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-9)
+    1. [Overview](#overview-10)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1302,15 +1305,38 @@ When you **stop** an effect it will end quickly, yet smoothly end.
 
 ### TrailFx Gizmo
 
-The trail effect is a "line emitter". Moving the emitter changes the next parts of the line emitted but the rest stays the same. Tail eventually depletes.
+#### Overview
+The TrailFx Gizmo emits a colored line behind it as it moves. Its length, width, & color can be changed.
 
-Can have a flat or tapered end.
 
-Costly to performance if overused.
+#### Manual Properties
+- Play on Start
+    - ON/OFF Toggle
+- Length
+    - Numeric Value - Accepts any number, length measured in meters.
+- Width
+    - Numerica Value - Accepts any number, width measured in meters.
+- Start Color 
+    - RGB values between 0.0 - 1.0
+- End Color
+    - RGB values between 0.0 - 1.0
+- Preset
+    - Simple Trail
+    - Tapered Trail 
 
-Same API as [particle gizmo](#particlefx-gizmo)
+#### Typescript API
+[TrailGizmo Class](https://horizon.meta.com/resources/scripting-api/core.trailgizmo.md/)
+```ts
+length: HorizonProperty<number>; //The length of the trail, in meters.
+width: HorizonProperty<number>; //The width of the trail, in meters.
 
-!!! info Using stop on TrailFX will de-render the Trail.
+play(): void; //Plays the trail effect
+stop(): void; //Stops the trail effect
+```
+
+!!! info Stopping the trail effect will remove the entire drawn trail.
+
+!!! warning Costly to performance if overused. 
 
 ### Projectile Launcher Gizmo
 A turnkey way to launch small objects
