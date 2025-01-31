@@ -1060,7 +1060,7 @@ Used to cast light dynamically, meaning you can move the light during run-time. 
   - Value between 0 - 100
 
 ##### Typescript API
-https://horizon.meta.com/resources/scripting-api/core.dynamiclightgizmo.md/
+[DynamicLightGizmo Class](https://horizon.meta.com/resources/scripting-api/core.dynamiclightgizmo.md/)
 ```ts
 enabled: HorizonProperty<boolean>; //Indicates whether the entity has a dynamic light effect on it. true to enable dynamic lighting; otherwise, false.
 falloffDistance: HorizonProperty<number>; //The light falloff distance. 0 for the least distance and 100 for the greatest distance.
@@ -1071,15 +1071,14 @@ spread: HorizonProperty<number>; //The light spread. 0 for the least light sprea
 
 !!! Note Only allowed a maximum  of 20 Dynamic Lights per world.
 
-<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
+
 
 !!! Note Can inherit group entity properties.
     If placed in a group, can inherit group entity properties like visiblity, billboarding, attaching, animation, grabbable, etc..
+    <mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
 
 !!! Warning Costly to performance if overused due to light/shadow per frame processing.
 
-!!! Bug Known Issues
-    - <mark>TODO</mark> list known issues or delete
 ### Environment Gizmo
 
 <mark>TODO</mark> only one allowed active at a time; active not scriptable; spawning overwrites all values (VOIP=Env will pass back to last env gizmo)
