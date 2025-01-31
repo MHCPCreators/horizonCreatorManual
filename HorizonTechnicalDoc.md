@@ -168,18 +168,13 @@
         4. [Broadcast events](#broadcast-events)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
-            1. [PrePhysics Phase](#prephysics-phase)
-            1. [Physics Phase](#physics-phase)
-            2. [OnUpdate Phase](#onupdate-phase)
-        2. [Scripting Phase](#scripting-phase)
-            1. [Component Initialization](#component-initialization)
-            2. [Network Events Handling](#network-events-handling)
-            3. [Code Block Events Handling](#code-block-events-handling)
-            4. [Committing Scene Graph Mutations](#committing-scene-graph-mutations)
-        3. [End Phase](#end-phase)
-            1. [Async Handling](#async-handling)
-            2. [Network Sync](#network-sync)
-        4. [Render](#render)
+        1. [PrePhysics Phase](#prephysics-phase)
+        2. [Physics Phase](#physics-phase)
+        3. [OnUpdate Phase](#onupdate-phase)
+        4. [Scripting Phase](#scripting-phase)
+        5. [End Phase](#end-phase)
+            1. [Network Sync](#network-sync)
+        6. [Render](#render)
     9. [Script File Execution](#script-file-execution)
     10. [Helper Functions](#helper-functions)
 9. [Network](#network)
@@ -2573,30 +2568,34 @@ NOTE: a pre-physics handler in code blocks scripts runs before start
 >
 > Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
-FULL
 ```mermaid {align="center"}
 flowchart LR
+  subgraph Early [Early Phase]
+    Pre-Physics --> Physics --> On-Update
+  end
+
   subgraph Physics [Physics Phase]
     locomotion(Update players from<br/>locomotion and pose) --> animation(Update recorded animation playback)
 
     animation --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
   end
 
-  subgraph Events
-    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations)
+  subgraph Scripting [Scripting Phase]
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations) --> Async
   end
 
-  subgraph EndFrame [End Phase]
-    Async --> receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
+  subgraph Late [Late Phase]
+    receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
   end
 
-  Pre-Physics --> Physics --> On-Update --> Events --> EndFrame
+  Early --> Scripting --> Late
 
-  style Physics fill:#eee,stroke:#aaa
-  style Events fill:#eee,stroke:#aaa
-  style EndFrame fill:#eee,stroke:#aaa
+  style Physics fill:#def,stroke:#aaa
 
-  %% Scripting
+  style Scripting fill:#eee,stroke:#aaa
+  style Early fill:#eee,stroke:#aaa
+  style Late fill:#eee,stroke:#aaa
+
   style Async fill:#dfe,stroke:#8a9
   style Pre-Physics fill:#dfe,stroke:#8a9
   style On-Update fill:#dfe,stroke:#8a9
@@ -2605,36 +2604,6 @@ flowchart LR
   style CodeBlockEvents fill:#dfe,stroke:#8a9
   style Components fill:#dfe,stroke:#8a9
 ```
-SIMPLER
-```mermaid {align="center"}
-flowchart LR
-  subgraph Physics [Physics Phase]
-    locomotion(Update players from<br/>locomotion and pose.<br/>Update recorded<br/>animations) --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
-  end
-
-  subgraph Events
-    NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents
-  end
-
-  subgraph EndFrame [End Phase]
-    broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
-  end
-
-  Pre-Physics --> Physics --> On-Update --> Events --> Async --> EndFrame
-
-  style Physics fill:#eee,stroke:#aaa
-  style Events fill:#eee,stroke:#aaa
-  style EndFrame fill:#eee,stroke:#aaa
-
-  %% Scripting
-  style Async fill:#dfe,stroke:#8a9
-  style Pre-Physics fill:#dfe,stroke:#8a9
-  style On-Update fill:#dfe,stroke:#8a9
-  style NetworkEvents fill:#dfe,stroke:#8a9
-  style PlayerInputHandlers fill:#dfe,stroke:#8a9
-  style CodeBlockEvents fill:#dfe,stroke:#8a9
-```
-
 
 Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
 
@@ -2656,25 +2625,22 @@ Proved: code block event handlers will eventually timeout but it seems to be upw
 
 Proved: each code block event handler is wrapped in a try.
 
-#### PrePhysics Phase
+### PrePhysics Phase
 
-#### Physics Phase
+### Physics Phase
 
-#### OnUpdate Phase
+### OnUpdate Phase
 
 ### Scripting Phase
 
-#### Component Initialization
-
-#### Network Events Handling
-
-#### Code Block Events Handling
-
-#### Committing Scene Graph Mutations
+* Component Initialization
+* Network Events Handling
+* Player Input Handling
+* Code Block Events Handling
+* Committing Scene Graph Mutations
+* Async Handling
 
 ### End Phase
-
-#### Async Handling
 
 #### Network Sync
 
