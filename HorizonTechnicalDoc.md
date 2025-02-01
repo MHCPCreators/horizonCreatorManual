@@ -61,80 +61,62 @@
             2. [Manual Properties](#manual-properties)
             3. [Typescript API](#typescript-api)
         4. [Door Gizmo](#door-gizmo)
-                1. [Overview](#overview-2)
-                1. [Manual Properties](#manual-properties-1)
-                2. [Typescript API](#typescript-api-1)
         5. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-2)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
+        6. [In-World Item Gizmo](#in-world-item-gizmo)
             1. [Overview](#overview-3)
             2. [Manual Properties](#manual-properties-2)
             3. [Typescript API](#typescript-api-2)
-        6. [In-World Item Gizmo](#in-world-item-gizmo)
-            1. [Overview](#overview-4)
-            2. [Manual Properties](#manual-properties-3)
-            3. [Typescript API](#typescript-api-3)
         7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-                1. [Overview](#overview-5)
-                1. [Manual Properties](#manual-properties-4)
-                2. [Typescript API](#typescript-api-4)
         8. [Environment Gizmo](#environment-gizmo)
-                1. [Overview](#overview-6)
-                1. [Manual Properties](#manual-properties-5)
-                2. [Typescript API](#typescript-api-5)
+                1. [Overview](#overview-4)
+                1. [Manual Properties](#manual-properties-3)
+                2. [Typescript API](#typescript-api-3)
         9. [ParticleFx Gizmo](#particlefx-gizmo)
-            1. [Overview](#overview-7)
-            2. [Gizmo ParticleFx Properties](#gizmo-particlefx-properties)
-            3. [Asset ParticleFx Properties](#asset-particlefx-properties)
-                1. [Typescript API](#typescript-api-6)
-            4. [Playing and Stopping a Particle Effect](#playing-and-stopping-a-particle-effect)
         10. [TrailFx Gizmo](#trailfx-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-7)
         11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-8)
-            4. [Using a Projectile Launcher](#using-a-projectile-launcher)
         12. [Quests Gizmo](#quests-gizmo)
         13. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-10)
-            2. [Manual Properties](#manual-properties-8)
-            3. [Typescript API](#typescript-api-9)
+            1. [Overview](#overview-5)
+            2. [Manual Properties](#manual-properties-4)
+            3. [Typescript API](#typescript-api-4)
             4. [How to Raycast](#how-to-raycast)
         14. [Script Gizmo](#script-gizmo)
         15. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-11)
-            2. [Manual Properties](#manual-properties-9)
+            1. [Overview](#overview-6)
+            2. [Manual Properties](#manual-properties-5)
             3. [Typescript  API](#typescript--api)
         16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-12)
+            1. [Overview](#overview-7)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-10)
+            5. [Typescript API](#typescript-api-5)
         17. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-13)
-            2. [Manual Properties](#manual-properties-10)
+            1. [Overview](#overview-8)
+            2. [Manual Properties](#manual-properties-6)
             3. [Typescript  API](#typescript--api-1)
-        18. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-13)
-            2. [Manual Properties](#manual-properties-10)
-            3. [Typescript API](#typescript-api-11)
+        18. [Static Light Gizmo](#static-light-gizmo)
+        19. [Text Gizmo](#text-gizmo)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-6)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
             7. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-        19. [Trigger Gizmo](#trigger-gizmo)
-            1. [Overview](#overview-13)
-            2. [Manual Properties](#manual-properties-10)
-            3. [Typescript API](#typescript-api-11)
-        20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-13)
-            2. [Manual Properties](#manual-properties-10)
-            3. [Typescript API](#typescript-api-11)
-        21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
+        20. [Trigger Gizmo](#trigger-gizmo)
+            1. [Overview](#overview-10)
+            2. [Manual Properties](#manual-properties-8)
+            3. [Typescript API](#typescript-api-7)
+        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+            1. [Overview](#overview-11)
+            2. [Manual Properties](#manual-properties-9)
+            3. [Typescript API](#typescript-api-8)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -143,7 +125,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-14)
+    1. [Overview](#overview-12)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -234,7 +216,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-15)
+    1. [Overview](#overview-13)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -297,10 +279,9 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-16)
-    2. [Leaderboards](#leaderboards)
-    3. [Quests](#quests)
-    4. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+    1. [Overview](#overview-14)
+    2. [Quests](#quests)
+    3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
@@ -1119,7 +1100,7 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
 
 All [intrinsic entity types](#intrinsic-entity-types) are listed in the table below, each of which link to detailed documentation.
 
-<mark>TODO: Missing: Media Board, Navigation Volume, Mirror, Static Light, World Promotion</mark>
+<mark>TODO: Missing: Media Board, Navigation Volume, Mirror,World Promotion</mark>
 
 | [Intrinsic Type](#entity-types) | TypeScript Class |
 |---|---|
@@ -1144,6 +1125,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Sound](#sound-gizmo) | `AudioGizmo` |
 | [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
 | [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
+| [Static Light](#static-light-gizmo) | `Entity` |
 | [Sphere Collider](#collider-gizmo) | `Entity` |
 | [Sublevel](#sublevels) | `SublevelEntity` |
 | [Text](#text-gizmo) | `TextGizmo` |
@@ -1177,31 +1159,19 @@ Allows creators to monitor the console for messages in Play and Publish [visitat
 
 ### Door Gizmo
 
-##### Overview
-Showcase and allow players to travel to selected public worlds or your private worlds.
+**Description**: Showcase selected public (or unlisted) worlds and allow players to easily travel to them.
 
-#####  Manual Properties
-- Change
-    - (selected door)
-- Visible
-    - Toggle(ON/OFF)
+| Property | Type | Description |
+|---|---|---|
+| Door | Existing World | Which will the door should showcase. |
+| Visible | `boolean` | Whether the door is visible or not. |
 
-##### Typescript API
-- None
+**TypeScript**: doors are references as `Entity` instances with no additional scripting capabilities.
 
-!!! Note Cannot be transformed by script.
-
-<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
-
-!!! Note Can inherit group entity properties.
-    If placed in a group, can inherit group entity properties like visibility, billboarding, attaching, animation, grabbable, etc..
-
-!!! Warning Costly to performance if overused due to expensive VFXs
-
-!!! Warning Can not change or stop the door animation or sound.
-
-!!! Bug Known Issues
-    - <mark>TODO</mark> list known issues or delete
+**Limitations**:
+  * Cannot be [transformed](#transforms) by script. You can put a door in [a group or empty object](#empty-object-and-groups) if you want to script its movement, make it grabbable, etc.
+  * Performance intensive due to VFX - use sparingly.
+  * Doors play a "shimmering sound" on loop that are audible near them; there is no way to disable the sound. The only partial workaround is to put the door in [a group or empty object](#empty-object-and-groups) and move that parent from the "play area"; the sound will then be too far away to hear.
 
 ### NPC Gizmo
 
@@ -1270,41 +1240,28 @@ OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 !!!INFO Only Owners can make test purchases in while in Edit/Play modes.
 ### Dynamic Light Gizmo
 
-##### Overview
-Used to cast light dynamically, meaning you can move the light during run-time. Should be used in conjunction with dynamics, otherwise use a Static Light Gizmo. <mark>TODO</mark> - Link to Static Light Gizmo
+**Description**: Casts movable and changing light during runtime. It can move, rotate, change intensity, etc. If you don't need the light to change, use a [static light](#static-light-gizmo) for better performance.
 
-#####  Manual Properties
-- Light Type
-  - Point
-  - Spot
-- Color
-  - RGB values between 0.0 - 1.0
-- Intensity
-  - Value between 0 - 10
-- Falloff Distance
-  - Value between 0 - 100
+| Property | Type | Description |
+|---|---|---|
+| Light Type | `Point` or `Spot` | Type of light. A point light is a point of light emitting in all directions (like a small bulb). A spot like is a "cone" of focused light (just like real spotlights). |
+| Color | `Color` | RGB values between 0.0 - 1.0 |
+| Intensity | `number` | Light brightness (0-10). |
+| Falloff Distance | `number` | Distance light travels (0-100). |
 
-##### Typescript API
-https://horizon.meta.com/resources/scripting-api/core.dynamiclightgizmo.md/
-```ts
-enabled: HorizonProperty<boolean>; //Indicates whether the entity has a dynamic light effect on it. true to enable dynamic lighting; otherwise, false.
-falloffDistance: HorizonProperty<number>; //The light falloff distance. 0 for the least distance and 100 for the greatest distance.
-intensity: HorizonProperty<number>; //The light intensity. 0 for least intense and 10 for most intense.
-spread: HorizonProperty<number>; //The light spread. 0 for the least light spread (none) and 100 for the greatest light spread.
+**TypeScript**: dynamic light gizmos are referenced [as](#entity-as-method) the `DynamicLightGizmo` class with the following properties (light type and color are *not* modifiable in scripts):
+```typescript
+// DynamicLightGizmo
+enabled: HorizonProperty<boolean>;        // Enable/disable the light
+falloffDistance: HorizonProperty<number>; // Travel distance (0-100)
+intensity: HorizonProperty<number>;       // Brightness (0-10)
+spread: HorizonProperty<number>;          // Spot light spread (0-100)
 ```
 
+**Limitations**:
+  * Maximum of 20 Dynamic Lights per world
+  * Performance intensive due to per-frame light/shadow processing
 
-!!! Note Only allowed a maximum  of 20 Dynamic Lights per world.
-
-<mark>TODO</mark> Can inherit group entity properties is true for multiple gizmos, should we place somewhere else?
-
-!!! Note Can inherit group entity properties.
-    If placed in a group, can inherit group entity properties like visibility, billboarding, attaching, animation, grabbable, etc..
-
-!!! Warning Costly to performance if overused due to light/shadow per frame processing.
-
-!!! Bug Known Issues
-    - <mark>TODO</mark> list known issues or delete
 ### Environment Gizmo
 
 ##### Overview
@@ -1368,162 +1325,133 @@ Allows creators to make changes to the properties  of their world like skydome, 
     - <mark>TODO</mark> list known issues or delete
 
 ### ParticleFx Gizmo
-#### Overview
-The particle gizmo allows you to play built-in effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
 
-There are two types of `ParticleFx`:
-1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
-2. `ParticleFx` created via `Asset Library` Menu/Tab under the `VFX` category.
-So we will call them `Gizmo ParticleFx`  and  `Asset ParticleFx` respectively. Use the `Prefab` name to choose the effect. Note a number of these effects have *Custom FX Properties* (e.g. to set fire color).
+**Description**: Play built-in particle effects (smoke burst, water spray, muzzle flare, camp fire, etc). Available from two places in the editor:
+1. Gizmo ParticleFX: Created via Build Menu's Gizmos section
+2. Asset ParticleFX: Created via Asset Library's VFX category
 
-#### Gizmo ParticleFx Properties
-- Play on Start
-    - ON/OFF Toggle
-- Looping
-    - ON/OFF Toggle
-- Preset
-    - Dropdown list of predefined particles.
-- Preview
-    - Play Button
+**Gizmo ParticleFX Properties**:
+| Property | Type | Description |
+|---|---|---|
+| Play on Start | `boolean` | Auto-play when the worlds starts (or when it is [spawned in](#spawning)) |
+| Looping | `boolean` | Repeat effect continuously |
+| Preset | Dropdown | Select from predefined particles |
+| Preview | Button | Test effect in the desktop editor |
 
-#### Asset ParticleFx Properties
-- Prefab  Name
-    - Dropdown  list of predefined particles.
-- Play on Start
-    - ON/OFF Toggle
-- Looping
-    - ON/OFF Toggle
-- Preview
-    - Play Button
-- Custom  FX  Properties
-    - Variety of Prefab specific properties.
+**Asset ParticleFX Properties**:
+| Property | Type | Description |
+|---|---|---|
+| Prefab Name | Dropdown | Select from predefined particles |
+| Play on Start | `boolean` | Auto-play when world loads |
+| Looping | `boolean` | Repeat effect continuously |
+| Preview | Button | Test effect |
+| Custom FX Properties | Various | Effect-specific settings (e.g., fire color) |
 
-##### Typescript API
-[ParticleGizmo Class](https://horizon.meta.com/resources/scripting-api/core.particlegizmo.md/)
-```ts
-play(options?: ParticleFXPlayOptions): void; //Plays the particle effect.
-stop(options?: ParticleFXStopOptions): void; //Stops the particle effect.
-
-//(Optional) Controls how the effect is played.
-export declare type ParticleFXPlayOptions = {
-    fromStart?: boolean;
-    players?: Array<Player>;
-    oneShot?: boolean;
-};
-
-//(Optional) The options that control how the effect is stopped.
-export declare type ParticleFXStopOptions = {
-    players?: Array<Player>;
-};
-
+**TypeScript**: particle effect gizmos are referenced [as](#entity-as-method) the `ParticleGizmo` class with the following methods:
+```typescript
+/// Particle Gizmo
+play(options?: ParticleFXPlayOptions): void;
+stop(options?: ParticleFXStopOptions): void;
 ```
 
-#### Playing and Stopping a Particle Effect
-**fromStart**: This is only used if the effect is already playing. Intuitively, `true` means "play the effect from its beginning" and `false` means "elongate the ongoing effect". In practice, it is more subtle. Effects have limited resources (CPU) and so when you play the effect while it is already playing, the resources have to be split between the current "play" and the new on. The `fromStart` parameter controls how to "overlap" the new run with the current one. When `true` it will optimize available resources to playing it again. When `false` it will optimize available resources to letting the first effect finish. You can think of this parameter as controlling which of the two get the bigger "oomph".
+which support optional configuration via the types:
 
-**players**: `play` and `stop` both allow specifying which players will see the effect start / stop. The default value is [all players](#listing-all-players) in the world.
+```ts
+type ParticleFXPlayOptions = {
+  fromStart?: boolean;     // Resource allocation priority
+  players?: Array<Player>; // Target specific players
+  oneShot?: boolean;       // Override looping property
+};
 
-**oneShot**:  When you **play** an effect it will loop forever if `looping` is `true` in the property; otherwise it will play once. The **oneShot** option in `ParticleFXPlayOptions` overrides the `looping` setting in the property panel; `oneShot=true` will play once and `oneShot=false` will revert to the `looping` property.
+type ParticleFXStopOptions = {
+  players?: Array<Player>;// Target specific players
+};
+```
 
-!!!BUG oneShot is currently being ignored. ParticleFx always obeys `looping` property.
+The `player` property defaults to [all players](#listing-all-players), if not specified. `oneShot` allows you to override the looping property.
 
+`fromStart` is a nuanced expert-level feature; it defaults to `true`. Effects have limited resources (such as a maximum number of particles). When playing an effect while it is already playing the `fromStart` property lets you specify whether the "already playing" or the "new play" gets more priority:
+  - `fromStart: true` prioritizes the new effect instance.
+  - `fromStart: false` prioritizes completing the current effect.
+
+!!! bug `oneShot` is currently being ignored.
+  Currently (Feb 2025) the `oneShot` property has no impact on whether an effect loops or not. It will also use the value in the Looping setting. This is a bug.
 
 ### TrailFx Gizmo
+**Description**: Emits a colored line behind moving objects with a configurable length, width, and color gradient.
+| Property | Type | Description |
+|---|---|---|
+| Play on Start | `boolean` | Auto-start trail effect when the world starts (or the effect is [spawned in])(#spawning) |
+| Length | `number` | Trail length in meters |
+| Width | `number` | Trail width in meters |
+| Start Color | `Color` | RGB values (0.0-1.0) at trail start |
+| End Color | `Color` | RGB values (0.0-1.0) at trail end |
+| Preset | `"Simple Trail" \| "Tapered Trail"` | Trail style preset to determine if the trail gets narrower toward the tail (tapered) or stays the same width throughout (simple) |
 
-#### Overview
-The TrailFx Gizmo emits a colored line behind it as it moves. Its length, width, & color can be changed.
-
-
-#### Manual Properties
-- Play on Start
-    - ON/OFF Toggle
-- Length
-    - Numeric Value - Accepts any number, length measured in meters.
-- Width
-    - Numeric Value - Accepts any number, width measured in meters.
-- Start Color
-    - RGB values between 0.0 - 1.0
-- End Color
-    - RGB values between 0.0 - 1.0
-- Preset
-    - Simple Trail
-    - Tapered Trail
-
-#### Typescript API
-[TrailGizmo Class](https://horizon.meta.com/resources/scripting-api/core.trailgizmo.md/)
-```ts
-length: HorizonProperty<number>; //The length of the trail, in meters.
-width: HorizonProperty<number>; //The width of the trail, in meters.
-
-play(): void; //Plays the trail effect
-stop(): void; //Stops the trail effect
+**TypeScript**: trail effect gizmos are referenced [as](#entity-as-method) the `TrailGizmo` class with the following members:
+```typescript
+// TrailGizmo
+length: HorizonProperty<number>;  // Trail length in meters
+width: HorizonProperty<number>;   // Trail width in meters
+play(): void;                     // Start trail effect
+stop(): void;                     // Stop and remove trail
 ```
 
-!!! info Stopping the trail effect will remove the entire drawn trail.
-
-!!! warning Costly to performance if overused.
+**Limitations**:
+  * Performance intensive - use sparingly
+  * Stopping the effect removes the entire drawn trail
 
 ### Projectile Launcher Gizmo
-#### Overview
-Launches a selected particle. Useful for launcher type weapons, rain, snow, and more.
+**Description**: Launches configurable particles with customizable physics properties. Ideal for weapons and launchers.
 
-#### Manual Properties
-- Projectile Preset
-    - Dropdown with predefined projectile particles
-- Speed
-    - Numeric Value - Accepts any number, measured in meters per second
-- Player Collision
-    - No Players
-    - All Players Except Owner (Default)
-    - All Players
-- Object Collision
-    - No Objects
-    - All Objects Except Launcher's Group (Default)
-    - All Objects
-- Static Collision
-    - ON/OFF Toggle
-- Gravity
-    - Numeric Value - Accepts any number
-- Scale
-    - Numeric Value - Accepts any number
-- Trail Length Scale
-    - Numberic Value - Accepts any number, measured in meters.
-- Projectile Color
-    - RGB values between 0.0 - 1.0
+| Property | Type | Description |
+|---|---|---|
+| Projectile Preset | `string` | Predefined particle effect to launch |
+| Speed | `number` | Launch speed in meters per second |
+| Player Collision | `No Players`, `All Players Except Owner`, or `All Players` | Determines which players the projectile can collide with. Defaults to `All Players Except Owner`. |
+| Object Collision | `No Objects`, `All Objects Except Launcher's Group`, or `All Objects` | Determines which objects the projectile can collide with. Defaults to `All Objects Except Launcher's Group`. |
+| Static Collision | `boolean` | Enable/disable collision with static objects |
+| Gravity | `number` | Percent of gravity force applied to projectile (value of 1 is standard gravity). Defaults to 0. |
+| Scale | `number` | Size multiplier for the projectile. Default to 0.1. |
+| Trail Length Scale | `number` | Length of particle trail in meters. Defaults to 1. |
+| Projectile Color | `Color` | RGB values (0.0-1.0) for projectile tint. Defaults to (1,1,1) white. |
 
-#### Typescript API
-[ProjectileLauncherGizmo Class](https://horizon.meta.com/resources/scripting-api/core.projectilelaunchergizmo.md/)
+**TypeScript**: projectile launcher gizmos are referenced [as](#entity-as-method) the `ProjectileLauncherGizmo` class with the following members:
+```typescript
+// ProjectileLauncherGizmo
+projectileGravity: WritableHorizonProperty<number>;  // Gravity force applied to projectile
+
+// Launch a projectile with optional parameters
+launch(options?: LaunchProjectileOptions): void;
+```
+
+where launch can be configured with
 
 ```ts
-//Property
-projectileGravity: WritableHorizonProperty<number>; //The gravity applied to the projectile.
-
-//Methods
-launch(options?: LaunchProjectileOptions): void; //Launches a projectile with options.
-
-//Optional options for launching projectile
-export declare type LaunchProjectileOptions = {
-    speed: number;
-    duration?: number;
-};
+type LaunchProjectileOptions = {
+  speed: number;
+  duration?: number;
+}
 ```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+
+**Related Code Block Events**:
+<mark>TODO</mark> come up with a good format for introducing code block events.
 ```ts
-OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
-OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
-OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
-OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
-OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
+OnProjectileLaunched[launcher: Entity];
+OnProjectileHitPlayer[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean];
+OnProjectileHitObject[objectHit: Entity, position: Vec3, normal: Vec3];
+OnProjectileHitWorld[position: Vec3, normal: Vec3];
+OnProjectileExpired[position: Vec3, rotation: Quaternion, velocity: Vec3];
 ```
-#### Using a Projectile Launcher
-You must set a `Projectile Preset` in the Manual Properies before you  can launch a projectile.
 **OnProjectileHitObject**: This codeblock event will execute when a projectile hits an Entity that is `Animated`, or `Interactive`.
 **OnProjectileHitWorld**: This codeblock event will execute when a projectile hits an Entity that has Motion property set to `None`
 
-!!! note A single launcher can only have 10 projectiles out at any time.
-    When the 11th projectile fires, the first projectile will despawn.
-
-!!! warning Setting projectile speeds too fast might cause missed hit detections.
+**Limitations**:
+  * Requires setting Projectile Preset before use
+  * Maximum 10 active projectiles per launcher (the 11th launch causes the oldest alive to "vanish")
+  * OnProjectileHitObject only triggers for Animated or Interactive entities
+  * OnProjectileHitWorld only triggers for entities with Motion set to None
+  * High projectile speeds may cause collision detection issues
 
 ### Quests Gizmo
 
@@ -1753,7 +1681,11 @@ this.entity.as(hz.SpawnPointGizmo).speed.set(4.5)
 this.entity.as(hz.SpawnPointGizmo).teleportPlayer(player)
 ```
 !!! note If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
-!!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode. 
+!!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
+
+### Static Light Gizmo
+
+<mark>TODO</mark>
 
 ### Text Gizmo
 #### Overview
@@ -1829,6 +1761,9 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 ![[ markup/TextGizmoTable.html ]]
 
 ### Trigger Gizmo
+
+<mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
+
 #### Overview
 Detects when a player or object enters or exits an area.
 #### Manual Properties
