@@ -89,6 +89,10 @@
             2. [Manual Properties](#manual-properties-6)
             3. [Typescript API](#typescript-api-7)
         10. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-8)
+            4. [Using a Projectile Launcher](#using-a-projectile-launcher)
         11. [Quests Gizmo](#quests-gizmo)
         12. [Raycast Gizmo](#raycast-gizmo)
             1. [Overview](#overview-9)
@@ -1397,7 +1401,7 @@ The TrailFx Gizmo emits a colored line behind it as it moves. Its length, width,
 - Length
     - Numeric Value - Accepts any number, length measured in meters.
 - Width
-    - Numerica Value - Accepts any number, width measured in meters.
+    - Numeric Value - Accepts any number, width measured in meters.
 - Start Color 
     - RGB values between 0.0 - 1.0
 - End Color
@@ -1421,27 +1425,66 @@ stop(): void; //Stops the trail effect
 !!! warning Costly to performance if overused. 
 
 ### Projectile Launcher Gizmo
-A turnkey way to launch small objects
+#### Overview
+Launches a selected particle. Useful for launcher type weapons, rain, snow, and more.
+
+#### Manual Properties
+- Projectile Preset
+    - Dropdown with predefined projectile particles
+- Speed
+    - Numeric Value - Accepts any number, measured in meters per second
+- Player Collision
+    - No Players
+    - All Players Except Owner (Default)
+    - All Players
+- Object Collision
+    - No Objects
+    - All Objects Except Launcher's Group (Default)
+    - All Objects
+- Static Collision
+    - ON/OFF Toggle
+- Gravity
+    - Numeric Value - Accepts any number
+- Scale
+    - Numeric Value - Accepts any number
+- Trail Length Scale
+    - Numberic Value - Accepts any number, measured in meters.
+- Projectile Color
+    - RGB values between 0.0 - 1.0
+
+#### Typescript API
+[ProjectileLauncherGizmo Class](https://horizon.meta.com/resources/scripting-api/core.projectilelaunchergizmo.md/)
 
 ```ts
-type LaunchProjectileOptions = {
-    speed: number; // m/s ; default is 20 m/s
-    duration?: number; // max lifetime in sec; default +Infinity
+//Property
+projectileGravity: WritableHorizonProperty<number>; //The gravity applied to the projectile.
+
+//Methods
+launch(options?: LaunchProjectileOptions): void; //Launches a projectile with options.
+
+//Optional options for launching projectile
+export declare type LaunchProjectileOptions = {
+    speed: number;
+    duration?: number;
 };
-
-class ProjectileLauncherGizmo extends Entity {
-  launch(options?: LaunchProjectileOptions): void;
-}
 ```
-
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
 ```ts
-// Code block events
 OnProjectileLaunched: CodeBlockEvent<[launcher: Entity]>;
 OnProjectileHitPlayer: CodeBlockEvent<[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean]>;
 OnProjectileHitObject: CodeBlockEvent<[objectHit: Entity, position: Vec3, normal: Vec3]>;
 OnProjectileHitWorld: CodeBlockEvent<[position: Vec3, normal: Vec3]>;
 OnProjectileExpired: CodeBlockEvent<[position: Vec3, rotation: Quaternion, velocity: Vec3]>;
 ```
+#### Using a Projectile Launcher
+You must set a `Projectile Preset` in the Manual Properies before you  can launch a projectile.
+**OnProjectileHitObject**: This codeblock event will execute when a projectile hits an Entity that is `Animated`, or `Interactive`.
+**OnProjectileHitWorld**: This codeblock event will execute when a projectile hits an Entity that has Motion property set to `None`
+
+!!! note A single launcher can only have 10 projectiles out at any time.
+    When the 11th projectile fires, the first projectile will despawn.
+
+!!! warning Setting projectile speeds too fast might cause missed hit detections.
 
 ### Quests Gizmo
 
