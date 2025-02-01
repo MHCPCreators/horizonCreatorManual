@@ -310,6 +310,7 @@
 24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
 25. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
+26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -445,7 +446,7 @@ There are two types of instances: **published instances** and **editor instances
 | Mode  |  Description | Instance Type | Required Role |
 |---|---|---|---|
 | *Edit* | Experience the world **as an editor** where you can modify the world.  | Editor Instance | Editor |
-| *Play* | Experience the world **as a player** from within the editable instance. | Editor Instance | Editor or Tester |
+| *Preview* | Experience the world **as a player** from within the editable instance. | Editor Instance | Editor or Tester |
 | *Publish*  | Experience the world **as a player** in a published instance. | Published Instance | n/a |
 
 !!! info Debug Console Gizmo Visibility
@@ -1438,14 +1439,12 @@ type LaunchProjectileOptions = {
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnProjectileLaunched`  |  `launcher : Entity` | ? |
-| `OnProjectileHitPlayer` | `playerHit: Player`<br/>`position: Vec3`<br/>`normal: Vec3`<br/>`headshot: boolean` | ? |
-| `OnProjectileHitObject` | `objectHit: Entity`<br/>`position: Vec3`<br/>`normal: Vec3` | ? |
-| `OnProjectileHitWorld` | `position: Vec3`<br/>`normal: Vec3` | only if `Static Collision` enabled in Properties panel |
-| `OnProjectileExpired` | `position: Vec3`<br/>`rotation: Quaternion`<br/>`velocity: Vec3` | ? |
+| `OnProjectileLaunched` | <nobr>`launcher : Entity`<nobr/> | ? |
+| `OnProjectileHitPlayer` | <nobr>`playerHit: Player`<nobr/><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr><br/><nobr>`headshot: boolean`</nobr> | ? |
+| `OnProjectileHitObject` | <nobr>`objectHit: Entity`</nobr><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [dynamic entity](#static-vs-dynamic-entities) (Motion is `Animated`, or `Interactive`). |
+| `OnProjectileHitWorld` | <nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [static entity](#static-vs-dynamic-entities) (Motion is `None`). This event is only sent if `Static Collision` is enabled in the Properties panel. |
+| `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | ? |
 
-**OnProjectileHitObject**: This codeblock event will execute when a projectile hits an Entity that is `Animated`, or `Interactive`.
-**OnProjectileHitWorld**: This codeblock event will execute when a projectile hits an Entity that has Motion property set to `None`
 
 **Limitations**:
   * Requires setting Projectile Preset before use
@@ -3166,7 +3165,7 @@ OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, norm
 
 ### Collidability
 
-Mesh entities an collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
+Mesh entities and Collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
 
 A **collider is active** when the following true
 
@@ -3589,8 +3588,10 @@ When a player enters an [instance](#instances) they are assigned a [player id](#
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnPlayerEnterWorld` | `Player` | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
-| `OnPlayerExitWorld` | `Player` | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
+| `OnPlayerEnterWorld` | `player: Player` | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
+| `OnPlayerExitWorld` | `player: Player` | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
+
+See the diagram in the [AFK section](#player-enter-and-exit-afk) for when and how these events are sent.
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
     If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
@@ -3609,10 +3610,13 @@ A [player](#players) in an [instance](#instances) can become **inactive**. Horiz
 
 There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK:
 
-| CodeBlockEvent | Description | Parameters |
+| [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnPlayerEnterAFK`  | Sent when a player becomes inactive.  | `Player` |
-| `OnPlayerExitAFK`  | Sent when a player is no longer inactive. | `Player` |
+| `OnPlayerEnterAFK` | `player: Player` | Sent when a player becomes inactive. |
+| `OnPlayerExitAFK` | `player: Player` | Sent when a player is no longer inactive. |
+
+The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
+
 
 ```mermaid {align="center"}
 flowchart TD
@@ -3620,15 +3624,15 @@ flowchart TD
     inWorld([Player is active<br/>in the instance])
     inWorldAndAFK([Player is AFK<br/>in the instance])
 
-    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b><br/>[player]</code></td></tr></table> --> inWorld
+    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b></code></td></tr></table> --> inWorld
 
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr></table> --> notInWorld
 
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b><br/>[player]</code></td></tr></table> --> inWorldAndAFK
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
 
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b><br/>[player]</code></td></tr></table> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr></table> --> notInWorld
 
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b><br/>[player]</code></td></tr></table> --> inWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b></code></td></tr></table> --> inWorld
 
     inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr></table> --> notInWorld
 ```
@@ -3941,21 +3945,30 @@ on the held object. If the entity was **force held** then this is how you remove
 
 There are a number of events associated with grabbing and holding. The diagram below shows how the state of an entity changes with user-actions (highlighted in blue). Actions have associated `CodeBlockEvent`s that are sent. If a box contains multiple events then they are sent in the top-down order shown.
 
+| [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
+|---|---|---|
+| `OnGrabStart` | <nobr>`isRightHand: boolean`</nobr><br/><nobr>`player: Player`</nobr> | ? |
+| `OnGrabEnd` | <nobr>`player: Player`</nobr> | ? |
+| `OnMultiGrabStart` | <nobr>`player: Player`</nobr> | ? |
+| `OnMultiGrabEnd` | <nobr>`player: Player`</nobr> | ? |
+
+The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
+
 ```mermaid {align="center"}
 flowchart TD
   hold0([Not Held])
   hold1([Held with 1 hand])
   hold2([Held with 2 hands])
 
-  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>with a hand</td></tr><tr><td style="background-color:#ffffcd"><code style="background-color:#0000"><a href="#grabbables-and-ownership">Ownership transfer</a></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> ---> hold1
+  hold0 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player grabs <br/>with a hand</i></td></tr><tr><td style="background-color:#ffffcd"><code style="background-color:#0000"><a href="#grabbables-and-ownership"><u>Ownership transfer</u></a></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b></code></td></tr></table> ---> hold1
 
-  hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs with<br/>second hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr></table> --> hold2
+  hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player grabs with<br/>second hand</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b></code></td></tr></table> --> hold2
 
-  hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases 1 hand</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr></table> --> hold1
+  hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player releases 1 hand</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b></code></td></tr></table> --> hold1
 
-   hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases hand or<br/><code style="background-color:#0000">forceRelease</code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+   hold1 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player releases hand or<br/><code style="background-color:#0000">forceRelease</code>called</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b></code></td></tr></table> --> hold0
 
-    hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><code style="background-color:#0000"><b>forceRelease</b></code>called</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b><br/>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> --> hold0
+    hold2 -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i><code style="background-color:#0000">forceRelease</code>called</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnMultiGrabEnd</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabEnd</b></code></td></tr></table> --> hold0
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3,4 stroke:red,stroke-width:1px;
@@ -4032,18 +4045,27 @@ Attaching an entity to player can be done by the following:
 
 <mark>TODO</mark> - Explain what happens when multiple attached
 
+Attaching entities involves two built-in code block events being sent to the attachable. If the player attached or detached by hand (only possible for a VR player) then there are also events related to [grabbing](#grab-sequence-and-events).
+
+| [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
+|---|---|---|
+| `OnAttachStart` | <nobr>`player: Player`</nobr> | ? |
+| `OnAttachEnd` | <nobr>`player: Player`</nobr> | ? |
+
+The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
+
 ```mermaid {align="center"}
 flowchart TD
   detach([Detached])
   attach([Attached])
 
-  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player releases<br/>attachable entity<br/>on body part</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color: #0000"><b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player releases<br/>attachable entity<br/>on body part</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color: #0000"><b>OnGrabEnd</b></code></td></tr></table> ---> attach
 
-  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">attachToPlayer()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b>[player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b>[player]</code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>attachToPlayer()</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b></code></td></tr></table> ---> attach
 
-  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player grabs <br/>attachable entity</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b><br/>[isRightHand,player]</code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player grabs <br/>attachable entity</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b></code></td></tr></table> --> detach
 
-  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">detach()</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b>[player]</code></td></tr></table> --> detach
+  attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>detach()</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b></code></td></tr></table> --> detach
 
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3 stroke:red,stroke-width:1px;
@@ -4628,7 +4650,7 @@ PropTypes
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space: [player body part](#Player Body Part), [transform relative to](#transform-relative-to)
+Space: [body part](#player-body-part), [transform relative to](#transform-relative-to)
 [SpawnController](#advanced-spawning)
 [SpawnControllerBase](#advanced-spawning)
 [SpawnError](#advanced-spawning)
@@ -4651,6 +4673,55 @@ StopAnimationOptions
 [World](#world-class)
 [WritableHorizonProperty](#horizon-properties)
 
+# All Built-In CodeBlockEvents
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
+|---|---|---|
+| OnAchievementComplete | `player: Player`<br/>`scriptId: string` |
+| OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
+| OnAssetSpawnFailed | `asset: Asset` |
+| OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
+| [OnAttachEnd](#attachable-by) | `player: Player` |
+| [OnAttachStart](#attachable-by) | `player: Player` |
+| OnAudioCompleted | - |
+| OnButton1Down | `player: Player` |
+| OnButton1Up | `player: Player` |
+| OnButton2Down | `player: Player` |
+| OnButton2Up | `player: Player` |
+| OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
+| OnEntityCollision | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
+| OnEntityEnterTrigger | `enteredBy: Entity` |
+| OnEntityExitTrigger | `enteredBy: Entity` |
+| [OnGrabEnd](#grab-sequence-and-events) | `player: Player` |
+| [OnGrabStart](#grab-sequence-and-events) | `isRightHand: boolean`<br/>`player: Player` |
+| OnIndexTriggerDown | `player: Player` |
+| OnIndexTriggerUp | `player: Player` |
+| OnItemConsumeComplete | `player: Player`<br/>`item: string, success: boolean` |
+| OnItemConsumeStart | `player: Player`<br/>`item: string` |
+| OnItemPurchaseComplete | `player: Player`<br/>`item: string, success: boolean` |
+| OnItemPurchaseFailed | `player: Player`<br/>`item: string` |
+| OnItemPurchaseStart | `player: Player`<br/>`item: string` |
+| OnItemPurchaseSucceeded | `player: Player`<br/>`item: string` |
+| [OnMultiGrabEnd](#grab-sequence-and-events) | `player: Player` |
+| [OnMultiGrabStart](#grab-sequence-and-events) | `player: Player` |
+| OnPassiveInstanceCameraCreated | `sessionId: Player`<br/>`cameraMode: string` |
+| OnPlayerCollision | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
+| OnPlayerConsumeFailed | `player: Player`<br/>`item: string` |
+| OnPlayerConsumeSucceeded | `player: Player`<br/>`item: string` |
+| [OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
+| OnPlayerEnterTrigger | `enteredBy: Player` |
+| [OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| OnPlayerEnteredFocusedInteraction | `player: Player` |
+| OnPlayerExitTrigger | `exitedBy: Player` |
+| [OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| OnPlayerExitedFocusedInteraction | `player: Player` |
+| OnPlayerSpawnedItem | `player: Player`<br/>`item: Entity` |
+| [OnProjectileExpired](#projectile-launcher-gizmo) | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` |
+| [OnProjectileHitObject](#projectile-launcher-gizmo) | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` |
+| [OnProjectileHitPlayer](#projectile-launcher-gizmo) | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` |
+| [OnProjectileHitWorld](#projectile-launcher-gizmo) | `position: Vec3`<br/>`normal: Vec3` |
+| [OnProjectileLaunched](#projectile-launcher-gizmo) | `launcher: Entity` |
+
 # OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
 
 TODO: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
@@ -4660,51 +4731,3 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 * when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
-
-| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
-|---|---|---|
-| `OnPlayerEnterTrigger` | `enteredBy: Player` | ? |
-| `OnPlayerExitTrigger` | `exitedBy: Player` | ? |
-| `OnEntityEnterTrigger` | `enteredBy: Entity` | ? |
-| `OnEntityExitTrigger` | `enteredBy: Entity` | ? |
-| `OnPlayerCollision` | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` | ? |
-| `OnEntityCollision` | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` | ? |
-| `OnPlayerEnterWorld` | `player: Player` | ? |
-| `OnPlayerExitWorld` | `player: Player` | ? |
-| `OnPassiveInstanceCameraCreated` | `sessionId: Player`<br/>`cameraMode: string` | ? |
-| `OnGrabStart` | `isRightHand: boolean`<br/>`player: Player` | ? |
-| `OnGrabEnd` | `player: Player` | ? |
-| `OnMultiGrabStart` | `player: Player` | ? |
-| `OnMultiGrabEnd` | `player: Player` | ? |
-| `OnIndexTriggerDown` | `player: Player` | ? |
-| `OnIndexTriggerUp` | `player: Player` | ? |
-| `OnButton1Down` | `player: Player` | ? |
-| `OnButton1Up` | `player: Player` | ? |
-| `OnButton2Down` | `player: Player` | ? |
-| `OnButton2Up` | `player: Player` | ? |
-| `OnAttachStart` | `player: Player` | ? |
-| `OnAttachEnd` | `player: Player` | ? |
-| `OnProjectileLaunched` | `launcher: Entity` | ? |
-| `OnProjectileHitPlayer` | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` | ? |
-| `OnProjectileHitObject` | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` | ? |
-| `OnProjectileHitWorld` | `position: Vec3`<br/>`normal: Vec3` | ? |
-| `OnProjectileExpired` | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` | ? |
-| `OnAchievementComplete` | `player: Player`<br/>`scriptId: string` | ? |
-| `OnCameraPhotoTaken` | `player: Player`<br/>`isSelfie: boolean` | ? |
-| `OnItemPurchaseStart` | `player: Player`<br/>`item: string` | ? |
-| `OnItemPurchaseComplete` | `player: Player`<br/>`item: string, success: boolean` | ? |
-| `OnItemConsumeStart` | `player: Player`<br/>`item: string` | ? |
-| `OnItemConsumeComplete` | `player: Player`<br/>`item: string, success: boolean` | ? |
-| `OnItemPurchaseSucceeded` | `player: Player`<br/>`item: string` | ? |
-| `OnItemPurchaseFailed` | `player: Player`<br/>`item: string` | ? |
-| `OnPlayerConsumeSucceeded` | `player: Player`<br/>`item: string` | ? |
-| `OnPlayerConsumeFailed` | `player: Player`<br/>`item: string` | ? |
-| `OnPlayerSpawnedItem` | `player: Player`<br/>`item: Entity` | ? |
-| `OnAssetSpawned` | `entity: Entity`<br/>`asset: Asset` | ? |
-| `OnAssetDespawned` | `entity: Entity`<br/>`asset: Asset` | ? |
-| `OnAssetSpawnFailed` | `asset: Asset` | ? |
-| `OnAudioCompleted` | - | ? |
-| `OnPlayerEnterAFK` | `player: Player` | ? |
-| `OnPlayerExitAFK` | `player: Player` | ? |
-| `OnPlayerEnteredFocusedInteraction` | `player: Player` | ? |
-| `OnPlayerExitedFocusedInteraction` | `player: Player` | ? |
