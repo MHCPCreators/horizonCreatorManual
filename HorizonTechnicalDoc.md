@@ -192,14 +192,15 @@
     5. [Components](#components)
         1. [Component Class](#component-class)
         2. [Attaching Components to Entities](#attaching-components-to-entities)
-        3. [Lifecycle](#lifecycle)
+        3. [Component Properties](#component-properties)
+        4. [Component Lifecycle](#component-lifecycle)
             1. [Auto-Restart on Script Edit](#auto-restart-on-script-edit)
-        4. [Sending and Receiving Events](#sending-and-receiving-events)
-        5. [Converting Between Components and Entities](#converting-between-components-and-entities)
-        6. [Subclasses](#subclasses)
-        7. [Async (Timers)](#async-timers)
-        8. [Local Scripts and Ownership](#local-scripts-and-ownership)
-        9. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        5. [Sending and Receiving Events](#sending-and-receiving-events)
+        6. [Converting Between Components and Entities](#converting-between-components-and-entities)
+        7. [Subclasses](#subclasses)
+        8. [Async (Timers)](#async-timers)
+        9. [Local Scripts and Ownership](#local-scripts-and-ownership)
+        10. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
             1. [System Code Block Events](#system-code-block-events)
@@ -2786,73 +2787,199 @@ The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
 1. Create a new [Component class](#component-class)
 1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
-1. Add property definitions to the class which will appear in the property panel
-1. Configure the properties in the property panel
-1. Connect code to run when system (or user) events occur
+1. Add [property definitions](#component-properties) that will appear in the property panel
+1. Connect code to run when [system (or user) events occur](#events-sending-and-receiving)
 
-While the steps above are the "main path" there are many more common parts of scripting:
-* sending events
-* creating timers and async code
-* finding entities in the world
-* casting entities
-* creating local scripts and transferring ownership
-* running code every frame
-* interacting with the physics system
-* rendering UI
-* creating tooltips and popups
-* spawning assets
-* tinting and modifying meshes
-* managing NPCs
+The steps above are the "main path" but there are also many more parts of scripting:
+* [Sending events](#sending-and-receiving-events)
+* [Creating timers and async code](#async-timers)
+* [Creating local scripts](#local-scripts-and-ownership) and [transferring ownership](#ownership-transfer)
+* [Running code every frame](#run-every-frame-prephysics-and-onupdate)
+* [Interacting with the physics system](#applying-forces-and-torque)
+* [Rendering UI](#custom-ui)
+* [Creating tooltips and popups](#tooltips-and-popups)
+* [Spawning assets](#spawning)
+* [Tinting and modifying meshes](#tinting)
+* [Managing NPCs](#npc-gizmo)
+* [Creating and updating persistence](#persistence)
 and so much more!
 
 ### Component Class
 
-Avoid anything in the name other than alphanumeric and _
+Scripting an entity requires [attaching a component to it](#attaching-components-to-entities). Creating Components is the core of scripting. To create a component, you subclass `Component`, override the `start` method (code that runs when the entity ["awakens"](#component-lifecycle)), and [register the component](#attaching-components-to-entities). A minimal component looks like:
 
-1. extend Component
-1. typeof "Name" for generic
-1. static propsDefinition
-1. start()
-1. Component.register
-1. [optional] preStart()
-1. [optional] initializeUI()
-1. [optional] dispose
+```ts
+class BasicComponent extends Component<typeof BasicComponent> {
+  override start() {}
+}
+Component.register(BasicComponent)
+```
+
+The most unusual part is the `<typeof BasicComponent>` part. You must always put the component's class name within the angle brackets (`<>`) after `Component` (this is a trick Horizon uses for [component props](#component-properties)).
 
 ### Attaching Components to Entities
 
-Props (and wiring)
+**Registering**: the code `Component.register(BasicComponent)` above must be called for every component subclass that you create. This call results in the component appearing in the **Attached Script** dropdown in the desktop editor. The component will appear with the format *filename:componentName*. So if the `BasicComponent` above is inside the TypeScript file `Demo` then the script will appear in the Attached Script dropdown as `Demo:BasicComponent`. This allows you to put **multiple components in a [file](#script-file-execution)**.
 
-Props definition uses an untyped object (be careful).
-Keys are prop names. Values are of the form {type: PropsTypes[...], defaultValue?: ... }
+The `Component.register` method takes an optional second argument to override the name in the dropdown. So if the following line of code is in a file `Obstacles`:
 
-Vec3, Quaternion, Color, number, string, boolean have auto-defaults
+```ts
+Component.register(SpinningTurntableComponent, 'Spinner')
+```
 
-Entity, Asset are nullable
+then the class will appear in the Attached Script dropdown as *Obstacles:Spinner*. If you want to override the name in `Component.register`, only use letters, numbers, and underscore in the name.
 
-Player doesn't make sense to use
+**Attaching**: once a component subclass is registered, you can click an entity in the desktop editor, open the property panel, and choose it from the Attached Script dropdown. That entity will now [run the code](#component-lifecycle) in that component. Once you attach a script, the property panel will show all the component's properties as editable fields. The next section explains how to add properties to a component.
 
-Array types are unsupported.
+### Component Properties
 
-### Lifecycle
+Components can define properties that appear in the property panel by implementing the optional static method `propsDefinition`. When you [attach the component](#attaching-components-to-entities), these properties will be configurable in the UI and accessible via the component's `props` field.
 
-Is anything other than props unavailable in property initializers?
+!!! example Component Properties Example
+    Here's a simple example showing how to define properties:
 
-Subscriptions are NOT cleaned up when a script auto-restarts
+    ```ts
+    import {Color, Component, PropTypes} from 'horizon/core'
 
-**DO NOT** implement the constructor, use property initializers instead.
+    class ExampleComponent extends Component<typeof ExampleComponent> {
+      static propsDefinition = {
+        name : {type : PropTypes.String},
+        color : {type : PropTypes.Color, default: new Color(1, 0.5, 0)}
+      }
 
-Avoid using anything other than "plain old data" before preStart.
+      override start() {
+        console.log(this.props.name, this.props.color.toString())
+      }
+    }
+    Component.register(ExampleComponent)
+    ```
 
-|   | Props | Can send to events |
-|---|---|---|
-| class property initializers | ❌ are empty | ❌ receiver unlikely listening |
-| preStart() | ✅ props are available | ❌ receiver unlikely listening |
-| start() | ✅ props are available | ✅ |
-| after start, but not disposed | ✅ props are available | ✅ |
-| dispose() | ? | ? |
-| after dispose() | ? | ? |
+    This example creates:
+      * A name field that shows as a text input
+      * A color field that shows as a color picker, defaulting to orange (1, 0.5, 0)
 
-Construction, preStart, start, dispose
+The static `propsDefinition` object defines your properties. Each property needs:
+  * A *key* that will become the property name in `this.props`
+  * An *object* value containing:
+    * `type`: *Required*. a value from `PropTypes`
+    * `default`: *Optional*. Initial value for the property in the property panel
+
+| `PropTypes` Value | Results In | Default Value | Notes |
+|---|---|---|---|
+| `Number` | `number` | `0` | - |
+| `String` | `string` | `''` | - |
+| `Boolean` | `boolean` | `false` | - |
+| `Vec3` | `Vec3` | `(0, 0, 0)` | - |
+| `Color` | `Color` | `(0, 0, 0)` Black | |
+| `Entity` | `Entity \| null` | `null` | Cannot specify default |
+| `Quaternion` | `Quaternion` | `(0, 0, 0)` | Property panel value is edited as [YXZ Euler angles](#euler-angles) |
+| `Asset` | `Asset \| null` | `null` | Cannot specify default |
+
+!!! warning Important Type Distinctions
+    Entity is a type used in code like:
+    ```ts
+    const e: Entity = ...
+    ```
+
+    While `PropTypes.Entity` is data used in `propsDefinition` or [CodeBlockEvents](#code-block-event).
+
+!!! tip No Type Checking
+    TypeScript does not type-check the `static propsDefinition` object. Verify your property definitions carefully.
+
+**Limitations**
+* **Player**: the `PropTypes` enum includes `PropTypes.Player` but there is no way to make use of it for `propsDefinition`.
+* **Arrays**: the `PropTypes` enum includes array versions of all types (like `NumberArray`),  but there is no way to make use of them for `propsDefinition`.
+**Nullable Types**: Properties using `PropTypes.Entity` or `PropTypes.Asset` will always be nullable: `Entity | null` or `Asset | null`, respectively. You must check for `null` before using these properties:
+  ```ts
+  static propsDefinition = {theEntity: {type: PropTypes.Entity}}
+
+  // ...
+
+  override start() {
+    if (this.props.theEntity !== null) {
+      // Safe to use this.props.theEntity here
+    }
+  }
+  ```
+
+### Component Lifecycle
+
+Components follow a strict lifecycle order, with certain methods occurring conditionally based on component type and ownership changes.
+
+When a world loads, all components go through their lifecycle in phases:
+1. First, all components in the world execute their `preStart()` methods. [Connect to receive events](#sending-and-receiving-events) here.
+2. Then, all components execute their `start()` methods.
+3. Finally, components enter their idle state.
+
+When an asset [spawns](#spawning), all spawned entities are `preStart`ed and then all are `start`ed.
+
+```mermaid
+stateDiagram-v2
+    [*] --> New
+
+    New --> InitializeUI: if UIComponent
+    InitializeUI --> PreStart
+
+    New --> PreStart: if not UIComponent
+    PreStart --> Start
+    Start --> ReceiveOwnership: if new client instance
+    ReceiveOwnership --> Idle
+
+    Start --> Idle: if world start or spawn
+    Idle --> TransferOwnership: when entity owner changes
+    TransferOwnership --> Dispose
+
+    Idle --> Dispose: when despawned<br/>or editor stopped
+    Dispose --> [*]
+```
+
+**Ownership transfers**: the `transferOwnership` and `receiveOwnership` methods are explained in the [transferring data across owners](#transferring-data-across-owners) section.
+
+
+!!! tip Do not access `props` in property initializers.
+    Props are not yet initialized when property initializers run. The correct way is to initialize in `preStart` or `start`:
+
+    ```typescript
+    // ❌ Don't do this
+    class BadComponent extends Component<typeof BadComponent> {
+      private color = this.props.color // Props not available yet. Throws!
+    }
+
+    // ✅ Do this instead - initialize in preStart
+    class GoodComponent extends Component {
+      private color: Color = new Color(0, 0, 0) // Default value if needed
+
+      override preStart() {
+        // Safe to use props here
+        this.color = this.props.color
+      }
+    }
+    ```
+
+!!! tip Do not override the `constructor`.
+    The Component base class handles critical initialization. Overriding the constructor can break this setup. Instead use property initializers for data (but don't use `props` in them; `props` are not available until `preStart`), `start()` for initialization behavior, and `preStart()` to [register for events](#sending-and-receiving-events).
+
+!!! bug Subscriptions are not automatically cleaned up during script restarts.
+    When restarting the world in the editor, [subscriptions](#sending-and-receiving-events) can stay running which can lead to weird behavior if you start the world immediately after stopping. One way around this is to manually discard subscriptions in `dispose()`.
+    ```typescript
+    import { Component, CodeBlockEvents } from 'horizon/core'
+
+    class ExampleComponent extends Component {
+      private subscriptions: Subscription[] = []
+
+      override preStart() {
+        this.subscriptions.push(this.connectCodeBlock(
+          this.entity,
+          CodeBlockEvents.OnPlayerEnterWorld,
+          player => console.log(player.name.get())
+        ))
+      }
+
+      override dispose() {
+        this.subscriptions.forEach(sub => sub.unsubscribe())
+      }
+    }
+    ```
 
 #### Auto-Restart on Script Edit
 
@@ -2902,21 +3029,9 @@ DisposableObject
 DisposeOperation
 DisposeOperationRegistration
 
-// Component
-registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration
-
-export interface DisposableObject {
-    /**
-     * Called when the disposable object is cleaned up.
-     */
-    dispose(): void;
-    /**
-     * Called to register a single dispose operation. The operation is run automatically
-     * at Object dispose time, unless it is manually run or canceled before the object is disposed.
-     * @param operation - A function called to perform a single dispose operation.
-     * @returns A registration object that can be used to manually run or cancel the operation before dispose.
-     */
-    registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration;
+export interface DisposableObject { // Component
+  dispose(): void;
+  registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration;
 }
 ```
 
