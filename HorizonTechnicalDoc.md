@@ -2616,7 +2616,10 @@ The `Quaternion` class provides methods to convert between the quaternions and E
 
 ```ts
 // Convert from Euler angles (in degrees)
-const quat = Quaternion.fromEuler(new Vec3(90, 0, 0), EulerOrder.XYZ)
+const quat = Quaternion.fromEuler(
+  new Vec3(90, 0, 0),
+  EulerOrder.XYZ
+)
 
 // Convert to Euler angles (in degrees)
 const euler = quat.toEuler(EulerOrder.XYZ)
@@ -3947,10 +3950,10 @@ There are a number of events associated with grabbing and holding. The diagram b
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnGrabStart` | <nobr>`isRightHand: boolean`</nobr><br/><nobr>`player: Player`</nobr> | ? |
-| `OnGrabEnd` | <nobr>`player: Player`</nobr> | ? |
-| `OnMultiGrabStart` | <nobr>`player: Player`</nobr> | ? |
-| `OnMultiGrabEnd` | <nobr>`player: Player`</nobr> | ? |
+| `OnGrabStart` | <nobr>`isRightHand: boolean`</nobr><br/><nobr>`player: Player`</nobr> | Sent when a player grabs an entity (it is sent *both* for the first hand grabbing *and* the second hand grabbing in a *multi-grab*). |
+| `OnGrabEnd` | <nobr>`player: Player`</nobr> | Sent when a player stops holding the entity (both hands off, for a multi-grab). |
+| `OnMultiGrabStart` | <nobr>`player: Player`</nobr> | Sent when a player adds their second hand to a multi-grab entity. |
+| `OnMultiGrabEnd` | <nobr>`player: Player`</nobr> | Sent when a multi-grab entity is no longer held with 2 hands (either because it is now held by 1 or by none). |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
 
