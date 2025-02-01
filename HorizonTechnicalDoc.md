@@ -124,6 +124,9 @@
             4. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         19. [Trigger Gizmo](#trigger-gizmo)
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+            1. [Overview](#overview-13)
+            2. [Manual Properties](#manual-properties-10)
+            3. [Typescript API](#typescript-api-11)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
@@ -1844,8 +1847,39 @@ const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [Prop
 ```
 
 ### World Leaderboard Gizmo
+#### Overview
+Used to display player scores in your world.
+#### Manual Properties
+- Leaderboard
+    - Dropdown list with all avaliable leaderboards.
+- Displayed Title
+    - Text field
+- Number of Entries Per Page
+    - Numeric value between 1 - 10
+- UI Anchor Style
+    - Static
+    - Billboard
+- Panel UI Mode
+    - Light Mode
+    - Dark Mode
+- Entry Display Mode
+    - Raw Value
+    - Time in secs
+#### Typescript API
+[World.leaderboard property](https://horizon.meta.com/resources/scripting-api/core.world.leaderboards.md/)
+[ILeaderboards interface](https://horizon.meta.com/resources/scripting-api/core.ileaderboards.md/)
 
-[Leaderboards](#leaderboards)
+```ts
+setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void; //Sets the leaderboard score for a player.
+```
+<mark>TODO</mark>
+- Kind of data allowed
+- Player opt-out
+- Creation
+- Using the Gizmo
+- APIs
+- Resetting
+  - Daily / Weekly / Monthly
 
 ### In World Purchase Gizmo
 
@@ -4057,37 +4091,6 @@ Grabbable and Attachable
 
 - Cloning a world
 - World persistence does not exists
-
-## Leaderboards
-
-- Overview
-  - Kind of data allowed
-  - Player opt-out
-- Creation
-- Using the Gizmo
-- APIs
-- Resetting
-  - Weekly / Monthly
-
-  <mark>TODO</mark>- Can be moved to dedicated quest reference
-Used to track score and compare/compete against friends and other visitors
-
-Must be created in Leaderboards tab in creator menu
-
-Can be used to gain insight about how your experience is being used
-
-No TS type, but you can set with `world.leaderboards.setScoreForPlayer`:
-
-```ts
-/**
- * Sets the leaderboard score for a player.
- * @param leaderboardName - The name of the leader board.
- * @param player - The player for whom the score is updated.
- * @param score - The new score.
- * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
- */
-setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
-```
 
 ## Quests
 
