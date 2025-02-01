@@ -57,52 +57,49 @@
         1. [Collider Gizmo](#collider-gizmo)
         2. [Custom UI Gizmo](#custom-ui-gizmo)
         3. [Debug Console Gizmo](#debug-console-gizmo)
+        4. [Door Gizmo](#door-gizmo)
+        5. [NPC Gizmo](#npc-gizmo)
             1. [Overview](#overview-1)
             2. [Manual Properties](#manual-properties)
             3. [Typescript API](#typescript-api)
-        4. [Door Gizmo](#door-gizmo)
-        5. [NPC Gizmo](#npc-gizmo)
+        6. [In-World Item Gizmo](#in-world-item-gizmo)
             1. [Overview](#overview-2)
             2. [Manual Properties](#manual-properties-1)
             3. [Typescript API](#typescript-api-1)
-        6. [In-World Item Gizmo](#in-world-item-gizmo)
-            1. [Overview](#overview-3)
-            2. [Manual Properties](#manual-properties-2)
-            3. [Typescript API](#typescript-api-2)
         7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
         8. [Environment Gizmo](#environment-gizmo)
-                1. [Overview](#overview-4)
-                1. [Manual Properties](#manual-properties-3)
-                2. [Typescript API](#typescript-api-3)
+                1. [Overview](#overview-3)
+                1. [Manual Properties](#manual-properties-2)
+                2. [Typescript API](#typescript-api-2)
         9. [ParticleFx Gizmo](#particlefx-gizmo)
         10. [TrailFx Gizmo](#trailfx-gizmo)
         11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         12. [Quests Gizmo](#quests-gizmo)
         13. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-5)
-            2. [Manual Properties](#manual-properties-4)
-            3. [Typescript API](#typescript-api-4)
+            1. [Overview](#overview-4)
+            2. [Manual Properties](#manual-properties-3)
+            3. [Typescript API](#typescript-api-3)
             4. [How to Raycast](#how-to-raycast)
         14. [Script Gizmo](#script-gizmo)
         15. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-6)
-            2. [Manual Properties](#manual-properties-5)
+            1. [Overview](#overview-5)
+            2. [Manual Properties](#manual-properties-4)
             3. [Typescript  API](#typescript--api)
         16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-7)
+            1. [Overview](#overview-6)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-5)
+            5. [Typescript API](#typescript-api-4)
         17. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
+            1. [Overview](#overview-7)
+            2. [Manual Properties](#manual-properties-5)
             3. [Typescript  API](#typescript--api-1)
         18. [Static Light Gizmo](#static-light-gizmo)
         19. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-6)
+            1. [Overview](#overview-8)
+            2. [Manual Properties](#manual-properties-6)
+            3. [Typescript API](#typescript-api-5)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
@@ -110,13 +107,13 @@
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         20. [Trigger Gizmo](#trigger-gizmo)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-6)
+        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
             1. [Overview](#overview-10)
             2. [Manual Properties](#manual-properties-8)
             3. [Typescript API](#typescript-api-7)
-        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-11)
-            2. [Manual Properties](#manual-properties-9)
-            3. [Typescript API](#typescript-api-8)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -125,7 +122,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-12)
+    1. [Overview](#overview-11)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -216,7 +213,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-13)
+    1. [Overview](#overview-12)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -279,7 +276,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-14)
+    1. [Overview](#overview-13)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
@@ -1142,20 +1139,13 @@ See details in [Custom UI](#custom-ui)
 
 ### Debug Console Gizmo
 
-#### Overview
+**Description**: Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
 
-Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
+| Property | Type | Description
+|---|---|---|
+| Visibility | `Edit Mode Only`, `Edit and Preview Mode`, or `In Published World` | Determines which [visitation modes](#visitation-modes-edit-preview-and-publish) testers, editors, and the the owner can see the Debug Console Gizmo.  |
 
-<mark>TODO</mark> Determine which visibility settings apply to Owner, Editor, or Tester
-
-#### Manual Properties
- - Visibility
-    - Edit Mode Only
-    - Edit and Preview Mode
-    - In Published World
-
-#### Typescript API
- - None
+**TypeScript**: Debug Console is referenced as `Entity` instances with no additional scripting capabilities.
 
 ### Door Gizmo
 
