@@ -127,6 +127,9 @@
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         19. [Trigger Gizmo](#trigger-gizmo)
+            1. [Overview](#overview-13)
+            2. [Manual Properties](#manual-properties-10)
+            3. [Typescript API](#typescript-api-11)
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
             1. [Overview](#overview-13)
             2. [Manual Properties](#manual-properties-10)
@@ -296,8 +299,7 @@
     1. [Overview](#overview-16)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
-    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
-    5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+    4. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
@@ -1826,42 +1828,45 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 ![[ markup/TextGizmoTable.html ]]
 
 ### Trigger Gizmo
-Designated area that causes an event to fire in the code
+#### Overview
+Detects when a player or object enters or exits an area.
+#### Manual Properties
+- Enabled
+    - ON/OFF Toggle
+- Trigger On
+    - Players
+    - Objects Tagged
+- Object Tag
+    - Text field
+- Selectable in Screen Mode
+    - ON/OFF Toggle
+#### Typescript API
+[TriggerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.triggergizmo.md/)
+```ts
+//Properties
+enabled: WritableHorizonProperty<boolean>; //Whether the Trigger is enabled.
 
-Player Enter
-Player Exit
-
-(Triggered by object with tag)
-Object Enter
-Object Exit
-
-<mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
+//Example of connecting to a trigger entered event.
+this.connectCodeBlockEvent(this.entity, hz.CodeBlockEvents.OnPlayerEnterTrigger, (enteredBY) => {
+    console.log('Player entered the world.', enteredBY.name.get());
+})
+```
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
 
 ```ts
-class TriggerGizmo extends Entity {
-  enabled: WritableHorizonProperty<boolean>;
-}
+OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: hz.Player]>;
+OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: hz.Player]>;
+OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
+OnEntityExitTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
+
+//additional events
+new CodeBlockEvent<[hz.Player]>('empty', [hz.PropTypes.Player])
+new CodeBlockEvent<[hz.Player]>('occupied', [hz.PropTypes.Player])
+new CodeBlockEvent<[hz.Entity]>('empty', [hz.PropTypes.Entity])
+new CodeBlockEvent<[hz.Entity]>('occupied', [hz.PropTypes.Entity])
 ```
-
-```ts
-OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
-OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
-OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
-OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
-```
-
-Secret events:
-
-```ts
-const TriggerEmptyOfPlayers = new CodeBlockEvent<[Player]>('empty', [PropTypes.Player])
-
-const TriggerOccupiedByPlayers = new CodeBlockEvent<[Player]>('occupied', [PropTypes.Player])
-
-const TriggerEmptyOfEntities = new CodeBlockEvent<[Entity]>('empty', [PropTypes.Entity])
-
-const TriggerOccupiedByEntities = new CodeBlockEvent<[Entity]>('occupied', [PropTypes.Entity])
-```
-
+!!! note Additional Events
+    Codeblock events like `Empty` & `Occupied` are not built-in codeblocks, so we have to create them ourselves, but `Trigger Gizmos` will use them to indicate when the trigger has no players in it, or when the trigger has at least 1 player in it.
 ### World Leaderboard Gizmo
 #### Overview
 Used to display player scores in your world.
@@ -1896,10 +1901,6 @@ setScoreForPlayer(leaderboardName: string, player: Player, score: number, overri
 - APIs
 - Resetting
   - Daily / Weekly / Monthly
-
-### In World Purchase Gizmo
-
-[In World Purchases](#in-world-purchases-iwp)
 
 # Assets
 
@@ -4144,17 +4145,6 @@ class AchievementsGizmo extends Entity {
      */
     OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
 ```
-
-## In-World Purchases (IWP)
-
-- Overview
-- Creation
-  - Types (consumables, durables)
-- Using the Gizmo
-- APIs
-  - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
-- Test Purchases
-  - Owner & editors can but Testers cannot (will be charged)
 
 ## Player Persistent Variables (PPV)
 
