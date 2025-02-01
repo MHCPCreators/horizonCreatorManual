@@ -24,6 +24,7 @@
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
     5. [Travel, Doors, and Links](#travel-doors-and-links)
+    6. [Resetting an Instance](#resetting-an-instance)
 4. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
@@ -185,7 +186,7 @@
         6. [Subclasses](#subclasses)
         7. [Async (Timers)](#async-timers)
         8. [Local Scripts and Ownership](#local-scripts-and-ownership)
-        9. [PrePhysics vs OnUpdate Updates](#prephysics-vs-onupdate-updates)
+        9. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
             1. [System Code Block Events](#system-code-block-events)
@@ -520,6 +521,10 @@ flowchart TD
 * Travel to friend
 * Instruction how to get an actual link...
 
+## Resetting an Instance
+
+<mark>TODO</mark> stop / play / pause and `world.reset()`.
+
 # Scene Graph
 
 Every world in Horizon is made out of [entities](#entities) each of which has an [intrinsic type](#entity-types) such as being a mesh or a particle effect. Entities can be configured to have *behaviors* (such as being [grabbable](#grabbing-entities) or [attachable](#attaching-entities)) and be have other entities as their children (or as a parent). The collection of all of these entities, their attributes, and relationships is called the **scene graph**. When you modify the scene graph in the editor, those changes are saved in the [world snapshot](#world-snapshot).
@@ -708,11 +713,11 @@ Setting the `scale` property is not influenced by the rotation of any [ancestors
 See [local transforms](#local-transforms) for setting scale relative to a parent entity.
 
 !!! danger Mesh Primitives Have Unexpected Inherent Sizes
-    The builtin mesh primitives have an inherent scale of 150 meters on each side (as of Feb 2025). Thus if you wanted to use a builtin mesh cube and have it be 1 meter long on each side, you would need to give it a scale of (1/150, 1/150, 1/150). This is a longstanding bug.
+    The built-in mesh primitives have an inherent scale of 150 meters on each side (as of Feb 2025). Thus if you wanted to use a built-in mesh cube and have it be 1 meter long on each side, you would need to give it a scale of (1/150, 1/150, 1/150). This is a longstanding bug.
 
 ### Offsets - Move, Rotate, and Scale
 
-When you want to set the position of an entity in relation to the current position we call this **offsetting** the position. There is no builtin API for doing this (as of Feb 2025) but it can be accomplished easily with the pattern of *get-modify-set*.
+When you want to set the position of an entity in relation to the current position we call this **offsetting** the position. There is no built-in API for doing this (as of Feb 2025) but it can be accomplished easily with the pattern of *get-modify-set*.
 
 !!! example Offsetting position and scale
     To move an entity up 2 meters from its current location you can do:
@@ -794,7 +799,7 @@ The transformation origin point of an entity is called its **pivot point**. It r
 1. **Mesh entities** have their pivot points specified when they are authored (e.g. in Blender)
 1. **Empty objects** have their pivot points at the center of the gizmo (the grey cube)
 1. **Group entities** compute their pivot point to be at the center of their "bounding box" **in edit mode**. For example if you move a child in a group in edit mode then when click off the group it will recompute its pivot point to be at the center of all of its children. *This only happens in edit mode. The pivot of a group doesn't auto-change when the world is running (even if its children move around).*
-1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a builtin pivot point (usually at their center).
+1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a built-in pivot point (usually at their center).
 
 !!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
     The desktop editor lets you choose to put the "manipulator handlers" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
@@ -823,7 +828,7 @@ Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a l
 !!! info Entity and Object mean the same thing (except in TypeScript)
     Horizon calls these **objects** in the Desktop Editor and VR Tools but calls them **entities** in TypeScript. This document tries to consistently call them entities, except when quoting places where Horizon explicitly uses the word "object", but may accidentally call them objects on occasion.
 
-    In TypeScript `Object` is a builtin for managing data, whereas `Entity` is a Horizon-specific class.
+    In TypeScript `Object` is a built-in for managing data, whereas `Entity` is a Horizon-specific class.
 
 <mark>TODO</mark>
 
@@ -896,7 +901,7 @@ Note that `as()` returns the same entity back, preserving equality. Thus after t
 !!! danger `as()` always succeeds! Do not cast to the wrong type!
     The `as()` method will always return an instance of the requested type. This means that you can convert a text gizmo entity into an `AudioGizmo` without error or warning. However if you then attempt to use it as an `AudioGizmo` you will get errors, warnings, and unexpected behavior. Don't cast entities, with `as()` to classes they are not. **This is a brittle part of Horizon's TypeScript API that has no workaround.**
 
-!!! danger Do not use TypeScript's builtin `as` operator on an `Entity`.
+!!! danger Do not use TypeScript's built-in `as` operator on an `Entity`.
     The `as()` method on `Entity` actually does work at runtime; it is not just a type-cast. That means the following two lines are **not the same**:
     ```ts
     ✅ const sound = entity.as(AudioGizmo)
@@ -972,8 +977,9 @@ with any of the following options:
 
 All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [transforming relative to an entity or player](#transform-relative-to), and checking if an entity [exists](#entity-exists).
 
-| **[Scene Graph](#scene-graph)** | Property Type | Description |
+| `Entity` Class Member | Type | Description |
 |---|---|---|
+| **[Scene Graph](#scene-graph)** |
 | id | `bigint` | A unique value representing this entity in this instance. `id`s are not reused (within an instance). |
 | name | `ReadableHorizonProperty`<br/>`<string>` | The name the Entity has in property panel. |
 | [parent](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity \| null>` | The entity's parent (if there is one). |
@@ -1350,7 +1356,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 
 ### ParticleFx Gizmo
 #### Overview
-The particle gizmo allows you to play builtin effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
+The particle gizmo allows you to play built-in effects such as a smoke burst, water spray, muzzle flare, camp fire, and so much more.
 
 There are two types of `ParticleFx`:
 1. `ParticleFx` created via `Gizmos` in the `Build` Menu/Tab. Choose the `Preset` setting to choose an effect.
@@ -2143,7 +2149,7 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 
 **Construction / new**: `Component`s, `Entity`s, `Player`s, and the `World` are all created by the system. You should never instantiate these directly with `new`. You can (and will) instantiate `Vec3`, `Quaternion`, and `Color`. You can allocate `Asset`s directly with their asset ids.
 
-**Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use builtin TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement [Comparable<T>](#comparable-interface)
+**Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use built-in TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement [Comparable<T>](#comparable-interface)
 
 ### Comparable<T> Interface
 `Vec3`, `Quaternion`, and `Color` implement `Comparable<T>` which provides the methods `equal(other: T): boolean` and `equalApprox(other: T, epsilon?: number): boolean`.
@@ -2671,33 +2677,57 @@ const complete = Quaternion.slerp(start, end, 1.0)   // 90 degree rotation
 
 ## World Class
 
-World
-onUpdate
-onPrePhysicsUpdate
-id
-reset
-getServerPlayer()
-getLocalPlayer()
-getPlayerFromIndex(index: number): Player : null
-getPlayers(): Player[]
-getEntitiesWithTags(tags: string[], matchOperation?: EntityTagMatchOperation): Entity[]
-spawnAsset(asset: Asset, position: Vec3, rotation?: Quaternion, scale?: Vec3): Promise<Entity[]>
-deleteAsset(entity: Entity, fullDelete?: boolean): Promise<undefined>
-update(updateType: WorldUpdateType, deltaTime: number): undefined
-matchmaking: {
-        /**
-         * Indicates whether more players can join the world.
-         *
-         * @param allow - `true`, to allow more players to join the world; `false` to prevent additional
-         * players from joining the world. The default value is `true`.
-         */
-        allowPlayerJoin(allow: boolean): Promise<void>;
-    }
-leaderboards: ILeaderboards;
-persistentStorage: IPersistentStorage
-ui: IUI
+The `World` class represents the currently running [instance](#instances) and the [world](#worlds)'s [persistent data](#persistence).
+
+| `World` Class Member | Description |
+|---|---|
+| **System Events** |
+| `static onUpdate` | The built-in [LocalEvent](#local-events) for subscribing to the [on-update frame event](#run-every-frame-prephysics-and-onupdate). |
+| `static onPrePhysicsUpdate` | The built-in [LocalEvent](#local-events) for subscribing to the [pre-physics frame event](#run-every-frame-prephysics-and-onupdate). |
+| **Instance Management** |
+| `reset` | [Reset the instance](#resetting-an-instance). |
+| `matchmaking` | Manage the instance's [open setting](#open-and-closed-instances). |
+| **Instance Players** |
+| `getPlayerFromIndex` | Find which, if any, [Player](#players) has the given [index](#player-indices). |
+| `getPlayers` | Get [all current players in the instance](#listing-all-players). |
+| `getServerPlayer` | Get the [player representing the server](#server-player). |
+| `getLocalPlayer` | Determine [which player's client is running the current code](#clients-devices-and-the-server).  |
+| `ui` | Show a [popup or tooltip UI](#tooltips-and-popups) to players. |
+| **World Entities** |
+| `getEntitiesWithTags` | [Find entities](#entity-tags) in the instance. |
+| `spawnAsset` | [Spawn an asset](#simple-spawning) into the instance. |
+| `deleteAsset` | [Delete spawned entities](#despawning) from the instance. |
+| **World Data** |
+ `id` | Get the unique id for this world. |
+| `leaderboards` | Manage player [leaderboard scores](#leaderboards). |
+| `persistentStorage` | Manager [persistence (player saved data)](#persistence). |
 
 ## Components
+
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#sending-and-receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+
+The **primary steps for scripting** are:
+1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
+1. Create a new [Component class](#component-class)
+1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
+1. Add property definitions to the class which will appear in the property panel
+1. Configure the properties in the property panel
+1. Connect code to run when system (or user) events occur
+
+While the steps above are the "main path" there are many more common parts of scripting:
+* sending events
+* creating timers and async code
+* finding entities in the world
+* casting entities
+* creating local scripts and transferring ownership
+* running code every frame
+* interacting with the physics system
+* rendering UI
+* creating tooltips and popups
+* spawning assets
+* tinting and modifying meshes
+* managing NPCs
+and so much more!
 
 ### Component Class
 
@@ -2766,7 +2796,7 @@ a few notes but link to the events section
 
 a few sentences and link to Networking
 
-### PrePhysics vs OnUpdate Updates
+### Run Every Frame (PrePhysics and OnUpdate)
 
 a few sentences and link to Physics
 
@@ -3507,7 +3537,7 @@ Body parts have two helper methods: `getPosition` and `getRotation` that let you
 * `bodyPart.getPosition(Space.Local)` is the same as `bodyPart.localPosition.get()`.
 
 !!! tip Getting a body part's local *right* vector.
-    Unlike for entities, there is no builtin `right` property to get the [local position x-axis](#local-transforms) direction. You can compute it yourself with:
+    Unlike for entities, there is no built-in `right` property to get the [local position x-axis](#local-transforms) direction. You can compute it yourself with:
     ```ts
     const torso = player.torso.get()
     const torsoUp = torso.up.get()
