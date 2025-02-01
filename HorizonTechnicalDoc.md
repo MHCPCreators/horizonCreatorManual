@@ -1204,10 +1204,10 @@ Used to sell In-World Items to users in your worlds.
 - Visible
     - ON/OFF Toggle
 - In-world Item
-    - Dropdown list of all avaliable Items
+    - Dropdown list of all available Items
 - Customize Purchase Dialog Position
     - ON/OFF Toggle
-    - If ON, Purchase Diaglog Position is avaliable
+    - If ON, Purchase Dialog Position is available
         - Vector(X,Y,Z)
 - UI Property
     - Trigger
@@ -1538,7 +1538,7 @@ Designed to help position and orientate players that land on it using teleport.
 
 ### Sound Recorder Gizmo
 #### Overview
-Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horzion.
+Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
 - `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music.
@@ -1808,7 +1808,7 @@ new CodeBlockEvent<[hz.Entity]>('occupied', [hz.PropTypes.Entity])
 Used to display player scores in your world.
 #### Manual Properties
 - Leaderboard
-    - Dropdown list with all avaliable leaderboards.
+    - Dropdown list with all available leaderboards.
 - Displayed Title
     - Text field
 - Number of Entries Per Page
