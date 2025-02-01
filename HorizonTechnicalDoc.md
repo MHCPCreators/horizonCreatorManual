@@ -114,11 +114,15 @@
             5. [Typescript API](#typescript-api-10)
         17. [Spawn Point Gizmo](#spawn-point-gizmo)
         18. [Text Gizmo](#text-gizmo)
-            1. [Limitations](#limitations)
-            2. [Text Gizmo Markup](#text-gizmo-markup)
-            3. [Text Gizmo Tags](#text-gizmo-tags)
+            1. [Overview](#overview-13)
+            2. [Manual Properties](#manual-properties-10)
+            3. [Typescript API](#typescript-api-11)
+            4. [Using a Text Gizmo](#using-a-text-gizmo)
+            5. [Limitations](#limitations)
+            6. [Text Gizmo Markup](#text-gizmo-markup)
+            7. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
-            4. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
+            8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         19. [Trigger Gizmo](#trigger-gizmo)
         20. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
         21. [In World Purchase Gizmo](#in-world-purchase-gizmo)
@@ -130,7 +134,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-13)
+    1. [Overview](#overview-14)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -220,7 +224,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-14)
+    1. [Overview](#overview-15)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -283,7 +287,7 @@
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-15)
+    1. [Overview](#overview-16)
     2. [Leaderboards](#leaderboards)
     3. [Quests](#quests)
     4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1721,20 +1725,32 @@ class SpawnPointGizmo extends Entity {
 ```
 
 ### Text Gizmo
-
-The text gizmo is a 2D surface on which text gan be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
-
+#### Overview
+The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
+#### Manual Properties
+- Text
+    - Text field
+- Auto Fit
+    - ON/OFF Toggle
+- Visible
+    - ON/OFF Toggle
+#### Typescript API
+[TextGizmo Class](http://horizon.meta.com/resources/scripting-api/core.textgizmo.md/)
+```ts
+//Properties
+text: HorizonProperty<string>; //The content to display in the text label
+```
+#### Using a Text Gizmo
 The initial text of a text gizmo can be set in the Property panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
 
 ```ts
-entity.as(TextGizmo).text.set('Hi!')
+this.entity.as(TextGizmo).text.set('Hello World')
 ```
 
-!!! tip Auto Fit Property
+!!! note Auto Fit Property
     The text gizmo has the property **auto fit**, which is only settable in the Property panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
 
-!!! tip Text gizmos contribute to [draw calls](#draw-calls).
-    Watch your perf as you add many of them!
+!!! note Text gizmos contribute to [draw calls](#draw-calls).
 
 #### Limitations
 
