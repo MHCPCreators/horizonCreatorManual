@@ -185,7 +185,7 @@
         10. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Code Block Event](#code-block-event)
-            1. [System Code Block Events](#system-code-block-events)
+            1. [Built-In Code Block Events](#built-in-code-block-events)
         2. [Local Events](#local-events)
         3. [Network Events](#network-events)
         4. [Broadcast events](#broadcast-events)
@@ -600,7 +600,7 @@ digraph {
 
 ## Transforms
 
-Entities have three transform properties: [position](#position), [rotation](#rotation), and [scale](#scale). You can use the properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modify the values using scripting.
+Entities have three transform properties: [position](#position), [rotation](#rotation), and [scale](#scale). You can use the Properties panel or the "manipulation handles" to manipulate these properties. Editing these values determines how entities are transformed when a new instance starts. **Within the Horizon editor you can only configure initial position, rotation, and scale**. If you want these values to change while the world is running, you will need to modify the values using scripting.
 
 In the desktop editor you can switch quickly between transform tools via the keyboard.
 | Manipulation Tool  |  Keyboard Shortcut |
@@ -830,7 +830,7 @@ Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a l
 
 Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-types)** determined by how the entity was originally created (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
 
-Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Property Panel (such as being [grabbable](#grabbing-entities), [attachable](#attaching-entities), etc).
+Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-entities), [attachable](#attaching-entities), etc).
 
 For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
@@ -839,9 +839,9 @@ For example, a *hat mesh that is grabbable and attachable* has a intrinsic type 
 
 All entities in Horizon are either **static** or **dynamic**.
 
-**Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-types) An entity **is static when `Motion` is set to `None` in the property panel**.
+**Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-types) An entity **is static when `Motion` is set to `None` in the Properties panel**.
 
-**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the property panel**
+**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the Properties panel**
   * When `Motion` is set to `Animated` you can [record a "hand animation"](#animated-entities) on the entity.
   * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-entities), [physics-simulated](#physicalentity-class), or both.
 
@@ -873,8 +873,8 @@ There is a [full list of all intrinsic entity types and their documentation](#al
 
 | Behavior Type  | Description | TypeScript Class | How to Enable |
 |---|---|---|---|
-| [Animated (Recording)](#animated-entities) | An entity that has a recording on it. | `AnimatedEntity` | Set `Motion` to `Animated`. Use the `Record` button in the property panel.
-| [Attachable](#attaching-entities) | An entity that can be attached to a [Player](#players). | `AttachableEntity` | Set `Motion` to `Animated` or `Interactive`. Set `Avatar Attachable` to `Sticky` or `Anchor` in the property panel.
+| [Animated (Recording)](#animated-entities) | An entity that has a recording on it. | `AnimatedEntity` | Set `Motion` to `Animated`. Use the `Record` button in the Properties panel.
+| [Attachable](#attaching-entities) | An entity that can be attached to a [Player](#players). | `AttachableEntity` | Set `Motion` to `Animated` or `Interactive`. Set `Avatar Attachable` to `Sticky` or `Anchor` in the Properties panel.
 | [Grabbable](#grabbing-and-holding-entities) | An entity that can be grabbed and held. | `GrabbableEntity` | Set `Motion` to `Interactive`. Set `Interaction` to `Grabbable` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)`. |
 | [Physics-Simulated](#physicalentity-class) | An entity that can respond to [forces and torques](#physics). | `PhysicalEntity`  | Set `Motion` to `Interactive`. Set `Interaction` to `Physics` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)` |
 
@@ -906,7 +906,7 @@ Note that `as()` returns the same entity back, preserving equality. Thus after t
 
 An **`AnimatedEntity`** is an entity whose **Motion** is set to **Animated** and has a "hand-recorded animation" (created with the "Record" button) which can be played, paused, and stopped.
 
-Animated Entity has these properties in the properties panel:
+Animated Entity has these properties in the Properties panel:
 
 * **Animation [Play/Stop/Record]** - Animations can be recorded without scripting. To record an animation in the desktop editor or in VR, set **Motion** to **Animated**, press **"Record"**, adjust the entity’s position, rotation, and/or scale, and then press **"Stop"**. Press **"Play"** to preview the recorded animation.
 
@@ -941,7 +941,7 @@ Use the `AnimatedEntity` class to control recorded animations.
 
 ### Interactive Entities
 
-When a [dynamic entity](#static-vs-dynamic-entities)'s `Motion` is set to `Interactive` in the properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
+When a [dynamic entity](#static-vs-dynamic-entities)'s `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
 
 An interactive entity's [behavior types](#behavior-entity-types) can be changed at runtime
 ```ts
@@ -975,7 +975,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 |---|---|---|
 | **[Scene Graph](#scene-graph)** |
 | id | `bigint` | A unique value representing this entity in this instance. `id`s are not reused (within an instance). |
-| name | `ReadableHorizonProperty`<br/>`<string>` | The name the Entity has in property panel. |
+| name | `ReadableHorizonProperty`<br/>`<string>` | The name the Entity has in Properties panel. |
 | [parent](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity \| null>` | The entity's parent (if there is one). |
 | [children](#hierarchy) | `ReadableHorizonProperty`<br/>`<Entity[]>` | The entity's children. |
 | [tags](#entity-tags) | `HorizonSetProperty`<br/>`<string>` | The array of tags on the entity. |
@@ -1014,13 +1014,13 @@ The `simulated` property defaults to `true`.
 
 ### Entity Tags
 
-Entities in Horizon can be assigned a list of **tags** which are used of "classifying" entities. Tags are just `string`s. Tags can be assigned in the property panel; they can also be modified in scripting with the `Entity` property `tags: HorizonSetProperty<string>`.
+Entities in Horizon can be assigned a list of **tags** which are used of "classifying" entities. Tags are just `string`s. Tags can be assigned in the Properties panel; they can also be modified in scripting with the `Entity` property `tags: HorizonSetProperty<string>`.
 
 When `entity.tags.get().contains(thing)` returns `true` we say that the **`entity` has the tag** `thing`.
 
 Tags (currently) have three primary use cases:
-1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) has a property panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
-1. **Controlling collisions**: [Entities](#entity) have a property panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-detection) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
+1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) has a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
+1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-detection) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
 1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
 ```ts
@@ -1040,7 +1040,7 @@ The method takes an list of tags (a string array) and optionally a match operati
 
 ### Entity Visibility
 
-Entities can be rendered ("visible") or not rendered ("invisible"). When an entity is rendered for a specific player we say that it is *visible to that player*. Visibility is controlled in the [world snapshot](#world-snapshot) by setting the **visible** property in the property panel. Visibility at runtime is controlled by the `visible` Horizon property on `Entity` and by **player [visibility permissions](#entity-visibility-permissions)**.
+Entities can be rendered ("visible") or not rendered ("invisible"). When an entity is rendered for a specific player we say that it is *visible to that player*. Visibility is controlled in the [world snapshot](#world-snapshot) by setting the **visible** property in the Properties panel. Visibility at runtime is controlled by the `visible` Horizon property on `Entity` and by **player [visibility permissions](#entity-visibility-permissions)**.
 
 
 **Invisibility cascades down**: If an entity is invisible then so are all of its children (and all [descendants](#ancestors)).
@@ -1075,7 +1075,7 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
     Making an entity invisible (by setting `visible` to `false` or by using per-player visibility controls) does not impact [collidability](#collidability). Even if an entity is invisible it can still be collided with (if it has an [active collider](#collidability)). If you want an invisible entity to not be a "blocker" then set `collidable` to `false` as well. At this time **there is no per-player collidability**.
 
 !!! example Example
-    Let `entity` be a cube with `visible` set to `true` in the property panel. Let `playerA` and `playerB` be the two [players](#players) in the [instance](#instances).
+    Let `entity` be a cube with `visible` set to `true` in the Properties panel. Let `playerA` and `playerB` be the two [players](#players) in the [instance](#instances).
 
     ```ts
     // Initially, both players can see it.
@@ -1375,7 +1375,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
   - `fromStart: false` prioritizes completing the current effect.
 
 !!! bug `oneShot` is currently being ignored.
-  Currently (Feb 2025) the `oneShot` property has no impact on whether an effect loops or not. It will also use the value in the Looping setting. This is a bug.
+    Currently (Feb 2025) the `oneShot` property has no impact on whether an effect loops or not. It will also use the value in the Looping setting. This is a bug.
 
 ### TrailFx Gizmo
 **Description**: Emits a colored line behind moving objects with a configurable length, width, and color gradient.
@@ -1386,7 +1386,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
 | Width | `number` | Trail width in meters |
 | Start Color | `Color` | RGB values (0.0-1.0) at trail start |
 | End Color | `Color` | RGB values (0.0-1.0) at trail end |
-| Preset | `"Simple Trail" \| "Tapered Trail"` | Trail style preset to determine if the trail gets narrower toward the tail (tapered) or stays the same width throughout (simple) |
+| Preset | `Simple Trail` or `Tapered Trail` | Trail style preset to determine if the trail gets narrower toward the tail (tapered) or stays the same width throughout (simple) |
 
 **TypeScript**: trail effect gizmos are referenced [as](#entity-as-method) the `TrailGizmo` class with the following members:
 ```typescript
@@ -1434,15 +1434,16 @@ type LaunchProjectileOptions = {
 }
 ```
 
-**Related Code Block Events**:
-<mark>TODO</mark> come up with a good format for introducing code block events.
-```ts
-OnProjectileLaunched[launcher: Entity];
-OnProjectileHitPlayer[playerHit: Player, position: Vec3, normal: Vec3, headshot: boolean];
-OnProjectileHitObject[objectHit: Entity, position: Vec3, normal: Vec3];
-OnProjectileHitWorld[position: Vec3, normal: Vec3];
-OnProjectileExpired[position: Vec3, rotation: Quaternion, velocity: Vec3];
-```
+**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `ProjectileLauncherGizmo`:
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| `OnProjectileLaunched`  |  `launcher : Entity` | ? |
+| `OnProjectileHitPlayer` | `playerHit: Player`<br/>`position: Vec3`<br/>`normal: Vec3`<br/>`headshot: boolean` | ? |
+| `OnProjectileHitObject` | `objectHit: Entity`<br/>`position: Vec3`<br/>`normal: Vec3` | ? |
+| `OnProjectileHitWorld` | `position: Vec3`<br/>`normal: Vec3` | only if `Static Collision` enabled in Properties panel |
+| `OnProjectileExpired` | `position: Vec3`<br/>`rotation: Quaternion`<br/>`velocity: Vec3` | ? |
+
 **OnProjectileHitObject**: This codeblock event will execute when a projectile hits an Entity that is `Animated`, or `Interactive`.
 **OnProjectileHitWorld**: This codeblock event will execute when a projectile hits an Entity that has Motion property set to `None`
 
@@ -1704,14 +1705,14 @@ The text gizmo is a 2D surface on which text can be rendered. It supports a wide
 text: HorizonProperty<string>; //The content to display in the text label
 ```
 #### Using a Text Gizmo
-The initial text of a text gizmo can be set in the Property panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
+The initial text of a text gizmo can be set in the Properties panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
 
 ```ts
 this.entity.as(TextGizmo).text.set('Hello World')
 ```
 
 !!! note Auto Fit Property
-    The text gizmo has the property **auto fit**, which is only settable in the Property panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
+    The text gizmo has the property **auto fit**, which is only settable in the Properties panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
 
 !!! note Text gizmos contribute to [draw calls](#draw-calls).
 
@@ -2009,7 +2010,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
 
-**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Property panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
 
 **Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
@@ -2722,7 +2723,7 @@ The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
 1. Create a new [Component class](#component-class)
 1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
-1. Add [property definitions](#component-properties) that will appear in the property panel
+1. Add [property definitions](#component-properties) that will appear in the Properties panel
 1. Connect code to run when [system (or user) events occur](#events-sending-and-receiving)
 
 The steps above are the "main path" but there are also many more parts of scripting:
@@ -2764,11 +2765,11 @@ Component.register(SpinningTurntableComponent, 'Spinner')
 
 then the class will appear in the Attached Script dropdown as *Obstacles:Spinner*. If you want to override the name in `Component.register`, only use letters, numbers, and underscore in the name.
 
-**Attaching**: once a component subclass is registered, you can click an entity in the desktop editor, open the property panel, and choose it from the Attached Script dropdown. That entity will now [run the code](#component-lifecycle) in that component. Once you attach a script, the property panel will show all the component's properties as editable fields. The next section explains how to add properties to a component.
+**Attaching**: once a component subclass is registered, you can click an entity in the desktop editor, open the Properties panel, and choose it from the Attached Script dropdown. That entity will now [run the code](#component-lifecycle) in that component. Once you attach a script, the Properties panel will show all the component's properties as editable fields. The next section explains how to add properties to a component.
 
 ### Component Properties
 
-Components can define properties that appear in the property panel by implementing the optional static method `propsDefinition`. When you [attach the component](#attaching-components-to-entities), these properties will be configurable in the UI and accessible via the component's `props` field.
+Components can define properties that appear in the Properties panel by implementing the optional static method `propsDefinition`. When you [attach the component](#attaching-components-to-entities), these properties will be configurable in the UI and accessible via the component's `props` field.
 
 !!! example Component Properties Example
     Here's a simple example showing how to define properties:
@@ -2797,7 +2798,7 @@ The static `propsDefinition` object defines your properties. Each property needs
   * A *key* that will become the property name in `this.props`
   * An *object* value containing:
     * `type`: *Required*. a value from `PropTypes`
-    * `default`: *Optional*. Initial value for the property in the property panel
+    * `default`: *Optional*. Initial value for the property in the Properties panel
 
 | `PropTypes` Value | Results In | Default Value | Notes |
 |---|---|---|---|
@@ -2807,7 +2808,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 | `Vec3` | `Vec3` | `(0, 0, 0)` | - |
 | `Color` | `Color` | `(0, 0, 0)` Black | |
 | `Entity` | `Entity \| null` | `null` | Cannot specify default |
-| `Quaternion` | `Quaternion` | `(0, 0, 0)` | Property panel value is edited as [YXZ Euler angles](#euler-angles) |
+| `Quaternion` | `Quaternion` | `(0, 0, 0)` | Properties panel value is edited as [YXZ Euler angles](#euler-angles) |
 | `Asset` | `Asset \| null` | `null` | Cannot specify default |
 
 !!! warning Important Type Distinctions
@@ -2942,7 +2943,7 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
-#### System Code Block Events
+#### Built-In Code Block Events
 
 ### Local Events
 
@@ -3240,7 +3241,7 @@ Somewhere: force vs impulse vs velocity change
 Angular force
 | Name | Unit | Description |
 |---|---|-
-|Angle|Degrees in properties panel|Amount of rotation|
+|Angle|Degrees in Properties panel|Amount of rotation|
 
 Torque
 
@@ -3584,12 +3585,12 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Player Entering and Exiting a World
 
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [system CodeBlockEvent](#system-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
-| CodeBlockEvent | Description | Parameter(s) |
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnPlayerEnterWorld`  | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. | `Player` |
-| `OnPlayerExitWorld`  | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). | `Player` |
+| `OnPlayerEnterWorld` | `Player` | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
+| `OnPlayerExitWorld` | `Player` | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
     If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
@@ -3606,7 +3607,7 @@ A [player](#players) in an [instance](#instances) can become **inactive**. Horiz
 
 **Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
 
-There are two [system code block events](#system-code-block-events) associated with inactivity / AFK:
+There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK:
 
 | CodeBlockEvent | Description | Parameters |
 |---|---|---|
@@ -3841,7 +3842,7 @@ flowchart TD
 
 ### Setting "Who Can Grab?"
 
-`Interactive` entities have a setting in the Property panel called "Who Can Grab?" with the following options controlling who can grab the entity.
+`Interactive` entities have a setting in the Properties panel called "Who Can Grab?" with the following options controlling who can grab the entity.
 
 | Setting | Behavior |
 |---|---|
@@ -3861,7 +3862,7 @@ When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCa
 
 ### Setting "Who Can Take From Holder?"
 
-`Interactive` entities have a setting in the Property panel called "Who Can Taken From Holder?" with the following options controlling what can happen to the entity while it is held.
+`Interactive` entities have a setting in the Properties panel called "Who Can Taken From Holder?" with the following options controlling what can happen to the entity while it is held.
 
 | Setting      | Can the holder grab it out of their own hand using their other hand? | Can another player take it from the player that is holding it? |
 | ------------ | -------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -4009,7 +4010,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 # Attaching Entities
 Entities can be attached to players.
 Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
-Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in properties panel.
+Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in Properties panel.
 
 ## Creating an Attachable
 
@@ -4057,7 +4058,7 @@ flowchart TD
 
 ### Scripted Attach
 
-Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the properties panel.
+Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
 
 **Attach and ownership**: When `entity.attachToPlayer(player, anchor)`, `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#auto-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
@@ -4070,7 +4071,7 @@ Entities can be attached to players and detached from players in scripting using
 
 By default, attachables anchor their [pivot point](#pivot-points) to the attach point with no local rotation (e.g. attaching a hat to a head will have the hat's [up vector](#local-transforms) aligned with the head's up vector, and likewise for right and forward vectors).
 
-You can modify the attachment position and rotation (expressed as a local offset) in the property panel by setting `Anchor Position` and `Anchor Rotation` on the attachable entity. In scripting, you can get and set the attachment offsets with `socketAttachmentPosition : HorizonProperty<Vec3>` and `socketAttachmentRotation : HorizonProperty<Quaternion>` on the `AttachableEntity` class.
+You can modify the attachment position and rotation (expressed as a local offset) in the Properties panel by setting `Anchor Position` and `Anchor Rotation` on the attachable entity. In scripting, you can get and set the attachment offsets with `socketAttachmentPosition : HorizonProperty<Vec3>` and `socketAttachmentRotation : HorizonProperty<Quaternion>` on the `AttachableEntity` class.
 
 !!! example Attach 1 meter in front of a player's torso.
 The code below will attach `attachable` to `player` on their torso. Moving the socket position forward a meter, via `new Vec3(0, 0, 1)`, moves `attachable` to always be 1 meter forward from `player`'s torso.
@@ -4659,3 +4660,51 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 * when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
+|---|---|---|
+| `OnPlayerEnterTrigger` | `enteredBy: Player` | ? |
+| `OnPlayerExitTrigger` | `exitedBy: Player` | ? |
+| `OnEntityEnterTrigger` | `enteredBy: Entity` | ? |
+| `OnEntityExitTrigger` | `enteredBy: Entity` | ? |
+| `OnPlayerCollision` | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` | ? |
+| `OnEntityCollision` | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` | ? |
+| `OnPlayerEnterWorld` | `player: Player` | ? |
+| `OnPlayerExitWorld` | `player: Player` | ? |
+| `OnPassiveInstanceCameraCreated` | `sessionId: Player`<br/>`cameraMode: string` | ? |
+| `OnGrabStart` | `isRightHand: boolean`<br/>`player: Player` | ? |
+| `OnGrabEnd` | `player: Player` | ? |
+| `OnMultiGrabStart` | `player: Player` | ? |
+| `OnMultiGrabEnd` | `player: Player` | ? |
+| `OnIndexTriggerDown` | `player: Player` | ? |
+| `OnIndexTriggerUp` | `player: Player` | ? |
+| `OnButton1Down` | `player: Player` | ? |
+| `OnButton1Up` | `player: Player` | ? |
+| `OnButton2Down` | `player: Player` | ? |
+| `OnButton2Up` | `player: Player` | ? |
+| `OnAttachStart` | `player: Player` | ? |
+| `OnAttachEnd` | `player: Player` | ? |
+| `OnProjectileLaunched` | `launcher: Entity` | ? |
+| `OnProjectileHitPlayer` | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` | ? |
+| `OnProjectileHitObject` | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` | ? |
+| `OnProjectileHitWorld` | `position: Vec3`<br/>`normal: Vec3` | ? |
+| `OnProjectileExpired` | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` | ? |
+| `OnAchievementComplete` | `player: Player`<br/>`scriptId: string` | ? |
+| `OnCameraPhotoTaken` | `player: Player`<br/>`isSelfie: boolean` | ? |
+| `OnItemPurchaseStart` | `player: Player`<br/>`item: string` | ? |
+| `OnItemPurchaseComplete` | `player: Player`<br/>`item: string, success: boolean` | ? |
+| `OnItemConsumeStart` | `player: Player`<br/>`item: string` | ? |
+| `OnItemConsumeComplete` | `player: Player`<br/>`item: string, success: boolean` | ? |
+| `OnItemPurchaseSucceeded` | `player: Player`<br/>`item: string` | ? |
+| `OnItemPurchaseFailed` | `player: Player`<br/>`item: string` | ? |
+| `OnPlayerConsumeSucceeded` | `player: Player`<br/>`item: string` | ? |
+| `OnPlayerConsumeFailed` | `player: Player`<br/>`item: string` | ? |
+| `OnPlayerSpawnedItem` | `player: Player`<br/>`item: Entity` | ? |
+| `OnAssetSpawned` | `entity: Entity`<br/>`asset: Asset` | ? |
+| `OnAssetDespawned` | `entity: Entity`<br/>`asset: Asset` | ? |
+| `OnAssetSpawnFailed` | `asset: Asset` | ? |
+| `OnAudioCompleted` | - | ? |
+| `OnPlayerEnterAFK` | `player: Player` | ? |
+| `OnPlayerExitAFK` | `player: Player` | ? |
+| `OnPlayerEnteredFocusedInteraction` | `player: Player` | ? |
+| `OnPlayerExitedFocusedInteraction` | `player: Player` | ? |
