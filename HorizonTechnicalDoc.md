@@ -113,6 +113,9 @@
             4. [Audio Graph Properties](#audio-graph-properties)
             5. [Typescript API](#typescript-api-10)
         17. [Spawn Point Gizmo](#spawn-point-gizmo)
+            1. [Overview](#overview-13)
+            2. [Manual Properties](#manual-properties-10)
+            3. [Typescript  API](#typescript--api-1)
         18. [Text Gizmo](#text-gizmo)
             1. [Limitations](#limitations)
             2. [Text Gizmo Markup](#text-gizmo-markup)
@@ -287,9 +290,10 @@
     2. [Onscreen Controls](#onscreen-controls)
 17. [Persistence](#persistence)
     1. [Overview](#overview-16)
-    2. [Quests](#quests)
-    3. [In-World Purchases (IWP)](#in-world-purchases-iwp)
-    4. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+    2. [Leaderboards](#leaderboards)
+    3. [Quests](#quests)
+    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+    5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
@@ -1709,18 +1713,40 @@ OnAudioCompleted: CodeBlockEvent<[]>;
     Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
 
 ### Spawn Point Gizmo
-Use as a predetermined location to send the player when using the “Teleport player” code block
-
-Attach a script with an object variable to a trigger
-Open the spawn point properties panel, and drag the reference pill to the object variable on the trigger’s properties panel
-
+#### Overview
+Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
+####  Manual Properties
+- Spawn on start
+    -  ON/OFF Toggle
+-  Set Position Only
+    - ON/OFF Toggle
+- Player Gravity
+    - Numeric Value between 0.0 - 9.81
+- Player Speed
+    - Numeric Value between 0.0 - 45.0
+Force HWXS Camera
+    - None
+    - Third Person
+    - First Person
+    - Orbit
+    - Pan
+#### Typescript  API
+[SpawnPointGizmo Class](https://horizon.meta.com/resources/scripting-api/core.spawnpointgizmo.md/)
 ```ts
-class SpawnPointGizmo extends Entity {
-  gravity: HorizonProperty<number>; // m/s^2 in [0, 9.81]
-  speed: HorizonProperty<number>; // [0, 45] in m/s
-  teleportPlayer(player: Player): void;
-}
+//Properties
+gravity: HorizonProperty<number>; //The gravity for players spawned using this gizmo.
+speed: HorizonProperty<number>; //The speed for players spawned using this gizmo.
+
+//Methods
+teleportPlayer(player: Player): void; //Teleports a player to the spawn point.
+
+//Example
+this.entity.as(hz.SpawnPointGizmo).gravity.set(9.81)
+this.entity.as(hz.SpawnPointGizmo).speed.set(4.5)
+this.entity.as(hz.SpawnPointGizmo).teleportPlayer(player)
 ```
+!!! note If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
+!!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode. 
 
 ### Text Gizmo
 
