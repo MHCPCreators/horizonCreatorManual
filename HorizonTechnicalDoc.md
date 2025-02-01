@@ -62,58 +62,66 @@
             1. [Overview](#overview-1)
             2. [Manual Properties](#manual-properties)
             3. [Typescript API](#typescript-api)
-        6. [In-World Item Gizmo](#in-world-item-gizmo)
-            1. [Overview](#overview-2)
-            2. [Manual Properties](#manual-properties-1)
-            3. [Typescript API](#typescript-api-1)
-        7. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-        8. [Environment Gizmo](#environment-gizmo)
-                1. [Overview](#overview-3)
-                1. [Manual Properties](#manual-properties-2)
-                2. [Typescript API](#typescript-api-2)
-        9. [ParticleFx Gizmo](#particlefx-gizmo)
-        10. [TrailFx Gizmo](#trailfx-gizmo)
-        11. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        12. [Quests Gizmo](#quests-gizmo)
-        13. [Raycast Gizmo](#raycast-gizmo)
+        4. [Door Gizmo](#door-gizmo)
+        5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+        6. [Environment Gizmo](#environment-gizmo)
+                1. [Overview](#overview-2)
+                1. [Manual Properties](#manual-properties-1)
+                2. [Typescript API](#typescript-api-1)
+        7. [In-World Item Gizmo](#in-world-item-gizmo)
+            1. [Overview](#overview-3)
+            2. [Manual Properties](#manual-properties-2)
+            3. [Typescript API](#typescript-api-2)
+        8. [Media Board Gizmo](#media-board-gizmo)
+        9. [Mirror Gizmo](#mirror-gizmo)
+        10. [Navigation Volume](#navigation-volume)
+        11. [NPC Gizmo](#npc-gizmo)
             1. [Overview](#overview-4)
             2. [Manual Properties](#manual-properties-3)
             3. [Typescript API](#typescript-api-3)
-            4. [How to Raycast](#how-to-raycast)
-        14. [Script Gizmo](#script-gizmo)
-        15. [Snap Destination Gizmo](#snap-destination-gizmo)
+        12. [ParticleFx Gizmo](#particlefx-gizmo)
+        13. [TrailFx Gizmo](#trailfx-gizmo)
+        14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+        15. [Quests Gizmo](#quests-gizmo)
+        16. [Raycast Gizmo](#raycast-gizmo)
             1. [Overview](#overview-5)
             2. [Manual Properties](#manual-properties-4)
-            3. [Typescript  API](#typescript--api)
-        16. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+            3. [Typescript API](#typescript-api-4)
+            4. [How to Raycast](#how-to-raycast)
+        17. [Script Gizmo](#script-gizmo)
+        18. [Snap Destination Gizmo](#snap-destination-gizmo)
             1. [Overview](#overview-6)
+            2. [Manual Properties](#manual-properties-5)
+            3. [Typescript  API](#typescript--api)
+        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+            1. [Overview](#overview-7)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-4)
-        17. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-7)
-            2. [Manual Properties](#manual-properties-5)
-            3. [Typescript  API](#typescript--api-1)
-        18. [Static Light Gizmo](#static-light-gizmo)
-        19. [Text Gizmo](#text-gizmo)
+            5. [Typescript API](#typescript-api-5)
+        20. [Spawn Point Gizmo](#spawn-point-gizmo)
             1. [Overview](#overview-8)
             2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-5)
+            3. [Typescript  API](#typescript--api-1)
+        21. [Static Light Gizmo](#static-light-gizmo)
+        22. [Text Gizmo](#text-gizmo)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-6)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
             7. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-        20. [Trigger Gizmo](#trigger-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-6)
-        21. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+        23. [Trigger Gizmo](#trigger-gizmo)
             1. [Overview](#overview-10)
             2. [Manual Properties](#manual-properties-8)
             3. [Typescript API](#typescript-api-7)
+        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+            1. [Overview](#overview-11)
+            2. [Manual Properties](#manual-properties-9)
+            3. [Typescript API](#typescript-api-8)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -1098,8 +1106,6 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
 
 All [intrinsic entity types](#intrinsic-entity-types) are listed in the table below, each of which link to detailed documentation.
 
-<mark>TODO: Missing: Media Board, Navigation Volume, Mirror,World Promotion</mark>
-
 | [Intrinsic Type](#entity-types) | TypeScript Class |
 |---|---|
 | [Box Collider](#collider-gizmo) | `Entity` |
@@ -1112,7 +1118,10 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Environment](#environment-gizmo) | `Entity` |
 | [Group](#empty-object-and-groups) | `Entity` |
 | [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
+| [Media Board](#media-board-gizmo) | `Entity` |
 | [Mesh](#mesh-asset) | `MeshEntity` |
+| [Mirror](#mirror-gizmo) | `Entity` |
+| [Navigation Volume](#navigation-volume-Gizmo) | `Entity` |
 | [NPC](#npc-gizmo) | `AIAgentGizmo` |
 | [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
 | [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
@@ -1130,6 +1139,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [TrailFx](#trailfx-gizmo) | `TrailGizmo` |
 | [Trigger Zone](#trigger-gizmo) | `TriggerGizmo` |
 | [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
+| [World Promotion](#world-promotion-gizmo) | `Entity` |
 
 ### Collider Gizmo
 
@@ -1164,71 +1174,6 @@ See details in [Custom UI](#custom-ui)
   * Performance intensive due to VFX - use sparingly.
   * Doors play a "shimmering sound" on loop that are audible near them; there is no way to disable the sound. The only partial workaround is to put the door in [a group or empty object](#empty-object-and-groups) and move that parent from the "play area"; the sound will then be too far away to hear.
 
-### NPC Gizmo
-
-#### Overview
-Spawns an NPC Avatar (bot).
-
-#### Manual Properties
-- Character Name
-    - Text
-- Spawn On Start
-    - ON/OFF Toggle
-- Appearance
-    - Edit Avatar (button)
-    - Refresh (button)
-
-#### Typescript API
-
-<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
-
-!!!WARNING Costly to performance. Considered the same cost as a real player.
-
-### In-World Item Gizmo
-
-#### Overview
-Used to sell In-World Items to users in your worlds.
-<mark>TODO</mark> Needs a lot more explaining
-
-#### Manual Properties
-- Visible
-    - ON/OFF Toggle
-- In-world Item
-    - Dropdown list of all available Items
-- Customize Purchase Dialog Position
-    - ON/OFF Toggle
-    - If ON, Purchase Dialog Position is available
-        - Vector(X,Y,Z)
-- UI Property
-    - Trigger
-    - Button
-    - Icon
-
-#### Typescript API
-
-[IWPSellerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.iwpsellergizmo.md/)
-
-```ts
-consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
-playerHasConsumedItem(player, item) //Indicates whether a player used a specific item.
-playerOwnsItem(player, item) //Indicates whether the player owns a specific item.
-quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
-timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
-```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
-```ts
-OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
-```
-
-!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
 ### Dynamic Light Gizmo
 
 **Description**: Casts movable and changing light during runtime. It can move, rotate, change intensity, etc. If you don't need the light to change, use a [static light](#static-light-gizmo) for better performance.
@@ -1314,6 +1259,77 @@ Allows creators to make changes to the properties  of their world like skydome, 
 
 !!! Bug Known Issues
     - <mark>TODO</mark> list known issues or delete
+### In-World Item Gizmo
+
+#### Overview
+Used to sell In-World Items to users in your worlds.
+<mark>TODO</mark> Needs a lot more explaining
+
+#### Manual Properties
+- Visible
+    - ON/OFF Toggle
+- In-world Item
+    - Dropdown list of all avaliable Items
+- Customize Purchase Dialog Position
+    - ON/OFF Toggle
+    - If ON, Purchase Diaglog Position is avaliable
+        - Vector(X,Y,Z)
+- UI Property
+    - Trigger
+    - Button
+    - Icon
+
+#### Typescript API
+
+[IWPSellerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.iwpsellergizmo.md/)
+
+```ts
+consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
+playerHasConsumedItem(player, item) //Indicates whether a player used a specific item.
+playerOwnsItem(player, item) //Indicates whether the player owns a specific item.
+quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
+timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
+```
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+```ts
+OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
+```
+
+!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
+
+### Media Board Gizmo
+<mark>TODO</mark>
+### Mirror Gizmo
+<mark>TODO</mark>
+### Navigation Volume
+<mark>TODO</mark>
+### NPC Gizmo
+
+#### Overview
+Spawns an NPC Avatar (bot).
+
+#### Manual Properties
+- Character Name
+    - Text
+- Spawn On Start
+    - ON/OFF Toggle
+- Appearance
+    - Edit Avatar (button)
+    - Refresh (button)
+
+#### Typescript API
+
+<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
+
+!!!WARNING Costly to performance. Considered the same cost as a real player.
 
 ### ParticleFx Gizmo
 
@@ -4462,6 +4478,7 @@ DefaultTooltipOptions
 
 # Custom UI
 
+<mark>TODO</mark>
 Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
 
 ## Bindings
