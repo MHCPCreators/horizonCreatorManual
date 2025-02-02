@@ -2382,6 +2382,8 @@ const atEnd = Vec3.lerp(start, end, 1.0)      // (10, 0, 0)
 
 The `Color` class represents an RGB color where each component (red, green, blue) is stored as a floating-point number between 0 and 1. It supports color space conversions (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), supports [operations](#color-operations) that can be used for many effects, such as [blending and filtering](#color-blending).
 
+**No alpha**: The `Color` class does not have an `alpha` component (transparency). It is possible to use alpha [Custom UI](#custom-ui-style) and with [meshes](#custom-model-import) but those alpha values are *not* part of the `Color` class.
+
 #### Creation
 
 Colors can be created in several ways:
@@ -2404,6 +2406,8 @@ const fromHex = Color.fromHex("#ff0000")  // (1, 0, 0)
 // From HSV (hue, saturation, value)
 const fromHSV = Color.fromHSV(new Vec3(0, 1, 1))  // red
 ```
+
+The `fromHex` method only supports 6-digit colors which must be preceded by the `#` mark.
 
 #### Color Properties
 
@@ -4639,6 +4643,8 @@ Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; 
 Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving). T must be serializable (not throwing via JSON.stringify. For example: bigint is not allowed which means that Entity is not allowed.)
 
 Limits of type, amount, and frequency.
+
+## Style
 
 ## View Types
 
