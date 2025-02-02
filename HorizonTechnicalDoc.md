@@ -193,8 +193,6 @@
         1. [Early Frame Phase](#early-frame-phase)
         2. [Scripting Frame Phase](#scripting-frame-phase)
         3. [Late Frame Phase](#late-frame-phase)
-            1. [Network Sync](#network-sync)
-            2. [Render](#render)
     9. [Component Inheritance](#component-inheritance)
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
@@ -233,15 +231,14 @@
         3. [Listing All Players](#listing-all-players)
         4. [Server Player](#server-player)
         5. [Local Player](#local-player)
-    2. [Player Events and Actions](#player-events-and-actions)
-        1. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
-        2. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
-    3. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-        1. [Player Body Part](#player-body-part)
+    2. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
+    3. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
+    4. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+        1. [Player Body Parts](#player-body-parts)
         2. [Player Hand](#player-hand)
-    4. [VOIP Settings](#voip-settings)
-    5. [Haptics](#haptics)
-    6. [Throwing](#throwing)
+    5. [VOIP Settings](#voip-settings)
+    6. [Haptics](#haptics)
+    7. [Throwing](#throwing)
 13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -1327,6 +1324,8 @@ OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 ### Navigation Volume
 <mark>TODO</mark>
 ### NPC Gizmo
+
+Note: NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world).
 
 #### Overview
 Spawns an NPC Avatar (bot).
@@ -2882,8 +2881,7 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
     * Component becomes "active" (begins processing events and timers)
 3. **Teardown** - When the editor stops, component [despawns](#despawning), or an [before an ownership transfer](#ownership-transfer):
     * `transferOwnership()` executes (only during ownership transfers)
-    * `dispose()` executes
-    * All callbacks registered with `registerDisposeOperation` run (unless the `DisposeOperationRegistration` was already [canceled or run](#disposing-objects)).
+    * Component is [disposed](#disposing-objects), meaning that `dispose()` executes and all callbacks registered with `registerDisposeOperation` run, except for the ones where the `DisposeOperationRegistration` was already [canceled or ran](#disposing-objects).
 
 !!! info Component Initialization Sequence
     1. Property initializers run first
@@ -3001,15 +2999,23 @@ style EarlyPhase fill:#def,stroke:#aac
 
 ### Async (Timers)
 
+<mark>TODO</mark>
+
 ### Local Scripts and Ownership
+
+<mark>TODO</mark>
 
 a few sentences and link to Networking
 
 ### Run Every Frame (PrePhysics and OnUpdate)
 
+<mark>TODO</mark>
+
 a few sentences and link to Physics
 
 ## Events (Sending and Receiving)
+
+<mark>TODO</mark>
 
 !!! warning Connect to events in `preStart`. Send in `start`.
     Imagine the following scenario: `ComponentA`, in its `start`, sends an event to `ComponentB`'s entity; but `ComponentB` doesn't register to listen to the event until its `start`. Does `ComponentB` get the event? It depends on which component `start`ed first!
@@ -3024,7 +3030,11 @@ a few sentences and link to Physics
 
 ### Code Block Event
 
+PropTypes
+
 #### Built-In Code Block Events
+
+Link to end table
 
 ### Local Events
 
@@ -3066,8 +3076,8 @@ When you call `registerDisposeOperation` you get back a `DisposeOperationRegistr
 
 ## Frame Sequence
 
-<mark>TODO: where in the frame are spawned components allocated</mark>
-<mark>TODO: does first frame</mark>
+<mark>TODO</mark>
+
 NOTE: a pre-physics handler in code blocks scripts runs before start
 
 `async` runs AFTER default.
@@ -3137,11 +3147,15 @@ Proved: each code block event handler is wrapped in a try.
 
 ### Early Frame Phase
 
+<mark>TODO</mark>
+
 * PrePhysics Phase
 * Physics Phase
 * OnUpdate Phase
 
 ### Scripting Frame Phase
+
+<mark>TODO</mark>
 
 * Component Initialization
 * Network Events Handling
@@ -3152,9 +3166,12 @@ Proved: each code block event handler is wrapped in a try.
 
 ### Late Frame Phase
 
-#### Network Sync
+<mark>TODO</mark>
 
-#### Render
+* Network Sync
+* Render
+
+<mark>TODO</mark>
 
 ## Component Inheritance
 
@@ -3185,6 +3202,7 @@ Component.register(Child)
 ```
 
 ## Script File Execution
+<mark>TODO</mark>
 Auto-Restart on Script Edit
 
 ## Helper Functions
@@ -3207,6 +3225,8 @@ Horizon has a few helper functions in `horizon/core`:
   * Example: `degreesToRadians(180)` is `3.141...`
 
 # Network
+
+<mark>TODO</mark>
 
 WIP example terminology use:
 
@@ -3611,7 +3631,7 @@ Each `Player` instance has a `readonly id: number` property.
 
 ### Player Indices
 
-When a player enters a world they are also assigned an `index`. The `index` will be a number between `0` and `n-1`, where `n` is the maximum number of players allowed in an instance. When a player enters an instance they are assigned an `index` value that is not currently used by any other player. When they leave that value becomes available again.
+When a player (human or [NPC](#npc-gizmo)) enters a world they are also assigned an `index`. The `index` will be a number between `0` and `n-1`, where `n` is the maximum number of players allowed in an instance. When a player enters an instance they are assigned an `index` value that is not currently used by any other player. When they leave that value becomes available again.
 
 For example: if three players arrive in an instance they may be assigned `index` values of `0`, `1`, and `2`. If they player with `index` `1` leaves then the next player that arrives may get index `1` again.
 
@@ -3642,12 +3662,7 @@ The `World` class has the method:
 getPlayers() : Player[]
 ```
 
-which returns the current list of players in the world. Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
-
-!!! note
-    `getPlayers` does not include the server player.
-
-<mark>TODO</mark>: relation to enter and exit
+which returns the current list of players in the world (human and [NPC](#npc-gizmo), but does not include the server player). Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
 ### Server Player
 
@@ -3699,11 +3714,9 @@ getLocalPlayer() : Player
 
 for determining which `Player`'s device the current script is running one. This method with return a human-player in the world or the _server player_.
 
-## Player Events and Actions
+## Player Entering and Exiting a World
 
-### Player Entering and Exiting a World
-
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#events-sending-and-receiving) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#events-sending-and-receiving) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -3719,7 +3732,7 @@ See the diagram in the [AFK section](#player-enter-and-exit-afk) for when and ho
 !!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
     In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
 
-### Player Enter and Exit AFK
+## Player Enter and Exit AFK
 
 A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
 
@@ -3735,7 +3748,6 @@ There are two [built-in code block events](#system-code-block-events) associated
 | `OnPlayerExitAFK` | `player: Player` | Sent when a player is no longer inactive. |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
-
 
 ```mermaid {align="center"}
 flowchart TD
@@ -3766,9 +3778,9 @@ flowchart TD
 
 The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
 
-There are additional properties for reading the positions and rotations of the [head, torso, feet, left hand, and right hand](#player-body-part).
+There are additional properties for reading the positions and rotations of the [head, torso, feet, left hand, and right hand](#player-body-parts).
 
-### Player Body Part
+### Player Body Parts
 
 A [player](#players) has a number of properties for accessing body parts: `head`, `torso`, `foot`, `leftHand`, and `rightHand`; each return an instance of the class `PlayerBodyPart` (or the more specific `PlayerHand`). They are [Horizon properties](#horizon-properties) and so you must use `get()`:
 
@@ -3800,7 +3812,7 @@ Body parts have two helper methods: `getPosition` and `getRotation` that let you
 
 ### Player Hand
 
-`PlayerHand` is a subclass of [PlayerBodyPart](#player-body-part), thus inheriting all of the behaviors and properties outlined above.
+`PlayerHand` is a subclass of [PlayerBodyPart](#player-body-parts), thus inheriting all of the behaviors and properties outlined above.
 
 `PlayerHand` also has a property `handedness`, returning either `Handedness.Left` or `Handedness.Right`.
 
@@ -4776,7 +4788,7 @@ PropTypes
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space: [body part](#player-body-part), [transform relative to](#transform-relative-to)
+Space: [body part](#player-body-parts), [transform relative to](#transform-relative-to)
 [SpawnController](#advanced-spawning)
 [SpawnControllerBase](#advanced-spawning)
 [SpawnError](#advanced-spawning)
