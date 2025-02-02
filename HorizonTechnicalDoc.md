@@ -177,10 +177,9 @@
         3. [Component Properties](#component-properties)
         4. [Component Lifecycle](#component-lifecycle)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
-        6. [Subclasses](#subclasses)
-        7. [Async (Timers)](#async-timers)
-        8. [Local Scripts and Ownership](#local-scripts-and-ownership)
-        9. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        6. [Async (Timers)](#async-timers)
+        7. [Local Scripts and Ownership](#local-scripts-and-ownership)
+        8. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Events (Sending and Receiving)](#events-sending-and-receiving)
         1. [Connecting to Events](#connecting-to-events)
         2. [Sending Events](#sending-events)
@@ -195,9 +194,10 @@
         2. [Scripting Frame Phase](#scripting-frame-phase)
         3. [Late Frame Phase](#late-frame-phase)
             1. [Network Sync](#network-sync)
-        4. [Render](#render)
-    9. [Script File Execution](#script-file-execution)
-    10. [Helper Functions](#helper-functions)
+            2. [Render](#render)
+    9. [Component Inheritance](#component-inheritance)
+    10. [Script File Execution](#script-file-execution)
+    11. [Helper Functions](#helper-functions)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Ownership](#ownership)
@@ -276,6 +276,7 @@
 16. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
+    3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
     1. [Overview](#overview-13)
     2. [Quests](#quests)
@@ -1148,7 +1149,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 **Limitations**: <mark>TODO</mark> Consider known limitation, issues, bugs.
 
 ### Custom UI Gizmo
-**Description**: Presents a preconfigured UI(User Interface) to your players.
+**Description**: Presents a custom UI (User Interface) to your players.
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
@@ -2029,7 +2030,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
 
-**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have detailed [lifecycles](#component-lifecycle) that execution through the [frame](#frame-sequence).
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have a detailed [lifecycle](#component-lifecycle) that execution through the [frame](#frame-sequence).
 
 **Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
@@ -2882,6 +2883,7 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
 3. **Teardown** - When the editor stops, component [despawns](#despawning), or an [before an ownership transfer](#ownership-transfer):
     * `transferOwnership()` executes (only during ownership transfers)
     * `dispose()` executes
+    * All callbacks registered with `registerDisposeOperation` run (unless the `DisposeOperationRegistration` was already [canceled or run](#disposing-objects)).
 
 !!! info Component Initialization Sequence
     1. Property initializers run first
@@ -2997,8 +2999,6 @@ style EarlyPhase fill:#def,stroke:#aac
 
 `getComponents<T extends Component<unknown, SerializableState> = Component>(type?: (new () => T) | null): T[];`
 
-### Subclasses
-
 ### Async (Timers)
 
 ### Local Scripts and Ownership
@@ -3036,21 +3036,33 @@ Mention coalescence
 
 ## Disposing Objects
 
-Instances of `DisposableObject`: Component,
+The `DisposableObject` interface represents a TypeScript object with a `dispose()` method which can be called to do "cleanup". Additionally a `DisposableObject` must also have the `registerDisposeOperation` method, which allows callbacks to be registered to also be run when the object is `dispose`d.
 
-// Players Controls
-static connectLocalInput(input: PlayerInputAction, icon: ButtonIcon, disposableObject: DisposableObject, options?: PlayerControlsConnectOptions): PlayerInput;
+!!! note currently only [Component](#component-class) implements the `DisposableObject` interface.
 
 ```ts
-DisposableObject
-DisposeOperation
-DisposeOperationRegistration
-
-export interface DisposableObject { // Component
+interface DisposableObject {
   dispose(): void;
-  registerDisposeOperation(operation: DisposeOperation): DisposeOperationRegistration;
-}
+  registerDisposeOperation(
+    operation: DisposeOperation
+  ): DisposeOperationRegistration;
+};
+
+type DisposeOperation = () => void;
+
+interface DisposeOperationRegistration {
+  // run the dispose operation
+  run: () => void;
+
+  // cancel the operation so it never runs
+  cancel: () => void;
+};
 ```
+
+When you call `registerDisposeOperation` you get back a `DisposeOperationRegistration` which has methods `run`, to manually dispose (even earlier), and `cancel` to stop the passed in `operation` from ever running.
+
+!!! info `PlayerControls` takes a `DisposableObject`
+    In the [PlayerControls](#player-controls) class, the static method `connectLocalInput` takes a `DisposableObject` object as an argument. The controls will be *unregistered* when the disposable object disposes.
 
 ## Frame Sequence
 
@@ -3142,7 +3154,35 @@ Proved: each code block event handler is wrapped in a try.
 
 #### Network Sync
 
-### Render
+#### Render
+
+## Component Inheritance
+
+It is not recommended to create deep hierarchies of components. We recommend you prefer **composition over inheritance** and use the general guidance of: **only subclass an abstract class**.
+
+If you want to make your own component subclass that is meant to be further subclassed, then this pattern should suffice (note that the abstract Parent is *not* registered).
+
+```ts
+abstract class Parent<T> extends Component<typeof Parent & T> {
+  static propsDefinition = {
+    name: {type: PropTypes.String},
+  }
+  start() {}
+  abstract greeting() : string
+}
+
+class Child<T> extends Parent<typeof Child> {
+  static propsDefinition = {
+    ...Parent.propsDefinition,
+    favoriteNumber: {type: PropTypes.Number},
+  }
+  start() {}
+  greeting() {
+    return this.props.name + ' ' + this.props.favoriteNumber
+  }
+}
+Component.register(Child)
+```
 
 ## Script File Execution
 Auto-Restart on Script Edit
@@ -4254,6 +4294,10 @@ Grabbable and Attachable
 
 ## Onscreen Controls
 
+## Player Controls
+
+`PlayerControls`
+
 # Persistence
 
 ## Overview
@@ -4712,7 +4756,7 @@ PlayAnimationOptions
 [PlayerBodyPartType](#pose-position-and-body-parts)
 PlayerDeviceType
 [PlayerHand](#pose-position-and-body-parts)
-PlayerControls
+[PlayerControls](#player-controls)
 PlayerControlsConnectOptions
 PlayerInput
 PlayerInputAction
