@@ -191,13 +191,11 @@
         4. [Broadcast events](#broadcast-events)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
-        1. [PrePhysics Phase](#prephysics-phase)
-        2. [Physics Phase](#physics-phase)
-        3. [OnUpdate Phase](#onupdate-phase)
-        4. [Scripting Phase](#scripting-phase)
-        5. [End Phase](#end-phase)
+        1. [Early Frame Phase](#early-frame-phase)
+        2. [Scripting Frame Phase](#scripting-frame-phase)
+        3. [Late Frame Phase](#late-frame-phase)
             1. [Network Sync](#network-sync)
-        6. [Render](#render)
+        4. [Render](#render)
     9. [Script File Execution](#script-file-execution)
     10. [Helper Functions](#helper-functions)
 9. [Network](#network)
@@ -289,14 +287,15 @@
     4. [Sublevels](#sublevels)
 19. [Tooltips and Popups](#tooltips-and-popups)
 20. [Custom UI](#custom-ui)
-    1. [Bindings](#bindings)
-    2. [View Types](#view-types)
+    1. [UIComponent Class](#uicomponent-class)
+    2. [Bindings](#bindings)
+    3. [View Types](#view-types)
         1. [View](#view)
         2. [Image](#image)
         3. [Pressable](#pressable)
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
-    3. [Animated Bindings](#animated-bindings)
+    4. [Animated Bindings](#animated-bindings)
 21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
 22. [Performance Optimization](#performance-optimization)
@@ -995,7 +994,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | **[Behavior](#interactive-entities)** |
 | [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collision-detection), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
-| [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics phase](#physics-phase) of the frame). |
+| [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#early-frame-phase) of the frame). |
 | **Ownership** |
 | [owner](#ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
 
@@ -1003,7 +1002,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 
 ### Simulated
 
-The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics phase](#physics-phase) of the frame.
+The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics calculations](#early-frame-phase) of the frame.
 
 When an [entity](#entities) has **`simulated` set to `false`**:
 * It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
@@ -2829,7 +2828,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 | `String` | `string` | `''` | - |
 | `Boolean` | `boolean` | `false` | - |
 | `Vec3` | `Vec3` | `(0, 0, 0)` | - |
-| `Color` | `Color` | `(0, 0, 0)` Black | |
+| `Color` | `Color` | `(0, 0, 0)` Black | RGB values between 0 and 1. |
 | `Entity` | `Entity \| null` | `null` | Cannot specify default |
 | `Quaternion` | `Quaternion` | `(0, 0, 0)` | Properties panel value is edited as [YXZ Euler angles](#euler-angles) |
 | `Asset` | `Asset \| null` | `null` | Cannot specify default |
@@ -2865,31 +2864,92 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 Components follow a strict lifecycle order, with certain methods occurring conditionally based on component type and ownership changes.
 
-When a world loads, all components go through their lifecycle in phases:
-1. First, all components in the world execute their `preStart()` methods. [Connect to receive events](#sending-and-receiving-events) here.
-2. Then, all components execute their `start()` methods.
-3. Finally, components enter their idle state.
+When components are created (from the [instance](#instances) starting, due to [spawning](#spawning), or from being created with a [new owner](#ownership-transfer)) they **prepare** then **start**. After that they are **"active"** ([processing events and timers](#frame-sequence)). Eventually when the editor stops, they are [despawned](#despawning), or their [owner changes](#ownership-transfer), they **teardown**. These all run in the [early frame phase](#early-frame-phase).
 
-When an asset [spawns](#spawning), all spawned entities are `preStart`ed and then all are `start`ed.
+1. **Prepare**: the component is allocated, its constructor called, and all property initializers run. Then its `initializeUI()` is called (only if it is a `UIComponent`). Then `preStart()` is called.
+1. **Start**: the component's `start()` is called. Then `receiveOwnership()` is called (only if the component is being created for a new owner due to an [ownership transfer](#ownership-transfer)). The component is then "active".
+1. **Teardown**: `transferOwnership` is called (only if the component is being torn down due to a [despawn](#despawning) or the editor being stopped then). Then `dispose()` is called.
 
-```mermaid
-stateDiagram-v2
-    [*] --> New
+!!! info All `preStart`s run before any `start`s.
+    You cannot rely on the order that components *prepare* or *start* in but you are guaranteed that all components will `preStart()` (and `initializeUI()`) before any components `start()`.
 
-    New --> InitializeUI: if UIComponent
-    InitializeUI --> PreStart
+!!! warning Connect to events in `preStart()` (never in `start()`). Send events in `start()` (never in `preStart()`).
+    This guarantees that if a component sends an event in `start()` that the listener has already registered in its `preStart()`, since all components `preStart()` before they `start()`.
 
-    New --> PreStart: if not UIComponent
-    PreStart --> Start
-    Start --> ReceiveOwnership: if new client instance
-    ReceiveOwnership --> Idle
+The entire lifecycle of a component is shown in the box below. Note that components are prepared, started, and torn down in the [scripting frame phase](#scripting-frame-phase).
 
-    Start --> Idle: if world start or spawn
-    Idle --> TransferOwnership: when entity owner changes
-    TransferOwnership --> Dispose
+```mermaid {align="center"}
+%%{init: {'themeVariables': {'fontSize': '10px'}, 'flowchart': {'nodeSpacing': '40', 'rankSpacing': '32'}}}%%
+flowchart TB
+    subgraph Prepare
+        New
+        InitializeUI
+        PreStart
 
-    Idle --> Dispose: when despawned<br/>or editor stopped
-    Dispose --> [*]
+        New --> IsUI{{Is this a <code style="background-color:#0000">UIComponent</code>?}}
+        IsUI --"yes"--> InitializeUI
+        IsUI --"no"--> PreStart
+        InitializeUI --> PreStart
+    end
+
+    subgraph StartBlock [Start]
+        Start
+        ReceiveOwnership
+
+        Start --> IsNewClient{{Is this the result of<br/>an <a href="#ownership-transfer">ownership transfer</a>?}}
+        IsNewClient --"yes"--> ReceiveOwnership
+    end
+
+    subgraph Active
+        ScriptingPhase@{label: <a href="#scripting-frame-phase">Scripting Frame Phase</a>}
+        EarlyPhase@{label: <a href="#early-frame-phase">Early Frame Phase</a>}
+        LatePhase@{label: <a href="#late-frame-phase">Late Frame Phase</a>}
+
+        EarlyPhase --> ScriptingPhase --> TeardownReason{{What is the<br/>teardown reason?}}
+        TeardownReason --"none"--> LatePhase --> EarlyPhase
+    end
+
+    subgraph Teardown
+        TransferOwnership --> Dispose@{ label: <a href="#component-lifecycle" style="font-family:monospace">dispose()</a> runs }
+    end
+
+    New@{ label: <code style="background-color:#0000">constructor</code> and<br/>property initializers run }
+    InitializeUI@{ label: <a href="#uicomponent-class" style="font-family:monospace">initializeUI()</a> runs }
+    PreStart@{ label: <a href="#component-lifecycle" style="font-family:monospace">preStart()</a> runs }
+    Start@{ label: <a href="#component-lifecycle" style="font-family:monospace">start()</a> runs }
+    ReceiveOwnership@{ label: <a href="#transferring-data-across-owners" style="font-family:monospace">receiveOwnership()</a> runs }
+    TransferOwnership@{ label: <a href="#transferring-data-across-owners" style="font-family:monospace">transferOwnership()</a> runs }
+
+
+    StartBlock@{ label: "Start" }
+
+Birth@{shape: circ, label: " "} --> Prepare
+PreStart --> Start
+IsNewClient --"no"--> ScriptingPhase
+ReceiveOwnership --> ScriptingPhase
+TeardownReason --"owner change"--> TransferOwnership
+TeardownReason --"despawn or editor stopped" --> Dispose
+Dispose --> Death@{shape: dbl-circ, label: " "}
+
+style Birth fill:#eee,stroke:#bbb
+style Death fill:#fdd,stroke:#b88
+
+style New fill:#dfe,stroke:#8a9
+style InitializeUI fill:#dfe,stroke:#8a9
+style PreStart fill:#dfe,stroke:#8a9
+style Start fill:#dfe,stroke:#8a9
+style ReceiveOwnership fill:#dfe,stroke:#8a9
+style TransferOwnership fill:#dfe,stroke:#8a9
+style Dispose fill:#dfe,stroke:#8a9
+
+style Prepare fill:#eee,stroke:#aaa
+style StartBlock fill:#eee,stroke:#aaa
+style Active fill:#eee,stroke:#aaa
+style Teardown fill:#eee,stroke:#aaa
+
+style ScriptingPhase fill:#def,stroke:#aac
+style LatePhase fill:#def,stroke:#aac
+style EarlyPhase fill:#def,stroke:#aac
 ```
 
 **Ownership transfers**: the `transferOwnership` and `receiveOwnership` methods are explained in the [transferring data across owners](#transferring-data-across-owners) section.
@@ -3014,27 +3074,25 @@ NOTE: a pre-physics handler in code blocks scripts runs before start
 
 ```mermaid {align="center"}
 flowchart LR
-  subgraph Early [Early Phase]
-    Pre-Physics --> Physics --> On-Update
+  subgraph Early [Early Frame Phase]
+    Pre-Physics(Pre-Physics) --> Physics --> On-Update(On-Update)
   end
 
   subgraph Physics [Physics Phase]
-    locomotion(Update players from<br/>locomotion and pose) --> animation(Update recorded animation playback)
-
-    animation --> physicsStep(Perform physics updates<br/>to positions, velocities, etc)
+    locomotion(Update players from<br/>locomotion and pose,<br/>update recorded<br/>animation playback) --> physicsStep(Run physics calculations,<br/>identify collisions)
   end
 
-  subgraph Scripting [Scripting Phase]
-    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(Components allocation,<br/>preStart, and Start)  --> NetworkEvents --> PlayerInputHandlers(PlayerInput Handlers) --> CodeBlockEvents --> mutations(Commit Scene <br/>Graph Mutations) --> Async
+  subgraph Scripting [Scripting Frame Phase]
+    PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(New components prepare,<br/>new components start)  --> Events(NetworkEvents handled,<br/>PlayerInput handled,<br/>CodeBlockEvents handled) --> mutations(Commit Scene <br/>Graph Mutations) --> Async(Async callbacks run,<br/>ownership callbacks run,</br>disposables handled)
   end
 
-  subgraph Late [Late Phase]
-    receive(Prepare received<br/>NetworkEvents to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render
+  subgraph Late [Late Frame Phase]
+    receive(Prepare received<br/>Events to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render@{shape:pill}
   end
 
   Early --> Scripting --> Late
 
-  style Physics fill:#def,stroke:#aaa
+  style Physics fill:#def,stroke:#aac
 
   style Scripting fill:#eee,stroke:#aaa
   style Early fill:#eee,stroke:#aaa
@@ -3043,9 +3101,7 @@ flowchart LR
   style Async fill:#dfe,stroke:#8a9
   style Pre-Physics fill:#dfe,stroke:#8a9
   style On-Update fill:#dfe,stroke:#8a9
-  style NetworkEvents fill:#dfe,stroke:#8a9
-  style PlayerInputHandlers fill:#dfe,stroke:#8a9
-  style CodeBlockEvents fill:#dfe,stroke:#8a9
+  style Events fill:#dfe,stroke:#8a9
   style Components fill:#dfe,stroke:#8a9
 ```
 
@@ -3069,13 +3125,13 @@ Proved: code block event handlers will eventually timeout but it seems to be upw
 
 Proved: each code block event handler is wrapped in a try.
 
-### PrePhysics Phase
+### Early Frame Phase
 
-### Physics Phase
+* PrePhysics Phase
+* Physics Phase
+* OnUpdate Phase
 
-### OnUpdate Phase
-
-### Scripting Phase
+### Scripting Frame Phase
 
 * Component Initialization
 * Network Events Handling
@@ -3084,7 +3140,7 @@ Proved: each code block event handler is wrapped in a try.
 * Committing Scene Graph Mutations
 * Async Handling
 
-### End Phase
+### Late Frame Phase
 
 #### Network Sync
 
@@ -3253,7 +3309,7 @@ Somewhere: force vs impulse vs velocity change
 ## Units
 | Name | Unit | Description |
 |---|---|---|
-|Time|Seconds when using [onUpdate event](#onupdate-phase)|Amount of time passed since last frame|
+|Time|Seconds when using [onUpdate event](#run-every-frame-prephysics-and-onupdate)|Amount of time passed since last frame|
 |Position|Measured in Meters|The location of an entity|
 |Velocity|Meters/Seconds|The location change over time|
 |Acceleration|Meters/Seconds^2|Velocity change over time|
@@ -4022,7 +4078,7 @@ There are two approaches for moving a held entity:
 #### Moving a Held Entity Locally in Relation to the Hand
 In a gun-recoil animation you want the player hand to be able to move freely, yet have the gun apply an additional local rotation "on top of it". If you set the position / rotation of the entity when a user takes an action (such as firing the gun) then that change will only last for one frame (which might be ok for a quick recoil effect) because the entity's position / rotation will be immediately updated the next frame from the avatar's hand.
 
-If you want a multi-frame or ongoing effect then you need to set the position / rotation of the entity repeatedly in an [OnUpdate](#onupdate-phase) handler. In summary: **every frame in which you want the entity change from where the avatar want it, you must set it yourself**.
+If you want a multi-frame or ongoing effect then you need to set the position / rotation of the entity repeatedly in an [OnUpdate](#run-every-frame-prephysics-and-onupdate) handler. In summary: **every frame in which you want the entity change from where the avatar want it, you must set it yourself**.
 
 #### Moving a Held Entity Globally in Relation to the World
 When building a lever, for example, you want the avatar hand to "lock onto" the lever. In this case you want to completely control the position of the avatar hand. To do this,  set `locked` to `true` on the grabbable entity. This will prevent the entity from being moved by physics or by the avatar. Then you can move the entity by setting its `position` and `rotation`. The avatar hand will then be moved to match.
@@ -4495,6 +4551,8 @@ DefaultTooltipOptions
 
 <mark>TODO</mark>
 Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
+
+## UIComponent Class
 
 ## Bindings
 Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving). T must be serializable (not throwing via JSON.stringify. For example: bigint is not allowed which means that Entity is not allowed.)
