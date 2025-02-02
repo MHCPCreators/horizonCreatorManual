@@ -60,49 +60,43 @@
         4. [Door Gizmo](#door-gizmo)
         5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
         6. [Environment Gizmo](#environment-gizmo)
-                1. [Overview](#overview-1)
-                1. [Manual Properties](#manual-properties)
-                2. [Typescript API](#typescript-api)
         7. [In-World Item Gizmo](#in-world-item-gizmo)
-            1. [Overview](#overview-2)
-            2. [Manual Properties](#manual-properties-1)
-            3. [Typescript API](#typescript-api-1)
         8. [Media Board Gizmo](#media-board-gizmo)
         9. [Mirror Gizmo](#mirror-gizmo)
         10. [Navigation Volume](#navigation-volume)
         11. [NPC Gizmo](#npc-gizmo)
-            1. [Overview](#overview-3)
-            2. [Manual Properties](#manual-properties-2)
-            3. [Typescript API](#typescript-api-2)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties)
+            3. [Typescript API](#typescript-api)
         12. [ParticleFx Gizmo](#particlefx-gizmo)
         13. [TrailFx Gizmo](#trailfx-gizmo)
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         15. [Quests Gizmo](#quests-gizmo)
         16. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-4)
-            2. [Manual Properties](#manual-properties-3)
-            3. [Typescript API](#typescript-api-3)
+            1. [Overview](#overview-2)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
             4. [How to Raycast](#how-to-raycast)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-5)
-            2. [Manual Properties](#manual-properties-4)
+            1. [Overview](#overview-3)
+            2. [Manual Properties](#manual-properties-2)
             3. [Typescript  API](#typescript--api)
         19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-6)
+            1. [Overview](#overview-4)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-4)
+            5. [Typescript API](#typescript-api-2)
         20. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-7)
-            2. [Manual Properties](#manual-properties-5)
+            1. [Overview](#overview-5)
+            2. [Manual Properties](#manual-properties-3)
             3. [Typescript  API](#typescript--api-1)
         21. [Static Light Gizmo](#static-light-gizmo)
         22. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-5)
+            1. [Overview](#overview-6)
+            2. [Manual Properties](#manual-properties-4)
+            3. [Typescript API](#typescript-api-3)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
@@ -110,13 +104,13 @@
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         23. [Trigger Gizmo](#trigger-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-6)
+            1. [Overview](#overview-7)
+            2. [Manual Properties](#manual-properties-5)
+            3. [Typescript API](#typescript-api-4)
         24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-10)
-            2. [Manual Properties](#manual-properties-8)
-            3. [Typescript API](#typescript-api-7)
+            1. [Overview](#overview-8)
+            2. [Manual Properties](#manual-properties-6)
+            3. [Typescript API](#typescript-api-5)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -125,7 +119,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-11)
+    1. [Overview](#overview-9)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -178,8 +172,7 @@
         4. [Component Lifecycle](#component-lifecycle)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
         6. [Async (Delays and Timers)](#async-delays-and-timers)
-        7. [Local Scripts and Ownership](#local-scripts-and-ownership)
-        8. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        7. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Communication Between Components](#communication-between-components)
         1. [Sending and Receiving Events](#sending-and-receiving-events)
         2. [Code Block Event](#code-block-event)
@@ -197,13 +190,14 @@
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
 9. [Network](#network)
-    1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
-    2. [Ownership](#ownership)
-    3. [Ownership Transfer](#ownership-transfer)
+        1. [Local and Default Scripts](#local-and-default-scripts)
+    2. [Clients (Devices and the Server)](#clients-devices-and-the-server)
+    3. [Ownership](#ownership)
+    4. [Ownership Transfer](#ownership-transfer)
         1. [Auto Ownership Transfers](#auto-ownership-transfers)
         2. [Transferring Data Across Owners](#transferring-data-across-owners)
-    4. [Networking and Events](#networking-and-events)
-    5. [Authority and Reconciliation](#authority-and-reconciliation)
+    5. [Networking and Events](#networking-and-events)
+    6. [Authority and Reconciliation](#authority-and-reconciliation)
 10. [Collision Detection](#collision-detection)
     1. [Colliders](#colliders)
     2. [Trigger Entry and Exit](#trigger-entry-and-exit)
@@ -212,7 +206,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-12)
+    1. [Overview](#overview-10)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
@@ -275,7 +269,7 @@
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-13)
+    1. [Overview](#overview-11)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
@@ -1134,7 +1128,6 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [World Promotion](#world-promotion-gizmo) | `Entity` |
 
 ### Collider Gizmo
-
 **Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
 | Property | Type | Description |
 |---|---|---|
@@ -1150,15 +1143,15 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
-| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile still can unless `Focus Prompt` is disabled.|
+| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
-| Mipmap | `boolean` | ? <mark>TODO</mark>Finish this |
-| Focus Prompt | `boolean` | ? |
-| Focus prompt distance | `number` | ? |
+| Mipmap | `boolean` | If enabled, allows you to adjust the level of mipmap which affects how much detail is drawn when viewed from a distance.  |
+| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. If disabled, web and mobile players cannot interact, but VR players can unless `Raycast` is disabled. |
+| Focus prompt distance | `number` | Controls the distance within which a player can interact with the UI panel if `Focus Prompt` is enabled. |
 
 **TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
 
-**Limitations**:
+**Limitations**: Custom UI Gizmo and their bindings will cause performance issues. See [Custom UI](#custom-ui) for recommendations.
 
 ### Debug Console Gizmo
 
@@ -1211,89 +1204,41 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
   * Performance intensive due to per-frame light/shadow processing
 
 ### Environment Gizmo
+**Description**: Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
-##### Overview
-Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
+| Property | Type | Description |
+|---|---|---|
+| Active | `boolean` | Only one Environment Gizmo can be active in a world. Enabling this will active this Environment Gizmo, but disable any other Environment Gizmos in the world.
+| Skydome Type | `Cubemap` or `Custom Gradient` | `Cubemap` allows you to choose from a predefined texture and `Custom Gradient` lets you paint the sky a gradient color instead. |
+| Texture | dropdown | List of predefined Skydome textures.
+| Texture Rotation | `number` | Sets the rotation of the Skydome texture on the Y axis only.
+| Exposure | `number` | Sets the light intensity of the world. Accepts a value between 0.0 and 2.0. Default is 1.0.
+| Custom Light Intensity | `boolean` | If enabled, allows you to adjust the `Light Intensity` property. |
+| Light Intensity | `number` | Sets the brightness of global lighting in the world. Accepts values between 0.0 and 2.0 with 1.0 as the default. |
+| Custom Fog Color | `boolean` | If enabled, allows you to adjust the `Fog Color` property. |
+| Fog Color | `Color` | Sets a custom color to the fog in your world. |
+| Fog Density |  `number` | Sets how dense or thick the fog is. Accepts values between 0.0000 and 0.1000. |
+| Show Grid | `boolean` | Determines whether the world grid is visible at x:0, y:0, z:0. |
+| VOIP Settings([Player Audio](#player-audio)) <-- Doesn't exist <mark>TODO</mark>  | `Environment`(<mark>TODO</mark> (VOIP=Env will pass back to last env gizmo), `Default`, `Nearby`, `Extended`, `Whisper`, or `Mute`. `Default` is default. | Sets the default VOIP setting for all players in your world. |
 
-#####  Manual Properties
-- Active
-  - ON/OFF Toggle
-- Skydome Type
-  - Cubemap
-  - Custom Gradient
-- Texture
-  - Daytime
-  - Sunrise
-  - Sunset
-  - Overcast
-  - Night
-  - Midnight Black
-  - Twilight
-  - Misty Marsh
-  - Winter Sky
-  - Twilight Clouds
-  - Day Clouds
-  - Day Panorama
-  - Night Panorama
-  - Star Field
-- Texture Rotation
-  - Value between 0 - 360
-- Exposure
-  - Value between 0.0 - 2.0
-- Custom Light Intensity
-  - ON/OFF Toggle
-  - Light Intensity
-    - Value between 0.0 - 2.0
-- Custom Fog Color
-  - ON/OFF Toggle
-  - Fog Color
-    - RGB values between 0.0 - 1.0
-- Fog Density
-  - Value between 0.0000 - 0.1000
-- Show Grid
-  - ON/OFF Toggle
-- VOIP Settings (link to [player audio](#player-audio))
-  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
-  - Default
-  - Nearby
-  - Extended
-  - Whisper
-  - Mute
+**Typescript**: TypeScript: Environment Gizmos are referenced as Entity instances with no additional scripting capabilities.
 
-##### Typescript API
-- None
+**Limitations:**
+- Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
+- When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
-!!! Note Multiple Environment Gizmos Allowed
-    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
-
-!!! Warning Spawning Multiple Environment Gizmos
-    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
-
-!!! Bug Known Issues
-    - <mark>TODO</mark> list known issues or delete
 ### In-World Item Gizmo
+**Description**: Used to sell In-World Items to users in your worlds.
 
-#### Overview
-Used to sell In-World Items to users in your worlds.
-<mark>TODO</mark> Needs a lot more explaining
+| Property | Type | Description |
+|---|---|---|
+| Visible | `boolean` | Sets whether the In-World Gizmo is visible to players. |
+| In-world Item | dropdown | Contains a list of all the In-World Items you have created in this world. |
+| Customize Purchase Dialog Position | `boolean` | If enabled, allows you to adjust the `Purchase Dialog Position`. |
+| Purchase Dialog Position | `Vec3` | Adjust the position on screen the Purchase Dialog menu appears. |
+| UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed. `Trigger` doesn't show anything and only spawns the menu when a player enters into the trigger area. `Button` will show a small symbol that will open the menu when interacted with. `Icon` will show the item price as an icon you can interact with. |
 
-#### Manual Properties
-- Visible
-    - ON/OFF Toggle
-- In-world Item
-    - Dropdown list of all available Items
-- Customize Purchase Dialog Position
-    - ON/OFF Toggle
-    - If ON, Purchase Dialog Position is available
-        - Vector(X,Y,Z)
-- UI Property
-    - Trigger
-    - Button
-    - Icon
-
-#### Typescript API
-
-[IWPSellerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.iwpsellergizmo.md/)
+TypeScript: In-World Item Gizmos are referenced [as](#entity-as-method) the IWPSellerGizmo class with the following methods:
 
 ```ts
 consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
@@ -1302,20 +1247,21 @@ playerOwnsItem(player, item) //Indicates whether the player owns a specific item
 quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
 timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
 ```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
-```ts
-OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
-```
+**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `IWPSellerGizmo`:
 
-!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| OnItemPurchaseStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemPurchaseComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
+| OnItemConsumeStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemConsumeComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| OnItemPurchaseSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemPurchaseFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerConsumeSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerConsumeFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerSpawnedItem | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | Sent when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
+
+**Limitations**: Only owners can make test purchases while in Preview mode.
 
 ### Media Board Gizmo
 <mark>TODO</mark>
