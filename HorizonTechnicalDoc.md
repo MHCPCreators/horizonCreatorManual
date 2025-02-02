@@ -3008,6 +3008,43 @@ Callbacks registered with `onPrePhysicsUpdate` run before physics computations o
 
 The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#sending-and-receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
 
+### BuiltInVariableType
+
+`BuiltInVariableType` represent "primitive Horizon data". It is used in [CodeBlockEvents](#code-block-event) and [defining props with PropTypes](#component-properties).
+
+```ts
+type BuiltInVariableType =
+  | string      | string[]
+  | number      | number[]
+  | boolean     | boolean[]
+  | Vec3        | Vec3[]
+  | Entity      | Entity[]
+  | Quaternion  | Quaternion[]
+  | Color       | Color[]
+  | Player      | Player[]
+  | Asset       | Asset[]
+```
+
+### SerializableState
+
+`SerializableState` represents the type of data that can be packaged up to be **sent over the network**. It is used in [NetworkEvents](#network-events) and [ownership transfer](#transferring-data-across-owners).
+
+```ts
+type SerializableState =
+  | { [key: string]: SerializableState }
+  | SerializableState[]
+  | PersistentSerializableStateNode
+  | TransientSerializableStateNode
+
+type PersistentSerializableStateNode =
+  | Vec3 | Entity | Quaternion | Color
+  | number | boolean | string
+  | bigint | null;
+type TransientSerializableStateNode = Player;
+```
+
+`PersistentSerializableState` is data that can be packaged up to store in [persistent data](#persistence). It is the same as `SerializableState` *except* that it *does not include Player* (since player instances are [ephemeral to the instance](#player-id)).
+
 ## Communication Between Components
 
 <mark>TODO</mark>
@@ -3027,9 +3064,9 @@ There are multiple kinds of events:
 
 | Event | Purpose | Timing | Payload |
 |---|---|---|---|
-| **CodeBlockEvent** |Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code block scripts. | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | A tuple of: `string`, `number`, `boolean`, `Vec3`, `Quaternion`, `Color`, `Player`, `Asset`, or arrays of any of those just listed. |
-| **LocalEvent**          | Communicate rapidly/robustly with another specific TypeScript scripted object on the same client | Delivered *immediately* | *Anything* |
-| **NetworkEvent**          | Communicate with a specific TypeScript scripted object (possibly) on another client | Delivered, at the very earliest, in the next frame | Send JSON convertible data (including Vec3, Quaternion, Color, and Player; but not currently Entity or Asset)|
+| **CodeBlockEvent** |Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code block scripts. | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | `BuiltInVariableType`. |
+| **LocalEvent** | Communicate rapidly/robustly with another specific TypeScript scripted entity on the same [client](#clients-devices-and-the-server). | Delivered *synchronously* (immediately). | *Anything* |
+| **NetworkEvent** | Communicate with a specific TypeScript scripted entity (possibly) on another [client](#clients-devices-and-the-server). | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | `SerializableState`. |
 
 `LocalEvent`s and `NetworkEvent`s can be sent to specific entities or be [broadcast](#broadcast-events) to all listeners in the world. Many "system actions" (such as [players entering the world](#player-entering-and-exiting-a-world), an [entity being grabbed](#grab-sequence-and-events), a [collision occurring](#collision-events), etc) are sent as [built-in CodeBlockEvents](#built-in-code-block-events); there [are many](#all-built-in-codeblockevents).
 
