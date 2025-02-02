@@ -1,3 +1,5 @@
+<!-- focusSection:  -->
+
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
 > This is an in-development (Jan '25) <b>community-written</b> document.
@@ -180,7 +182,7 @@
         3. [Local Events](#local-events)
         4. [Network Events](#network-events)
         5. [Broadcast events](#broadcast-events)
-        6. [Component Direct Access](#component-direct-access)
+        6. [Converting Between Components and Entities](#converting-between-components-and-entities)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
         1. [Early Frame Phase](#early-frame-phase)
@@ -209,7 +211,7 @@
     1. [Overview](#overview-10)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
-    4. [PrePhysics vs Defaults Scripts](#prephysics-vs-defaults-scripts)
+    4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
     6. [PhysicalEntity Class](#physicalentity-class)
     7. [Projectiles](#projectiles)
@@ -2941,16 +2943,6 @@ style EarlyPhase fill:#def,stroke:#aac
       - Use `preStart()` for event registration
       - Use `start()` for initialization behavior
 
-### Converting Between Components and Entities
-
-```ts
-// Entity
-getComponents<T extends Component<unknown, SerializableState> = Component>(type?: (new () => T) | null): T[]
-
-// Component
-static getComponents<T extends Component<unknown, SerializableState> = Component>(type: new () => T): T[]
-```
-
 ### Async (Delays and Timers)
 
 There are two ways to delay code (to run it later):
@@ -2987,13 +2979,30 @@ then if, or when, `component` is [torn down](#component-lifecycle), the interval
     The methods above are not precise in when the callback runs. They will wait at least as long as the requested `timeout` value and then run at *the next convenient time* after that. So, for example, if you create a `timeout` with a 0 millisecond delay, it won't run immediately; it will run "super soon" (likely during the next [late frame phase](#late-frame-phase)). If you create an interval with a timeout of 0 milliseconds, it may only run it a few times (or even just once) every frame, to prevent hurting perf.
 
 !!! tip Use underscores to make numbers more readable.
-    JavaScript (and therefore TypeScript) allows underscores to be inserted into numbers solely for readability. That means `123` and `1_2_3` are the same value. You can thus use underscores to make numbers more readable. So intead of writing `10000` to mean 10,000 milliseconds, you can write `10_000`!
+    JavaScript (and therefore TypeScript) allows underscores to be inserted into numbers solely for readability. That means `123` and `1_2_3` are the same value. You can thus use underscores to make numbers more readable. So instead of writing `10000` to mean 10,000 milliseconds, you can write `10_000`!
 
 ### Run Every Frame (PrePhysics and OnUpdate)
 
-<mark>TODO</mark>
+[Async intervals](#async-delays-and-timers) are not effective for **running code every frame** because they are difficult to align the timing of (due to being [imprecise](#async-delays-and-timers)).
 
-a few sentences and link to Physics
+The [World](#world-class) has two static members: `onPrePhysicsUpdate` and `onUpdate` which expose [Local Events](#local-events) that are [broadcast](#broadcast-events) every frame:
+
+```ts
+const subscription = component.connectLocalBroadcastEvent(
+  World.onUpdate,
+  (info) => {
+    // runs every frame!
+    console.log(
+      info.deltaTime +
+      'seconds have passed since last frame!'
+    )
+  }
+)
+```
+
+Callbacks registered with `onPrePhysicsUpdate` run before physics computations occur in the frame. Callbacks registered with `onUpdate` run after physics computations. **onUpdate is usually what you need**. See the description of [prePhysics vs onUpdate](#prephysics-vs-onupdate-events) for more information.
+
+The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#sending-and-receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
 
 ## Communication Between Components
 
@@ -3022,15 +3031,27 @@ Link to end table
 
 ### Local Events
 
+* prePhysics and onUpdate
+
 ### Network Events
 
 ### Broadcast events
 
+* prePhysics and onUpdate
 Mention coalescence
 
-### Component Direct Access
+### Converting Between Components and Entities
 
-* functions and members
+When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#sending-and-receiving-events)). There are 2 ways to "find [component](#components) instances on the [local device](#clients-devices-and-the-server):
+1. **components attached to entities**: you can do `entity.getComponents()` to get all components on an entity. Currently only one entity per component is supported, thus the method returns an array with at most one element. You can also pass in a class `entity.getComponents(ExampleComponent)` to get an array of `ExampleComponent` instances attached to the entity (which, again, will be at most one).
+2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local device](#clients-devices-and-the-server).
+
+!!! danger `getComponents` cannot be used [until start](#component-lifecycle).
+    You cannot call `entity.getComponents(...)` or `Component.getComponents(...)` in a property initializer, `initializeUI`, or in `preStart`. This information isn't ready until after the [prepare state](#component-lifecycle) of component instantiation.
+
+!!! example Calling a method on a component.
+    In this example we find all `ListenerComponent`s in the [local device](#clients-devices-and-the-server) from within the `SpeakerComponent`. We are then able to directly access the `props` and the `hear` method on `ListenerComponent`.
+    ![[ horizonScripts/directFunctionCall.ts ]]
 
 ## Disposing Objects
 
@@ -3418,7 +3439,7 @@ For an entity to become a physical entity:
 TODO - Collision type: discrete, continuous - figure out horizon way(Any guarantees?)
 TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantees?)
 
-## PrePhysics vs Defaults Scripts
+## PrePhysics vs OnUpdate Events
 
 ## Simulated vs Locked Entities
 
