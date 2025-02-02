@@ -176,8 +176,8 @@
         2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Component Properties](#component-properties)
         4. [Component Lifecycle](#component-lifecycle)
-            1. [Auto-Restart on Script Edit](#auto-restart-on-script-edit)
         5. [Sending and Receiving Events](#sending-and-receiving-events)
+            1. [Event Emission](#event-emission)
         6. [Converting Between Components and Entities](#converting-between-components-and-entities)
         7. [Subclasses](#subclasses)
         8. [Async (Timers)](#async-timers)
@@ -2029,13 +2029,16 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
 
-**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution).
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have detailed [lifecycles](#component-lifecycle) that execution through the [frame](#frame-sequence).
 
 **Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
 
 You can create scripts by using the create button in the scripts dropdown or simply creating a new file in the scripts folder. Click the [≣] button in the editor and then "Launch TypeScript Editor". You can then create and edit files.
+
+!!! warning Editing a script while the editor is playing a world **reloads that file**.
+    This is often useful, but it can cause surprises with only part of the world reloading. You may need to restart the world for certain efforts. Read about [file execution](#script-file-execution) for more information.
 
 ### Syncing Scripts
 
@@ -2862,21 +2865,34 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 ### Component Lifecycle
 
-Components follow a strict lifecycle order, with certain methods occurring conditionally based on component type and ownership changes.
+Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#sending-and-receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
 
-When components are created (from the [instance](#instances) starting, due to [spawning](#spawning), or from being created with a [new owner](#ownership-transfer)) they **prepare** then **start**. After that they are **"active"** ([processing events and timers](#frame-sequence)). Eventually when the editor stops, they are [despawned](#despawning), or their [owner changes](#ownership-transfer), they **teardown**. These all run in the [early frame phase](#early-frame-phase).
+Likewise, when a group of entities are [spawned](#spawning), all them are prepared; then, all of them are started.
 
-1. **Prepare**: the component is allocated, its constructor called, and all property initializers run. Then its `initializeUI()` is called (only if it is a `UIComponent`). Then `preStart()` is called.
-1. **Start**: the component's `start()` is called. Then `receiveOwnership()` is called (only if the component is being created for a new owner due to an [ownership transfer](#ownership-transfer)). The component is then "active".
-1. **Teardown**: `transferOwnership` is called (only if the component is being torn down due to a [despawn](#despawning) or the editor being stopped then). Then `dispose()` is called.
+1. **Preparation** - When components are created (via instance start, [spawning](#spawning), or [after an ownership transfer](#ownership-transfer)):
+    * Component allocation occurs
+    * Constructor executes
+    * Property initializers run
+    * `initializeUI()` executes ([UIComponents](#uicomponent-class) only)
+    * `preStart()` executes
+2. **Start** - After preparation:
+    * `start()` executes
+    * `receiveOwnership()` executes (only during ownership transfers)
+    * Component becomes "active" (begins processing events and timers)
+3. **Teardown** - When the editor stops, component [despawns](#despawning), or an [before an ownership transfer](#ownership-transfer):
+    * `transferOwnership()` executes (only during ownership transfers)
+    * `dispose()` executes
 
-!!! info All `preStart`s run before any `start`s.
-    You cannot rely on the order that components *prepare* or *start* in but you are guaranteed that all components will `preStart()` (and `initializeUI()`) before any components `start()`.
+!!! info Component Initialization Sequence
+    1. Property initializers run first
+    2. All components execute `preStart()` and `initializeUI()`
+    3. All components execute `start()`
 
-!!! warning Connect to events in `preStart()` (never in `start()`). Send events in `start()` (never in `preStart()`).
-    This guarantees that if a component sends an event in `start()` that the listener has already registered in its `preStart()`, since all components `preStart()` before they `start()`.
+    **Start of world**: The above order is true for all components at the start of the world.
+    **After spawn**: It is also true for all components resulting from a [spawn](#spawning).
+    **After ownership transfer**: It is also true for all components created with a new owner (e.g. if in a frame the current [client](#clients-devices-and-the-server)) has 3 new components then all 3 will be `preStart`ed before any are `start`ed.
 
-The entire lifecycle of a component is shown in the box below. Note that components are prepared, started, and torn down in the [scripting frame phase](#scripting-frame-phase).
+The diagram below shows the full lifecycle of a component. All green rectangle boxes are TypeScript code executing during the [Scripting Frame Phase](#scripting-frame-phase). The [full breakdown a frame](#frame-sequence) gives another view into when all these actions occur.
 
 ```mermaid {align="center"}
 %%{init: {'themeVariables': {'fontSize': '10px'}, 'flowchart': {'nodeSpacing': '40', 'rankSpacing': '32'}}}%%
@@ -2901,9 +2917,9 @@ flowchart TB
     end
 
     subgraph Active
-        ScriptingPhase@{label: <a href="#scripting-frame-phase">Scripting Frame Phase</a>}
-        EarlyPhase@{label: <a href="#early-frame-phase">Early Frame Phase</a>}
-        LatePhase@{label: <a href="#late-frame-phase">Late Frame Phase</a>}
+        ScriptingPhase@{shape: lean-r, label: <a href="#scripting-frame-phase">Scripting Frame Phase</a> runs}
+        EarlyPhase@{shape: lean-r, label: <a href="#early-frame-phase">Early Frame Phase</a> runs}
+        LatePhase@{shape: lean-r, label: <a href="#late-frame-phase">Late Frame Phase</a> runs}
 
         EarlyPhase --> ScriptingPhase --> TeardownReason{{What is the<br/>teardown reason?}}
         TeardownReason --"none"--> LatePhase --> EarlyPhase
@@ -2952,59 +2968,43 @@ style LatePhase fill:#def,stroke:#aac
 style EarlyPhase fill:#def,stroke:#aac
 ```
 
-**Ownership transfers**: the `transferOwnership` and `receiveOwnership` methods are explained in the [transferring data across owners](#transferring-data-across-owners) section.
-
-
-!!! tip Do not access `props` in property initializers.
-    Props are not yet initialized when property initializers run. The correct way is to initialize in `preStart` or `start`:
-
+!!! warning Property initializers run before `props` are available.
     ```typescript
-    // ❌ Don't do this
+    // ❌ Incorrect: Props not available during initialization
     class BadComponent extends Component<typeof BadComponent> {
-      private color = this.props.color // Props not available yet. Throws!
+        private color = this.props.color  // Will throw an error!
     }
 
-    // ✅ Do this instead - initialize in preStart
+    // ✅ Correct: Initialize in preStart
     class GoodComponent extends Component {
-      private color: Color = new Color(0, 0, 0) // Default value if needed
+        private color: Color = new Color(0, 0, 0)  // Default value if needed
 
-      override preStart() {
-        // Safe to use props here
-        this.color = this.props.color
-      }
+        override preStart() {
+            this.color = this.props.color  // Safe to access props here
+        }
     }
     ```
-
-!!! tip Do not override the `constructor`.
-    The Component base class handles critical initialization. Overriding the constructor can break this setup. Instead use property initializers for data (but don't use `props` in them; `props` are not available until `preStart`), `start()` for initialization behavior, and `preStart()` to [register for events](#sending-and-receiving-events).
-
-!!! bug Subscriptions are not automatically cleaned up during script restarts.
-    When restarting the world in the editor, [subscriptions](#sending-and-receiving-events) can stay running which can lead to weird behavior if you start the world immediately after stopping. One way around this is to manually discard subscriptions in `dispose()`.
-    ```typescript
-    import { Component, CodeBlockEvents } from 'horizon/core'
-
-    class ExampleComponent extends Component {
-      private subscriptions: Subscription[] = []
-
-      override preStart() {
-        this.subscriptions.push(this.connectCodeBlock(
-          this.entity,
-          CodeBlockEvents.OnPlayerEnterWorld,
-          player => console.log(player.name.get())
-        ))
-      }
-
-      override dispose() {
-        this.subscriptions.forEach(sub => sub.unsubscribe())
-      }
-    }
-    ```
-
-#### Auto-Restart on Script Edit
+!!! warning Do not override the component constructor.
+     The base Component class handles critical setup that could break if the constructor is overridden. So, instead:
+      - Use property initializers for data (without accessing props)
+      - Use `preStart()` for event registration
+      - Use `start()` for initialization behavior
 
 ### Sending and Receiving Events
 
 a few notes but link to the events section
+
+**Event Registration**:
+- **Always register event listeners in `preStart()`**
+- **Never register events in `start()`**
+
+This ensures all listeners are ready before any events are emitted.
+
+#### Event Emission
+- **Only emit events in `start()`**
+- **Never emit events in `preStart()`**
+
+This guarantees that all potential listeners have been registered before any events are sent.
 
 ### Converting Between Components and Entities
 
@@ -3147,6 +3147,7 @@ Proved: each code block event handler is wrapped in a try.
 ### Render
 
 ## Script File Execution
+Auto-Restart on Script Edit
 
 ## Helper Functions
 
