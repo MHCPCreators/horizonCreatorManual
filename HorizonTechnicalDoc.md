@@ -1138,10 +1138,30 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 ### Collider Gizmo
 
-<mark>TODO</mark>
+**Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
+| Property | Type | Description |
+|---|---|---|
+| Collidable | `boolean` | Determines whether collision is applied to this collider. |
+| Collision Layer | `Everything`, `Objects Only`, or `Players Only`. Default is `Everything` | Determines which layers will collide. With `Objects Only`, projectiles and other objects will be blocked, but players can pass through and with `Players Only` everything can pass through except players. |
+
+**TypeScript**: Collider Gizmos are references as `Entity` instances with no additional scripting capabilities.
+
+**Limitations**: <mark>TODO</mark> Consider known limitation, issues, bugs.
 
 ### Custom UI Gizmo
-See details in [Custom UI](#custom-ui)
+**Description**: Presents a preconfigured UI(User Interface) to your players.
+| Property | Type | Description |
+|---|---|---|
+| Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
+| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile still can unless `Focus Prompt` is disabled.|
+| Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
+| Mipmap | `boolean` | ? <mark>TODO</mark>Finish this |
+| Focus Prompt | `boolean` | ? |
+| Focus prompt distance | `number` | ? |
+
+**TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
+
+**Limitations**: 
 
 ### Debug Console Gizmo
 
