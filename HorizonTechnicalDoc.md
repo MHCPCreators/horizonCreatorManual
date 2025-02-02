@@ -177,17 +177,17 @@
         3. [Component Properties](#component-properties)
         4. [Component Lifecycle](#component-lifecycle)
         5. [Converting Between Components and Entities](#converting-between-components-and-entities)
-        6. [Async (Timers)](#async-timers)
+        6. [Async (Delays and Timers)](#async-delays-and-timers)
         7. [Local Scripts and Ownership](#local-scripts-and-ownership)
         8. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
-    6. [Events (Sending and Receiving)](#events-sending-and-receiving)
-        1. [Connecting to Events](#connecting-to-events)
-        2. [Sending Events](#sending-events)
-        3. [Code Block Event](#code-block-event)
+    6. [Communication Between Components](#communication-between-components)
+        1. [Sending and Receiving Events](#sending-and-receiving-events)
+        2. [Code Block Event](#code-block-event)
             1. [Built-In Code Block Events](#built-in-code-block-events)
-        4. [Local Events](#local-events)
-        5. [Network Events](#network-events)
-        6. [Broadcast events](#broadcast-events)
+        3. [Local Events](#local-events)
+        4. [Network Events](#network-events)
+        5. [Broadcast events](#broadcast-events)
+        6. [Component Direct Access](#component-direct-access)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
         1. [Early Frame Phase](#early-frame-phase)
@@ -1455,7 +1455,7 @@ type LaunchProjectileOptions = {
 }
 ```
 
-**Built-In CodeBlockEvents**: the following events are [sent to](#events-sending-and-receiving) a `ProjectileLauncherGizmo`:
+**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `ProjectileLauncherGizmo`:
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -2031,7 +2031,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have a detailed [lifecycle](#component-lifecycle) that execution through the [frame](#frame-sequence).
 
-**Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by sending and receiving [events](#events-sending-and-receiving). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
+**Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by [sending and receiving events](#communication-between-components). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
 
@@ -2742,19 +2742,19 @@ The `World` class represents the currently running [instance](#instances) and th
 
 ## Components
 
-Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#events-sending-and-receiving) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#sending-and-receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
 
 The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
 1. Create a new [Component class](#component-class)
 1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
 1. Add [property definitions](#component-properties) that will appear in the Properties panel
-1. Connect code to run when [system (or user) events occur](#events-sending-and-receiving)
+1. Connect code to run when [system (or user) events occur](#sending-and-receiving-events)
 
 The steps above are the "main path" but there are also many more parts of scripting:
-* [Sending events](#events-sending-and-receiving)
-* [Creating timers and async code](#async-timers)
-* [Creating local scripts](#local-scripts-and-ownership) and [transferring ownership](#ownership-transfer)
+* [Sending events](#sending-and-receiving-events)
+* [Creating timers and async code](#async-delays-and-timers)
+* [Creating local scripts](#local-scripts) and [transferring ownership](#ownership-transfer) for low-latency interactions
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
 * [Interacting with the physics system](#applying-forces-and-torque)
 * [Rendering UI](#custom-ui)
@@ -2865,7 +2865,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 ### Component Lifecycle
 
-Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#events-sending-and-receiving)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
+Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#sending-and-receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
 
 Likewise, when a group of entities are [spawned](#spawning), all them are prepared; then, all of them are started.
 
@@ -2882,6 +2882,8 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
 3. **Teardown** - When the editor stops, component [despawns](#despawning), or an [before an ownership transfer](#ownership-transfer):
     * `transferOwnership()` executes (only during ownership transfers)
     * Component is [disposed](#disposing-objects), meaning that `dispose()` executes and all callbacks registered with `registerDisposeOperation` run, except for the ones where the `DisposeOperationRegistration` was already [canceled or ran](#disposing-objects).
+    * All [async timeouts and intervals] created with the component are canceled.
+    * All [event subscriptions](#sending-and-receiving-events) created with the component are [disconnected](#sending-and-receiving-events).
 
 !!! info Component Initialization Sequence
     1. Property initializers run first
@@ -2969,7 +2971,7 @@ style EarlyPhase fill:#def,stroke:#aac
 ```
 
 !!! warning Connect to events in `preStart`. Send events in `start`.
-    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#events-sending-and-receiving) for a detailed. explanation.
+    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#sending-and-receiving-events) for a detailed. explanation.
 
 !!! warning Property initializers run before `props` are available.
     ```typescript
@@ -2995,17 +2997,51 @@ style EarlyPhase fill:#def,stroke:#aac
 
 ### Converting Between Components and Entities
 
-`getComponents<T extends Component<unknown, SerializableState> = Component>(type?: (new () => T) | null): T[];`
+```ts
+// Entity
+getComponents<T extends Component<unknown, SerializableState> = Component>(type?: (new () => T) | null): T[]
 
-### Async (Timers)
+// Component
+static getComponents<T extends Component<unknown, SerializableState> = Component>(type: new () => T): T[]
+```
 
-<mark>TODO</mark>
+### Async (Delays and Timers)
 
-### Local Scripts and Ownership
+There are two ways to delay code (to run it later):
+ * **timeouts**: code that will run once after a delay (unless canceled before it runs).
+ * **intervals**: code that will run after a delay, and then again after that same delay, and so on forever (unless it is canceled).
 
-<mark>TODO</mark>
+Canceling a timeout or an interval is called **clear**ing it. These naming conventions are consistent with standard JavaScript.
 
-a few sentences and link to Networking
+[Component](#components) instances have a member `async` that provides access to functions for creating async code. For example if you have a `component` you might write:
+```ts
+component.async.setTimeout(() => console.log('ready!'), 1000 /* ms */)
+```
+
+to execute the given `console.log(...)` after 1000 milliseconds(1 second). The following methods are provided in `Component`'s `async` member:
+
+| `Component` `async` member  | Description |
+|---|---|
+| `setTimeout(`<br/><nobr>`  callback: TimerHandler,`</nobr><br/><nobr>`  timeout?: number,`</nobr><br/><nobr>`  ...args: unknown[]`</nobr><br/>`) => number`  | Schedule the `callback` to fire after `timeout` milliseconds. If `args` are provided then they will be passed into `callback` when it is called. `setTimeout` returns an `id` that can be passed to `clearTimeout` to cancel running `callback` (if it is cancelled before it does so). If `timeout` is omitted it will be treated as 0 (see below). |
+| `clearTimeout(`<br>`  id: number`<br/>`) => void` | Cancel the timeout with the given `id` (if it hasn't run yet). |
+| `setInterval(`<br/><nobr>`  callback: TimerHandler,`</nobr><br/><nobr>`  timeout?: number,`</nobr><br/><nobr>`  ...args: unknown[]`</nobr><br/>`) => number` | Schedule the `callback` to fire after `timeout` milliseconds (and then again after the same delay, and again, and so on). If `args` are provided then they will be passed into `callback` every time that it is called. `setInterval` returns an `id` that can be passed to `clearInterval` to cancel running `callback` (so that it doesn't run any more times). If `timeout` is omitted it will be treated as 0 (see below). |
+| `clearInterval(`<br>`  id: number`<br/>`) => void` | Cancel the interval with the given `id` (it will not run any more times). |
+
+**Component disposal**: the `id`s returned from `setTimeout` and `setInterval` are automatically registered with the component's [disposal](#disposing-objects) to be cleared. Thus if you write:
+
+```ts
+component.async.setInterval(() => console.log('hi!'), 1000 /* ms */)
+```
+
+then if, or when, `component` is [torn down](#component-lifecycle), the interval will be automatically canceled.
+
+**Late frame phase**: the callbacks passed to `setTimeout` and `setInterval` are executed in the [late frame phase](#late-frame-phase) when async callbacks are checked for readiness.
+
+!!! warning Timeouts and Intervals are not precisely timing. They make a "best attempt" at the delay (but may wait slightly *longer*).
+    The methods above are not precise in when the callback runs. They will wait at least as long as the requested `timeout` value and then run at *the next convenient time* after that. So, for example, if you create a `timeout` with a 0 millisecond delay, it won't run immediately; it will run "super soon" (likely during the next [late frame phase](#late-frame-phase)). If you create an interval with a timeout of 0 milliseconds, it may only run it a few times (or even just once) every frame, to prevent hurting perf.
+
+!!! tip Use underscores to make numbers more readable.
+    JavaScript (and therefore TypeScript) allows underscores to be inserted into numbers solely for readability. That means `123` and `1_2_3` are the same value. You can thus use underscores to make numbers more readable. So intead of writing `10000` to mean 10,000 milliseconds, you can write `10_000`!
 
 ### Run Every Frame (PrePhysics and OnUpdate)
 
@@ -3013,7 +3049,7 @@ a few sentences and link to Networking
 
 a few sentences and link to Physics
 
-## Events (Sending and Receiving)
+## Communication Between Components
 
 <mark>TODO</mark>
 
@@ -3024,9 +3060,11 @@ a few sentences and link to Physics
 
     **Never `connect` in `start`. Never `send` in `preStart`**. This can cause events to get missed!
 
-### Connecting to Events
+### Sending and Receiving Events
 
-### Sending Events
+* event subscription
+* preStart vs start
+* dispose (and lifecycle)
 
 ### Code Block Event
 
@@ -3043,6 +3081,10 @@ Link to end table
 ### Broadcast events
 
 Mention coalescence
+
+### Component Direct Access
+
+* functions and members
 
 ## Disposing Objects
 
@@ -3228,11 +3270,28 @@ Horizon has a few helper functions in `horizon/core`:
 
 <mark>TODO</mark>
 
-WIP example terminology use:
-
 **Player owned entity** running **player-device executed script**.
 **Server owned entity** running **server executed script**.
 **Player owned entity** running **server executed script**.
+
+### Local and Default Scripts
+
+In the scripts dropdown in the desktop editor, every script can have its **mode** configured to be one of:
+  **Default script**: the [file](#script-file-execution), and all [Components](#components) defined in it, will always run on the [server](#clients-devices-and-the-server).
+  **Local script**: the [file](#script-file-execution), and all [Components](#components) defined in it, **can be moved** to run on [player devices or the server](#clients-devices-and-the-server).
+
+**Why local scripts?** Imagine a player holding holding a flashlight and the player presses a button to turn it on. If the flashlight script is:
+  * **running on the server** (the player sees the beam after *two network trips*; other players see it after *two network trips*)
+    * the [button press](#player-input) occurs on their [device](#clients-devices-and-the-server)
+    * the button press is sent to the server
+    * the server-executed script [enables the light](#dynamic-light-gizmo) beam
+    * the beam's enabled [property](#horizon-properties) is synchronized back to the player's device (and all other players)
+  * **running on the player's device** (the player sees the beam immediately (0 network trips); other players see it after *two network trips*)
+    * the [button press](#player-input) occurs on their [device](#clients-devices-and-the-server)
+    * the player-device-executed script [enables the light](#dynamic-light-gizmo) beam
+    * the beam's enabled [property](#horizon-properties) is synchronized to the server (and then sent to other players)
+
+When a script is *local*, all components defined within it will also be local (they *can be moved between owners*). All scripts (and the components defined within them) are initialized to run on the server. [Changing an entity's owner](#ownership-transfer) will cause a new *copy* of the script file and its components to be initialized on the new owning [device](#clients-devices-and-the-server). This process is explained in [ownership transfer](#ownership-transfer) in [script file execution](#script-file-execution).
 
 ## Clients (Devices and the Server)
 
@@ -3716,7 +3775,7 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Entering and Exiting a World
 
-When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#events-sending-and-receiving) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
