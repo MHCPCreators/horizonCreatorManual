@@ -9,311 +9,6 @@
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
-<!-- code_chunk_output -->
-
-1. [Overview](#overview)
-2. [Worlds](#worlds)
-    1. [Creating a World](#creating-a-world)
-    2. [Metadata and Publishing](#metadata-and-publishing)
-    3. [Editor Roles](#editor-roles)
-    4. [World Snapshot](#world-snapshot)
-    5. [World Backups](#world-backups)
-3. [Instances](#instances)
-    1. [Instance Lifetime](#instance-lifetime)
-    2. [Instance Types](#instance-types)
-        1. [Visitation Modes: Edit, Preview, and Publish](#visitation-modes-edit-preview-and-publish)
-    3. [Available Instances](#available-instances)
-        1. [Open and Closed Instances](#open-and-closed-instances)
-    4. [Instance Selection](#instance-selection)
-    5. [Travel, Doors, and Links](#travel-doors-and-links)
-    6. [Resetting an Instance](#resetting-an-instance)
-4. [Scene Graph](#scene-graph)
-    1. [Hierarchy](#hierarchy)
-        1. [Ancestors](#ancestors)
-        2. [Empty Object and Groups](#empty-object-and-groups)
-    2. [Coordinate System](#coordinate-system)
-    3. [Transforms](#transforms)
-        1. [Position](#position)
-        2. [Rotation](#rotation)
-        3. [Scale](#scale)
-        4. [Offsets - Move, Rotate, and Scale](#offsets---move-rotate-and-scale)
-        5. [Transform Property](#transform-property)
-        6. [Local Transforms](#local-transforms)
-        7. [Pivot Points](#pivot-points)
-        8. [Transform Relative To](#transform-relative-to)
-        9. [Billboarding](#billboarding)
-5. [Entities](#entities)
-    1. [Entity Types](#entity-types)
-        1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
-        2. [Intrinsic Entity Types](#intrinsic-entity-types)
-        3. [Behavior Entity Types](#behavior-entity-types)
-        4. [Entity as() method](#entity-as-method)
-        5. [Animated Entities](#animated-entities)
-        6. [Interactive Entities](#interactive-entities)
-    2. [Entity Properties](#entity-properties)
-        1. [Simulated](#simulated)
-        2. [Entity Tags](#entity-tags)
-        3. [Entity Visibility](#entity-visibility)
-            1. [Entity Visibility Permissions](#entity-visibility-permissions)
-    3. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
-        1. [Collider Gizmo](#collider-gizmo)
-        2. [Custom UI Gizmo](#custom-ui-gizmo)
-        3. [Debug Console Gizmo](#debug-console-gizmo)
-        4. [Door Gizmo](#door-gizmo)
-        5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-        6. [Environment Gizmo](#environment-gizmo)
-                1. [Overview](#overview-1)
-                1. [Manual Properties](#manual-properties)
-                2. [Typescript API](#typescript-api)
-        7. [In-World Item Gizmo](#in-world-item-gizmo)
-            1. [Overview](#overview-2)
-            2. [Manual Properties](#manual-properties-1)
-        8. [Media Board Gizmo](#media-board-gizmo)
-        9. [Mirror Gizmo](#mirror-gizmo)
-        10. [Navigation Volume](#navigation-volume)
-        11. [NPC Gizmo](#npc-gizmo)
-        12. [ParticleFx Gizmo](#particlefx-gizmo)
-        13. [TrailFx Gizmo](#trailfx-gizmo)
-        14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        15. [Quests Gizmo](#quests-gizmo)
-        16. [Raycast Gizmo](#raycast-gizmo)
-            1. [How to Raycast](#how-to-raycast)
-        17. [Script Gizmo](#script-gizmo)
-        18. [Snap Destination Gizmo](#snap-destination-gizmo)
-        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-        20. [Spawn Point Gizmo](#spawn-point-gizmo)
-        21. [Static Light Gizmo](#static-light-gizmo)
-        22. [Text Gizmo](#text-gizmo)
-            1. [Using a Text Gizmo](#using-a-text-gizmo)
-            2. [Limitations](#limitations)
-            3. [Text Gizmo Markup](#text-gizmo-markup)
-            4. [Text Gizmo Tags](#text-gizmo-tags)
-                1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
-            5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-        23. [Trigger Gizmo](#trigger-gizmo)
-        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-6. [Assets](#assets)
-    1. [Mesh Asset](#mesh-asset)
-        1. [Mesh Style](#mesh-style)
-    2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
-    3. [Texture Asset](#texture-asset)
-    4. [Material Asset](#material-asset)
-    5. [Asset Template](#asset-template)
-7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-3)
-    2. [SubD vs Custom Models](#subd-vs-custom-models)
-        1. [Uploads](#uploads)
-        2. [Errors](#errors)
-        3. [Tinting](#tinting)
-        4. [Textures](#textures)
-        5. [Materials](#materials)
-    3. [Performance](#performance)
-        1. [Draw Calls](#draw-calls)
-        2. [Vertices, Polygons, and Entities](#vertices-polygons-and-entities)
-        3. [Memory](#memory)
-    4. [Horizon Lighting](#horizon-lighting)
-    5. [General Tips](#general-tips)
-8. [Scripting](#scripting)
-    1. [Creating and Editing Scripts](#creating-and-editing-scripts)
-        1. [Syncing Scripts](#syncing-scripts)
-        2. [Scripts in Source Control](#scripts-in-source-control)
-    2. [Horizon Properties](#horizon-properties)
-        1. [Horizon Property Subtleties](#horizon-property-subtleties)
-    3. [Types](#types)
-        1. [Comparable<T> Interface](#comparablet-interface)
-        2. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
-        3. [Vec3](#vec3)
-            1. [Vector Creation](#vector-creation)
-            2. [Vector Properties](#vector-properties)
-            3. [Vector Operations](#vector-operations)
-            4. [Dot Product](#dot-product)
-            5. [Cross Product](#cross-product)
-            6. [Vector Reflect](#vector-reflect)
-            7. [Vector Linear Interpolation (Lerp)](#vector-linear-interpolation-lerp)
-        4. [Color](#color)
-            1. [Creation](#creation)
-            2. [Color Properties](#color-properties)
-            3. [Color Operations](#color-operations)
-            4. [Color Space Conversions (HSV)](#color-space-conversions-hsv)
-            5. [Hex Colors](#hex-colors)
-            6. [Color Blending](#color-blending)
-        5. [Quaternion](#quaternion)
-            1. [Quaternion Creation](#quaternion-creation)
-            2. [Quaternion Properties](#quaternion-properties)
-            3. [Quaternion Operations](#quaternion-operations)
-            4. [Euler Angles](#euler-angles)
-            5. [Axis and Angle](#axis-and-angle)
-            6. [Look Rotation](#look-rotation)
-            7. [Spherical Linear Interpolation (Slerp)](#spherical-linear-interpolation-slerp)
-    4. [World Class](#world-class)
-    5. [Components](#components)
-        1. [Component Class](#component-class)
-        2. [Attaching Components to Entities](#attaching-components-to-entities)
-        3. [Component Properties](#component-properties)
-        4. [Component Lifecycle](#component-lifecycle)
-        5. [Async (Delays and Timers)](#async-delays-and-timers)
-        6. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
-        7. [BuiltInVariableType](#builtinvariabletype)
-        8. [PropTypes](#proptypes)
-        9. [SerializableState](#serializablestate)
-    6. [Communication Between Components](#communication-between-components)
-        1. [Receiving Events](#receiving-events)
-        2. [Sending Events](#sending-events)
-        3. [Routing Events through Players](#routing-events-through-players)
-        4. [Code Block Events](#code-block-events)
-            1. [Built-In Code Block Events](#built-in-code-block-events)
-        5. [Network Events](#network-events)
-        6. [Local Events](#local-events)
-            1. [Built-In Local Events](#built-in-local-events)
-        7. [Broadcast events](#broadcast-events)
-        8. [Converting Between Components and Entities](#converting-between-components-and-entities)
-    7. [Disposing Objects](#disposing-objects)
-    8. [Frames](#frames)
-        1. [Frame Rate](#frame-rate)
-        2. [Frame sequence](#frame-sequence)
-            1. [Simulation Phase](#simulation-phase)
-            2. [Script Phase](#script-phase)
-            3. [Scene Graph Mutations](#scene-graph-mutations)
-            4. [Synchronization Phase](#synchronization-phase)
-    9. [Component Inheritance](#component-inheritance)
-    10. [Script File Execution](#script-file-execution)
-    11. [Helper Functions](#helper-functions)
-9. [Network](#network)
-    1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
-    2. [Entity Ownership](#entity-ownership)
-    3. [Local and Default Scripts](#local-and-default-scripts)
-        1. [Why Local Scripts and Ownership Matter: Network Latency](#why-local-scripts-and-ownership-matter-network-latency)
-    4. [Authority and Reconciliation](#authority-and-reconciliation)
-    5. [Ownership Transfer](#ownership-transfer)
-        1. [Ownership Transfer Sequence](#ownership-transfer-sequence)
-        2. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
-        3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
-        4. [Transferring Data Across Owners](#transferring-data-across-owners)
-10. [Collision Detection](#collision-detection)
-    1. [Colliders](#colliders)
-    2. [Trigger Entry and Exit](#trigger-entry-and-exit)
-        1. [Collidability](#collidability)
-        2. [Controlling Collisions](#controlling-collisions)
-        3. [Collision Events](#collision-events)
-        4. [Triggers](#triggers)
-11. [Physics](#physics)
-    1. [Overview](#overview-4)
-    2. [Units](#units)
-    3. [Creating a Physical Entity](#creating-a-physical-entity)
-    4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
-    5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [PhysicalEntity Class](#physicalentity-class)
-    7. [Projectiles](#projectiles)
-    8. [Applying Forces and Torque](#applying-forces-and-torque)
-    9. [Player Physics](#player-physics)
-    10. [Springs](#springs)
-        1. [Spring Push](#spring-push)
-        2. [Spring Spin](#spring-spin)
-12. [Players](#players)
-    1. [Identifying Players](#identifying-players)
-        1. [Player ID](#player-id)
-        2. [Player Indices](#player-indices)
-        3. [Listing All Players](#listing-all-players)
-        4. [Server Player](#server-player)
-        5. [Local Player](#local-player)
-    2. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
-    3. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
-    4. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-        1. [Player Body Parts](#player-body-parts)
-        2. [Player Hand](#player-hand)
-    5. [VOIP Settings](#voip-settings)
-    6. [Haptics](#haptics)
-    7. [Throwing](#throwing)
-13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
-    1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
-    2. [Can Grab](#can-grab)
-        1. [Setting "Who Can Grab?"](#setting-who-can-grab)
-        2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
-        3. [Grab Distance](#grab-distance)
-    3. [Grabbing Entities](#grabbing-entities)
-        1. [Grab Lock](#grab-lock)
-        2. [Force Holding](#force-holding)
-    4. [Releasing Entities](#releasing-entities)
-        1. [Manual release](#manual-release)
-        2. [Force release](#force-release)
-    5. [Grab Sequence and Events](#grab-sequence-and-events)
-        1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
-        2. [Moving Held Entities](#moving-held-entities)
-            1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
-            2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
-        3. [Grabbables and Ownership](#grabbables-and-ownership)
-14. [Attaching Entities](#attaching-entities)
-    1. [Creating an Attachable](#creating-an-attachable)
-    2. [Attachable By](#attachable-by)
-    3. [Avatar Attachable](#avatar-attachable)
-        1. [Scripted Attach](#scripted-attach)
-        2. [Socket Attachment](#socket-attachment)
-        3. [Sticky](#sticky)
-            1. [Stick To](#stick-to)
-        4. [Anchor](#anchor)
-            1. [Anchor To](#anchor-to)
-            2. [Auto Scale to Anchor](#auto-scale-to-anchor)
-    4. [Attach to 2D screen](#attach-to-2d-screen)
-15. [Holstering Entities](#holstering-entities)
-16. [Player Input](#player-input)
-    1. [Actions on Held Items](#actions-on-held-items)
-    2. [Onscreen Controls](#onscreen-controls)
-    3. [Player Controls](#player-controls)
-    4. [Focused Interaction](#focused-interaction)
-17. [Persistence](#persistence)
-    1. [Overview](#overview-4)
-    2. [Leaderboards](#leaderboards)
-            1. [Limitations](#limitations-1)
-            1. [Creation](#creation)
-            2. [Modifying the Leaderboard](#modifying-the-leaderboard)
-            3. [Using the Gizmo](#using-the-gizmo)
-            4. [APIs](#apis)
-    3. [Quests](#quests)
-            1. [Creation](#creation-1)
-            1. [Using the Gizmo](#using-the-gizmo-1)
-            2. [Resetting](#resetting)
-    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
-            1. [Creation](#creation-2)
-            1. [Using the Gizmo](#using-the-gizmo-2)
-            2. [APIs Overview](#apis-overview)
-            3. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
-            4. [Broadcast Events](#broadcast-events-1)
-    5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [Spawning](#spawning)
-    1. [Simple Spawning](#simple-spawning)
-    2. [Despawning](#despawning)
-    3. [Advanced Spawning](#advanced-spawning)
-    4. [Sublevels](#sublevels)
-21. [Tooltips and Popups](#tooltips-and-popups)
-22. [Custom UI](#custom-ui)
-    1. [UIComponent Class](#uicomponent-class)
-    2. [Bindings](#bindings)
-    3. [Style](#style)
-    4. [View Types](#view-types)
-        1. [View](#view)
-        2. [Image](#image)
-        3. [Pressable](#pressable)
-        4. [Dynamic List](#dynamic-list)
-        5. [ScrollView](#scrollview)
-    5. [Animated Bindings](#animated-bindings)
-21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
-    1. [Camera](#camera)
-24. [Performance Optimization](#performance-optimization)
-    1. [Physics Performance](#physics-performance)
-    2. [Gizmos](#gizmos)
-    3. [Bridge calls explanation](#bridge-calls-explanation)
-    4. [Draw-call specification](#draw-call-specification)
-    5. [Perfetto hints](#perfetto-hints)
-    6. [Memory](#memory-1)
-25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-27. [Glossary](#glossary)
-    1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
-
-<!-- /code_chunk_output -->
-
-
 <div style="page-break-after: always;"></div>
 
 # Overview
@@ -1144,7 +839,6 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [World Promotion](#world-promotion-gizmo) | `Entity` |
 
 ### Collider Gizmo
-
 **Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
 | Property | Type | Description |
 |---|---|---|
@@ -1158,14 +852,15 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
-| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile still can unless `Focus Prompt` is disabled.|
+| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
-| Mipmap | `boolean` | Allows you to adjust the `Mipmap Value`. |
-| Mipmap Value | `number` | Controls the level of detail drawn at a distance to avoid aliasing issues with text. Values between -1.0 and 1.0. Default is 0.0. |
-| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. Does not affect VR players. |
-| Focus prompt distance | `number` | Determines the distance(in meters) players can interact with the UI. |
+| Mipmap | `boolean` | If enabled, allows you to adjust the level of mipmap which affects how much detail is drawn when viewed from a distance.  |
+| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. If disabled, web and mobile players cannot interact, but VR players can unless `Raycast` is disabled. |
+| Focus prompt distance | `number` | Controls the distance within which a player can interact with the UI panel if `Focus Prompt` is enabled. |
 
 **TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
+
+**Limitations**: Custom UI Gizmo and their bindings will cause performance issues. See [Custom UI](#custom-ui) for recommendations.
 
 ### Debug Console Gizmo
 
@@ -1218,88 +913,41 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
   * Performance intensive due to per-frame light/shadow processing
 
 ### Environment Gizmo
+**Description**: Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
-##### Overview
-Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
+| Property | Type | Description |
+|---|---|---|
+| Active | `boolean` | Only one Environment Gizmo can be active in a world. Enabling this will active this Environment Gizmo, but disable any other Environment Gizmos in the world.
+| Skydome Type | `Cubemap` or `Custom Gradient` | `Cubemap` allows you to choose from a predefined texture and `Custom Gradient` lets you paint the sky a gradient color instead. |
+| Texture | dropdown | List of predefined Skydome textures.
+| Texture Rotation | `number` | Sets the rotation of the Skydome texture on the Y axis only.
+| Exposure | `number` | Sets the light intensity of the world. Accepts a value between 0.0 and 2.0. Default is 1.0.
+| Custom Light Intensity | `boolean` | If enabled, allows you to adjust the `Light Intensity` property. |
+| Light Intensity | `number` | Sets the brightness of global lighting in the world. Accepts values between 0.0 and 2.0 with 1.0 as the default. |
+| Custom Fog Color | `boolean` | If enabled, allows you to adjust the `Fog Color` property. |
+| Fog Color | `Color` | Sets a custom color to the fog in your world. |
+| Fog Density |  `number` | Sets how dense or thick the fog is. Accepts values between 0.0000 and 0.1000. |
+| Show Grid | `boolean` | Determines whether the world grid is visible at x:0, y:0, z:0. |
+| VOIP Settings([Player Audio](#player-audio)) <-- Doesn't exist <mark>TODO</mark>  | `Environment`(<mark>TODO</mark> (VOIP=Env will pass back to last env gizmo), `Default`, `Nearby`, `Extended`, `Whisper`, or `Mute`. `Default` is default. | Sets the default VOIP setting for all players in your world. |
 
-#####  Manual Properties
-- Active
-  - ON/OFF Toggle
-- Skydome Type
-  - Cubemap
-  - Custom Gradient
-- Texture
-  - Daytime
-  - Sunrise
-  - Sunset
-  - Overcast
-  - Night
-  - Midnight Black
-  - Twilight
-  - Misty Marsh
-  - Winter Sky
-  - Twilight Clouds
-  - Day Clouds
-  - Day Panorama
-  - Night Panorama
-  - Star Field
-- Texture Rotation
-  - Value between 0 - 360
-- Exposure
-  - Value between 0.0 - 2.0
-- Custom Light Intensity
-  - ON/OFF Toggle
-  - Light Intensity
-    - Value between 0.0 - 2.0
-- Custom Fog Color
-  - ON/OFF Toggle
-  - Fog Color
-    - RGB values between 0.0 - 1.0
-- Fog Density
-  - Value between 0.0000 - 0.1000
-- Show Grid
-  - ON/OFF Toggle
-- VOIP Settings (link to [player audio](#player-audio))
-  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
-  - Default
-  - Nearby
-  - Extended
-  - Whisper
-  - Mute
+**Typescript**: TypeScript: Environment Gizmos are referenced as Entity instances with no additional scripting capabilities.
 
-##### Typescript API
-- None
+**Limitations:**
+- Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
+- When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
-!!! Note Multiple Environment Gizmos Allowed
-    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
-
-!!! Warning Spawning Multiple Environment Gizmos
-    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
-
-!!! Bug Known Issues
-    - <mark>TODO</mark> list known issues or delete
 ### In-World Item Gizmo
-**Description**: Used to sell In-World Items to users in your worlds. Also see [In-World Purchases](#in-world-purchases-iwp)
+**Description**: Used to sell In-World Items to users in your worlds.
 
-#### Overview
-Used to sell In-World Items to users in your worlds.
-<mark>TODO</mark> Needs a lot more explaining
+| Property | Type | Description |
+|---|---|---|
+| Visible | `boolean` | Sets whether the In-World Gizmo is visible to players. |
+| In-world Item | dropdown | Contains a list of all the In-World Items you have created in this world. |
+| Customize Purchase Dialog Position | `boolean` | If enabled, allows you to adjust the `Purchase Dialog Position`. |
+| Purchase Dialog Position | `Vec3` | Adjust the position on screen the Purchase Dialog menu appears. |
+| UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed. `Trigger` doesn't show anything and only spawns the menu when a player enters into the trigger area. `Button` will show a small symbol that will open the menu when interacted with. `Icon` will show the item price as an icon you can interact with. |
 
-#### Manual Properties
-- Visible
-    - ON/OFF Toggle
-- In-world Item
-    - Dropdown list of all available Items
-- Customize Purchase Dialog Position
-    - ON/OFF Toggle
-    - If ON, Purchase Dialog Position is available
-        - Vector(X,Y,Z)
-- UI Property
-    - Trigger
-    - Button
-    - Icon
-
-**TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class with the following methods:
+TypeScript: In-World Item Gizmos are referenced [as](#entity-as-method) the IWPSellerGizmo class with the following methods:
 
 ```ts
 consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
@@ -1308,18 +956,7 @@ playerOwnsItem(player, item) //Indicates whether the player owns a specific item
 quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
 timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
 ```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
-```ts
-OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
-OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
-OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
-```
+**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `IWPSellerGizmo`:
 
 All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
 
