@@ -1,4 +1,4 @@
-<!-- focusSection:  -->
+<!-- focusSection: Scripting -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -1644,9 +1644,9 @@ speed: HorizonProperty<number>; //The speed for players spawned using this gizmo
 teleportPlayer(player: Player): void; //Teleports a player to the spawn point.
 
 //Example
-this.entity.as(hz.SpawnPointGizmo).gravity.set(9.81)
-this.entity.as(hz.SpawnPointGizmo).speed.set(4.5)
-this.entity.as(hz.SpawnPointGizmo).teleportPlayer(player)
+this.entity.as(SpawnPointGizmo).gravity.set(9.81)
+this.entity.as(SpawnPointGizmo).speed.set(4.5)
+this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 ```
 !!! note If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
 !!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
@@ -1751,23 +1751,23 @@ Detects when a player or object enters or exits an area.
 enabled: WritableHorizonProperty<boolean>; //Whether the Trigger is enabled.
 
 //Example of connecting to a trigger entered event.
-this.connectCodeBlockEvent(this.entity, hz.CodeBlockEvents.OnPlayerEnterTrigger, (enteredBY) => {
+this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (enteredBY) => {
     console.log('Player entered the world.', enteredBY.name.get());
 })
 ```
 [Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
 
 ```ts
-OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: hz.Player]>;
-OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: hz.Player]>;
-OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
-OnEntityExitTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
+OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
+OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
+OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
 
 //additional events
-new CodeBlockEvent<[hz.Player]>('empty', [hz.PropTypes.Player])
-new CodeBlockEvent<[hz.Player]>('occupied', [hz.PropTypes.Player])
-new CodeBlockEvent<[hz.Entity]>('empty', [hz.PropTypes.Entity])
-new CodeBlockEvent<[hz.Entity]>('occupied', [hz.PropTypes.Entity])
+new CodeBlockEvent<[Player]>('empty', [PropTypes.Player])
+new CodeBlockEvent<[Player]>('occupied', [PropTypes.Player])
+new CodeBlockEvent<[Entity]>('empty', [PropTypes.Entity])
+new CodeBlockEvent<[Entity]>('occupied', [PropTypes.Entity])
 ```
 !!! note Additional Events
     Codeblock events like `Empty` & `Occupied` are not built-in codeblocks, so we have to create them ourselves, but `Trigger Gizmos` will use them to indicate when the trigger has no players in it, or when the trigger has at least 1 player in it.
@@ -3021,6 +3021,18 @@ The callback provides a single argument of type `{deltaTime: number}` which cont
 
 ### Sending and Receiving Events
 
+The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events.
+
+There are multiple kinds of events:
+
+| Event | Purpose | Timing | Payload |
+|---|---|---|---|
+| **CodeBlockEvent** |Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code block scripts. | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | A tuple of: `string`, `number`, `boolean`, `Vec3`, `Quaternion`, `Color`, `Player`, `Asset`, or arrays of any of those just listed. |
+| **LocalEvent**          | Communicate rapidly/robustly with another specific TypeScript scripted object on the same client | Delivered *immediately* | *Anything* |
+| **NetworkEvent**          | Communicate with a specific TypeScript scripted object (possibly) on another client | Delivered, at the very earliest, in the next frame | Send JSON convertible data (including Vec3, Quaternion, Color, and Player; but not currently Entity or Asset)|
+
+`LocalEvent`s and `NetworkEvent`s can be sent to specific entities or be [broadcast](#broadcast-events) to all listeners in the world. Many "system actions" (such as [players entering the world](#player-entering-and-exiting-a-world), an [entity being grabbed](#grab-sequence-and-events), a [collision occurring](#collision-events), etc) are sent as [built-in CodeBlockEvents](#built-in-code-block-events); there [are many](#all-built-in-codeblockevents).
+
 * event subscription
 * preStart vs start
 * dispose (and lifecycle)
@@ -3218,6 +3230,10 @@ Component.register(Child)
 <mark>TODO</mark>
 Auto-Restart on Script Edit
 
+restarts
+spin up (once per file per client - except on edit / reset)
+transfer
+
 ## Helper Functions
 
 Horizon has a few helper functions in `horizon/core`:
@@ -3226,7 +3242,10 @@ Horizon has a few helper functions in `horizon/core`:
   * If `value` is less than `min`, it returns `min`.
   * If `value` is greater than `max`, it returns `max`.
   * Otherwise, it returns `value` unchanged.
-  * Examples: `clamp(15, 10, 20)` is `15`, `clamp(5, 10, 20)` is `10`, `clamp(25, 10, 20)` is `20`.
+  * *Examples*:
+    * `clamp(15, 10, 20)` is `15`
+    * `clamp(5, 10, 20)` is `10`
+    * `clamp(25, 10, 20)` is `20`
 * **assert**: throws an error if the given condition is false. `assert(condition: boolean): void`
   * This is typically used for debugging and enforcing invariants.
   * Example: `assert(user !== null)` // Throws if user is null
@@ -3515,8 +3534,8 @@ export declare class PhysicalEntity extends Entity {
      *
      * @example
      * ```
-     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
-     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     * var physEnt = this.props.obj1.as(PhysicalEntity);
+     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
      *  physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
      * })
      * ```
@@ -3531,8 +3550,8 @@ export declare class PhysicalEntity extends Entity {
      *
      * @example
      * ```
-     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
-     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     * var physEnt = this.props.obj1.as(PhysicalEntity);
+     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
      *  physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
      * })
      * ```
@@ -3774,8 +3793,8 @@ There are two [built-in code block events](#system-code-block-events) associated
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnPlayerEnterAFK` | `player: Player` | Sent when a player becomes inactive. |
-| `OnPlayerExitAFK` | `player: Player` | Sent when a player is no longer inactive. |
+| `OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
+| `OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
 
