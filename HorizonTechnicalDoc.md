@@ -176,19 +176,19 @@
         2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Component Properties](#component-properties)
         4. [Component Lifecycle](#component-lifecycle)
-        5. [Sending and Receiving Events](#sending-and-receiving-events)
-            1. [Event Emission](#event-emission)
-        6. [Converting Between Components and Entities](#converting-between-components-and-entities)
-        7. [Subclasses](#subclasses)
-        8. [Async (Timers)](#async-timers)
-        9. [Local Scripts and Ownership](#local-scripts-and-ownership)
-        10. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        5. [Converting Between Components and Entities](#converting-between-components-and-entities)
+        6. [Subclasses](#subclasses)
+        7. [Async (Timers)](#async-timers)
+        8. [Local Scripts and Ownership](#local-scripts-and-ownership)
+        9. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
     6. [Events (Sending and Receiving)](#events-sending-and-receiving)
-        1. [Code Block Event](#code-block-event)
+        1. [Connecting to Events](#connecting-to-events)
+        2. [Sending Events](#sending-events)
+        3. [Code Block Event](#code-block-event)
             1. [Built-In Code Block Events](#built-in-code-block-events)
-        2. [Local Events](#local-events)
-        3. [Network Events](#network-events)
-        4. [Broadcast events](#broadcast-events)
+        4. [Local Events](#local-events)
+        5. [Network Events](#network-events)
+        6. [Broadcast events](#broadcast-events)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
         1. [Early Frame Phase](#early-frame-phase)
@@ -1160,7 +1160,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
 
-**Limitations**: 
+**Limitations**:
 
 ### Debug Console Gizmo
 
@@ -1455,7 +1455,7 @@ type LaunchProjectileOptions = {
 }
 ```
 
-**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `ProjectileLauncherGizmo`:
+**Built-In CodeBlockEvents**: the following events are [sent to](#events-sending-and-receiving) a `ProjectileLauncherGizmo`:
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -2742,7 +2742,7 @@ The `World` class represents the currently running [instance](#instances) and th
 
 ## Components
 
-Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#sending-and-receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#events-sending-and-receiving) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
 
 The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
@@ -2752,7 +2752,7 @@ The **primary steps for scripting** are:
 1. Connect code to run when [system (or user) events occur](#events-sending-and-receiving)
 
 The steps above are the "main path" but there are also many more parts of scripting:
-* [Sending events](#sending-and-receiving-events)
+* [Sending events](#events-sending-and-receiving)
 * [Creating timers and async code](#async-timers)
 * [Creating local scripts](#local-scripts-and-ownership) and [transferring ownership](#ownership-transfer)
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
@@ -2865,7 +2865,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 ### Component Lifecycle
 
-Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#sending-and-receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
+Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#events-sending-and-receiving)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
 
 Likewise, when a group of entities are [spawned](#spawning), all them are prepared; then, all of them are started.
 
@@ -2968,6 +2968,9 @@ style LatePhase fill:#def,stroke:#aac
 style EarlyPhase fill:#def,stroke:#aac
 ```
 
+!!! warning Connect to events in `preStart`. Send events in `start`.
+    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#events-sending-and-receiving) for a detailed. explanation.
+
 !!! warning Property initializers run before `props` are available.
     ```typescript
     // ❌ Incorrect: Props not available during initialization
@@ -2984,27 +2987,11 @@ style EarlyPhase fill:#def,stroke:#aac
         }
     }
     ```
-!!! warning Do not override the component constructor.
+!!! warning Do not attempt to override the component constructor.
      The base Component class handles critical setup that could break if the constructor is overridden. So, instead:
       - Use property initializers for data (without accessing props)
       - Use `preStart()` for event registration
       - Use `start()` for initialization behavior
-
-### Sending and Receiving Events
-
-a few notes but link to the events section
-
-**Event Registration**:
-- **Always register event listeners in `preStart()`**
-- **Never register events in `start()`**
-
-This ensures all listeners are ready before any events are emitted.
-
-#### Event Emission
-- **Only emit events in `start()`**
-- **Never emit events in `preStart()`**
-
-This guarantees that all potential listeners have been registered before any events are sent.
 
 ### Converting Between Components and Entities
 
@@ -3023,6 +3010,17 @@ a few sentences and link to Networking
 a few sentences and link to Physics
 
 ## Events (Sending and Receiving)
+
+!!! warning Connect to events in `preStart`. Send in `start`.
+    Imagine the following scenario: `ComponentA`, in its `start`, sends an event to `ComponentB`'s entity; but `ComponentB` doesn't register to listen to the event until its `start`. Does `ComponentB` get the event? It depends on which component `start`ed first!
+
+    This is a subtle problem. To address this: **all components `preStart` before any `start`**. This means that if `ComponentA` sends an event in `start` and `ComponentB` subscribes to that event in `preStart` then `ComponentB` is guaranteed to to be ready to receive the event by time `ComponentA` sends it!
+
+    **Never `connect` in `start`. Never `send` in `preStart`**. This can cause events to get missed!
+
+### Connecting to Events
+
+### Sending Events
 
 ### Code Block Event
 
@@ -3665,7 +3663,7 @@ for determining which `Player`'s device the current script is running one. This 
 
 ### Player Entering and Exiting a World
 
-When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#events-sending-and-receiving) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
