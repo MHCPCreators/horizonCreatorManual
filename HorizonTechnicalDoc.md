@@ -1,4 +1,4 @@
-<!-- focusSection:  -->
+<!-- focusSection: Network -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -3395,7 +3395,7 @@ Proved: each code block event handler is wrapped in a try.
 <mark>TODO</mark>
 
 * Network Sync
-* Render
+* Render (if a player device)
 
 <mark>TODO</mark>
 
@@ -3461,14 +3461,25 @@ Horizon has a few helper functions in `horizon/core`:
 
 ## Clients (Devices and the Server)
 
-The Horizon Worlds VR simulation is a distributed system, with separation of various responsibilities between a central server and the individual client devices. The individual client devices are associated with the simulation runtime that renders the scene graph from the perspective of each individual Player. The central server does no rendering, per se, but runs its own simulation loop and has its own 'serverplayer' Player to represent it.
+Horizon Worlds [instances](#instances) run as a *distributed systems* with multiple machines involved. Each machine is called a **client**. Clients have the full [scene graph](#scene-graph), can [run code](#scripting), and have a [Player](#players) associated with them.
 
-Some features of the typescript api are only available on certain devices, i.e. the server or the player devices. See the following for restrictions:
-- _insert refs to events and apis that are runtime specific_
+There are two types of clients:
+  * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#late-frame-phase) the world from their player's camera / eyes every frame, and [synchronize](#late-frame-pahse) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
+  * **Server**: a special client that lives on Meta's servers. It's associated player is the special [server player](#server-player). The server client runs all [default scripts and local scripts on entities owned by the server player](#local-and-default-scripts). The server operates just like player devices except that it skips [rendering](#late-frame-phase) at the end of each frame.
+
+Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connected to on the server (such as [OnPlayerEnterWorld](#player-entering-and-exiting-a-world)) whereas others can only be connected to on a player device (such as [OnPlayerEnteredFocusedInteraction](#focused-interaction)).
+
+<mark>TODO</mark> Other APIs that have client-affinity?
 
 ### Simulation frame rate differences
 
-The frame rate of the simulation runtime is _not_ the same for the server and player devices. The server frame rate target is 60 fps, while the player device frame rate target is set to match the video refresh rate of the device, which is 72 fps for Quest headsets. Scripts handle events and execute 'more frequently' on player devices than they do on the server. The frame target is not guaranteed, so you should not rely on a specific frame interval in any script calculations. Instead use the OnUpdate events to get the actual deltaTime elapsed from the last render for timing critical simulations.
+Worlds run [fixed sequence of actions each frame](#frame-sequence). The number of frames that occur per second is called the **frame rate** and is abbreviated "fps" for "frames per second". The time it takes to run each frame is the *frame time* (the time per frame).
+
+$$\text{frame rate} = \frac{1}{\text{frame time}}$$
+
+[Clients](#clients-devices-and-the-server) don't all have the same frame rate! For example, the server (typically) runs at 60 frames per second and some VR headsets run at 72 frames per second. It's possible, and very likely, that **scripts execute *more frequently* on player devices than they do on the server**.
+
+If you need to know the frame time, e.g. to run your simulations or animations, **do not rely on a specific frame rate or frame time**. Use the `deltaTime` provided by [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) to get the time, in seconds, since the last frame (the last frame time).
 
 ## Ownership
 Each entity in the scene graph is 'owned' by a specific runtime environment (server or client device), and that runtime is the authority on all the intrinsic attributes of that entity used by all the distributed simulation runtimes to render and otherwise interact with the entity.
@@ -4728,6 +4739,8 @@ Grabbable and Attachable
 }
 
 `PlayerControls`
+
+## Focused Interaction
 
 # Persistence
 
