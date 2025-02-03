@@ -67,38 +67,35 @@
         9. [Mirror Gizmo](#mirror-gizmo)
         10. [Navigation Volume](#navigation-volume)
         11. [NPC Gizmo](#npc-gizmo)
-            1. [Overview](#overview-1)
-            2. [Manual Properties](#manual-properties)
-            3. [Typescript API](#typescript-api)
         12. [ParticleFx Gizmo](#particlefx-gizmo)
         13. [TrailFx Gizmo](#trailfx-gizmo)
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         15. [Quests Gizmo](#quests-gizmo)
         16. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-2)
-            2. [Manual Properties](#manual-properties-1)
-            3. [Typescript API](#typescript-api-1)
+            1. [Overview](#overview-1)
+            2. [Manual Properties](#manual-properties)
+            3. [Typescript API](#typescript-api)
             4. [How to Raycast](#how-to-raycast)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-3)
-            2. [Manual Properties](#manual-properties-2)
+            1. [Overview](#overview-2)
+            2. [Manual Properties](#manual-properties-1)
             3. [Typescript  API](#typescript--api)
         19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-4)
+            1. [Overview](#overview-3)
             2. [Sound Recorder Properties](#sound-recorder-properties)
             3. [Pre-made Sound Properties](#pre-made-sound-properties)
             4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-2)
+            5. [Typescript API](#typescript-api-1)
         20. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-5)
-            2. [Manual Properties](#manual-properties-3)
+            1. [Overview](#overview-4)
+            2. [Manual Properties](#manual-properties-2)
             3. [Typescript  API](#typescript--api-1)
         21. [Static Light Gizmo](#static-light-gizmo)
         22. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-6)
-            2. [Manual Properties](#manual-properties-4)
-            3. [Typescript API](#typescript-api-3)
+            1. [Overview](#overview-5)
+            2. [Manual Properties](#manual-properties-3)
+            3. [Typescript API](#typescript-api-2)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
@@ -106,13 +103,13 @@
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         23. [Trigger Gizmo](#trigger-gizmo)
+            1. [Overview](#overview-6)
+            2. [Manual Properties](#manual-properties-4)
+            3. [Typescript API](#typescript-api-3)
+        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
             1. [Overview](#overview-7)
             2. [Manual Properties](#manual-properties-5)
             3. [Typescript API](#typescript-api-4)
-        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-5)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -121,7 +118,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-9)
+    1. [Overview](#overview-8)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -172,9 +169,10 @@
         2. [Attaching Components to Entities](#attaching-components-to-entities)
         3. [Component Properties](#component-properties)
         4. [Component Lifecycle](#component-lifecycle)
-        5. [Converting Between Components and Entities](#converting-between-components-and-entities)
-        6. [Async (Delays and Timers)](#async-delays-and-timers)
-        7. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        5. [Async (Delays and Timers)](#async-delays-and-timers)
+        6. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        7. [BuiltInVariableType](#builtinvariabletype)
+        8. [SerializableState](#serializablestate)
     6. [Communication Between Components](#communication-between-components)
         1. [Sending and Receiving Events](#sending-and-receiving-events)
         2. [Code Block Event](#code-block-event)
@@ -208,7 +206,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-10)
+    1. [Overview](#overview-9)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
@@ -271,39 +269,42 @@
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-11)
+    1. [Overview](#overview-10)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [Spawning](#spawning)
+18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+19. [NPCs](#npcs)
+20. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
     3. [Advanced Spawning](#advanced-spawning)
     4. [Sublevels](#sublevels)
-19. [Tooltips and Popups](#tooltips-and-popups)
-20. [Custom UI](#custom-ui)
+21. [Tooltips and Popups](#tooltips-and-popups)
+22. [Custom UI](#custom-ui)
     1. [UIComponent Class](#uicomponent-class)
     2. [Bindings](#bindings)
-    3. [View Types](#view-types)
+    3. [Style](#style)
+    4. [View Types](#view-types)
         1. [View](#view)
         2. [Image](#image)
         3. [Pressable](#pressable)
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
-    4. [Animated Bindings](#animated-bindings)
-21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+    5. [Animated Bindings](#animated-bindings)
+23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-22. [Performance Optimization](#performance-optimization)
+24. [Performance Optimization](#performance-optimization)
     1. [Physics Performance](#physics-performance)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-23. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-25. [Glossary](#glossary)
+25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+27. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -1138,10 +1139,8 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **TypeScript**: Collider Gizmos are references as `Entity` instances with no additional scripting capabilities.
 
-**Limitations**: <mark>TODO</mark> Consider known limitation, issues, bugs.
-
 ### Custom UI Gizmo
-**Description**: Presents a custom UI (User Interface) to your players.
+**Description**: Presents a custom UI (User Interface) to your players. Also see [Custom UI](#custom-ui)
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
@@ -1230,7 +1229,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 - When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
 ### In-World Item Gizmo
-**Description**: Used to sell In-World Items to users in your worlds.
+**Description**: Used to sell In-World Items to users in your worlds. Also see [In-World Purchases](#in-world-purchases-iwp)
 
 | Property | Type | Description |
 |---|---|---|
@@ -1240,7 +1239,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 | Purchase Dialog Position | `Vec3` | Adjust the position on screen the Purchase Dialog menu appears. |
 | UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed. `Trigger` doesn't show anything and only spawns the menu when a player enters into the trigger area. `Button` will show a small symbol that will open the menu when interacted with. `Icon` will show the item price as an icon you can interact with. |
 
-TypeScript: In-World Item Gizmos are referenced [as](#entity-as-method) the IWPSellerGizmo class with the following methods:
+**TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class with the following methods:
 
 ```ts
 consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
@@ -1256,7 +1255,7 @@ timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a pl
 | OnItemPurchaseStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | OnItemPurchaseComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
 | OnItemConsumeStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnItemConsumeComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| OnItemConsumeComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
 | OnItemPurchaseSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | OnItemPurchaseFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | OnPlayerConsumeSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
@@ -1266,32 +1265,81 @@ timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a pl
 **Limitations**: Only owners can make test purchases while in Preview mode.
 
 ### Media Board Gizmo
-<mark>TODO</mark>
+**Description**: Allows players to scroll through pictures that have been shared to the world and approved by the creator.
+
+| Property | Type | Description |
+|---|---|---|
+| LoD Radius | `number` | Determines at what distance(in meters) the media board will appear for players. |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Set the view for the gizmo. |
+| Pinned Page | `number` | <mark>TODO</mark> |
+| Deterministic Ranking | `boolean` | If enabled, all players will see the same images. If disabled, images players see will be tailored to them.
+
+**TypeScript**:  Media Board Gizmos are referenced as the `Entity` class with no properties or methods.
+
 ### Mirror Gizmo
-<mark>TODO</mark>
+**Description**: A stationary gizmo that allows players to see a reflection of themselves and the world. Can be used to edit avatars and take pictures.
+
+| Property | Type | Description |
+|---|---|---|
+| Visible | `boolean` | Sets whether the Mirror Gizmo is visible to players. |
+| Photo Capture | `boolean` | Sets whethers players can take pictures using the Mirror Gizmo. |
+| Name Tag Visibility | `Show` or `Hide` | Sets whether player name tags will appear in the Mirror Gizmo, including pictures. |
+| Has Edit Avatar Button | `boolean` | Sets whether players can use the Mirror Gizmo to edit their avatars. |
+| Has Frame | `boolean` | Sets whether the Mirror Gizmo has a border around the edge. |
+| Aspect Ratio | `9:16` `16:9` | Determines the Mirror Gizmo's aspect ratio, making it appear in landscape or portrait mode. |
+| Render Radius | `number` | Determines how close(in meters) players or objects must be before the mirror will render them. |
+| Near LOD Radius | `number` | Determines how close a player must be to see the best level of detail. |
+| Far LOD Radius | `number` | Determines how far a player must be to see the lowest level of detail. |
+| Near Resolution | `240p`, `340p`, `480p`, `540p`, `720p`, `1080p`, `1440p`, or `2160p` | Determines the reflection resolution when viewed at the best level of detail. |
+| Far Resolution | `240p`, `340p`, `480p`, `540p`, `720p`, `1080p`, `1440p`, or `2160p` | Determines the reflection resolution when viewed the lowest level of detail. |
+| Near Camera FPS | `number` | Determines the framerate of the reflection when viewed the best detail. |
+| Far Camera FPS | `number` | Determines the framerate of the reflection when viewed the lowest detail. |
+
+**TypeScript**: Mirror Gizmos are referenced as the `Entity` class with no properties or methods
+
+**Limitations**: Mirror Gizmos are costly, recommend only one per world and becareful about how much geometry it reflects in your world to avoid performance issues.
 ### Navigation Volume
-<mark>TODO</mark>
+**Description**: Allows the creation of navigation meshes thats NPCs can use to walk. Also see [NPCs](#npcs)
+
+| Property | Type | Description |
+|---|---|---|
+| Volume Type | `Inclusion` or `Exclusion` | Sets whether the volume is considered an area where NPCs can walk or not walk. |
+| Navigation Profile | dropdown | Contains a list of all the navigation profiles created in the world. |
+
+**TypeScript**:  Navigation Volume Gizmos are referenced as the `Entity` class with no properties or methods
+
 ### NPC Gizmo
+**Description**: Represents an NPC Avatar(bot) and its spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs)
 
-Note: NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world).
+| Property | Type | Description |
+|---|---|---|
+| Character Name | `string` | Sets the NPC's name. |
+| Spawn on Start | `boolean` | Determines whether the NPC spawns into the world when the world is started. |
+| Appearance | `Edit Avatar` and `Refresh` buttons. | Allows you to edit the avatar's appearance and refresh that appearance in the world. |
 
-#### Overview
-Spawns an NPC Avatar (bot).
+**TypeScript**:  NPC Gizmos are referenced as the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
 
-#### Manual Properties
-- Character Name
-    - Text
-- Spawn On Start
-    - ON/OFF Toggle
-- Appearance
-    - Edit Avatar (button)
-    - Refresh (button)
+```ts
+//Properties
+agentPlayer: ReadableHorizonProperty<Player | undefined>; //The player this agent is associated with.
+readonly grabbableInteraction: AgentGrabbableInteraction; //The grabbable interaction capabilities of the agent.
+readonly locomotion: AgentLocomotion; //The Locomotion capabilities of the agent.
 
-#### Typescript API
+//Methods
+despawnAgentPlayer(): void; //Removes the player embodied by this agent from the world.
+static getGizmoFromPlayer(player: Player): Entity | undefined; //Returns the AIAgentGizmo that is associated with the provided player.
+spawnAgentPlayer(): Promise<AgentSpawnResult>; //Spawns a player to be embodied by this agent from the world.
 
-<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
+export declare enum AgentSpawnResult //The result of a player spawn request
+/*
+0 = Success
+1 = AlreadySpawned
+2 = WorldAtCapacity
+3 = Error
+*/
+```
 
-!!!WARNING Costly to performance. Considered the same cost as a real player.
+**Limitations**: Costly to performance. Considered the same cost as a real player.
 
 ### ParticleFx Gizmo
 
@@ -1350,7 +1398,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
 **Description**: Emits a colored line behind moving objects with a configurable length, width, and color gradient.
 | Property | Type | Description |
 |---|---|---|
-| Play on Start | `boolean` | Auto-start trail effect when the world starts (or the effect is [spawned in])(#spawning) |
+| Play on Start | `boolean` | Auto-start trail effect when the world starts (or the effect is [spawned in](#spawning)) |
 | Length | `number` | Trail length in meters |
 | Width | `number` | Trail width in meters |
 | Start Color | `Color` | RGB values (0.0-1.0) at trail start |
@@ -1407,11 +1455,11 @@ type LaunchProjectileOptions = {
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnProjectileLaunched` | <nobr>`launcher : Entity`<nobr/> | ? |
-| `OnProjectileHitPlayer` | <nobr>`playerHit: Player`<nobr/><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr><br/><nobr>`headshot: boolean`</nobr> | ? |
+| `OnProjectileLaunched` | <nobr>`launcher : Entity`<nobr/> | Sent when a projectile is launched from a launcher with a reference to the launcher.  |
+| `OnProjectileHitPlayer` | <nobr>`playerHit: Player`<nobr/><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr><br/><nobr>`headshot: boolean`</nobr> | Sent when a projectile collides with a `Player`. `playerHit` gives us a reference to the `Player` that was hit by the projectile. `position` is where the collision happened. `normal` is the direction of the surface or face that was hit. `headshot` tells us whether it collided with the players head. |
 | `OnProjectileHitObject` | <nobr>`objectHit: Entity`</nobr><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [dynamic entity](#static-vs-dynamic-entities) (Motion is `Animated`, or `Interactive`). |
 | `OnProjectileHitWorld` | <nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [static entity](#static-vs-dynamic-entities) (Motion is `None`). This event is only sent if `Static Collision` is enabled in the Properties panel. |
-| `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | ? |
+| `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | Sent when a projectile despawns by duration limit only. |
 
 
 **Limitations**:
@@ -4449,6 +4497,12 @@ class AchievementsGizmo extends Entity {
 - Read / Write
 - Resetting
 
+# In-World Purchases (IWP)
+<mark>TODO</mark>
+
+# NPCs
+<mark>TODO</mark>
+
 # Spawning
 
 Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
@@ -4465,6 +4519,7 @@ Saved Asset will receive an ID that is used for spawning.
 !!! warning Assets can be used across worlds, but using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
 
 !!! note Asset Folders can be shared with other users.
+
 
 ## Simple Spawning
 ```ts
@@ -4922,18 +4977,18 @@ StopAnimationOptions
 | [OnGrabStart](#grab-sequence-and-events) | `isRightHand: boolean`<br/>`player: Player` |
 | OnIndexTriggerDown | `player: Player` |
 | OnIndexTriggerUp | `player: Player` |
-| OnItemConsumeComplete | `player: Player`<br/>`item: string, success: boolean` |
-| OnItemConsumeStart | `player: Player`<br/>`item: string` |
-| OnItemPurchaseComplete | `player: Player`<br/>`item: string, success: boolean` |
-| OnItemPurchaseFailed | `player: Player`<br/>`item: string` |
-| OnItemPurchaseStart | `player: Player`<br/>`item: string` |
-| OnItemPurchaseSucceeded | `player: Player`<br/>`item: string` |
+| [OnItemConsumeComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
+| [OnItemConsumeStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| [OnItemPurchaseComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
+| [OnItemPurchaseFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| [OnItemPurchaseStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| [OnItemPurchaseSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | [OnMultiGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnMultiGrabStart](#grab-sequence-and-events) | `player: Player` |
 | OnPassiveInstanceCameraCreated | `sessionId: Player`<br/>`cameraMode: string` |
 | OnPlayerCollision | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| OnPlayerConsumeFailed | `player: Player`<br/>`item: string` |
-| OnPlayerConsumeSucceeded | `player: Player`<br/>`item: string` |
+| [OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| [OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | [OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
 | OnPlayerEnterTrigger | `enteredBy: Player` |
 | [OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
@@ -4941,7 +4996,7 @@ StopAnimationOptions
 | OnPlayerExitTrigger | `exitedBy: Player` |
 | [OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
 | OnPlayerExitedFocusedInteraction | `player: Player` |
-| OnPlayerSpawnedItem | `player: Player`<br/>`item: Entity` |
+| [OnPlayerSpawnedItem](#in-world-item-gizmo) | `player: Player`<br/>`item: Entity` |
 | [OnProjectileExpired](#projectile-launcher-gizmo) | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` |
 | [OnProjectileHitObject](#projectile-launcher-gizmo) | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` |
 | [OnProjectileHitPlayer](#projectile-launcher-gizmo) | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` |
