@@ -68,57 +68,30 @@
         7. [In-World Item Gizmo](#in-world-item-gizmo)
             1. [Overview](#overview-2)
             2. [Manual Properties](#manual-properties-1)
-            3. [Typescript API](#typescript-api-1)
         8. [Media Board Gizmo](#media-board-gizmo)
         9. [Mirror Gizmo](#mirror-gizmo)
         10. [Navigation Volume](#navigation-volume)
         11. [NPC Gizmo](#npc-gizmo)
-            1. [Overview](#overview-3)
-            2. [Manual Properties](#manual-properties-2)
-            3. [Typescript API](#typescript-api-2)
         12. [ParticleFx Gizmo](#particlefx-gizmo)
         13. [TrailFx Gizmo](#trailfx-gizmo)
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         15. [Quests Gizmo](#quests-gizmo)
         16. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-4)
-            2. [Manual Properties](#manual-properties-3)
-            3. [Typescript API](#typescript-api-3)
-            4. [How to Raycast](#how-to-raycast)
+            1. [How to Raycast](#how-to-raycast)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-5)
-            2. [Manual Properties](#manual-properties-4)
-            3. [Typescript  API](#typescript--api)
         19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-6)
-            2. [Sound Recorder Properties](#sound-recorder-properties)
-            3. [Pre-made Sound Properties](#pre-made-sound-properties)
-            4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-4)
         20. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-7)
-            2. [Manual Properties](#manual-properties-5)
-            3. [Typescript  API](#typescript--api-1)
         21. [Static Light Gizmo](#static-light-gizmo)
         22. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-5)
-            4. [Using a Text Gizmo](#using-a-text-gizmo)
-            5. [Limitations](#limitations)
-            6. [Text Gizmo Markup](#text-gizmo-markup)
-            7. [Text Gizmo Tags](#text-gizmo-tags)
+            1. [Using a Text Gizmo](#using-a-text-gizmo)
+            2. [Limitations](#limitations)
+            3. [Text Gizmo Markup](#text-gizmo-markup)
+            4. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
-            8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
+            5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         23. [Trigger Gizmo](#trigger-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-6)
         24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-10)
-            2. [Manual Properties](#manual-properties-8)
-            3. [Typescript API](#typescript-api-7)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -127,7 +100,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-11)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -180,14 +153,20 @@
         4. [Component Lifecycle](#component-lifecycle)
         5. [Async (Delays and Timers)](#async-delays-and-timers)
         6. [Run Every Frame (PrePhysics and OnUpdate)](#run-every-frame-prephysics-and-onupdate)
+        7. [BuiltInVariableType](#builtinvariabletype)
+        8. [PropTypes](#proptypes)
+        9. [SerializableState](#serializablestate)
     6. [Communication Between Components](#communication-between-components)
-        1. [Sending and Receiving Events](#sending-and-receiving-events)
-        2. [Code Block Event](#code-block-event)
+        1. [Receiving Events](#receiving-events)
+        2. [Sending Events](#sending-events)
+        3. [Code Block Events](#code-block-events)
             1. [Built-In Code Block Events](#built-in-code-block-events)
-        3. [Local Events](#local-events)
+                1. [Broadcast Built-In Code Block Events](#broadcast-built-in-code-block-events)
         4. [Network Events](#network-events)
-        5. [Broadcast events](#broadcast-events)
-        6. [Converting Between Components and Entities](#converting-between-components-and-entities)
+        5. [Local Events](#local-events)
+            1. [Built-In Local Events](#built-in-local-events)
+        6. [Broadcast events](#broadcast-events)
+        7. [Converting Between Components and Entities](#converting-between-components-and-entities)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
         1. [Early Frame Phase](#early-frame-phase)
@@ -213,7 +192,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-12)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
@@ -276,39 +255,42 @@
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-13)
+    1. [Overview](#overview-5)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
-18. [Spawning](#spawning)
+18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+19. [NPCs](#npcs)
+20. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
     3. [Advanced Spawning](#advanced-spawning)
     4. [Sublevels](#sublevels)
-19. [Tooltips and Popups](#tooltips-and-popups)
-20. [Custom UI](#custom-ui)
+21. [Tooltips and Popups](#tooltips-and-popups)
+22. [Custom UI](#custom-ui)
     1. [UIComponent Class](#uicomponent-class)
     2. [Bindings](#bindings)
-    3. [View Types](#view-types)
+    3. [Style](#style)
+    4. [View Types](#view-types)
         1. [View](#view)
         2. [Image](#image)
         3. [Pressable](#pressable)
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
-    4. [Animated Bindings](#animated-bindings)
-21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+    5. [Animated Bindings](#animated-bindings)
+23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-22. [Performance Optimization](#performance-optimization)
+24. [Performance Optimization](#performance-optimization)
     1. [Physics Performance](#physics-performance)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-23. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-25. [Glossary](#glossary)
+25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+27. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -833,7 +815,6 @@ Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-
 
 For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
-
 ### Static vs Dynamic Entities
 
 All entities in Horizon are either **static** or **dynamic**.
@@ -1144,10 +1125,8 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **TypeScript**: Collider Gizmos are references as `Entity` instances with no additional scripting capabilities.
 
-**Limitations**: <mark>TODO</mark> Consider known limitation, issues, bugs.
-
 ### Custom UI Gizmo
-**Description**: Presents a custom UI (User Interface) to your players.
+**Description**: Presents a custom UI (User Interface) to your players. Also see [Custom UI](#custom-ui)
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
@@ -1273,6 +1252,7 @@ Allows creators to make changes to the properties  of their world like skydome, 
 !!! Bug Known Issues
     - <mark>TODO</mark> list known issues or delete
 ### In-World Item Gizmo
+**Description**: Used to sell In-World Items to users in your worlds. Also see [In-World Purchases](#in-world-purchases-iwp)
 
 #### Overview
 Used to sell In-World Items to users in your worlds.
@@ -1292,9 +1272,7 @@ Used to sell In-World Items to users in your worlds.
     - Button
     - Icon
 
-#### Typescript API
-
-[IWPSellerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.iwpsellergizmo.md/)
+**TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class with the following methods:
 
 ```ts
 consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
@@ -1316,35 +1294,96 @@ OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
 OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 ```
 
-!!!INFO Only Owners can make test purchases in while in Edit/Play modes.
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| OnItemPurchaseStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemPurchaseComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
+| OnItemConsumeStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemConsumeComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| OnItemPurchaseSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnItemPurchaseFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerConsumeSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerConsumeFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| OnPlayerSpawnedItem | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | Sent when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
+
+**Limitations**: Only owners can make test purchases while in Preview mode.
 
 ### Media Board Gizmo
-<mark>TODO</mark>
+**Description**: Allows players to scroll through pictures that have been shared to the world and approved by the creator.
+
+| Property | Type | Description |
+|---|---|---|
+| LoD Radius | `number` | Determines at what distance(in meters) the media board will appear for players. |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Set the view for the gizmo. |
+| Pinned Page | `number` | <mark>TODO</mark> |
+| Deterministic Ranking | `boolean` | If enabled, all players will see the same images. If disabled, images players see will be tailored to them.
+
+**TypeScript**:  Media Board Gizmos are referenced as the `Entity` class with no properties or methods.
+
 ### Mirror Gizmo
-<mark>TODO</mark>
+**Description**: A stationary gizmo that allows players to see a reflection of themselves and the world. Can be used to edit avatars and take pictures.
+
+| Property | Type | Description |
+|---|---|---|
+| Visible | `boolean` | Sets whether the Mirror Gizmo is visible to players. |
+| Photo Capture | `boolean` | Sets whethers players can take pictures using the Mirror Gizmo. |
+| Name Tag Visibility | `Show` or `Hide` | Sets whether player name tags will appear in the Mirror Gizmo, including pictures. |
+| Has Edit Avatar Button | `boolean` | Sets whether players can use the Mirror Gizmo to edit their avatars. |
+| Has Frame | `boolean` | Sets whether the Mirror Gizmo has a border around the edge. |
+| Aspect Ratio | `9:16` `16:9` | Determines the Mirror Gizmo's aspect ratio, making it appear in landscape or portrait mode. |
+| Render Radius | `number` | Determines how close(in meters) players or objects must be before the mirror will render them. |
+| Near LOD Radius | `number` | Determines how close a player must be to see the best level of detail. |
+| Far LOD Radius | `number` | Determines how far a player must be to see the lowest level of detail. |
+| Near Resolution | `240p`, `340p`, `480p`, `540p`, `720p`, `1080p`, `1440p`, or `2160p` | Determines the reflection resolution when viewed at the best level of detail. |
+| Far Resolution | `240p`, `340p`, `480p`, `540p`, `720p`, `1080p`, `1440p`, or `2160p` | Determines the reflection resolution when viewed the lowest level of detail. |
+| Near Camera FPS | `number` | Determines the framerate of the reflection when viewed the best detail. |
+| Far Camera FPS | `number` | Determines the framerate of the reflection when viewed the lowest detail. |
+
+**TypeScript**: Mirror Gizmos are referenced as the `Entity` class with no properties or methods
+
+**Limitations**: Mirror Gizmos are costly, recommend only one per world and becareful about how much geometry it reflects in your world to avoid performance issues.
 ### Navigation Volume
-<mark>TODO</mark>
+**Description**: Allows the creation of navigation meshes thats NPCs can use to walk. Also see [NPCs](#npcs)
+
+| Property | Type | Description |
+|---|---|---|
+| Volume Type | `Inclusion` or `Exclusion` | Sets whether the volume is considered an area where NPCs can walk or not walk. |
+| Navigation Profile | dropdown | Contains a list of all the navigation profiles created in the world. |
+
+**TypeScript**:  Navigation Volume Gizmos are referenced as the `Entity` class with no properties or methods
+
 ### NPC Gizmo
+**Description**: Represents an NPC Avatar(bot) and its spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs)
 
-Note: NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world).
+| Property | Type | Description |
+|---|---|---|
+| Character Name | `string` | Sets the NPC's name. |
+| Spawn on Start | `boolean` | Determines whether the NPC spawns into the world when the world is started. |
+| Appearance | `Edit Avatar` and `Refresh` buttons. | Allows you to edit the avatar's appearance and refresh that appearance in the world. |
 
-#### Overview
-Spawns an NPC Avatar (bot).
+**TypeScript**:  NPC Gizmos are referenced as the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
 
-#### Manual Properties
-- Character Name
-    - Text
-- Spawn On Start
-    - ON/OFF Toggle
-- Appearance
-    - Edit Avatar (button)
-    - Refresh (button)
+```ts
+//Properties
+agentPlayer: ReadableHorizonProperty<Player | undefined>; //The player this agent is associated with.
+readonly grabbableInteraction: AgentGrabbableInteraction; //The grabbable interaction capabilities of the agent.
+readonly locomotion: AgentLocomotion; //The Locomotion capabilities of the agent.
 
-#### Typescript API
+//Methods
+despawnAgentPlayer(): void; //Removes the player embodied by this agent from the world.
+static getGizmoFromPlayer(player: Player): Entity | undefined; //Returns the AIAgentGizmo that is associated with the provided player.
+spawnAgentPlayer(): Promise<AgentSpawnResult>; //Spawns a player to be embodied by this agent from the world.
 
-<mark>TODO</mark> Has its own package(avatar_ai_agent), but considered a Player in Core. https://horizon.meta.com/resources/scripting-api/avatar_ai_agent.md/
+export declare enum AgentSpawnResult //The result of a player spawn request
+/*
+0 = Success
+1 = AlreadySpawned
+2 = WorldAtCapacity
+3 = Error
+*/
+```
 
-!!!WARNING Costly to performance. Considered the same cost as a real player.
+**Limitations**: Costly to performance. Considered the same cost as a real player.
 
 ### ParticleFx Gizmo
 
@@ -1403,7 +1442,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
 **Description**: Emits a colored line behind moving objects with a configurable length, width, and color gradient.
 | Property | Type | Description |
 |---|---|---|
-| Play on Start | `boolean` | Auto-start trail effect when the world starts (or the effect is [spawned in])(#spawning) |
+| Play on Start | `boolean` | Auto-start trail effect when the world starts (or the effect is [spawned in](#spawning)) |
 | Length | `number` | Trail length in meters |
 | Width | `number` | Trail width in meters |
 | Start Color | `Color` | RGB values (0.0-1.0) at trail start |
@@ -1456,15 +1495,15 @@ type LaunchProjectileOptions = {
 }
 ```
 
-**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `ProjectileLauncherGizmo`:
+**Built-In CodeBlockEvents**: the following events are [sent to](#receiving-events) a `ProjectileLauncherGizmo`:
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnProjectileLaunched` | <nobr>`launcher : Entity`<nobr/> | ? |
-| `OnProjectileHitPlayer` | <nobr>`playerHit: Player`<nobr/><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr><br/><nobr>`headshot: boolean`</nobr> | ? |
+| `OnProjectileLaunched` | <nobr>`launcher : Entity`<nobr/> | Sent when a projectile is launched from a launcher with a reference to the launcher.  |
+| `OnProjectileHitPlayer` | <nobr>`playerHit: Player`<nobr/><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr><br/><nobr>`headshot: boolean`</nobr> | Sent when a projectile collides with a `Player`. `playerHit` gives us a reference to the `Player` that was hit by the projectile. `position` is where the collision happened. `normal` is the direction of the surface or face that was hit. `headshot` tells us whether it collided with the players head. |
 | `OnProjectileHitObject` | <nobr>`objectHit: Entity`</nobr><br/><nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [dynamic entity](#static-vs-dynamic-entities) (Motion is `Animated`, or `Interactive`). |
 | `OnProjectileHitWorld` | <nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [static entity](#static-vs-dynamic-entities) (Motion is `None`). This event is only sent if `Static Collision` is enabled in the Properties panel. |
-| `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | ? |
+| `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | Sent when a projectile despawns by duration limit only. |
 
 
 **Limitations**:
@@ -1476,23 +1515,32 @@ type LaunchProjectileOptions = {
 
 ### Quests Gizmo
 
-[Quests](#quests)
+**Description**: Displays a list of Quest avaliable in your world for players to track their progress. Also see [Quests](#quests)
+
+| Property | Type | Description |
+|---|---|---|
+| Displayed Title | `string` | Displayed a title at the top of the Quest Gizmo windows. |
+| Number of Entries Per Page | `number` | Determines how many questions will be displayed on a single page. Values can been between 1 and 6.
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Sets the Quest Gizmos display mode. |
+| LoD Radius | `number` | Sets the distance(in meters) that the Quest Gizmo will appear for players. |
+| Visible | `boolean` | Sets whether the Quest Gizmo is visible to players. |
+
+**Typescript**: Quest Gizmos are referenced as the `Entity` class with no members.
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| onAchievementComplete | `player:Player`<br/>`scriptID:string` | Sent when an achievement is completed by a player. |
 
 ### Raycast Gizmo
-#### Overview
-Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
-#### Manual Properties
-- Collide With
-    - Players
-    - Objects Tagged
-    - Both
-- Object Tag
-    - Text field
-- Raycast Distance
-    - Numeric value, accepts any number
+**Description**: Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
 
-#### Typescript API
-[Raycast Gizmo Class](https://horizon.meta.com/resources/scripting-api/core.raycastgizmo.md/)
+| Property | Type | Description |
+|---|---|---|
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which layers the raycast will interact with. |
+| Object Tag | `string` | Sets the tag required for the raycast to interact with an object. |
+| Raycast Distance | `number` | Determines how far the raycast will travel. |
+
+**Typescript**: Raycast Gizmos are referenced as the `RaycastGizmo` class with the following method.
 
 ```ts
 //Casts a ray from the Raycast gizmo using the given origin and direction and then retrieves collision information.
@@ -1541,97 +1589,69 @@ type PlayerRaycastHit = BaseRaycastHit & {
 #### How to Raycast
 <mark>TODO</mark>
 
-!!! warning Costly to performance if used too rapidly.
-    While the gizmo isn't costly, raycasting too often in a short period of time can hurt performance.
+**Limtations**: Raycasting too often in a short period of time can hurt performance.
+
 ### Script Gizmo
 See FBS or [Script API](#scripting)
 
 ### Snap Destination Gizmo
-#### Overview
-Designed to help position and orientate players that land on it using teleport.
+**Description**: Designed to help position and orientate players that land on it using teleport.
 
-#### Manual Properties
-- Apply Orientation
-    - ON/OFF Toggle
+| Property | Type | Description
+|---|---|---|
+| Apply Orientation | `boolean` | Applies a rotation on the player that teleports onto the Snap Destination Gizmo
 
-#### Typescript  API
-- None
+**Typescript**: Snap Destination Gizmos are referenced as the `Entity` class with no methods.
 
 ### Sound Recorder Gizmo
-#### Overview
-Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
+**Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
 - `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music.
 - `Audio Graph` generated by Gen AI. Allows you playback audio generated by the Gen AI in the Desktop Editor.
 
-#### Sound Recorder Properties
-- Sound
-    - Play Button
-    - Record Button
-- Loop
-    - ON/OFF Toggle
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Send Audio Complete
-    - ON/OFF Toggle
+**Sound Recorder**
+| Property | Type | Description |
+|---|---|---|
+| Sound | `Play` and `Record` button | `Play` will attempt to play any audio on the Sound Record Gizmo. `Record` will start recording any sounds coming through your headset mic.|
+| Loop |  `boolean` | Determines if the sound will repeat after it is finished.
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
+| Volume | `number` | Sets the volume of the Sound Recorder Gizmo. Values are between 0.0 and 1.0.
+| Pitch | `number` | Sets the pithc of the Sound Record Gizmo. Values are between -24 and 24.
+| Global | `boolean` | Determines whether the Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Send Audio Complete | `boolean` | Determines whether the Sound Record Gizmo sends an event when the audio is finished. |
 
-#### Pre-made Sound Properties
-- Preview
-    - Play Button
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Send Audio Complete
-    - ON/OFF Toggle
+**Pre-made Sound**
+| Property | Type | Description |
+|---|---|---|
+| Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
+| Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0.
+| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24.
+| Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-#### Audio Graph Properties
-- Preview
-    - Play Button
-- Loop
-    - ON/OFF Toggle
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Volume Randomness
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Pitch Randomness
-    - Numeric value between 0.0 - 4.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Low-Pass Cutoff
-    - Numeric value between 1.0 - 20000
-- Send Audio Complete
-    - ON/OFF Toggle
+**Audio Graph**
+| Property | Type | Description |
+|---|---|---|
+| Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
+| Loop |  `boolean` | Determines if the sound will repeat after it is finished. |
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts. |
+| Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0. |
+| Volume Randomness | `number` | Randomally adjust the Audio Graph Gizmo volume each play. Values are between 0.0 and 1.0. |
+| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24. |
+| Pitch Randomness | `number` | Randomally adjust the Audio Graph Gizmo pitch each play. Values are between 0.0 and 4.0. |
+| Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Low-Pass Cutoff | `number` | Reduces the amplitude of higher frequency signals. Values are between  1 and 20000. |
+| Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-#### Typescript API
-[AudioGizmo Class](https://horizon.meta.com/resources/scripting-api/core.audiogizmo.md/)
+**Typescript**: Sound Gizmos are referenced [as](#entity-as-method) the `AudioGizmo` class with the following properties and methods. 
 
 ```ts
 //Properties
@@ -1655,39 +1675,25 @@ enum AudibilityMode {
     InaudibleTo = 1
 }
 ```
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| `OnAudioCompleted` |  | Sent when an Sound Gizmo is finished playing.  |
 
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
-```
-OnAudioCompleted: CodeBlockEvent<[]>;
-```
-
-!!! info Minimum and Maximum Distance
-    Max distance (in meters) is how far away from the gizmo you can stand before you can no longer hear it
-    Min distance (in meters) is how far away before the audio starts to fade, or how close it place at max volume.
-
-!!! warning Costly to performance if overused
-    Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
+**Limitations**: Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
 
 ### Spawn Point Gizmo
-#### Overview
-Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
-####  Manual Properties
-- Spawn on start
-    -  ON/OFF Toggle
--  Set Position Only
-    - ON/OFF Toggle
-- Player Gravity
-    - Numeric Value between 0.0 - 9.81
-- Player Speed
-    - Numeric Value between 0.0 - 45.0
-Force HWXS Camera
-    - None
-    - Third Person
-    - First Person
-    - Orbit
-    - Pan
-#### Typescript  API
-[SpawnPointGizmo Class](https://horizon.meta.com/resources/scripting-api/core.spawnpointgizmo.md/)
+**Description**: Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
+
+| Property | Type | Description |
+|---|---|---|
+| Spawn on start | `boolean` | Determines if the Spawn Point Gizmo will be used to spawn players as they join the world. |
+| Set Position Only | `boolean` | Determines if the Spawn Point Gizmo will rotate the player to match its rotation when it spawns them. |
+| Player Gravity | `number` | Sets the gravity of each player to this value when this spawn is used. Values between 0.0 and 9.81. | 
+| Player Speed | `number` | Sets the speed of each player to this value when this spawn is used. Values between 0.0 and 45. |
+| Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view web and mobile players will have after using the spawn. |
+
+**Typescript**:  Spawn Point Gizmos are referenced [as](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods. 
+
 ```ts
 //Properties
 gravity: HorizonProperty<number>; //The gravity for players spawned using this gizmo.
@@ -1697,29 +1703,39 @@ speed: HorizonProperty<number>; //The speed for players spawned using this gizmo
 teleportPlayer(player: Player): void; //Teleports a player to the spawn point.
 
 //Example
-this.entity.as(hz.SpawnPointGizmo).gravity.set(9.81)
-this.entity.as(hz.SpawnPointGizmo).speed.set(4.5)
-this.entity.as(hz.SpawnPointGizmo).teleportPlayer(player)
+this.entity.as(SpawnPointGizmo).gravity.set(9.81)
+this.entity.as(SpawnPointGizmo).speed.set(4.5)
+this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 ```
-!!! note If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
-!!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
+
+**Notes**: 
+- If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
+- The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
 
 ### Static Light Gizmo
 
-<mark>TODO</mark>
+**Description**: Emits static light that cannot be moved during run-time. Improved performance over [Dynamic Light Gizmo](#dynamic-light-gizmo).
+
+| Property | Type | Description |
+|---|---|---|
+| Shape | `Cuboid`, `Ellipsoid`, `Disk`, or `Rectangle` | Determines the shape of the static light, affecting how the light is casted onto the surrounding geometry. |
+| Color | `Color` | Sets the color of the light coming from the Static Light Gizmo.
+| Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
+
+**Typescript**:  Static Light Gizmos are referenced as the `Entity` class with no members. 
 
 ### Text Gizmo
-#### Overview
-The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
-#### Manual Properties
-- Text
-    - Text field
-- Auto Fit
-    - ON/OFF Toggle
-- Visible
-    - ON/OFF Toggle
-#### Typescript API
-[TextGizmo Class](http://horizon.meta.com/resources/scripting-api/core.textgizmo.md/)
+**Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
+
+| Property | Type | Description |
+|---|---|---|
+| Text | `string` | Sets the text displaying on the Text Gizmo. |
+| Auto Fit | `boolean` | Automatically determines the size of the font. If disabled, you can set the size manually. |
+| Fized Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
+| Visible | `boolean` | Determines if the Text Gizmo is visible to players. | 
+
+**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property. 
+
 ```ts
 //Properties
 text: HorizonProperty<string>; //The content to display in the text label
@@ -1785,71 +1801,57 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
 <mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
 
-#### Overview
-Detects when a player or object enters or exits an area.
-#### Manual Properties
-- Enabled
-    - ON/OFF Toggle
-- Trigger On
-    - Players
-    - Objects Tagged
-- Object Tag
-    - Text field
-- Selectable in Screen Mode
-    - ON/OFF Toggle
-#### Typescript API
-[TriggerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.triggergizmo.md/)
+**Description**: Detects when a player or object enters or exits an area.
+
+| Property | Type | Description |
+|---|---|---|
+| Enabled | `boolean` | Determines whether the Trigger Gizmo will detect any events. |
+| Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
+| Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
+| Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
+
+**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property. 
+
 ```ts
 //Properties
 enabled: WritableHorizonProperty<boolean>; //Whether the Trigger is enabled.
 
 //Example of connecting to a trigger entered event.
-this.connectCodeBlockEvent(this.entity, hz.CodeBlockEvents.OnPlayerEnterTrigger, (enteredBY) => {
+this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (enteredBY) => {
     console.log('Player entered the world.', enteredBY.name.get());
 })
 ```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| OnPlayerEnterTrigger | `enteredBy: Player` | Sent each time a player has entered the trigger area. |
+| OnPlayerExitTrigger | `exitedBy: Player` | Sent each time a player has exited the trigger area. |
+| OnEntityEnterTrigger | `enteredBy: Entity` |  Sent each time an object has entered the trigger area. |
+| OnEntityExitTrigger | `player: Player` | Sent each time an object has exited the trigger area. |
+| occupied | `player: Player` | Sent when the first player enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| occupied | `object: Entity` | Sent when the first object enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| empty | `player: Player` | Sent when the last player exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| empty | `object: Entity` | Sent when the last object exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
 
-```ts
-OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: hz.Player]>;
-OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: hz.Player]>;
-OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
-OnEntityExitTrigger: CodeBlockEvent<[enteredBy: hz.Entity]>;
+**Limitations**: Using too many Trigger Gizmos can affect performance.
 
-//additional events
-new CodeBlockEvent<[hz.Player]>('empty', [hz.PropTypes.Player])
-new CodeBlockEvent<[hz.Player]>('occupied', [hz.PropTypes.Player])
-new CodeBlockEvent<[hz.Entity]>('empty', [hz.PropTypes.Entity])
-new CodeBlockEvent<[hz.Entity]>('occupied', [hz.PropTypes.Entity])
-```
-!!! note Additional Events
-    Codeblock events like `Empty` & `Occupied` are not built-in codeblocks, so we have to create them ourselves, but `Trigger Gizmos` will use them to indicate when the trigger has no players in it, or when the trigger has at least 1 player in it.
 ### World Leaderboard Gizmo
-#### Overview
-Used to display player scores in your world.
-#### Manual Properties
-- Leaderboard
-    - Dropdown list with all available leaderboards.
-- Displayed Title
-    - Text field
-- Number of Entries Per Page
-    - Numeric value between 1 - 10
-- UI Anchor Style
-    - Static
-    - Billboard
-- Panel UI Mode
-    - Light Mode
-    - Dark Mode
-- Entry Display Mode
-    - Raw Value
-    - Time in secs
-#### Typescript API
-[World.leaderboard property](https://horizon.meta.com/resources/scripting-api/core.world.leaderboards.md/)
-[ILeaderboards interface](https://horizon.meta.com/resources/scripting-api/core.ileaderboards.md/)
+**Description**: Used to display player scores in your world.
+
+| Property | Type | Description |
+|---|---|---|
+| Leaderboard | dropdown | Contains a list of all the avaliable leaderboards in your world. |
+| Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
+| Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
+| UI Anchor Style | `Static` or `Billboard` | `Static` sets the Leaderboard Gizmo stay in one place when viewed by the player. `Billboard` causes the Leaderboard Gizmo to rotate to always face the player who is viewing it. |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Determines how the Leaderboard Gizmo is displayed to players. |
+| Entry Display Mode | `Raw Value` or ` Time in Secs` | Determines how the data will be displayed. Leaderboard Gizmos only accept numberical data and it can be displayed as a number or time. |
+
+**Typescript**: Leaderboard Gizmos are referenced as the `Entity` class with no methods. Although there is one related method from the `World` class:
 
 ```ts
 setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void; //Sets the leaderboard score for a player.
 ```
+
 <mark>TODO</mark>
 - Kind of data allowed
 - Player opt-out
@@ -2435,6 +2437,8 @@ const atEnd = Vec3.lerp(start, end, 1.0)      // (10, 0, 0)
 
 The `Color` class represents an RGB color where each component (red, green, blue) is stored as a floating-point number between 0 and 1. It supports color space conversions (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), supports [operations](#color-operations) that can be used for many effects, such as [blending and filtering](#color-blending).
 
+**No alpha**: The `Color` class does not have an `alpha` component (transparency). It is possible to use alpha [Custom UI](#custom-ui-style) and with [meshes](#custom-model-import) but those alpha values are *not* part of the `Color` class.
+
 #### Creation
 
 Colors can be created in several ways:
@@ -2457,6 +2461,8 @@ const fromHex = Color.fromHex("#ff0000")  // (1, 0, 0)
 // From HSV (hue, saturation, value)
 const fromHSV = Color.fromHSV(new Vec3(0, 1, 1))  // red
 ```
+
+The `fromHex` method only supports 6-digit colors which must be preceded by the `#` mark.
 
 #### Color Properties
 
@@ -2743,17 +2749,17 @@ The `World` class represents the currently running [instance](#instances) and th
 
 ## Components
 
-Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#sending-and-receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
 
 The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
 1. Create a new [Component class](#component-class)
 1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
 1. Add [property definitions](#component-properties) that will appear in the Properties panel
-1. Connect code to run when [system (or user) events occur](#sending-and-receiving-events)
+1. Connect code to run when [system (or user) events occur](#receiving-events)
 
 The steps above are the "main path" but there are also many more parts of scripting:
-* [Sending events](#sending-and-receiving-events)
+* [Sending events](#sending-events)
 * [Creating timers and async code](#async-delays-and-timers)
 * [Creating local scripts](#local-scripts) and [transferring ownership](#ownership-transfer) for low-latency interactions
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
@@ -2823,8 +2829,8 @@ Components can define properties that appear in the Properties panel by implemen
 The static `propsDefinition` object defines your properties. Each property needs:
   * A *key* that will become the property name in `this.props`
   * An *object* value containing:
-    * `type`: *Required*. a value from `PropTypes`
-    * `default`: *Optional*. Initial value for the property in the Properties panel
+    * `type`: *Required*. a value from [PropTypes](#proptypes) (note that not all kinds of `PropTypes` are useful in a `propsDefinition`; see the limitations below).
+    * `default`: *Optional*. Initial value for the property in the Properties panel.
 
 | `PropTypes` Value | Results In | Default Value | Notes |
 |---|---|---|---|
@@ -2843,13 +2849,13 @@ The static `propsDefinition` object defines your properties. Each property needs
     const e: Entity = ...
     ```
 
-    While `PropTypes.Entity` is data used in `propsDefinition` or [CodeBlockEvents](#code-block-event).
+    While `PropTypes.Entity` is data used in `propsDefinition` or [CodeBlockEvents](#code-block-events).
 
 !!! tip No Type Checking
     TypeScript does not type-check the `static propsDefinition` object. Verify your property definitions carefully.
 
 **Limitations**
-* **Player**: the `PropTypes` enum includes `PropTypes.Player` but there is no way to make use of it for `propsDefinition`.
+* **Player**: the `PropTypes` object includes `PropTypes.Player` but there is no way to make use of it for `propsDefinition`.
 * **Arrays**: the `PropTypes` enum includes array versions of all types (like `NumberArray`),  but there is no way to make use of them for `propsDefinition`.
 **Nullable Types**: Properties using `PropTypes.Entity` or `PropTypes.Asset` will always be nullable: `Entity | null` or `Asset | null`, respectively. You must check for `null` before using these properties:
   ```ts
@@ -2866,7 +2872,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 ### Component Lifecycle
 
-Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#sending-and-receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
+Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
 
 Likewise, when a group of entities are [spawned](#spawning), all them are prepared; then, all of them are started.
 
@@ -2884,7 +2890,7 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
     * `transferOwnership()` executes (only during ownership transfers)
     * Component is [disposed](#disposing-objects), meaning that `dispose()` executes and all callbacks registered with `registerDisposeOperation` run, except for the ones where the `DisposeOperationRegistration` was already [canceled or ran](#disposing-objects).
     * All [async timeouts and intervals] created with the component are canceled.
-    * All [event subscriptions](#sending-and-receiving-events) created with the component are [disconnected](#sending-and-receiving-events).
+    * All [event subscriptions](#receiving-events) created with the component are [disconnected](#receiving-events).
 
 !!! info Component Initialization Sequence
     1. Property initializers run first
@@ -2972,7 +2978,7 @@ style EarlyPhase fill:#def,stroke:#aac
 ```
 
 !!! warning Connect to events in `preStart`. Send events in `start`.
-    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#sending-and-receiving-events) for a detailed. explanation.
+    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#receiving-events) for a detailed. explanation.
 
 !!! warning Property initializers run before `props` are available.
     ```typescript
@@ -3055,11 +3061,111 @@ const subscription = component.connectLocalBroadcastEvent(
 
 Callbacks registered with `onPrePhysicsUpdate` run before physics computations occur in the frame. Callbacks registered with `onUpdate` run after physics computations. **onUpdate is usually what you need**. See the description of [prePhysics vs onUpdate](#prephysics-vs-onupdate-events) for more information.
 
-The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#sending-and-receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
+The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
+
+### BuiltInVariableType
+
+`BuiltInVariableType` represent "primitive Horizon data". It is used in [CodeBlockEvents](#code-block-events) and [defining props with PropTypes](#component-properties). The different types in `BuiltInVariableType` are available as a TypeScript object in [PropTypes](#proptypes).
+
+```ts
+type BuiltInVariableType =
+  | string      | string[]
+  | number      | number[]
+  | boolean     | boolean[]
+  | Vec3        | Vec3[]
+  | Entity      | Entity[]
+  | Quaternion  | Quaternion[]
+  | Color       | Color[]
+  | Player      | Player[]
+  | Asset       | Asset[]
+```
+
+### PropTypes
+
+`PropTypes` is an enum representing all the same values in [BuiltInVariableType](#builtinvariabletype). `PropTypes` is used in creating the [component propsDefinition](#component-properties) and in creating [CodeBlockEvents](#code-block-events).
+
+```ts
+const PropTypes = {
+  Number: "number";
+  String: "string";
+  Boolean: "boolean";
+  Vec3: "Vec3";
+  Color: "Color";
+  Entity: "Entity";
+  Quaternion: "Quaternion";
+  Player: "Player";
+  Asset: "Asset";
+  NumberArray: "Array<number>";
+  StringArray: "Array<string>";
+  BooleanArray: "Array<boolean>";
+  Vec3Array: "Array<Vec3>";
+  ColorArray: "Array<Color>";
+  EntityArray: "Array<Entity>";
+  QuaternionArray: "Array<Quaternion>";
+  PlayerArray: "Array<Player>";
+  AssetArray: "Array<Asset>";
+};
+```
+
+### SerializableState
+
+`SerializableState` represents the type of data that can be packaged up to be **sent over the network**. It is used in [NetworkEvents](#network-events) and [ownership transfer](#transferring-data-across-owners).
+
+```ts
+type SerializableState =
+  | { [key: string]: SerializableState }
+  | SerializableState[]
+  | PersistentSerializableStateNode
+  | TransientSerializableStateNode
+
+type PersistentSerializableStateNode =
+  | Vec3 | Entity | Quaternion | Color
+  | number | boolean | string
+  | bigint | null;
+type TransientSerializableStateNode = Player;
+```
+
+`PersistentSerializableState` is data that can be packaged up to store in [persistent data](#persistence). It is the same as `SerializableState` *except* that it *does not include Player* (since player instances are [ephemeral to the instance](#player-id)).
 
 ## Communication Between Components
 
-<mark>TODO</mark>
+The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events. If two components are running on the same [client](#clients-devices-and-the-server) then you can have them [interact directly without using events](#converting-between-components-and-entities).
+
+There are multiple kinds of events with different purposes. Event listeners are usually [connected](#receiving-events) in `preStart`. Events can be [sent](#receiving-events) at any time.
+
+`LocalEvent`s and `NetworkEvent`s can be sent to specific entities or be [broadcast](#broadcast-events) to all listeners in the world. Many "system actions" (such as [players entering the world](#player-entering-and-exiting-a-world), an [entity being grabbed](#grab-sequence-and-events), a [collision occurring](#collision-events), etc) are sent as [built-in CodeBlockEvents](#built-in-code-block-events); there [are many built-in CodeBlockEvents](#all-built-in-codeblockevents).
+
+All event types can be instantiated with **custom user-made types** by simply calling `new` on the event type and making one. When creating custom events, export them so that you can create them once and share them across files. If you keep instantiating the same event repeatedly across your code, you are likely to make an error (and make refactors more difficult).
+
+| Event | Purpose | Timing | Payload |
+|---|---|---|---|
+| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code Block scripts. | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
+| **LocalEvent** | Communicate with a TypeScript scripted entity on the [same client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | Delivered *synchronously* (immediately). | *Anything* |
+| **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
+
+### Receiving Events
+
+**Connecting Events**: Events are "subscribed" to using a `Component` method starting with `connect...`, such as
+
+```ts
+const subscription = component.connectLocalEvent(entity, event, callback)
+```
+
+which will result in `callback` being run every time `event` is sent to `entity` (if `entity` has the same owner as `component.owner`, since the line above used a *local* event). When using [broadcast](#broadcast-events), there is no specified entity to listen to.
+
+```ts
+component.connectLocalBroadcastEvent(event, callback)
+```
+
+Many "system actions" are communicated by sending [built-in CodeBlockEvents](#built-in-code-block-events) to entities. There are also some [built-in local-events](#built-in-local-events).
+
+**Disconnecting Events**: All `connect...` events return an `EventSubscription`, a type with a single `disconnect(): void` method. Calling
+
+```ts
+subscription.disconnect()
+```
+
+would make it so that `callback` is no longer called. It's good practice to disconnect listeners when you are done with them.
 
 !!! warning Connect to events in `preStart`. Send in `start`.
     Imagine the following scenario: `ComponentA`, in its `start`, sends an event to `ComponentB`'s entity; but `ComponentB` doesn't register to listen to the event until its `start`. Does `ComponentB` get the event? It depends on which component `start`ed first!
@@ -3068,42 +3174,173 @@ The callback provides a single argument of type `{deltaTime: number}` which cont
 
     **Never `connect` in `start`. Never `send` in `preStart`**. This can cause events to get missed!
 
-### Sending and Receiving Events
+### Sending Events
 
-* event subscription
-* preStart vs start
-* dispose (and lifecycle)
+There are many events sent by the system ([built-in CodeBlockEvents](#built-in-code-block-events) and [built-in local-events](#built-in-local-events)). You can also `new` your own events and then send and receive them as well.
 
-### Code Block Event
+To send an event you simply use the `Component` `send...` method matching the event type:
 
-PropTypes
+```ts
+component.sendNetworkEvent(entity, networkEvent, data)
+```
+
+The `data` will then be passed into any callback that are connected to that event on that entity. If you are sending a broadcast even then you don't specify the receiver:
+
+```ts
+component.sendNetworkBroadcastEvent(networkEvent, data)
+```
+
+**Cannot Cancel**: once an event is sent there is no way to revoke it.
+
+### Code Block Events
+
+`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Code Block scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Code Block scripts, then you *must* use `CodeBlockEvent`s).
+
+**Creation**:
+```ts
+const cbEvent = new CodeBlockEvent<[food: string, count: number]>(
+    'registerGroceries',
+    [PropTypes.String, PropTypes.Number]
+)
+```
+
+A `CodeBlockEvent` requires:
+- A name string (e.g. `'registerGroceries'`)
+- A tuple of parameter types passing in as [PropTypes](#proptypes) and as generics (in the `<...>`)
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/codeBlockEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Data Format**: Requires a tuple of [BuiltInVariableType](#builtinvariabletype)s
+- **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
 #### Built-In Code Block Events
+The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger.
 
-Link to end table
+##### Broadcast Built-In Code Block Events
 
-### Local Events
+**Broadcast `CodeBlockEvents`**: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the the event is emitted on). For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#ownership)). There is no way to *send* a broadcast event yourself.
 
-* prePhysics and onUpdate
+See [all built-in CodeBlockEvents](#all-built-in-codeblockevents) for a complete list (including which ones are broadcast).
 
 ### Network Events
 
+`NetworkEvent`s are the **recommended alternative to `CodeBlockEvent`s** for communication between components with different [owners](#ownership).
+
+**Creation**:
+```ts
+const networkEvent = new NetworkEvent<{ code: number }>(
+  'setCodeWithNumber'
+)
+```
+
+A `NetworkEvent` requires:
+- A name string (highly specific to avoid conflicts)
+- A payload type satisfying `SerializableState`
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/networkEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Data Format**: Accepts any [SerializableState](#serializablestate)
+- **Event Disambiguation**: ⚠️ The system only checks the event name - use highly specific names to avoid conflicts between different `NetworkEvent`s!
+
+### Local Events
+
+`LocalEvent`s are designed for communication between entities on the same client, offering maximum flexibility with minimal overhead. They execute essentially as **synchronous function calls**.
+
+**Creation**:
+```ts
+const doorEvent = new LocalEvent<{open: boolean, date: Date}>(
+  'setDoorState'
+)
+```
+
+A `LocalEvent` requires:
+- An optional name string (useful for debugging)
+- A type parameter for payload; it can be any type whatsoever (since there is no network serialization). Note that the example above *cannot* be done with [NetworkEvent](#network-events) because `Date` is not compatible with [SerializableState](#serializablestate).
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/localEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Local only - events cannot cross [client](#clients-devices-and-the-server) boundaries
+- **Execution**: Immediate synchronous execution on the [local client](#clients-devices-and-the-server)
+- **Data Format**: Accepts any arbitrary type as payload type
+- **Event Disambiguation**: Uses referential equality - no risk of name conflicts.
+
+!!! warning You must use the exact same `LocalEvent` instance for both `sendLocalEvent` and `connectLocalEvent`.
+    Since `LocalEvent`s are disambiguated *referentially* you **must use the same `LocalEvent` instance**. In the code below, the first example will run `callback`. The second example does not.
+    ```ts
+    // Example 1: ✅ Right!
+    const evt = new LocalEvent('jump')
+    this.connectLocalEvent(entity, evt, callback)
+    // ... later ...
+    this.sendLocalEvent(entity, evt, {})
+
+    // Example 2: ❌ Wrong!
+    // The send is using a different event than the connect.
+    this.connectLocalEvent(entity, new LocalEvent('jump'), callback)
+    // ... later ...
+    this.sendLocalEvent(entity, new LocalEvent('jump'), {})
+    ```
+
+#### Built-In Local Events
+
+<mark>TODO</mark>
+
+* World.prePhysics{deltaTime: number} and World.onUpdate{deltaTime: number}
+* PlayerControls.onFocusedInteractionInputStarted{
+    interactionInfo: InteractionInfo[];
+  }
+* PlayerControls.onFocusedInteractionInputMoved{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onFocusedInteractionInputEnded{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onHolsteredItemsUpdated{
+  player: Player;
+  items: Entity[];
+  grabbedItem: Entity;
+}
+
 ### Broadcast events
 
+<mark>TODO</mark>
+
+Avoid using as an easy crutch
+
 * prePhysics and onUpdate
-Mention coalescence
+
+* broadcast doesn't take an entity
+
+* broadcast network allows players to be chosen
+
+* broadcast local is synchronous in unknown order
+
+* builtin local broadcast for onUpdate/onPrePhysicsUpdate
+
+* builtin local broadcast for some playerControls
+
+**Limit receiving players**: all `send...` methods (except for [CodeBlockEvents](#code-block-events)) take an additional optional final parameter: `players?: Player[]` which allows you to specify that the event will only be sent to those players' [clients](#clients-devices-and-the-server). This is an *expert-level* feature; **only use it if you truly know what you are doing**.
 
 ### Converting Between Components and Entities
 
-When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#sending-and-receiving-events)). There are 2 ways to "find [component](#components) instances on the [local device](#clients-devices-and-the-server):
+When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#receiving-events)). There are 2 ways to "find [component](#components) instances on the [local client](#clients-devices-and-the-server):
 1. **components attached to entities**: you can do `entity.getComponents()` to get all components on an entity. Currently only one entity per component is supported, thus the method returns an array with at most one element. You can also pass in a class `entity.getComponents(ExampleComponent)` to get an array of `ExampleComponent` instances attached to the entity (which, again, will be at most one).
-2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local device](#clients-devices-and-the-server).
+2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local client](#clients-devices-and-the-server).
 
 !!! danger `getComponents` cannot be used [until start](#component-lifecycle).
     You cannot call `entity.getComponents(...)` or `Component.getComponents(...)` in a property initializer, `initializeUI`, or in `preStart`. This information isn't ready until after the [prepare state](#component-lifecycle) of component instantiation.
 
 !!! example Calling a method on a component.
-    In this example we find all `ListenerComponent`s in the [local device](#clients-devices-and-the-server) from within the `SpeakerComponent`. We are then able to directly access the `props` and the `hear` method on `ListenerComponent`.
+    In this example we find all `ListenerComponent`s in the [local client](#clients-devices-and-the-server) from within the `SpeakerComponent`. We are then able to directly access the `props` and the `hear` method on `ListenerComponent`.
     ![[ horizonScripts/directFunctionCall.ts ]]
 
 ## Disposing Objects
@@ -3267,6 +3504,10 @@ Component.register(Child)
 <mark>TODO</mark>
 Auto-Restart on Script Edit
 
+restarts
+spin up (once per file per client - except on edit / reset)
+transfer
+
 ## Helper Functions
 
 Horizon has a few helper functions in `horizon/core`:
@@ -3275,7 +3516,10 @@ Horizon has a few helper functions in `horizon/core`:
   * If `value` is less than `min`, it returns `min`.
   * If `value` is greater than `max`, it returns `max`.
   * Otherwise, it returns `value` unchanged.
-  * Examples: `clamp(15, 10, 20)` is `15`, `clamp(5, 10, 20)` is `10`, `clamp(25, 10, 20)` is `20`.
+  * *Examples*:
+    * `clamp(15, 10, 20)` is `15`
+    * `clamp(5, 10, 20)` is `10`
+    * `clamp(25, 10, 20)` is `20`
 * **assert**: throws an error if the given condition is false. `assert(condition: boolean): void`
   * This is typically used for debugging and enforcing invariants.
   * Example: `assert(user !== null)` // Throws if user is null
@@ -3714,8 +3958,8 @@ export declare class PhysicalEntity extends Entity {
      *
      * @example
      * ```
-     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
-     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     * var physEnt = this.props.obj1.as(PhysicalEntity);
+     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
      *  physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
      * })
      * ```
@@ -3730,8 +3974,8 @@ export declare class PhysicalEntity extends Entity {
      *
      * @example
      * ```
-     * var physEnt = this.props.obj1.as(hz.PhysicalEntity);
-     * this.connectLocalBroadcastEvent(hz.World.onUpdate, (data: { deltaTime: number }) => {
+     * var physEnt = this.props.obj1.as(PhysicalEntity);
+     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
      *  physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
      * })
      * ```
@@ -3945,7 +4189,7 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Entering and Exiting a World
 
-When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -3973,8 +4217,8 @@ There are two [built-in code block events](#system-code-block-events) associated
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnPlayerEnterAFK` | `player: Player` | Sent when a player becomes inactive. |
-| `OnPlayerExitAFK` | `player: Player` | Sent when a player is no longer inactive. |
+| `OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
+| `OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
 
@@ -4592,6 +4836,12 @@ class AchievementsGizmo extends Entity {
 - Read / Write
 - Resetting
 
+# In-World Purchases (IWP)
+<mark>TODO</mark>
+
+# NPCs
+<mark>TODO</mark>
+
 # Spawning
 
 Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
@@ -4608,6 +4858,7 @@ Saved Asset will receive an ID that is used for spawning.
 !!! warning Assets can be used across worlds, but using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
 
 !!! note Asset Folders can be shared with other users.
+
 
 ## Simple Spawning
 ```ts
@@ -4843,6 +5094,8 @@ Technical overview (what _T_ is allowed, set, derive, and notes on preventing me
 
 Limits of type, amount, and frequency.
 
+## Style
+
 ## View Types
 
 ### View
@@ -4934,15 +5187,15 @@ AnimationCallbackReasons
 AvatarGripPose
 AvatarGripPoseAnimationNames
 [BaseRaycastHit](#raycast-gizmo)
-BuiltInVariableType
+[BuiltInVariableType](#builtinvariabletype)
 ButtonIcon
 ButtonPlacement
 [clamp](#helper-functions)
 [Color](#color)
-[CodeBlockEvents](#code-block-event)
+[CodeBlockEvents](#built-in-code-block-events)
 [Comparable](#comparable-interface)
 [Component](#component-class)
-[CodeBlockEvent](#code-block-event)
+[CodeBlockEvent](#code-block-events)
 [DefaultFetchAsDataOptions](#data-asset-text-and-json)
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
@@ -4960,7 +5213,7 @@ DefaultFocusedInteractionTrailOptions
 [EntityStyle](#mesh-asset-style)
 [EntityTagMatchOperation](#entity-tags)
 [EulerOrder](#quaternion)
-[EventSubscription](#events-sending-and-receiving)
+[EventSubscription](#receiving-events)
 [FetchAsDataOptions](#data-asset-text-and-json)
 FocusedInteraction
 FocusedInteractionTapOptions
@@ -4988,7 +5241,7 @@ MonetizationTimeOption
 [ParticleFXPlayOptions](#particlefx-gizmo)
 [ParticleFXStopOptions](#particlefx-gizmo)
 [ParticleGizmo](#particlefx-gizmo)
-[PersistentSerializableState](#persistence)
+[PersistentSerializableState](#serializablestate)
 [PhysicalEntity](#physicalentity-class)
 [PhysicsForceMode](#applying-forces-and-torque)
 PlayAnimationOptions
@@ -5006,14 +5259,14 @@ PlayerInputStateChangeCallback
 [PlayerVisibilityMode](#entity-visibility)
 [PopupOptions](#tooltips-and-popups)
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
-PropTypes
+[PropTypes](#proptypes)
 [Quaternion](#quaternion)
 [radiansToDegrees](#helper-functions)
 [RaycastGizmo](#raycast-gizmo)
 [RaycastHit](#raycast-gizmo)
 [RaycastTargetType](#raycast-gizmo)
 [ReadableHorizonProperty](#horizon-properties)
-[SerializableState](#transfering-data-across-owners)
+[SerializableState](#serializablestate)
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
@@ -5042,47 +5295,52 @@ StopAnimationOptions
 
 # All Built-In CodeBlockEvents
 
+In the table below:
+  * 🔈 is a *[CodeBlockEvent broadcast on the server](#built-in-code-block-events)*.
+  * 🏠 is a *[CodeBlockEvent broadcast on the device owned by the player in the parameters](#built-in-code-block-events)*.
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| OnAchievementComplete | `player: Player`<br/>`scriptId: string` |
-| OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
-| OnAssetSpawnFailed | `asset: Asset` |
-| OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
+| 🔈[OnAchievementComplete](#quests-gizmo) | `player: Player`<br/>`scriptId: string` |
+| 🔈OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
+| 🔈OnAssetSpawnFailed | `asset: Asset` |
+| 🔈OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
 | [OnAttachEnd](#attachable-by) | `player: Player` |
 | [OnAttachStart](#attachable-by) | `player: Player` |
-| OnAudioCompleted | - |
+| [OnAudioCompleted](#sound-recorder-gizmo) |  |
 | OnButton1Down | `player: Player` |
 | OnButton1Up | `player: Player` |
 | OnButton2Down | `player: Player` |
 | OnButton2Up | `player: Player` |
-| OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
+| 🔈OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
 | OnEntityCollision | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| OnEntityEnterTrigger | `enteredBy: Entity` |
-| OnEntityExitTrigger | `enteredBy: Entity` |
+| [OnEntityEnterTrigger](#trigger-gizmo) | `enteredBy: Entity` |
+| [OnEntityExitTrigger](#trigger-gizmo) | `enteredBy: Entity` |
 | [OnGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnGrabStart](#grab-sequence-and-events) | `isRightHand: boolean`<br/>`player: Player` |
 | OnIndexTriggerDown | `player: Player` |
 | OnIndexTriggerUp | `player: Player` |
-| OnItemConsumeComplete | `player: Player`<br/>`item: string, success: boolean` |
-| OnItemConsumeStart | `player: Player`<br/>`item: string` |
-| OnItemPurchaseComplete | `player: Player`<br/>`item: string, success: boolean` |
-| OnItemPurchaseFailed | `player: Player`<br/>`item: string` |
-| OnItemPurchaseStart | `player: Player`<br/>`item: string` |
-| OnItemPurchaseSucceeded | `player: Player`<br/>`item: string` |
+| [OnItemConsumeComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
+| [OnItemConsumeStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
+| 🔈[OnItemPurchaseFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | [OnMultiGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnMultiGrabStart](#grab-sequence-and-events) | `player: Player` |
 | OnPassiveInstanceCameraCreated | `sessionId: Player`<br/>`cameraMode: string` |
 | OnPlayerCollision | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| OnPlayerConsumeFailed | `player: Player`<br/>`item: string` |
-| OnPlayerConsumeSucceeded | `player: Player`<br/>`item: string` |
-| [OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
-| OnPlayerEnterTrigger | `enteredBy: Player` |
-| [OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
-| OnPlayerEnteredFocusedInteraction | `player: Player` |
-| OnPlayerExitTrigger | `exitedBy: Player` |
-| [OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
-| OnPlayerExitedFocusedInteraction | `player: Player` |
-| OnPlayerSpawnedItem | `player: Player`<br/>`item: Entity` |
+| 🔈[OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
+| [OnPlayerEnterTrigger](#trigger-gizmo) | `enteredBy: Player` |
+| 🔈[OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| 🏠OnPlayerEnteredFocusedInteraction | `player: Player` |
+| 🔈[OnPlayerExitAFK](#player-enter-and-exit-afk) | `player: Player` |
+| [OnPlayerExitTrigger](#trigger-gizmo) | `exitedBy: Player` |
+| 🔈[OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| 🏠OnPlayerExitedFocusedInteraction | `player: Player` |
+| [OnPlayerSpawnedItem](#in-world-item-gizmo) | `player: Player`<br/>`item: Entity` |
 | [OnProjectileExpired](#projectile-launcher-gizmo) | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` |
 | [OnProjectileHitObject](#projectile-launcher-gizmo) | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` |
 | [OnProjectileHitPlayer](#projectile-launcher-gizmo) | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` |
