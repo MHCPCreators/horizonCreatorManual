@@ -184,6 +184,7 @@
         2. [Sending Events](#sending-events)
         3. [Code Block Events](#code-block-events)
             1. [Built-In Code Block Events](#built-in-code-block-events)
+                1. [Broadcast Built-In Code Block Events](#broadcast-built-in-code-block-events)
         4. [Network Events](#network-events)
         5. [Local Events](#local-events)
             1. [Built-In Local Events](#built-in-local-events)
@@ -836,7 +837,6 @@ Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-t
 Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-entities), [attachable](#attaching-entities), etc).
 
 For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
-
 
 ### Static vs Dynamic Entities
 
@@ -3219,7 +3219,7 @@ component.connectLocalBroadcastEvent(event, callback)
 
 Many "system actions" are communicated by sending [built-in CodeBlockEvents](#built-in-code-block-events) to entities. There are also some [built-in local-events](#built-in-local-events).
 
-**Disconnecting Events**: The returned `subscription` has a `disconnect` method. Calling
+**Disconnecting Events**: All `connect...` events return an `EventSubscription`, a type with a single `disconnect(): void` method. Calling
 
 ```ts
 subscription.disconnect()
@@ -3252,8 +3252,6 @@ component.sendNetworkBroadcastEvent(networkEvent, data)
 
 **Cannot Cancel**: once an event is sent there is no way to revoke it.
 
-**Limit receiving players**: all `send...` methods (except for [CodeBlockEvents](#code-block-events)) take an additional optional final parameter: `players?: Player[]` which allows you to specify that the event will only be sent to those players' [clients](#clients-devices-and-the-server). This is an *expert-level* feature; **only use it if you truly know what you are doing**.
-
 ### Code Block Events
 
 `CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Code Block scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Code Block scripts, then you *must* use `CodeBlockEvent`s).
@@ -3280,7 +3278,13 @@ Usage example (where the event is sent to the component's entity):
 - **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
 #### Built-In Code Block Events
-The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger. See [all built-in CodeBlockEvents](#all-built-in-codeblockevents) for a complete list.
+The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger.
+
+##### Broadcast Built-In Code Block Events
+
+**Broadcast `CodeBlockEvents`**: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the the event is emitted on). For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#ownership)). There is no way to *send* a broadcast event yourself.
+
+See [all built-in CodeBlockEvents](#all-built-in-codeblockevents) for a complete list (including which ones are broadcast).
 
 ### Network Events
 
@@ -3370,8 +3374,21 @@ Usage example (where the event is sent to the component's entity):
 
 <mark>TODO</mark>
 
+Avoid using as an easy crutch
+
 * prePhysics and onUpdate
-Mention coalescence
+
+* broadcast doesn't take an entity
+
+* broadcast network allows players to be chosen
+
+* broadcast local is synchronous in unknown order
+
+* builtin local broadcast for onUpdate/onPrePhysicsUpdate
+
+* builtin local broadcast for some playerControls
+
+**Limit receiving players**: all `send...` methods (except for [CodeBlockEvents](#code-block-events)) take an additional optional final parameter: `players?: Player[]` which allows you to specify that the event will only be sent to those players' [clients](#clients-devices-and-the-server). This is an *expert-level* feature; **only use it if you truly know what you are doing**.
 
 ### Converting Between Components and Entities
 
@@ -3583,7 +3600,7 @@ Horizon has a few helper functions in `horizon/core`:
 
 ### Local and Default Scripts
 
-In the scripts dropdown in the desktop editor, every script can have its **mode** configured to be one of:
+In the scripts dropdown in the desktop editor, every script can have its **execution xmode** configured to be one of:
   **Default script**: the [file](#script-file-execution), and all [Components](#components) defined in it, will always run on the [server](#clients-devices-and-the-server).
   **Local script**: the [file](#script-file-execution), and all [Components](#components) defined in it, **can be moved** to run on [player devices or the server](#clients-devices-and-the-server).
 
@@ -5188,12 +5205,16 @@ StopAnimationOptions
 
 # All Built-In CodeBlockEvents
 
+In the table below:
+  * 🔈 is a *[CodeBlockEvent broadcast on the server](#built-in-code-block-events)*.
+  * 🏠 is a *[CodeBlockEvent broadcast on the device owned by the player in the parameters](#built-in-code-block-events)*.
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| OnAchievementComplete | `player: Player`<br/>`scriptId: string` |
-| OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
-| OnAssetSpawnFailed | `asset: Asset` |
-| OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
+| 🔈OnAchievementComplete | `player: Player`<br/>`scriptId: string` |
+| 🔈OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
+| 🔈OnAssetSpawnFailed | `asset: Asset` |
+| 🔈OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
 | [OnAttachEnd](#attachable-by) | `player: Player` |
 | [OnAttachStart](#attachable-by) | `player: Player` |
 | OnAudioCompleted | - |
@@ -5201,7 +5222,7 @@ StopAnimationOptions
 | OnButton1Up | `player: Player` |
 | OnButton2Down | `player: Player` |
 | OnButton2Up | `player: Player` |
-| OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
+| 🔈OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
 | OnEntityCollision | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
 | OnEntityEnterTrigger | `enteredBy: Entity` |
 | OnEntityExitTrigger | `enteredBy: Entity` |
@@ -5211,23 +5232,24 @@ StopAnimationOptions
 | OnIndexTriggerUp | `player: Player` |
 | [OnItemConsumeComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
 | [OnItemConsumeStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| [OnItemPurchaseComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
-| [OnItemPurchaseFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| [OnItemPurchaseStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| [OnItemPurchaseSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
+| 🔈[OnItemPurchaseFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | [OnMultiGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnMultiGrabStart](#grab-sequence-and-events) | `player: Player` |
 | OnPassiveInstanceCameraCreated | `sessionId: Player`<br/>`cameraMode: string` |
 | OnPlayerCollision | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| [OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| [OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| [OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
+| 🔈[OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
 | OnPlayerEnterTrigger | `enteredBy: Player` |
-| [OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
-| OnPlayerEnteredFocusedInteraction | `player: Player` |
+| 🔈[OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| 🏠OnPlayerEnteredFocusedInteraction | `player: Player` |
+| 🔈[OnPlayerExitAFK](#player-enter-and-exit-afk) | `player: Player` |
 | OnPlayerExitTrigger | `exitedBy: Player` |
-| [OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
-| OnPlayerExitedFocusedInteraction | `player: Player` |
+| 🔈[OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
+| 🏠OnPlayerExitedFocusedInteraction | `player: Player` |
 | [OnPlayerSpawnedItem](#in-world-item-gizmo) | `player: Player`<br/>`item: Entity` |
 | [OnProjectileExpired](#projectile-launcher-gizmo) | `position: Vec3`<br/>`rotation: Quaternion, velocity: Vec3` |
 | [OnProjectileHitObject](#projectile-launcher-gizmo) | `objectHit: Entity`<br/>`position: Vec3, normal: Vec3` |
