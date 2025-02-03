@@ -5083,101 +5083,76 @@ A few examples:
 For all other configurations, the new value will be displayed.
 
 ## Quests
-Quests (formerly known as achievements) are trackable goals to motivate players to engage with the world experiece. These goals can be related or not to the game progression.
+Quests (formerly known as achievements) are trackable goals to motivate players to engage with the world experiece. These goals can be related or not to the game progression. The Quests gizmo can only display progression local to the observer; in other words, players can't see the completed or pending achievements of other players.
 
 #### Creation
 Quests can be created through the Desktop Editor by navigating to the Qeusts section, under the Systems menu. Clicking on `Create Quest` will open the configuration panel with the following mandatory fields:
 
 | Field | Description | Limitations |
 |---|---|---|
-| Script ID | Reference ID that will be used in scriptiong calls. This ID can't be changed after the quest is created. The visitors will not see this information | 20 characters |
-| Name | Name that will be displayed on the Quest UI. | 40 characters |
-| Description | Quest description that will be displayed on the Quest UI. | 100 characters |
-| Quest Type | ***Simple***: must be marked as completed with a script API.  ***Tracked***: must be linked to a player persistent variable. The quest will be marked as completed once the PPV reaches a specific value. |  |
-| Persistent Variables | ***Tracked Quests Only*** The player persisten variable that the quest will track to determine the completion of the goal. This PPV must be created in advanced, as it can't be configured from the quest creation UI. |  |
+| Script ID | Reference ID that will be used in scriptiong calls (must be unique). This ID can't be changed after the quest is created. The visitors will not see this information | 20 characters |
+| Name | Name or short title of the achievement that will be displayed on the Quest Gizmo. | 40 characters |
+| Description | Quest description that will be displayed on the Quest Gizmo. | 100 characters |
+| Quest Type | ***Simple***: must be marked as completed with a script API call.  ***Tracked***: must be linked to a player persistent variable. The quest will be marked as completed once the PPV reaches a specific value. |  |
+| Persistent Variables | ***Tracked Quests Only*** The player persistent variable that the quest will track to determine the its completion. This PPV must be created in advance, as it can't be configured from the quest creation UI. |  |
 | Completion Threshold | ***Tracked Quests Only*** The value that the PPV must reach before the quest is marked as complete. |  |
 
 
 #### Using the Gizmo
 The Quests gizmo can be found in the Desktop Editor under the Build Menu, Gizmos option. Search for the "Quests" option, and drag it into the world scene. Its relevant properties are:
-- Displayed Title:
-- \# of Entries Per Page:
+
+- Displayed Title: "Quest" by default, but this can be changed to match the experience.
+- \# of Entries Per Page: 1 to 6 quests per page.
 - Panel UI Mode: `Light Mode` for white background and `Dark Mode` for black background.
-` LoD Radius:
+` LoD Radius: Maximum visibility distance. When a player is farther than this distance, the gizmo will be hidden; it will appear again once the player is within the defined proximity.
 
-
+!!! info It's not currently possible to control the display order of the quests<mark>TODO: this is possible for 2p</mark>. Completed Quests are moved to the end of the list.
 
 ```ts
 
 #### APIs
 /**
- * Represents an achievement gizmo in the world.
+ * Represents an Quests gizmo in the world.
  */
 export declare class AchievementsGizmo extends Entity {
 /**
-    * Creates a human-readable representation of the entity.
-    * @returns A string representation
-    */
-toString(): string;
-/**
-    * Displays the achievements.
+    * Controls what Quests should be displayed on a gizmo. The default behaviour of the gizmo is to display all of quests created in a world, unless this API is used.
     *
-    * @param achievementScriptIDs - List of achievement script IDs.
+    * @param achievementScriptIDs - List of Quests script IDs.
     */
 displayAchievements(achievementScriptIDs: Array<string>): void;
 }
 
+```
+
+The following API are part the Player class:
+
+```ts
 /**
-    * Indicates whether a player has completed an achievement.
-    * @param achievementScriptID - The scriptID of the achievement. This can be accessed
-    * and set on the Achievements page in the VR creator UI.
-    * @returns `true` if the player has the achievement, `false` otherwise.
-    *
-    * @example
-    * var WonAGameAchievementScriptID = "wonAGame"
-    * var hasAchievement = player.hasCompletedAchievement(WonAGameAchievementScriptID)
+    * Indicates whether a player has completed an quest.
+    * @param achievementScriptID - The scriptID of the quest. This an unmutable attribute
+    * that can be set when creating the quest.
+    * @returns `true` if the player has completed the quest, `false` otherwise.
     */
 hasCompletedAchievement(achievementScriptID: string): boolean;
+
 /**
-    * Specifies whether the player's achievement is complete.
-    * @param achievementScriptID - The scriptID of the achievement. This can be accessed/set on the Achievements page in the VR creator UI.
-    * @param complete - `true` sets the achievement to complete; `false` sets the achievement to incomplete.
-    *
-    * @example
-    * ```
-    * var WonAGameAchievementScriptID = "wonAGame"
-    * player.setAchievementComplete(WonAGameAchievementScriptID, true)
-    * ```
+    * Changes the completion state of a quest. This is only required for Simple Quests.
+    * @param achievementScriptID - The scriptID of the quest. This an unmutable attribute
+    * that can be set when creating the quest.
+    * @param complete - `true` sets the quest to complete; `false` sets the quest to incomplete.
     */
 setAchievementComplete(achievementScriptID: string, complete: boolean): void;
 
  /**
-    * The event that is triggered when an achievement is completed.
+    * The broadcast codeblock event that is triggered when a quest is completed.
     */
 OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
 
 ```
 
-```ts
-class AchievementsGizmo extends Entity {
-    /**
-     * Displays the achievements.
-     *
-     * @param achievementScriptIDs - List of achievement script IDs.
-     */
-    displayAchievements(achievementScriptIDs: Array<string>): void;
-}
-```
-```ts
-// CodeBlockEvents
-    /**
-     * The event that is triggered when an achievement is completed.
-     */
-    OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
-```
-
 #### Resetting
-There are two ways of resetting the achievement completion or progression:
+There are two ways of resetting a quest completion or progression:
 1. Using scripting, by invoking the setAchievementComplete with the parameter complete set to false
 1. Through the systems menu > Quests. Click `Debug Quests` (represented with a gear icon). From here, click on Reset all quests or toggle off the individual quests to reset.
 
