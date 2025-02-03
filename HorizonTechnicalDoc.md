@@ -94,7 +94,6 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-1)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -190,8 +189,6 @@
     4. [Trigger Collisions](#trigger-collisions)
     5. [Raycasts](#raycasts)
 11. [Physics](#physics)
-    1. [Overview](#overview-2)
-    2. [PhysicalEntity Class](#physicalentity-class)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
@@ -254,10 +251,6 @@
     3. [Player Controls](#player-controls)
     4. [Focused Interaction](#focused-interaction)
 17. [Persistence](#persistence)
-    1. [Leaderboards](#leaderboards)
-        1. [Creating, Editing, and Deleting Leaderboards](#creating-editing-and-deleting-leaderboards)
-        2. [Using the World Leaderboard Gizmo](#using-the-world-leaderboard-gizmo)
-        3. [Using a Leaderboard with a Player Persistent Variable](#using-a-leaderboard-with-a-player-persistent-variable)
     2. [Quests](#quests)
         1. [Creating, Editing, and Deleting Quests](#creating-editing-and-deleting-quests)
         2. [Simple vs Tracked Quests](#simple-vs-tracked-quests)
@@ -1645,7 +1638,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Color | `Color` | Sets the color of the light coming from the Static Light Gizmo.
 | Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
 
-**Typescript**:  Static Light Gizmos are referenced as the `Entity` class with no members.
+**Typescript**:  Static Light Gizmos are referenced simply as the `Entity` class.
 
 ### Text Gizmo
 **Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
@@ -1657,7 +1650,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Fixed Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
 | Visible | `boolean` | Determines if the Text Gizmo is visible to players. |
 
-**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property.
+**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following properties.
 
 ```ts
 //Properties
@@ -1733,7 +1726,14 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
 Under the hood, triggers detect *enter* and *exit* using collisions [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
 
-**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property.
+**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following properties.
+
+| Property | Type | Description |
+|---|---|---|
+| Enabled | `boolean` | Determines whether the Trigger Gizmo will detect any events. |
+| Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
+| Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
+| Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
 
 ```ts
 //Properties
