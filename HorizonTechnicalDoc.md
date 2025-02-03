@@ -178,11 +178,12 @@
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
         1. [Simulation frame rate differences](#simulation-frame-rate-differences)
-    2. [Ownership](#ownership)
-    3. [Authority and Reconciliation](#authority-and-reconciliation)
-    4. [Local and Default Scripts](#local-and-default-scripts)
+    2. [Entity Ownership (xyz)](#entity-ownership-xyz)
+    3. [Entity Ownership](#entity-ownership)
+    4. [Authority and Reconciliation](#authority-and-reconciliation)
+    5. [Local and Default Scripts](#local-and-default-scripts)
         1. [Local execution mode motivation (Why local scripts?)](#local-execution-mode-motivation-why-local-scripts)
-    5. [Ownership Transfer](#ownership-transfer)
+    6. [Ownership Transfer](#ownership-transfer)
         1. [Auto Ownership Transfers](#auto-ownership-transfers)
         2. [Transferring Data Across Owners](#transferring-data-across-owners)
 
@@ -205,7 +206,7 @@ The tools support many features for managing and scripting players, physics, 3D 
 
 **VR Editor**: in Quest VR devices the Meta Horizon Worlds app contain an edit mode that allows for creating and editing worlds inside of VR. It offers a natural and intuitive experience where you can place object directly with your hands and immerse yourself in your creations. The VR editor does not provide access to all tools that the desktop has.
 
-**TypeScript and Code Blocks**. Horizon uses [TypeScript](https://www.typescriptlang.org/) as its scripting language. TypeScript scripts can only be edited in the Desktop Editor. Horizon also has a custom block-based scripting system (where you write scripts by combining blocks together) that it calls **Code Blocks**. Code Block Scripts can only be edited in the VR Editor.
+**TypeScript and Code Blocks**. Horizon uses [TypeScript](https://www.typescriptlang.org/) as its scripting language. TypeScript scripts can only be edited in the Desktop Editor. Horizon also has a custom block-based scripting system (where you write scripts by combining blocks together) that it calls **Code Blocks**. Codeblock Scripts can only be edited in the VR Editor.
 
 # Worlds
 
@@ -870,7 +871,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
 | [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#early-frame-phase) of the frame). |
 | **Ownership** |
-| [owner](#ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
+| [owner](#entity-ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#entity-ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
 
 **<a name="entity-exists">exists() method</a>**: When an entity is [depawned](#despawning) it's `Entity` instances will then have `exists()` return `false`. Additionally, in Horizon's code block system it is possible to create an `Entity` variable, never set it to anything, and then send it in an event. TypeScript will also see this as an `Entity` instance with `exists()` returning `false`. Non-existent entities return "default values" (e.g. [position](#position) returns the [origin](#coordinate-system)); you should not `set()` any properties on one.
 
@@ -3041,7 +3042,7 @@ All event types can be instantiated with **custom user-made types** by simply ca
 
 | Event | Purpose | Timing | Payload |
 |---|---|---|---|
-| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code Block scripts. | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
+| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Codeblock scripts. | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
 | **LocalEvent** | Communicate with a TypeScript scripted entity on the [same client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | Delivered *synchronously* (immediately). | *Anything* |
 | **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
 
@@ -3113,7 +3114,7 @@ Note that the `playerCaptured` event is `export`ed from the file so that other s
 
 ### Code Block Events
 
-`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Code Block scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Code Block scripts, then you *must* use `CodeBlockEvent`s).
+`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Codeblock scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Codeblock scripts, then you *must* use `CodeBlockEvent`s).
 
 **Creation**:
 ```ts
@@ -3141,7 +3142,7 @@ The system uses `CodeBlockEvent`s for many built-in actions. For example, when a
 
 <a name="#built-in-broadcasted-code-block-events">**Broadcasted `CodeBlockEvents`**</a>: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the event is emitted on). The [list built-in CodeBlockEvents](#all-built-in-codeblockevents) includes information on which ones are *broadcast*. Throughout this document, 🔈 denotes a *server-broadcast* `CodeBlockEvent`; 🏠 denotes a *device-broadcast* `CodeBlockEvent`.
 
-For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#ownership)). There is no way to *send* a broadcast event yourself.
+For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#entity-ownership)). There is no way to *send* a broadcast event yourself.
 
 ```ts
 // on a Component
@@ -3152,9 +3153,19 @@ this.connectCodeBlockEvent(
 )
 ```
 
+!!! info CodeBlockEvents are the only way for TypeScript and Codeblock scripts to communicate
+    Codeblock scripts are unable to use either [LocalEvents](#local-events) or [NetworkEvents](#network-events), thus the only method of communication between them is via [CodeBlockEvents](#code-block-events).
+
+!!! bug Sending a CodeBlockEvent with an Asset parameter to scripts with 'local' execution mode will throw a silent error.
+    If you do try to send an Asset in a CodeBlockEvent from a script executing on the [server](#clients-devices-and-the-server) to one executing on a [player device](#clients-devices-and-the-server), the server script execution will be silently killed at the point where you try to send the event. Recall that unless you are communicating with Codeblock scripts, the **advice is to never use custom CodeBlockEvents**. Use [LocalEvents](#local-events) and [NetworkEvents](#network-events) for all your event sending and receiving.
+
+!!! danger Typescript CodeBlockEvent subscription to Entities with attached Codeblock scripts can block events
+    <mark>TODO</mark> clarify
+    If you have a CodeBlock script attached to an Entity and that is listening to that Entity for a CodeBlockEvent, and you also have a typescript script attached elsewhere but that is also listening to that same Entity for the same CodeBlockEvent, neither script will receive the event.
+
 ### Network Events
 
-`NetworkEvent`s are the **recommended alternative to `CodeBlockEvent`s** for communication between components with different [owners](#ownership).
+`NetworkEvent`s are the **recommended alternative to `CodeBlockEvent`s** for communication between components with different [owners](#entity-ownership).
 
 **Creation**:
 ```ts
@@ -3481,23 +3492,26 @@ $$\text{frame rate} = \frac{1}{\text{frame time}}$$
 
 If you need to know the frame time, e.g. to run your simulations or animations, **do not rely on a specific frame rate or frame time**. Use the `deltaTime` provided by [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) to get the time, in seconds, since the last frame (the last frame time).
 
-## Ownership
-Each entity in the scene graph is 'owned' by a specific runtime environment (server or client device), and that runtime is the authority on all the intrinsic attributes of that entity used by all the distributed simulation runtimes to render and otherwise interact with the entity.
+
+## Entity Ownership
+Each entity in the world is owned by exactly one [client](#clients-devices-and-the-server). An entity's owner:
+  * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts*)).
+  * **Has scene graph authority**: The owning client is the *authority* for that entity's core attributes (such as position, visibility, and collision settings). When a client wants to modify an entity it doesn't own, it must send a message to the owning client requesting the change.
+
+When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer).
 
 !!! info Derived attributes depend on parents
-    While the entity is the authority on its intrinsic attributes (like visibility, collidablility, local position relative to its parent, etc.), there are many derived attributes that depend on its parent chain in the scene graph. For instance, the global visibility, global collidability, and global position will be determined by aggregated transform state from walking down the scene graph from the root.
+    An entity's owner is the authority on its intrinsic attributes, but there are many attributes that are *derived* from the entity's [parent and ancestors](#ancestors). For example an entity's [position](#position) is computed from its [local position](#local-transforms) and it's parent's position.
 
 ## Authority and Reconciliation
 
 When any of the simulation runtimes wants to make a change to the intrinsic state of an entity, a network message needs to be sent to the owner runtime of that entity to actually effect the change. When that owner receives change requests, it will apply them in the order received to update the state, and then broadcast the new state out to all other runtimes. Once those runtimes receive the new state, its effect will reflect in future rendering and interactions on that runtime.
 
 !!! info Changes made to entities owned by the same runtime have no network latency
-    When a runtime wants to make changes to an entity that is owned by that same runtime, the changes will be made to its intrinsic state immediately at the end of the current frame, and be reflected in the next frame rendered for that device.  Changes made by remote runtimes from the owner of the entity will see at minimum tens of milliseconds of delay, resulting in potentially several rendering frames of lag between when the state change was requested and when it is reflected in rendering and interaction behavior.
+
 
 !!! warning State change compression may occur if multiple changes handled at once
     If there are multiple state change requests for the same state element received in a given frame, the value broadcast to other runtimes at the end of the frame will only be the _last_ value processed.  For instance, if you have a playing TrailFX and you stop and play it within the same frame, the 'stop' will likely not get broadcast to other runtimes and they will only see that it remains playing, and will thus not delete its old trail. If the entity is also owned by the runtime doing the state change requests, it may see intermediate states (e.g. it will stop the TrailFX, deleting its trail, and then start it again at its current location).
-
-All entities are _originally_ owned by the server runtime when they are initially instantiated, either at world start or by asset spawning or sublevel loading after world start. There are a number of ways that an [ownership transfer](#ownership-transfer) between runtimes can happen for an entity.
 
 !!! warning Ownership transfers are not instantaneous
     The transfer of authoritative entity intrisnic state ownership between runtimes requires network communication between runtimes, and takes an undefined amount of time, tho usually less than 500 msec. This is a significant delay relative to the rendering frame rate, and needs to be accomodated by any game logic.
@@ -3633,60 +3647,6 @@ The SerializedState of the Component should be declared as a type, and used as t
 
 !!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
     When a player runtime abruptly shuts down, there will not be any OnGrabEnd, OnAttachEnd, or OnPlayerExitWorld events delivered to the Components running in that runtime prior to the ownership transfer occurring. Unless the script has been written to have 'failsafe' behavior to return the intrinsic state of the Entity to a known default state when it is restarted in the server runtime, that Entity can become unusable due to having an inconsistent scripting state relative to its actual intrinsic state.
-
-## Networking and Events
-
-Communication between Components is accomplished via a message passing protocol using one of three kinds of Events:
-- LocalEvents
-  - sent between Components executing in the same runtime
-- NetworkEvents
-  - sent between Components executing in the same or different runtimes
-- CodeBlockEvents.
-  - sent between Components and codeblock scripts in the same or different runtimes
-
-These event types can be dispatched and listened for in two different ways:
-- Point to Point
-  - the event is sent from one sender to a specific receiver Entity
-- Broadcast
-  - the event is sent from one sender to any receiver Component that has subscribed to the event
-
-### LocalEvents
-Local events are effectively synchronous function calls between Components executing in the same runtime. As such, they can deliver any `object` payload, as there is no marshalling to a network format that might have trouble serializing certain data structures.
-
-!!! warning LocalEvents cannot be sent to remote runtimes
-    If a LocalEvent is sent to an Entity with a Component executing in a different runtime, the LocalEvent will be silently undelivered.
-
-!!! warning LocalEvents truly are synchronous
-    When you send a LocalEvent, the receiving Component will execute its event listener code _immediately_ before the sendEvent call returns. Be careful for recursive communication between Components via event callback handlers. Be aware that sending LocalEvents in `preStart()` is not advised because not all other Components may have run their `preStart()` yet and set up their listeners. Thus, do not send events until `start()` at the earliest.
-
-### NetworkEvents
-Network events can send structures and arrays that are made up of primitive types (number, boolean, string, bigint) and a subset of object types defined in the API (Vec3, Entity, Quaternion, Color, Player). Other object types (such as Asset or user defined objects) cannot be sent via NetworkEvents.
-
-Network events can be sent to Components executing in any runtime, both the same runtime as the sender and remote runtimes. Network events are first marshaled to a wire format and then delivered, at the earliest, in the next frame to the receiver. The upper bound on delivery time is undefined, but for remote recipients is typically many tens of milliseconds, or several frames.
-
-#### Targeted Network Event Delivery
-It is possible, when sending network events, to _restrict_ the runtimes that will receive the event. This can be useful to limit unnecessary network traffic if you know that only one or a few other runtimes need to receive the event.
-
-### CodeBlockEvents
-CodeBlock Events have limited payload capabilities, but are capable of being sent to Components executing in any runtime, and to codeblock scripts. You cannot send structures in CodeBlockEvents, but you can send scalars or arrays of number, string, boolean, Vec3, Color, Entity, Quaternion, Player, and Asset types.
-
-!!! info CodeBlockEvents are the only way for typescript and codeblock scripts to communicate
-    As legacy codeblock scripts are unable to use either LocalEvents or NetworkEvents, the only method for typescript and codeblock scripts to communicate with one another is via CodeBlockEvents.
-
-!!! danger Do not send Assets to scripts that are set to 'local' execution mode
-    Only ever send Asset data between scripts that are both using 'default' execution mode, meaning they are always guaranteed to be executing in the server runtime. If you do try to send an Asset from a script executing in the server runtime to one executing in a player device runtime, the server script execution will be silently killed at the point where you try to send the event.
-
-!!! danger Typescript CodeBlockEvent subscription to Entities with attached Codeblock scripts can block events
-    If you have a CodeBlock script attached to an Entity and that is listening to that Entity for a CodeBlockEvent, and you also have a typescript script attached elsewhere but that is also listening to that same Entity for the same CodeBlockEvent, neither script will receive the event.
-
-### Point to Point delivery
-All three types of events can do point to point delivery, which is done by connecting a Component to an Entity for a specific event type, and attaching a callback function. When a Component sends an event, it must both specify the target Entity as well as the event type and its payload.
-
-### Broadcast delivery
-Local and Network Events can also do broadcast delivery. Here, the Component simply registers with the runtime that it wants to receive a specific type of event, and attaches a callback function. When a Component wants to broadcast an event, it only needs to specify the event type and its payload.
-
-!!! info CodeblockEvents have legacy broadcast behaviors
-    There is no way to create user generated CodeBlockEvents that are broadcast, nor in there a way to register for a broadcast CodeBlockEvent. However, a number of the built in system CodeBlockEvents do act as though they are broadcast to every Component that listens for that event on its attached Entity.
 
 # Collision Detection
 
@@ -4138,8 +4098,8 @@ Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#buil
 
 See the diagram in the [AFK section](#player-enter-and-exit-afk) for when and how these events are sent.
 
-!!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#ownership).
-    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+!!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#entity-ownership).
+    If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
     <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
@@ -4182,7 +4142,7 @@ flowchart TD
 ```
 
 !!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
-    If an entity is [owned by a player](#ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+    If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
     <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
@@ -4432,7 +4392,7 @@ When a VR player grabs an entity is stays grabbed until they release the trigger
 
 A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
 
-When a player grabs an entity, [ownership](#ownership) is [transferred to that player](#grabbables-and-ownership).
+When a player grabs an entity, [ownership](#entity-ownership) is [transferred to that player](#grabbables-and-ownership).
 
 ### Grab Lock
 
@@ -4477,7 +4437,7 @@ on the held object. If the entity was **force held** then this is how you remove
     1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player it is forced released (after attaching to the player, meaning that it is momentarily held *and* attached at the same time).
     1. **Entity moves too far away from player** - either via scripting, animation, or physics "knocking it out of the hand".
     1. **Player moves too far away entity** - either via scripting, physics, or player movement input "walking away while grabbing physics locked object".
-    1. <span style="color:red">(Not recommended)</span> **[Ownership](#ownership) is [changed while held](#grabbables-and-ownership)** - changing the owner of a held entity will cause it to be force-release from the player. The `grabEnd` event will *not* be sent in this case.
+    1. <span style="color:red">(Not recommended)</span> **[Ownership](#entity-ownership) is [changed while held](#grabbables-and-ownership)** - changing the owner of a held entity will cause it to be force-release from the player. The `grabEnd` event will *not* be sent in this case.
 
     !!! info Disabling collidability does *not* cause a force release.
 
@@ -4557,7 +4517,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 ### Grabbables and Ownership
 
-**Transfer-on-grab**: [Ownership](#ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events). The ownership transfer occurs *before* the `OnGrabEvent`. When the `OnGrabEvent` is sent, the entity will already have the new owner. If the entity is released while the transfer is occurring you will get both `OnGrabStart` and `OnGrabEnd`.
+**Transfer-on-grab**: [Ownership](#entity-ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events). The ownership transfer occurs *before* the `OnGrabEvent`. When the `OnGrabEvent` is sent, the entity will already have the new owner. If the entity is released while the transfer is occurring you will get both `OnGrabStart` and `OnGrabEnd`.
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
