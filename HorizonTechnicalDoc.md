@@ -77,44 +77,21 @@
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         15. [Quests Gizmo](#quests-gizmo)
         16. [Raycast Gizmo](#raycast-gizmo)
-            1. [Overview](#overview-3)
-            2. [Manual Properties](#manual-properties-2)
-            3. [Typescript API](#typescript-api-1)
-            4. [How to Raycast](#how-to-raycast)
+            1. [How to Raycast](#how-to-raycast)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
-            1. [Overview](#overview-4)
-            2. [Manual Properties](#manual-properties-3)
-            3. [Typescript  API](#typescript--api)
         19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
-            1. [Overview](#overview-5)
-            2. [Sound Recorder Properties](#sound-recorder-properties)
-            3. [Pre-made Sound Properties](#pre-made-sound-properties)
-            4. [Audio Graph Properties](#audio-graph-properties)
-            5. [Typescript API](#typescript-api-2)
         20. [Spawn Point Gizmo](#spawn-point-gizmo)
-            1. [Overview](#overview-6)
-            2. [Manual Properties](#manual-properties-4)
-            3. [Typescript  API](#typescript--api-1)
         21. [Static Light Gizmo](#static-light-gizmo)
         22. [Text Gizmo](#text-gizmo)
-            1. [Overview](#overview-7)
-            2. [Manual Properties](#manual-properties-5)
-            3. [Typescript API](#typescript-api-3)
-            4. [Using a Text Gizmo](#using-a-text-gizmo)
-            5. [Limitations](#limitations)
-            6. [Text Gizmo Markup](#text-gizmo-markup)
-            7. [Text Gizmo Tags](#text-gizmo-tags)
+            1. [Using a Text Gizmo](#using-a-text-gizmo)
+            2. [Limitations](#limitations)
+            3. [Text Gizmo Markup](#text-gizmo-markup)
+            4. [Text Gizmo Tags](#text-gizmo-tags)
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
-            8. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
+            5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         23. [Trigger Gizmo](#trigger-gizmo)
-            1. [Overview](#overview-8)
-            2. [Manual Properties](#manual-properties-6)
-            3. [Typescript API](#typescript-api-4)
         24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-            1. [Overview](#overview-9)
-            2. [Manual Properties](#manual-properties-7)
-            3. [Typescript API](#typescript-api-5)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -123,7 +100,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-10)
+    1. [Overview](#overview-3)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -215,7 +192,7 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-11)
+    1. [Overview](#overview-4)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
@@ -278,7 +255,7 @@
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-12)
+    1. [Overview](#overview-5)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1538,23 +1515,32 @@ type LaunchProjectileOptions = {
 
 ### Quests Gizmo
 
-[Quests](#quests)
+**Description**: Displays a list of Quest avaliable in your world for players to track their progress. Also see [Quests](#quests)
+
+| Property | Type | Description |
+|---|---|---|
+| Displayed Title | `string` | Displayed a title at the top of the Quest Gizmo windows. |
+| Number of Entries Per Page | `number` | Determines how many questions will be displayed on a single page. Values can been between 1 and 6.
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Sets the Quest Gizmos display mode. |
+| LoD Radius | `number` | Sets the distance(in meters) that the Quest Gizmo will appear for players. |
+| Visible | `boolean` | Sets whether the Quest Gizmo is visible to players. |
+
+**Typescript**: Quest Gizmos are referenced as the `Entity` class with no members.
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| onAchievementComplete | `player:Player`<br/>`scriptID:string` | Sent when an achievement is completed by a player. |
 
 ### Raycast Gizmo
-#### Overview
-Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
-#### Manual Properties
-- Collide With
-    - Players
-    - Objects Tagged
-    - Both
-- Object Tag
-    - Text field
-- Raycast Distance
-    - Numeric value, accepts any number
+**Description**: Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
 
-#### Typescript API
-[Raycast Gizmo Class](https://horizon.meta.com/resources/scripting-api/core.raycastgizmo.md/)
+| Property | Type | Description |
+|---|---|---|
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which layers the raycast will interact with. |
+| Object Tag | `string` | Sets the tag required for the raycast to interact with an object. |
+| Raycast Distance | `number` | Determines how far the raycast will travel. |
+
+**Typescript**: Raycast Gizmos are referenced as the `RaycastGizmo` class with the following method.
 
 ```ts
 //Casts a ray from the Raycast gizmo using the given origin and direction and then retrieves collision information.
@@ -1603,97 +1589,69 @@ type PlayerRaycastHit = BaseRaycastHit & {
 #### How to Raycast
 <mark>TODO</mark>
 
-!!! warning Costly to performance if used too rapidly.
-    While the gizmo isn't costly, raycasting too often in a short period of time can hurt performance.
+**Limtations**: Raycasting too often in a short period of time can hurt performance.
+
 ### Script Gizmo
 See FBS or [Script API](#scripting)
 
 ### Snap Destination Gizmo
-#### Overview
-Designed to help position and orientate players that land on it using teleport.
+**Description**: Designed to help position and orientate players that land on it using teleport.
 
-#### Manual Properties
-- Apply Orientation
-    - ON/OFF Toggle
+| Property | Type | Description
+|---|---|---|
+| Apply Orientation | `boolean` | Applies a rotation on the player that teleports onto the Snap Destination Gizmo
 
-#### Typescript  API
-- None
+**Typescript**: Snap Destination Gizmos are referenced as the `Entity` class with no methods.
 
 ### Sound Recorder Gizmo
-#### Overview
-Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
+**Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
 - `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music.
 - `Audio Graph` generated by Gen AI. Allows you playback audio generated by the Gen AI in the Desktop Editor.
 
-#### Sound Recorder Properties
-- Sound
-    - Play Button
-    - Record Button
-- Loop
-    - ON/OFF Toggle
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Send Audio Complete
-    - ON/OFF Toggle
+**Sound Recorder**
+| Property | Type | Description |
+|---|---|---|
+| Sound | `Play` and `Record` button | `Play` will attempt to play any audio on the Sound Record Gizmo. `Record` will start recording any sounds coming through your headset mic.|
+| Loop |  `boolean` | Determines if the sound will repeat after it is finished.
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
+| Volume | `number` | Sets the volume of the Sound Recorder Gizmo. Values are between 0.0 and 1.0.
+| Pitch | `number` | Sets the pithc of the Sound Record Gizmo. Values are between -24 and 24.
+| Global | `boolean` | Determines whether the Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Send Audio Complete | `boolean` | Determines whether the Sound Record Gizmo sends an event when the audio is finished. |
 
-#### Pre-made Sound Properties
-- Preview
-    - Play Button
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Send Audio Complete
-    - ON/OFF Toggle
+**Pre-made Sound**
+| Property | Type | Description |
+|---|---|---|
+| Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
+| Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0.
+| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24.
+| Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-#### Audio Graph Properties
-- Preview
-    - Play Button
-- Loop
-    - ON/OFF Toggle
-- Play on Start
-    - ON/OFF Toggle
-- Volume
-    - Numeric value between 0.0 - 1.0
-- Volume Randomness
-    - Numeric value between 0.0 - 1.0
-- Pitch
-    - Numeric value between -24.0 - 24.0
-- Pitch Randomness
-    - Numeric value between 0.0 - 4.0
-- Global
-    - ON/OFF Toggle
-- Minimum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Maximum Distance
-    - Numeric Value between 0.0 - 1000.0
-- Low-Pass Cutoff
-    - Numeric value between 1.0 - 20000
-- Send Audio Complete
-    - ON/OFF Toggle
+**Audio Graph**
+| Property | Type | Description |
+|---|---|---|
+| Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
+| Loop |  `boolean` | Determines if the sound will repeat after it is finished. |
+| Play on Start | `boolean` | Determines if the sound will start to play when the world starts. |
+| Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0. |
+| Volume Randomness | `number` | Randomally adjust the Audio Graph Gizmo volume each play. Values are between 0.0 and 1.0. |
+| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24. |
+| Pitch Randomness | `number` | Randomally adjust the Audio Graph Gizmo pitch each play. Values are between 0.0 and 4.0. |
+| Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
+| Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
+| Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
+| Low-Pass Cutoff | `number` | Reduces the amplitude of higher frequency signals. Values are between  1 and 20000. |
+| Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-#### Typescript API
-[AudioGizmo Class](https://horizon.meta.com/resources/scripting-api/core.audiogizmo.md/)
+**Typescript**: Sound Gizmos are referenced [as](#entity-as-method) the `AudioGizmo` class with the following properties and methods. 
 
 ```ts
 //Properties
@@ -1717,39 +1675,25 @@ enum AudibilityMode {
     InaudibleTo = 1
 }
 ```
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| `OnAudioCompleted` |  | Sent when an Sound Gizmo is finished playing.  |
 
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
-```
-OnAudioCompleted: CodeBlockEvent<[]>;
-```
-
-!!! info Minimum and Maximum Distance
-    Max distance (in meters) is how far away from the gizmo you can stand before you can no longer hear it
-    Min distance (in meters) is how far away before the audio starts to fade, or how close it place at max volume.
-
-!!! warning Costly to performance if overused
-    Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
+**Limitations**: Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
 
 ### Spawn Point Gizmo
-#### Overview
-Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
-####  Manual Properties
-- Spawn on start
-    -  ON/OFF Toggle
--  Set Position Only
-    - ON/OFF Toggle
-- Player Gravity
-    - Numeric Value between 0.0 - 9.81
-- Player Speed
-    - Numeric Value between 0.0 - 45.0
-Force HWXS Camera
-    - None
-    - Third Person
-    - First Person
-    - Orbit
-    - Pan
-#### Typescript  API
-[SpawnPointGizmo Class](https://horizon.meta.com/resources/scripting-api/core.spawnpointgizmo.md/)
+**Description**: Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
+
+| Property | Type | Description |
+|---|---|---|
+| Spawn on start | `boolean` | Determines if the Spawn Point Gizmo will be used to spawn players as they join the world. |
+| Set Position Only | `boolean` | Determines if the Spawn Point Gizmo will rotate the player to match its rotation when it spawns them. |
+| Player Gravity | `number` | Sets the gravity of each player to this value when this spawn is used. Values between 0.0 and 9.81. | 
+| Player Speed | `number` | Sets the speed of each player to this value when this spawn is used. Values between 0.0 and 45. |
+| Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view web and mobile players will have after using the spawn. |
+
+**Typescript**:  Spawn Point Gizmos are referenced [as](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods. 
+
 ```ts
 //Properties
 gravity: HorizonProperty<number>; //The gravity for players spawned using this gizmo.
@@ -1763,25 +1707,35 @@ this.entity.as(SpawnPointGizmo).gravity.set(9.81)
 this.entity.as(SpawnPointGizmo).speed.set(4.5)
 this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 ```
-!!! note If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
-!!! note The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
+
+**Notes**: 
+- If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
+- The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
 
 ### Static Light Gizmo
 
-<mark>TODO</mark>
+**Description**: Emits static light that cannot be moved during run-time. Improved performance over [Dynamic Light Gizmo](#dynamic-light-gizmo).
+
+| Property | Type | Description |
+|---|---|---|
+| Shape | `Cuboid`, `Ellipsoid`, `Disk`, or `Rectangle` | Determines the shape of the static light, affecting how the light is casted onto the surrounding geometry. |
+| Color | `Color` | Sets the color of the light coming from the Static Light Gizmo.
+| Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
+
+**Typescript**:  Static Light Gizmos are referenced as the `Entity` class with no members. 
 
 ### Text Gizmo
-#### Overview
-The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
-#### Manual Properties
-- Text
-    - Text field
-- Auto Fit
-    - ON/OFF Toggle
-- Visible
-    - ON/OFF Toggle
-#### Typescript API
-[TextGizmo Class](http://horizon.meta.com/resources/scripting-api/core.textgizmo.md/)
+**Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
+
+| Property | Type | Description |
+|---|---|---|
+| Text | `string` | Sets the text displaying on the Text Gizmo. |
+| Auto Fit | `boolean` | Automatically determines the size of the font. If disabled, you can set the size manually. |
+| Fized Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
+| Visible | `boolean` | Determines if the Text Gizmo is visible to players. | 
+
+**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property. 
+
 ```ts
 //Properties
 text: HorizonProperty<string>; //The content to display in the text label
@@ -1847,20 +1801,17 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
 <mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
 
-#### Overview
-Detects when a player or object enters or exits an area.
-#### Manual Properties
-- Enabled
-    - ON/OFF Toggle
-- Trigger On
-    - Players
-    - Objects Tagged
-- Object Tag
-    - Text field
-- Selectable in Screen Mode
-    - ON/OFF Toggle
-#### Typescript API
-[TriggerGizmo Class](https://horizon.meta.com/resources/scripting-api/core.triggergizmo.md/)
+**Description**: Detects when a player or object enters or exits an area.
+
+| Property | Type | Description |
+|---|---|---|
+| Enabled | `boolean` | Determines whether the Trigger Gizmo will detect any events. |
+| Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
+| Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
+| Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
+
+**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property. 
+
 ```ts
 //Properties
 enabled: WritableHorizonProperty<boolean>; //Whether the Trigger is enabled.
@@ -1870,48 +1821,37 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
     console.log('Player entered the world.', enteredBY.name.get());
 })
 ```
-[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| OnPlayerEnterTrigger | `enteredBy: Player` | Sent each time a player has entered the trigger area. |
+| OnPlayerExitTrigger | `exitedBy: Player` | Sent each time a player has exited the trigger area. |
+| OnEntityEnterTrigger | `enteredBy: Entity` |  Sent each time an object has entered the trigger area. |
+| OnEntityExitTrigger | `player: Player` | Sent each time an object has exited the trigger area. |
+| occupied | `player: Player` | Sent when the first player enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| occupied | `object: Entity` | Sent when the first object enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| empty | `player: Player` | Sent when the last player exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| empty | `object: Entity` | Sent when the last object exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
 
-```ts
-OnPlayerEnterTrigger: CodeBlockEvent<[enteredBy: Player]>;
-OnPlayerExitTrigger: CodeBlockEvent<[exitedBy: Player]>;
-OnEntityEnterTrigger: CodeBlockEvent<[enteredBy: Entity]>;
-OnEntityExitTrigger: CodeBlockEvent<[enteredBy: Entity]>;
+**Limitations**: Using too many Trigger Gizmos can affect performance.
 
-//additional events
-new CodeBlockEvent<[Player]>('empty', [PropTypes.Player])
-new CodeBlockEvent<[Player]>('occupied', [PropTypes.Player])
-new CodeBlockEvent<[Entity]>('empty', [PropTypes.Entity])
-new CodeBlockEvent<[Entity]>('occupied', [PropTypes.Entity])
-```
-!!! note Additional Events
-    Codeblock events like `Empty` & `Occupied` are not built-in codeblocks, so we have to create them ourselves, but `Trigger Gizmos` will use them to indicate when the trigger has no players in it, or when the trigger has at least 1 player in it.
 ### World Leaderboard Gizmo
-#### Overview
-Used to display player scores in your world.
-#### Manual Properties
-- Leaderboard
-    - Dropdown list with all available leaderboards.
-- Displayed Title
-    - Text field
-- Number of Entries Per Page
-    - Numeric value between 1 - 10
-- UI Anchor Style
-    - Static
-    - Billboard
-- Panel UI Mode
-    - Light Mode
-    - Dark Mode
-- Entry Display Mode
-    - Raw Value
-    - Time in secs
-#### Typescript API
-[World.leaderboard property](https://horizon.meta.com/resources/scripting-api/core.world.leaderboards.md/)
-[ILeaderboards interface](https://horizon.meta.com/resources/scripting-api/core.ileaderboards.md/)
+**Description**: Used to display player scores in your world.
+
+| Property | Type | Description |
+|---|---|---|
+| Leaderboard | dropdown | Contains a list of all the avaliable leaderboards in your world. |
+| Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
+| Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
+| UI Anchor Style | `Static` or `Billboard` | `Static` sets the Leaderboard Gizmo stay in one place when viewed by the player. `Billboard` causes the Leaderboard Gizmo to rotate to always face the player who is viewing it. |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Determines how the Leaderboard Gizmo is displayed to players. |
+| Entry Display Mode | `Raw Value` or ` Time in Secs` | Determines how the data will be displayed. Leaderboard Gizmos only accept numberical data and it can be displayed as a number or time. |
+
+**Typescript**: Leaderboard Gizmos are referenced as the `Entity` class with no methods. Although there is one related method from the `World` class:
 
 ```ts
 setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void; //Sets the leaderboard score for a player.
 ```
+
 <mark>TODO</mark>
 - Kind of data allowed
 - Player opt-out
@@ -5211,21 +5151,21 @@ In the table below:
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| 🔈OnAchievementComplete | `player: Player`<br/>`scriptId: string` |
+| 🔈[OnAchievementComplete](#quests-gizmo) | `player: Player`<br/>`scriptId: string` |
 | 🔈OnAssetDespawned | `entity: Entity`<br/>`asset: Asset` |
 | 🔈OnAssetSpawnFailed | `asset: Asset` |
 | 🔈OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
 | [OnAttachEnd](#attachable-by) | `player: Player` |
 | [OnAttachStart](#attachable-by) | `player: Player` |
-| OnAudioCompleted | - |
+| [OnAudioCompleted](#sound-recorder-gizmo) |  |
 | OnButton1Down | `player: Player` |
 | OnButton1Up | `player: Player` |
 | OnButton2Down | `player: Player` |
 | OnButton2Up | `player: Player` |
 | 🔈OnCameraPhotoTaken | `player: Player`<br/>`isSelfie: boolean` |
 | OnEntityCollision | `collidedWith: Entity`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| OnEntityEnterTrigger | `enteredBy: Entity` |
-| OnEntityExitTrigger | `enteredBy: Entity` |
+| [OnEntityEnterTrigger](#trigger-gizmo) | `enteredBy: Entity` |
+| [OnEntityExitTrigger](#trigger-gizmo) | `enteredBy: Entity` |
 | [OnGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnGrabStart](#grab-sequence-and-events) | `isRightHand: boolean`<br/>`player: Player` |
 | OnIndexTriggerDown | `player: Player` |
@@ -5243,11 +5183,11 @@ In the table below:
 | 🔈[OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | 🔈[OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
 | 🔈[OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
-| OnPlayerEnterTrigger | `enteredBy: Player` |
+| [OnPlayerEnterTrigger](#trigger-gizmo) | `enteredBy: Player` |
 | 🔈[OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
 | 🏠OnPlayerEnteredFocusedInteraction | `player: Player` |
 | 🔈[OnPlayerExitAFK](#player-enter-and-exit-afk) | `player: Player` |
-| OnPlayerExitTrigger | `exitedBy: Player` |
+| [OnPlayerExitTrigger](#trigger-gizmo) | `exitedBy: Player` |
 | 🔈[OnPlayerExitWorld](#player-entering-and-exiting-a-world) | `player: Player` |
 | 🏠OnPlayerExitedFocusedInteraction | `player: Player` |
 | [OnPlayerSpawnedItem](#in-world-item-gizmo) | `player: Player`<br/>`item: Entity` |
