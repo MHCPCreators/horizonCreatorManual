@@ -3288,19 +3288,92 @@ Horizon has a few helper functions in `horizon/core`:
 
 # Network
 
-<mark>TODO</mark>
+## Clients (Devices and the Server)
 
-**Player owned entity** running **player-device executed script**.
-**Server owned entity** running **server executed script**.
-**Player owned entity** running **server executed script**.
+The Horizon Worlds VR simulation is a distributed system, with separation of various responsibilities between a central server and the individual client devices. The individual client devices are associated with the simulation runtime that renders the scene graph from the perspective of each individual Player. The central server does no rendering, per se, but runs its own simulation loop and has its own 'serverplayer' Player to represent it. 
 
-### Local and Default Scripts
+Some features of the typescript api are only available on certain devices, i.e. the server or the player devices. See the following for restrictions:
+- _insert refs to events and apis that are runtime specific_
 
-In the scripts dropdown in the desktop editor, every script can have its **mode** configured to be one of:
-  **Default script**: the [file](#script-file-execution), and all [Components](#components) defined in it, will always run on the [server](#clients-devices-and-the-server).
-  **Local script**: the [file](#script-file-execution), and all [Components](#components) defined in it, **can be moved** to run on [player devices or the server](#clients-devices-and-the-server).
+### Simulation frame rate differences
 
-**Why local scripts?** Imagine a player holding holding a flashlight and the player presses a button to turn it on. If the flashlight script is:
+The frame rate of the simulation runtime is _not_ the same for the server and player devices. The server frame rate target is 60 fps, while the player device frame rate target is set to match the video refresh rate of the device, which is 72 fps for Quest headsets. Scripts handle events and execute 'more frequently' on player devices than they do on the server. The frame target is not guaranteed, so you should not rely on a specific frame interval in any script calculations. Instead use the OnUpdate events to get the actual deltaTime elapsed from the last render for timing critical simulations.
+
+## Ownership
+Each entity in the scene graph is 'owned' by a specific runtime environment (server or client device), and that runtime is the authority on all the intrinsic attributes of that entity used by all the distributed simulation runtimes to render and otherwise interact with the entity.
+
+!!! info Derived attributes depend on parents
+    While the entity is the authority on its intrinsic attributes (like visibility, collidablility, local position relative to its parent, etc.), there are many derived attributes that depend on its parent chain in the scene graph. For instance, the global visibility, global collidability, and global position will be determined by aggregated transform state from walking down the scene graph from the root.
+
+## Authority and Reconciliation
+
+When any of the simulation runtimes wants to make a change to the intrinsic state of an entity, a network message needs to be sent to the owner runtime of that entity to actually effect the change. When that owner receives change requests, it will apply them in the order received to update the state, and then broadcast the new state out to all other runtimes. Once those runtimes receive the new state, its effect will reflect in future rendering and interactions on that runtime.
+
+!!! info Changes made to entities owned by the same runtime have no network latency
+    When a runtime wants to make changes to an entity that is owned by that same runtime, the changes will be made to its intrinsic state immediately at the end of the current frame, and be reflected in the next frame rendered for that device.  Changes made by remote runtimes from the owner of the entity will see at minimum tens of milliseconds of delay, resulting in potentially several rendering frames of lag between when the state change was requested and when it is reflected in rendering and interaction behavior.
+
+!!! warning State change compression may occur if multiple changes handled at once
+    If there are multiple state change requests for the same state element received in a given frame, the value broadcast to other runtimes at the end of the frame will only be the _last_ value processed.  For instance, if you have a playing TrailFX and you stop and play it within the same frame, the 'stop' will likely not get broadcast to other runtimes and they will only see that it remains playing, and will thus not delete its old trail. If the entity is also owned by the runtime doing the state change requests, it may see intermediate states (e.g. it will stop the TrailFX, deleting its trail, and then start it again at its current location).
+
+All entities are _originally_ owned by the server runtime when they are initially instantiated, either at world start or by asset spawning or sublevel loading after world start. There are a number of ways that an [ownership transfer](#ownership-transfer) between runtimes can happen for an entity.
+
+!!! warning Ownership transfers are not instantaneous
+    The transfer of authoritative entity intrisnic state ownership between runtimes requires network communication between runtimes, and takes an undefined amount of time, tho usually less than 500 msec. This is a significant delay relative to the rendering frame rate, and needs to be accomodated by any game logic.
+
+!!! warning Entity intrinsic state authority is undefined during an ownership transfer
+    During the ownership transfer period, attempted changes to the intrinsic state of the entity will likely be lost or reverted when the transfer to the new owner completes. It is important to not try to change state on an entity after an ownership transfer has been initiated until it is clear that the new owner has acquired authority over its state, such as by sending events indicating this is the case, or by polling the owner of the entity to see it has changed to the desired target.
+
+!!! danger Ownership does not cascade to children
+    When you transfer ownership of an entity, the ownership is _not_ automatically transferred for the children (or their descendents). If you want children to be transferred as well, you must manually transfer ownership of everything you care about.
+
+    !!! example
+        ```ts
+        anEntity.owner.set(newOwner)
+        anEntity.children.get().forEach(c => c.owner.set(newOwner))
+        ```
+        This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities states are not interacted with via scripts)!
+
+
+
+TODO - What is the entity's relationship to the server upon instantiation?
+- done, I think?
+How does the local script affect the entity?
+- ???
+Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
+- ???
+Explain framerate(cycle speed?) changes between local and server
+- done?
+Explain the relationship of local to server modules and wired references
+- ???
+Link to network/codeblock events
+- is this describe elsewhere? maybe I am duplicating work
+Maybe ownership cleanup tip (transfer to server on exit world during edit)
+- I think covered?
+
+## Local and Default Scripts
+Scripts modules can be marked as "default" or "local" execution mode via the desktop editor. All scripts are originally created with a "default" execution mode, and must be manually changed to "local" if so desired.
+
+This "default" vs "local" terminology is somewhat confusing. The purpose of the execution mode is to describe how Components defined in the module 'will' or 'will not' switch the runtime executing them as the ownership of the Entity to which the Component is attached changes between runtimes.
+- **default** mode
+    - The script Component always executes in the server runtime, regardless of attached Entity ownership.
+- **local** mode
+    - The script Component executes in the runtime of the owner of the attached Entity.  This can be the server runtime or a player runtime, depending on whether the Entity is owned by the `serverplayer` or an actual Player, respectively.
+
+!!! info 'local' execution mode does not necessarily mean 'running on a player headset'
+    Scripts that are marked for 'local' execution mode _can_ run on the server, if the Entity they are attached to is owned by the serverplayer. They only move execution to individual player rendering runtimes when a player takes ownership of the attached Entity.
+
+!!! info All Components defined in a module have the same execution mode
+    The execution mode is set at the typescript module level, and a single module can have multiple Components defined within. There is no way to have some components in a module to have 'default' mode and others to have 'local' mode.
+
+!!! info Different Components in a 'local' mode module can be executing in different runtimes
+    Just because Components are defined in the same 'local' module does not mean that all Components in that module are necessarily executing in the same simulation runtime. The individual Component instances could be attached to Entities that are owned by different players. Each Component instance operates independently of the others defined in the module, and moves its execution to the runtime of its Entity owner.
+
+!!! info All Components attached to an Entity need not be running the same execution mode. 
+    Some creators are able to attach multiple Components to a single Entity. There is no requirement that all those components are running on the same execution runtime if some are 'default' mode and others are 'local' mode.
+
+### Local execution mode motivation (Why local scripts?)
+
+Imagine a player holding holding a flashlight and the player presses a button to turn it on. If the flashlight script is:
   * **running on the server** (the player sees the beam after *two network trips*; other players see it after *two network trips*)
     * the [button press](#player-input) occurs on their [device](#clients-devices-and-the-server)
     * the button press is sent to the server
@@ -3313,28 +3386,10 @@ In the scripts dropdown in the desktop editor, every script can have its **mode*
 
 When a script is *local*, all components defined within it will also be local (they *can be moved between owners*). All scripts (and the components defined within them) are initialized to run on the server. [Changing an entity's owner](#ownership-transfer) will cause a new *copy* of the script file and its components to be initialized on the new owning [device](#clients-devices-and-the-server). This process is explained in [ownership transfer](#ownership-transfer) in [script file execution](#script-file-execution).
 
-## Clients (Devices and the Server)
-
-## Ownership
-TODO - What is the entity's relationship to the server upon instantiation?
-How does the local script affect the entity?
-Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
-Explain framerate(cycle speed?) changes between local and server
-Explain the relationship of local to server modules and wired references
-Link to network/codeblock events
-Maybe ownership cleanup tip (transfer to server on exit world during edit)
-
-!!! danger Ownership does not cascade to children
-    When you transfer ownership of an entity the ownership is _not_ automatically transferred for the children (nor their children). If you want children to be transferred as well then you must manually transfer ownership of everything you care about.
-
-    !!! example
-        ```ts
-        anEntity.owner.set(newOwner)
-        anEntity.children.get().forEach(c => c.owner.set(newOwner))
-        ```
-        This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities are not scripted)!
-
 ## Ownership Transfer
+Entity ownership transfer happens through either programatic action or automatically via certain built-in behaviors.
+
+When an ownership transfer is initiated, the current owner stops acting as an authority for the intrinsic state of the entity. The receiving owner will use the last broadcast intrinsic state prior to the ownership transfer being initiated as the intrinsic state to manage for that entity when it acknowledges its ownership authority. In the meantime, any state change requests sent by any runtimes will likely be routed to the incorrect owner and may get either lost or reverted when the new owner asserts its authority over the entity state.
 
 - API overview of `transferOwnership` and `receiveOwnership` and `SerializableState`.
 - Full-details sequencing diagrams.
@@ -3342,19 +3397,114 @@ Maybe ownership cleanup tip (transfer to server on exit world during edit)
 
 ### Auto Ownership Transfers
 
-Collisions and Grabbables
+Entity ownership is _automatically_ transfered between runtimes in the following situations:
+- whenever an entity is grabbed or attached to a player
+  - as the entity needs to precisely track the player position, which is owned by the player's simulation runtime, the entity must also be owned by that runtime to get frame accurate updates of its position.
+- when an entity collides with another entity or player, and the 'preserve ownership on collision' property panel attribute of the entity is NOT enabled
+  - it is frequently desirable for entities to automatically be owned by the owner of whatever collided with them before they execute any scripts to take action on that collision.
+- when a player whose device owns an entity leaves the world
+  - as their device is no longer participating in the distributed simulation, all entities whose state they were responsible for are automatically transfered back to server runtime ownership.
+  - Note that this is not an 'orderly' transfer of ownership, as the departing owner runtime is 'gone' and not able to participate in any transfer of runtime state to the new server owner.
+
+!!! warning Exiting build preview does NOT cause automatic ownership transfer
+    When in build mode, exiting from preview back to build mode does _NOT_ automatically transfer ownership of any Entities owned by the build player back to the `serverplayer`. Any Components with 'local' execution mode will continue to run in the player's device runtime. This can be confusing if they are scripted to track player avatar location, as they will start to follow the 'big' build avatar around. It is best to handle 'OnPlayerExitWorld' events and explicitly transfer ownership of all scripted Entities owned by the departing player back to the 'serverplayer'.
 
 ### Transferring Data Across Owners
 
-SerializableState
-transferOwnership(_oldOwner: Player, _newOwner: Player): TSerializableState;
-receiveOwnership(_serializableState: TSerializableState | null, _oldOwner: Player, _newOwner: Player): void;
+Entities that are performing 'orderly' transfers of ownership between runtimes and that have Component(s) with 'local' execution mode in the runtime of their owner have an opportunity to transfer additional script state along with ownership. This state is not part of the intrinsic state of the entity, rather it is specific internal state of any typescript Component(s) running in the former owners simulation runtime.
+
+Such owner runtime executing Components will receive a `transferOwnership()` call to serialize any desired state. After the ownership transfer, when the Component is executed on the new owner's runtime, the Component there will receive a `receiveOwnership()` call to deserialize state into the local typescript object. As the information being serialized will be transferred over the network, the serialized state has the same payload constraints as NetworkEvent payloads.
+
+The SerializedState of the Component should be declared as a type, and used as the second `Component` template parameter to ensure proper type checking of the ownership callbacks.
+
+!!! example 
+    ```ts
+    type State = {ammo: number};
+
+    class WeaponWithAmmo extends Component<typeof WeaponWithAmmo, State> {
+      static propsDefinition = {
+        initialAmmo: {type: PropTypes.Number, default: 20},
+      };
+
+      private ammo: number = 0;
+      
+      start() {
+        // this gets called first, before receiveOwnership(), to set the
+        // default behavior in case there is no orderly ownership transfer
+        this.ammo = this.props.initialAmmo;
+      }
+      
+      receiveOwnership(state: State | null, fromPlayer: Player, toPlayer: Player) {
+        // if there is no orderly ownership transfer, i.e. the transfered state is
+        // 'null', use the value set in start(). Otherwise overwrite the start()
+        // value.
+        this.ammo = state?.ammo ?? this.ammo;
+      }
+      
+      transferOwnership(fromPlayer: Player, toPlayer: Player): State {
+        return {ammo: this.ammo};
+      }
+    }
+
+!!! warning Non-'orderly' ownership transfers cannot transfer script state
+    If the ownership transfer of an entity with owner runtime executing scripts occurs, the old owner will _not_ have an opportunity to execute `transferOwnership()`, and so the new owner will receive a `null` state in `receiveOwnership()`
+
+!!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
+    When a player runtime abruptly shuts down, there will not be any OnGrabEnd, OnAttachEnd, or OnPlayerExitWorld events delivered to the Components running in that runtime prior to the ownership transfer occurring. Unless the script has been written to have 'failsafe' behavior to return the intrinsic state of the Entity to a known default state when it is restarted in the server runtime, that Entity can become unusable due to having an inconsistent scripting state relative to its actual intrinsic state.
 
 ## Networking and Events
 
-## Authority and Reconciliation
+Communication between Components is accomplished via a message passing protocol using one of three kinds of Events: 
+- LocalEvents
+  - sent between Components executing in the same runtime
+- NetworkEvents
+  - sent between Components executing in the same or different runtimes
+- CodeBlockEvents.
+  - sent between Components and codeblock scripts in the same or different runtimes
 
-What happens if two scripts are setting an entity's position at the "same time"?
+These event types can be dispatched and listened for in two different ways:
+- Point to Point
+  - the event is sent from one sender to a specific receiver Entity
+- Broadcast
+  - the event is sent from one sender to any receiver Component that has subscribed to the event
+
+### LocalEvents
+Local events are effectively synchronous function calls between Components executing in the same runtime. As such, they can deliver any `object` payload, as there is no marshalling to a network format that might have trouble serializing certain data structures. 
+
+!!! warning LocalEvents cannot be sent to remote runtimes
+    If a LocalEvent is sent to an Entity with a Component executing in a different runtime, the LocalEvent will be silently undelivered.
+
+!!! warning LocalEvents truly are synchronous
+    When you send a LocalEvent, the receiving Component will execute its event listener code _immediately_ before the sendEvent call returns. Be careful for recursive communication between Components via event callback handlers. Be aware that sending LocalEvents in `preStart()` is not advised because not all other Components may have run their `preStart()` yet and set up their listeners. Thus, do not send events until `start()` at the earliest.
+
+### NetworkEvents
+Network events can send structures and arrays that are made up of primitive types (number, boolean, string, bigint) and a subset of object types defined in the API (Vec3, Entity, Quaternion, Color, Player). Other object types (such as Asset or user defined objects) cannot be sent via NetworkEvents.
+
+Network events can be sent to Components executing in any runtime, both the same runtime as the sender and remote runtimes. Network events are first marshaled to a wire format and then delivered, at the earliest, in the next frame to the receiver. The upper bound on delivery time is undefined, but for remote recipients is typically many tens of milliseconds, or several frames.
+
+#### Targeted Network Event Delivery
+It is possible, when sending network events, to _restrict_ the runtimes that will receive the event. This can be useful to limit unnecessary network traffic if you know that only one or a few other runtimes need to receive the event.
+
+### CodeBlockEvents
+CodeBlock Events have limited payload capabilities, but are capable of being sent to Components executing in any runtime, and to codeblock scripts. You cannot send structures in CodeBlockEvents, but you can send scalars or arrays of number, string, boolean, Vec3, Color, Entity, Quaternion, Player, and Asset types.
+
+!!! info CodeBlockEvents are the only way for typescript and codeblock scripts to communicate
+    As legacy codeblock scripts are unable to use either LocalEvents or NetworkEvents, the only method for typescript and codeblock scripts to communicate with one another is via CodeBlockEvents.
+
+!!! danger Do not send Assets to scripts that are set to 'local' execution mode
+    Only ever send Asset data between scripts that are both using 'default' execution mode, meaning they are always guaranteed to be executing in the server runtime. If you do try to send an Asset from a script executing in the server runtime to one executing in a player device runtime, the server script execution will be silently killed at the point where you try to send the event.
+
+!!! danger Typescript CodeBlockEvent subscription to Entities with attached Codeblock scripts can block events
+    If you have a CodeBlock script attached to an Entity and that is listening to that Entity for a CodeBlockEvent, and you also have a typescript script attached elsewhere but that is also listening to that same Entity for the same CodeBlockEvent, neither script will receive the event.
+
+### Point to Point delivery
+All three types of events can do point to point delivery, which is done by connecting a Component to an Entity for a specific event type, and attaching a callback function. When a Component sends an event, it must both specify the target Entity as well as the event type and its payload.
+
+### Broadcast delivery
+Local and Network Events can also do broadcast delivery. Here, the Component simply registers with the runtime that it wants to receive a specific type of event, and attaches a callback function. When a Component wants to broadcast an event, it only needs to specify the event type and its payload.
+
+!!! info CodeblockEvents have legacy broadcast behaviors
+    There is no way to create user generated CodeBlockEvents that are broadcast, nor in there a way to register for a broadcast CodeBlockEvent. However, a number of the built in system CodeBlockEvents do act as though they are broadcast to every Component that listens for that event on its attached Entity.
 
 # Collision Detection
 
