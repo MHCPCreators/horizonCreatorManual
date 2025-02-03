@@ -3159,9 +3159,10 @@ this.connectCodeBlockEvent(
 !!! bug Sending a CodeBlockEvent with an Asset parameter to scripts with 'local' execution mode will throw a silent error.
     If you do try to send an Asset in a CodeBlockEvent from a script executing on the [server](#clients-devices-and-the-server) to one executing on a [player device](#clients-devices-and-the-server), the server script execution will be silently killed at the point where you try to send the event. Recall that unless you are communicating with Codeblock scripts, the **advice is to never use custom CodeBlockEvents**. Use [LocalEvents](#local-events) and [NetworkEvents](#network-events) for all your event sending and receiving.
 
-!!! danger Typescript CodeBlockEvent subscription to Entities with attached Codeblock scripts can block events
-    <mark>TODO</mark> clarify
-    If you have a CodeBlock script attached to an Entity and that is listening to that Entity for a CodeBlockEvent, and you also have a typescript script attached elsewhere but that is also listening to that same Entity for the same CodeBlockEvent, neither script will receive the event.
+!!! danger A TypeScript connecting to an entity with an attached Codeblock script can lead to issues.
+    Some times TypeScript and Codeblock scripts will "fight each other" when both listening to events from the same entity. It is a subtle bug that doesn't appear in all cases. However we recommend: **do not have TypeScript and Codeblock scripts listen to events from the same entity**.
+
+    Example: Imagine a [trigger](#trigger-gizmo) that has a Codeblock script attached to it that listens to [trigger enter](#trigger-entry-and-exit) on `self` (Codeblock's version of `this.entity`). If you then have a TypeScript script also connect to the [trigger enter](#trigger-entry-and-exit) event then it turns out that neither script will receive trigger events for that trigger.
 
 ### Network Events
 
@@ -3271,7 +3272,7 @@ component.connectLocalBroadcastEvent(evt, callback)
 ### Converting Between Components and Entities
 
 When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#receiving-events)). There are 2 ways to "find [component](#components) instances on the [local client](#clients-devices-and-the-server):
-1. **components attached to entities**: you can do `entity.getComponents()` to get all components on an entity. Currently only one entity per component is supported, thus the method returns an array with at most one element. You can also pass in a class `entity.getComponents(ExampleComponent)` to get an array of `ExampleComponent` instances attached to the entity (which, again, will be at most one).
+1. **components attached to entities**: you can do `entity.getComponents()` to get all components on an entity. If only one component is attached to the entity then the array will have 1 element in it. You can also pass in a class `entity.getComponents(ExampleComponent)` to get an array of `ExampleComponent` instances attached to the entity (which, again, will be at most one).
 2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local client](#clients-devices-and-the-server).
 
 !!! danger `getComponents` cannot be used [until start](#component-lifecycle).
@@ -3492,23 +3493,70 @@ $$\text{frame rate} = \frac{1}{\text{frame time}}$$
 
 If you need to know the frame time, e.g. to run your simulations or animations, **do not rely on a specific frame rate or frame time**. Use the `deltaTime` provided by [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) to get the time, in seconds, since the last frame (the last frame time).
 
-
 ## Entity Ownership
 Each entity in the world is owned by exactly one [client](#clients-devices-and-the-server). An entity's owner:
-  * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts*)).
-  * **Has scene graph authority**: The owning client is the *authority* for that entity's core attributes (such as position, visibility, and collision settings). When a client wants to modify an entity it doesn't own, it must send a message to the owning client requesting the change.
+  * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts*)*).
+  * **Has scene graph authority**: The owning client is the *[authority](#authority-and-reconciliation)* for that entity's core attributes (such as position, visibility, and collision settings). When a client wants to modify an entity it doesn't own, it must send a message to the owning client requesting the change.
 
-When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer).
+When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer). When the owner changes, the [local components](#local-and-default-scripts) attached to the entity [move](#ownership-transfer).
+
+## Local and Default Scripts
+In the Script dropdown in the desktop editor, scripts can be marked as *default* or *local* **execution mode**. All scripts are originally created with a *default* execution mode, and must be manually changed to *local* if so desired.
+
+The *default* vs *local* terminology is a bit confusing. The execution mode setting describes what happens to a component when the entity it is attached to [changes owner](#ownership-transfer).
+  * **Default script execution mode**: all components in the file will always executes on the server, regardless of ownership of the entity they are attached to.
+  * **Local script execution mode**: components defined in the file will "[move](#ownership-transfer)" to execute on the client matching the new owner of the entity (every time the owner changes).
+
+**Component execution mode**: Even though execution mode is an aspect of files, we borrow the term for components, according to the execution mode of file they are defined in. So, we say *a component has default execution mode when the file it is defined in does*.
+
+We often abbreviate the terms as: *default component*, *local component*, *default script*, and *local script*.
+
+A script file's execution mode (local or default) affects how its components run:
+  1. **One execution mode per file**: All components in a [script file](#script-file-execution) share the file's execution mode. However:
+      * A *local component* can run on any client.
+      * Different components in the same *local script* can run on different clients.
+      * Different instances of the same component class in a *local script* can run on different clients.
+
+  2. **"Local" means "movable"**: The term "local" means the component *can* run on player devices, not that it *must*:
+      * *Local components* run on whichever client owns their entity.
+      * If the [server player](#server-player) owns the entity, its *local component* runs on the server.
+
+  3. **Ownership transfer creates new components**: *Local components* don't actually *move*. When their entity changes owner, an [ownership transfer](#ownership-transfer) occurs:
+      * The old component is [disposed](#component-lifecycle).
+      * A new component is [instantiated](#component-lifecycle) on the new owner.
+      * The old component may [pass data](#transferring-data-across-owners) to the new one.
+
+  4. **Mixed execution on one entity**: Some creators have the ability to attach multiple scripts to an entity.
+      * Only *local components* "move" when the entity owner changes.
+      * One entity may have some components running on the [server](#clients-devices-and-the-server) and others running on a [player device](#clients-devices-and-the-server).
+
+### Why Local Scripts and Ownership Matter: Network Latency
+When a client modifies an entity it owns, the changes happen immediately at the end of the current frame. But when a client modifies an entity owned by a different client:
+  1. The change is sent over the network to the owning client (through the server)
+  1. The owner applies the change
+  1. The owner broadcasts the new state to all clients
+  1. Other clients receive and apply the new state
+
+This process takes at least a few frames (or more if slow networks are involved). Using [local scripts](#local-and-default-scripts) on [player-owner](#entity-ownership) entities can make actions feel instantaneous to the local player (with no real impact to the other players). See the example below.
+
+!!! example
+    Imagine a player holding a flashlight and pressing a button to turn it on. The table below shows what happens if the script controlling the flashlight is running on the [player's device vs the server](#clients-devices-and-the-server). Note that **in the player-owned case, the player sees it immediately. In both cases others see it after 2 network trips**.
+
+    In the table "📡" means that a network trip occurs.
+
+    | Flight Owner | Steps | When The Player Sees | When Other Players See |
+    |---|---|---|---|
+    | Player | <ol><li>Player [presses button](#player-input) on their device</li><li>Device [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to server](#late-frame-phase)📡; from there it's [sent to other clients](#late-frame-phase)📡</li></ol> | End of frame | 2 network trips |
+    | Server | <ol><li>Player [presses button](#player-input) on their device</li><li>Button press [sent to server](#late-frame-phase)📡</li><li>Server [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to all clients](#late-frame-phase)📡</li></ol> | 2 network trips | 2 network trips |
+
+## Authority and Reconciliation
 
 !!! info Derived attributes depend on parents
     An entity's owner is the authority on its intrinsic attributes, but there are many attributes that are *derived* from the entity's [parent and ancestors](#ancestors). For example an entity's [position](#position) is computed from its [local position](#local-transforms) and it's parent's position.
 
-## Authority and Reconciliation
-
 When any of the simulation runtimes wants to make a change to the intrinsic state of an entity, a network message needs to be sent to the owner runtime of that entity to actually effect the change. When that owner receives change requests, it will apply them in the order received to update the state, and then broadcast the new state out to all other runtimes. Once those runtimes receive the new state, its effect will reflect in future rendering and interactions on that runtime.
 
 !!! info Changes made to entities owned by the same runtime have no network latency
-
 
 !!! warning State change compression may occur if multiple changes handled at once
     If there are multiple state change requests for the same state element received in a given frame, the value broadcast to other runtimes at the end of the frame will only be the _last_ value processed.  For instance, if you have a playing TrailFX and you stop and play it within the same frame, the 'stop' will likely not get broadcast to other runtimes and they will only see that it remains playing, and will thus not delete its old trail. If the entity is also owned by the runtime doing the state change requests, it may see intermediate states (e.g. it will stop the TrailFX, deleting its trail, and then start it again at its current location).
@@ -3529,8 +3577,6 @@ When any of the simulation runtimes wants to make a change to the intrinsic stat
         ```
         This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities states are not interacted with via scripts)!
 
-
-
 TODO - What is the entity's relationship to the server upon instantiation?
 - done, I think?
 How does the local script affect the entity?
@@ -3545,42 +3591,6 @@ Link to network/codeblock events
 - is this describe elsewhere? maybe I am duplicating work
 Maybe ownership cleanup tip (transfer to server on exit world during edit)
 - I think covered?
-
-## Local and Default Scripts
-Scripts modules can be marked as "default" or "local" execution mode via the desktop editor. All scripts are originally created with a "default" execution mode, and must be manually changed to "local" if so desired.
-
-This "default" vs "local" terminology is somewhat confusing. The purpose of the execution mode is to describe how Components defined in the module 'will' or 'will not' switch the runtime executing them as the ownership of the Entity to which the Component is attached changes between runtimes.
-- **default** mode
-    - The script Component always executes in the server runtime, regardless of attached Entity ownership.
-- **local** mode
-    - The script Component executes in the runtime of the owner of the attached Entity.  This can be the server runtime or a player runtime, depending on whether the Entity is owned by the `serverplayer` or an actual Player, respectively.
-
-!!! info 'local' execution mode does not necessarily mean 'running on a player headset'
-    Scripts that are marked for 'local' execution mode _can_ run on the server, if the Entity they are attached to is owned by the serverplayer. They only move execution to individual player rendering runtimes when a player takes ownership of the attached Entity.
-
-!!! info All Components defined in a module have the same execution mode
-    The execution mode is set at the typescript module level, and a single module can have multiple Components defined within. There is no way to have some components in a module to have 'default' mode and others to have 'local' mode.
-
-!!! info Different Components in a 'local' mode module can be executing in different runtimes
-    Just because Components are defined in the same 'local' module does not mean that all Components in that module are necessarily executing in the same simulation runtime. The individual Component instances could be attached to Entities that are owned by different players. Each Component instance operates independently of the others defined in the module, and moves its execution to the runtime of its Entity owner.
-
-!!! info All Components attached to an Entity need not be running the same execution mode.
-    Some creators are able to attach multiple Components to a single Entity. There is no requirement that all those components are running on the same execution runtime if some are 'default' mode and others are 'local' mode.
-
-### Local execution mode motivation (Why local scripts?)
-
-Imagine a player holding holding a flashlight and the player presses a button to turn it on. If the flashlight script is:
-  * **running on the server** (the player sees the beam after *two network trips*; other players see it after *two network trips*)
-    * the [button press](#player-input) occurs on their [device](#clients-devices-and-the-server)
-    * the button press is sent to the server
-    * the server-executed script [enables the light](#dynamic-light-gizmo) beam
-    * the beam's enabled [property](#horizon-properties) is synchronized back to the player's device (and all other players)
-  * **running on the player's device** (the player sees the beam immediately (0 network trips); other players see it after *two network trips*)
-    * the [button press](#player-input) occurs on their [device](#clients-devices-and-the-server)
-    * the player-device-executed script [enables the light](#dynamic-light-gizmo) beam
-    * the beam's enabled [property](#horizon-properties) is synchronized to the server (and then sent to other players)
-
-When a script is *local*, all components defined within it will also be local (they *can be moved between owners*). All scripts (and the components defined within them) are initialized to run on the server. [Changing an entity's owner](#ownership-transfer) will cause a new *copy* of the script file and its components to be initialized on the new owning [device](#clients-devices-and-the-server). This process is explained in [ownership transfer](#ownership-transfer) in [script file execution](#script-file-execution).
 
 ## Ownership Transfer
 Entity ownership transfer happens through either programatic action or automatically via certain built-in behaviors.
@@ -3614,33 +3624,7 @@ Such owner runtime executing Components will receive a `transferOwnership()` cal
 The SerializedState of the Component should be declared as a type, and used as the second `Component` template parameter to ensure proper type checking of the ownership callbacks.
 
 !!! example
-    ```ts
-    type State = {ammo: number};
-
-    class WeaponWithAmmo extends Component<typeof WeaponWithAmmo, State> {
-      static propsDefinition = {
-        initialAmmo: {type: PropTypes.Number, default: 20},
-      };
-
-      private ammo: number = 0;
-
-      start() {
-        // this gets called first, before receiveOwnership(), to set the
-        // default behavior in case there is no orderly ownership transfer
-        this.ammo = this.props.initialAmmo;
-      }
-
-      receiveOwnership(state: State | null, fromPlayer: Player, toPlayer: Player) {
-        // if there is no orderly ownership transfer, i.e. the transfered state is
-        // 'null', use the value set in start(). Otherwise overwrite the start()
-        // value.
-        this.ammo = state?.ammo ?? this.ammo;
-      }
-
-      transferOwnership(fromPlayer: Player, toPlayer: Player): State {
-        return {ammo: this.ammo};
-      }
-    }
+  ![[ horizonScripts/ownerDataTransferExample.ts ]]
 
 !!! warning Non-'orderly' ownership transfers cannot transfer script state
     If the ownership transfer of an entity with owner runtime executing scripts occurs, the old owner will _not_ have an opportunity to execute `transferOwnership()`, and so the new owner will receive a `null` state in `receiveOwnership()`
