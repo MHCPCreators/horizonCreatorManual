@@ -62,11 +62,20 @@
         4. [Door Gizmo](#door-gizmo)
         5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
         6. [Environment Gizmo](#environment-gizmo)
+                1. [Overview](#overview-1)
+                1. [Manual Properties](#manual-properties)
+                2. [Typescript API](#typescript-api)
         7. [In-World Item Gizmo](#in-world-item-gizmo)
+            1. [Overview](#overview-2)
+            2. [Manual Properties](#manual-properties-1)
+            3. [Typescript API](#typescript-api-1)
         8. [Media Board Gizmo](#media-board-gizmo)
         9. [Mirror Gizmo](#mirror-gizmo)
         10. [Navigation Volume](#navigation-volume)
         11. [NPC Gizmo](#npc-gizmo)
+            1. [Overview](#overview-3)
+            2. [Manual Properties](#manual-properties-2)
+            3. [Typescript API](#typescript-api-2)
         12. [ParticleFx Gizmo](#particlefx-gizmo)
         13. [TrailFx Gizmo](#trailfx-gizmo)
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
@@ -96,6 +105,30 @@
             1. [Overview](#overview-5)
             2. [Manual Properties](#manual-properties-3)
             3. [Typescript API](#typescript-api-2)
+            1. [Overview](#overview-4)
+            2. [Manual Properties](#manual-properties-3)
+            3. [Typescript API](#typescript-api-3)
+            4. [How to Raycast](#how-to-raycast)
+        17. [Script Gizmo](#script-gizmo)
+        18. [Snap Destination Gizmo](#snap-destination-gizmo)
+            1. [Overview](#overview-5)
+            2. [Manual Properties](#manual-properties-4)
+            3. [Typescript  API](#typescript--api)
+        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+            1. [Overview](#overview-6)
+            2. [Sound Recorder Properties](#sound-recorder-properties)
+            3. [Pre-made Sound Properties](#pre-made-sound-properties)
+            4. [Audio Graph Properties](#audio-graph-properties)
+            5. [Typescript API](#typescript-api-4)
+        20. [Spawn Point Gizmo](#spawn-point-gizmo)
+            1. [Overview](#overview-7)
+            2. [Manual Properties](#manual-properties-5)
+            3. [Typescript  API](#typescript--api-1)
+        21. [Static Light Gizmo](#static-light-gizmo)
+        22. [Text Gizmo](#text-gizmo)
+            1. [Overview](#overview-8)
+            2. [Manual Properties](#manual-properties-6)
+            3. [Typescript API](#typescript-api-5)
             4. [Using a Text Gizmo](#using-a-text-gizmo)
             5. [Limitations](#limitations)
             6. [Text Gizmo Markup](#text-gizmo-markup)
@@ -110,6 +143,13 @@
             1. [Overview](#overview-7)
             2. [Manual Properties](#manual-properties-5)
             3. [Typescript API](#typescript-api-4)
+            1. [Overview](#overview-9)
+            2. [Manual Properties](#manual-properties-7)
+            3. [Typescript API](#typescript-api-6)
+        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+            1. [Overview](#overview-10)
+            2. [Manual Properties](#manual-properties-8)
+            3. [Typescript API](#typescript-api-7)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -118,7 +158,6 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-8)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -206,7 +245,6 @@
         3. [Collision Events](#collision-events)
         4. [Triggers](#triggers)
 11. [Physics](#physics)
-    1. [Overview](#overview-9)
     2. [Units](#units)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
@@ -269,7 +307,6 @@
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-10)
     2. [Quests](#quests)
     3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
@@ -1131,6 +1168,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [World Promotion](#world-promotion-gizmo) | `Entity` |
 
 ### Collider Gizmo
+
 **Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
 | Property | Type | Description |
 |---|---|---|
@@ -1144,15 +1182,15 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
-| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile can unless `Focus Prompt` is disabled.|
+| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile still can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
-| Mipmap | `boolean` | If enabled, allows you to adjust the level of mipmap which affects how much detail is drawn when viewed from a distance.  |
-| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. If disabled, web and mobile players cannot interact, but VR players can unless `Raycast` is disabled. |
-| Focus prompt distance | `number` | Controls the distance within which a player can interact with the UI panel if `Focus Prompt` is enabled. |
+| Mipmap | `boolean` | ? <mark>TODO</mark>Finish this |
+| Focus Prompt | `boolean` | ? |
+| Focus prompt distance | `number` | ? |
 
 **TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
 
-**Limitations**: Custom UI Gizmo and their bindings will cause performance issues. See [Custom UI](#custom-ui) for recommendations.
+**Limitations**:
 
 ### Debug Console Gizmo
 
@@ -1205,39 +1243,86 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
   * Performance intensive due to per-frame light/shadow processing
 
 ### Environment Gizmo
-**Description**: Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
-| Property | Type | Description |
-|---|---|---|
-| Active | `boolean` | Only one Environment Gizmo can be active in a world. Enabling this will active this Environment Gizmo, but disable any other Environment Gizmos in the world.
-| Skydome Type | `Cubemap` or `Custom Gradient` | `Cubemap` allows you to choose from a predefined texture and `Custom Gradient` lets you paint the sky a gradient color instead. |
-| Texture | dropdown | List of predefined Skydome textures.
-| Texture Rotation | `number` | Sets the rotation of the Skydome texture on the Y axis only.
-| Exposure | `number` | Sets the light intensity of the world. Accepts a value between 0.0 and 2.0. Default is 1.0.
-| Custom Light Intensity | `boolean` | If enabled, allows you to adjust the `Light Intensity` property. |
-| Light Intensity | `number` | Sets the brightness of global lighting in the world. Accepts values between 0.0 and 2.0 with 1.0 as the default. |
-| Custom Fog Color | `boolean` | If enabled, allows you to adjust the `Fog Color` property. |
-| Fog Color | `Color` | Sets a custom color to the fog in your world. |
-| Fog Density |  `number` | Sets how dense or thick the fog is. Accepts values between 0.0000 and 0.1000. |
-| Show Grid | `boolean` | Determines whether the world grid is visible at x:0, y:0, z:0. |
-| VOIP Settings([Player Audio](#player-audio)) <-- Doesn't exist <mark>TODO</mark>  | `Environment`(<mark>TODO</mark> (VOIP=Env will pass back to last env gizmo), `Default`, `Nearby`, `Extended`, `Whisper`, or `Mute`. `Default` is default. | Sets the default VOIP setting for all players in your world. |
+##### Overview
+Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
-**Typescript**: TypeScript: Environment Gizmos are referenced as Entity instances with no additional scripting capabilities.
+#####  Manual Properties
+- Active
+  - ON/OFF Toggle
+- Skydome Type
+  - Cubemap
+  - Custom Gradient
+- Texture
+  - Daytime
+  - Sunrise
+  - Sunset
+  - Overcast
+  - Night
+  - Midnight Black
+  - Twilight
+  - Misty Marsh
+  - Winter Sky
+  - Twilight Clouds
+  - Day Clouds
+  - Day Panorama
+  - Night Panorama
+  - Star Field
+- Texture Rotation
+  - Value between 0 - 360
+- Exposure
+  - Value between 0.0 - 2.0
+- Custom Light Intensity
+  - ON/OFF Toggle
+  - Light Intensity
+    - Value between 0.0 - 2.0
+- Custom Fog Color
+  - ON/OFF Toggle
+  - Fog Color
+    - RGB values between 0.0 - 1.0
+- Fog Density
+  - Value between 0.0000 - 0.1000
+- Show Grid
+  - ON/OFF Toggle
+- VOIP Settings (link to [player audio](#player-audio))
+  - Environment - <mark>TODO</mark> (VOIP=Env will pass back to last env gizmo)
+  - Default
+  - Nearby
+  - Extended
+  - Whisper
+  - Mute
 
-**Limitations:**
-- Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
-- When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
+##### Typescript API
+- None
 
+!!! Note Multiple Environment Gizmos Allowed
+    Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
+
+!!! Warning Spawning Multiple Environment Gizmos
+    When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
+
+!!! Bug Known Issues
+    - <mark>TODO</mark> list known issues or delete
 ### In-World Item Gizmo
 **Description**: Used to sell In-World Items to users in your worlds. Also see [In-World Purchases](#in-world-purchases-iwp)
 
-| Property | Type | Description |
-|---|---|---|
-| Visible | `boolean` | Sets whether the In-World Gizmo is visible to players. |
-| In-world Item | dropdown | Contains a list of all the In-World Items you have created in this world. |
-| Customize Purchase Dialog Position | `boolean` | If enabled, allows you to adjust the `Purchase Dialog Position`. |
-| Purchase Dialog Position | `Vec3` | Adjust the position on screen the Purchase Dialog menu appears. |
-| UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed. `Trigger` doesn't show anything and only spawns the menu when a player enters into the trigger area. `Button` will show a small symbol that will open the menu when interacted with. `Icon` will show the item price as an icon you can interact with. |
+#### Overview
+Used to sell In-World Items to users in your worlds.
+<mark>TODO</mark> Needs a lot more explaining
+
+#### Manual Properties
+- Visible
+    - ON/OFF Toggle
+- In-world Item
+    - Dropdown list of all available Items
+- Customize Purchase Dialog Position
+    - ON/OFF Toggle
+    - If ON, Purchase Dialog Position is available
+        - Vector(X,Y,Z)
+- UI Property
+    - Trigger
+    - Button
+    - Icon
 
 **TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class with the following methods:
 
@@ -1248,7 +1333,18 @@ playerOwnsItem(player, item) //Indicates whether the player owns a specific item
 quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
 timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
 ```
-**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `IWPSellerGizmo`:
+[Codeblock Events](https://horizon.meta.com/resources/scripting-api/core.codeblockevents.md/)
+```ts
+OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
+OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
+OnItemPurchaseSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnItemPurchaseFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeSucceeded: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
+OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
+```
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -1451,7 +1547,7 @@ type LaunchProjectileOptions = {
 }
 ```
 
-**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `ProjectileLauncherGizmo`:
+**Built-In CodeBlockEvents**: the following events are [sent to](#receiving-events) a `ProjectileLauncherGizmo`:
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -2742,17 +2838,17 @@ The `World` class represents the currently running [instance](#instances) and th
 
 ## Components
 
-Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#sending-and-receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
 
 The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
 1. Create a new [Component class](#component-class)
 1. [Attach the Component](#attaching-components-to-entities) to an entity (or many entities)
 1. Add [property definitions](#component-properties) that will appear in the Properties panel
-1. Connect code to run when [system (or user) events occur](#sending-and-receiving-events)
+1. Connect code to run when [system (or user) events occur](#receiving-events)
 
 The steps above are the "main path" but there are also many more parts of scripting:
-* [Sending events](#sending-and-receiving-events)
+* [Sending events](#sending-events)
 * [Creating timers and async code](#async-delays-and-timers)
 * [Creating local scripts](#local-scripts) and [transferring ownership](#ownership-transfer) for low-latency interactions
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
@@ -2822,8 +2918,8 @@ Components can define properties that appear in the Properties panel by implemen
 The static `propsDefinition` object defines your properties. Each property needs:
   * A *key* that will become the property name in `this.props`
   * An *object* value containing:
-    * `type`: *Required*. a value from `PropTypes`
-    * `default`: *Optional*. Initial value for the property in the Properties panel
+    * `type`: *Required*. a value from [PropTypes](#proptypes) (note that not all kinds of `PropTypes` are useful in a `propsDefinition`; see the limitations below).
+    * `default`: *Optional*. Initial value for the property in the Properties panel.
 
 | `PropTypes` Value | Results In | Default Value | Notes |
 |---|---|---|---|
@@ -2842,13 +2938,13 @@ The static `propsDefinition` object defines your properties. Each property needs
     const e: Entity = ...
     ```
 
-    While `PropTypes.Entity` is data used in `propsDefinition` or [CodeBlockEvents](#code-block-event).
+    While `PropTypes.Entity` is data used in `propsDefinition` or [CodeBlockEvents](#code-block-events).
 
 !!! tip No Type Checking
     TypeScript does not type-check the `static propsDefinition` object. Verify your property definitions carefully.
 
 **Limitations**
-* **Player**: the `PropTypes` enum includes `PropTypes.Player` but there is no way to make use of it for `propsDefinition`.
+* **Player**: the `PropTypes` object includes `PropTypes.Player` but there is no way to make use of it for `propsDefinition`.
 * **Arrays**: the `PropTypes` enum includes array versions of all types (like `NumberArray`),  but there is no way to make use of them for `propsDefinition`.
 **Nullable Types**: Properties using `PropTypes.Entity` or `PropTypes.Asset` will always be nullable: `Entity | null` or `Asset | null`, respectively. You must check for `null` before using these properties:
   ```ts
@@ -2865,7 +2961,7 @@ The static `propsDefinition` object defines your properties. Each property needs
 
 ### Component Lifecycle
 
-Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#sending-and-receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
+Components follow a strict, sequential lifecycle with 3 key parts. All components are **prepared** and then all are **started** (this is useful for [event subscriptions](#receiving-events)). Then all components are "active", running in the world. If, or when, the editor stops, the component's entity [despawns](#despawning), or the component's entity [prepares to change owner](#ownership-transfer) then they are **torn down**.
 
 Likewise, when a group of entities are [spawned](#spawning), all them are prepared; then, all of them are started.
 
@@ -2883,7 +2979,7 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
     * `transferOwnership()` executes (only during ownership transfers)
     * Component is [disposed](#disposing-objects), meaning that `dispose()` executes and all callbacks registered with `registerDisposeOperation` run, except for the ones where the `DisposeOperationRegistration` was already [canceled or ran](#disposing-objects).
     * All [async timeouts and intervals] created with the component are canceled.
-    * All [event subscriptions](#sending-and-receiving-events) created with the component are [disconnected](#sending-and-receiving-events).
+    * All [event subscriptions](#receiving-events) created with the component are [disconnected](#receiving-events).
 
 !!! info Component Initialization Sequence
     1. Property initializers run first
@@ -2971,7 +3067,7 @@ style EarlyPhase fill:#def,stroke:#aac
 ```
 
 !!! warning Connect to events in `preStart`. Send events in `start`.
-    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#sending-and-receiving-events) for a detailed. explanation.
+    Do *not* connect in `start`. Do *not* send in `preStart`. See the explanation in the [events section](#receiving-events) for a detailed. explanation.
 
 !!! warning Property initializers run before `props` are available.
     ```typescript
@@ -3054,11 +3150,11 @@ const subscription = component.connectLocalBroadcastEvent(
 
 Callbacks registered with `onPrePhysicsUpdate` run before physics computations occur in the frame. Callbacks registered with `onUpdate` run after physics computations. **onUpdate is usually what you need**. See the description of [prePhysics vs onUpdate](#prephysics-vs-onupdate-events) for more information.
 
-The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#sending-and-receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
+The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
 
 ### BuiltInVariableType
 
-`BuiltInVariableType` represent "primitive Horizon data". It is used in [CodeBlockEvents](#code-block-event) and [defining props with PropTypes](#component-properties).
+`BuiltInVariableType` represent "primitive Horizon data". It is used in [CodeBlockEvents](#code-block-events) and [defining props with PropTypes](#component-properties). The different types in `BuiltInVariableType` are available as a TypeScript object in [PropTypes](#proptypes).
 
 ```ts
 type BuiltInVariableType =
@@ -3071,6 +3167,33 @@ type BuiltInVariableType =
   | Color       | Color[]
   | Player      | Player[]
   | Asset       | Asset[]
+```
+
+### PropTypes
+
+`PropTypes` is an enum representing all the same values in [BuiltInVariableType](#builtinvariabletype). `PropTypes` is used in creating the [component propsDefinition](#component-properties) and in creating [CodeBlockEvents](#code-block-events).
+
+```ts
+const PropTypes = {
+  Number: "number";
+  String: "string";
+  Boolean: "boolean";
+  Vec3: "Vec3";
+  Color: "Color";
+  Entity: "Entity";
+  Quaternion: "Quaternion";
+  Player: "Player";
+  Asset: "Asset";
+  NumberArray: "Array<number>";
+  StringArray: "Array<string>";
+  BooleanArray: "Array<boolean>";
+  Vec3Array: "Array<Vec3>";
+  ColorArray: "Array<Color>";
+  EntityArray: "Array<Entity>";
+  QuaternionArray: "Array<Quaternion>";
+  PlayerArray: "Array<Player>";
+  AssetArray: "Array<Asset>";
+};
 ```
 
 ### SerializableState
@@ -3095,7 +3218,43 @@ type TransientSerializableStateNode = Player;
 
 ## Communication Between Components
 
-<mark>TODO</mark>
+The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events. If two components are running on the same [client](#clients-devices-and-the-server) then you can have them [interact directly without using events](#converting-between-components-and-entities).
+
+There are multiple kinds of events with different purposes. Event listeners are usually [connected](#receiving-events) in `preStart`. Events can be [sent](#receiving-events) at any time.
+
+`LocalEvent`s and `NetworkEvent`s can be sent to specific entities or be [broadcast](#broadcast-events) to all listeners in the world. Many "system actions" (such as [players entering the world](#player-entering-and-exiting-a-world), an [entity being grabbed](#grab-sequence-and-events), a [collision occurring](#collision-events), etc) are sent as [built-in CodeBlockEvents](#built-in-code-block-events); there [are many built-in CodeBlockEvents](#all-built-in-codeblockevents).
+
+All event types can be instantiated with **custom user-made types** by simply calling `new` on the event type and making one. When creating custom events, export them so that you can create them once and share them across files. If you keep instantiating the same event repeatedly across your code, you are likely to make an error (and make refactors more difficult).
+
+| Event | Purpose | Timing | Payload |
+|---|---|---|---|
+| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code Block scripts. | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
+| **LocalEvent** | Communicate with a TypeScript scripted entity on the [same client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | Delivered *synchronously* (immediately). | *Anything* |
+| **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
+
+### Receiving Events
+
+**Connecting Events**: Events are "subscribed" to using a `Component` method starting with `connect...`, such as
+
+```ts
+const subscription = component.connectLocalEvent(entity, event, callback)
+```
+
+which will result in `callback` being run every time `event` is sent to `entity` (if `entity` has the same owner as `component.owner`, since the line above used a *local* event). When using [broadcast](#broadcast-events), there is no specified entity to listen to.
+
+```ts
+component.connectLocalBroadcastEvent(event, callback)
+```
+
+Many "system actions" are communicated by sending [built-in CodeBlockEvents](#built-in-code-block-events) to entities. There are also some [built-in local-events](#built-in-local-events).
+
+**Disconnecting Events**: The returned `subscription` has a `disconnect` method. Calling
+
+```ts
+subscription.disconnect()
+```
+
+would make it so that `callback` is no longer called. It's good practice to disconnect listeners when you are done with them.
 
 !!! warning Connect to events in `preStart`. Send in `start`.
     Imagine the following scenario: `ComponentA`, in its `start`, sends an event to `ComponentB`'s entity; but `ComponentB` doesn't register to listen to the event until its `start`. Does `ComponentB` get the event? It depends on which component `start`ed first!
@@ -3104,54 +3263,156 @@ type TransientSerializableStateNode = Player;
 
     **Never `connect` in `start`. Never `send` in `preStart`**. This can cause events to get missed!
 
-### Sending and Receiving Events
+### Sending Events
 
-The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events.
+There are many events sent by the system ([built-in CodeBlockEvents](#built-in-code-block-events) and [built-in local-events](#built-in-local-events)). You can also `new` your own events and then send and receive them as well.
 
-There are multiple kinds of events:
+To send an event you simply use the `Component` `send...` method matching the event type:
 
-| Event | Purpose | Timing | Payload |
-|---|---|---|---|
-| **CodeBlockEvent** |Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Code block scripts. | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | `BuiltInVariableType`. |
-| **LocalEvent** | Communicate rapidly/robustly with another specific TypeScript scripted entity on the same [client](#clients-devices-and-the-server). | Delivered *synchronously* (immediately). | *Anything* |
-| **NetworkEvent** | Communicate with a specific TypeScript scripted entity (possibly) on another [client](#clients-devices-and-the-server). | Delivered, at the very earliest, in the next frame if the receiver has the same [owner](#ownership). Otherwise it requires a "network trip". | `SerializableState`. |
+```ts
+component.sendNetworkEvent(entity, networkEvent, data)
+```
 
-`LocalEvent`s and `NetworkEvent`s can be sent to specific entities or be [broadcast](#broadcast-events) to all listeners in the world. Many "system actions" (such as [players entering the world](#player-entering-and-exiting-a-world), an [entity being grabbed](#grab-sequence-and-events), a [collision occurring](#collision-events), etc) are sent as [built-in CodeBlockEvents](#built-in-code-block-events); there [are many](#all-built-in-codeblockevents).
+The `data` will then be passed into any callback that are connected to that event on that entity. If you are sending a broadcast even then you don't specify the receiver:
 
-* event subscription
-* preStart vs start
-* dispose (and lifecycle)
+```ts
+component.sendNetworkBroadcastEvent(networkEvent, data)
+```
 
-### Code Block Event
+**Cannot Cancel**: once an event is sent there is no way to revoke it.
 
-PropTypes
+**Limit receiving players**: all `send...` methods (except for [CodeBlockEvents](#code-block-events)) take an additional optional final parameter: `players?: Player[]` which allows you to specify that the event will only be sent to those players' [clients](#clients-devices-and-the-server). This is an *expert-level* feature; **only use it if you truly know what you are doing**.
+
+### Code Block Events
+
+`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Code Block scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Code Block scripts, then you *must* use `CodeBlockEvent`s).
+
+**Creation**:
+```ts
+const cbEvent = new CodeBlockEvent<[food: string, count: number]>(
+    'registerGroceries',
+    [PropTypes.String, PropTypes.Number]
+)
+```
+
+A `CodeBlockEvent` requires:
+- A name string (e.g. `'registerGroceries'`)
+- A tuple of parameter types passing in as [PropTypes](#proptypes) and as generics (in the `<...>`)
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/codeBlockEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Data Format**: Requires a tuple of [BuiltInVariableType](#builtinvariabletype)s
+- **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
 #### Built-In Code Block Events
-
-Link to end table
-
-### Local Events
-
-* prePhysics and onUpdate
+The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger. See [all built-in CodeBlockEvents](#all-built-in-codeblockevents) for a complete list.
 
 ### Network Events
 
+`NetworkEvent`s are the **recommended alternative to `CodeBlockEvent`s** for communication between components with different [owners](#ownership).
+
+**Creation**:
+```ts
+const networkEvent = new NetworkEvent<{ code: number }>(
+  'setCodeWithNumber'
+)
+```
+
+A `NetworkEvent` requires:
+- A name string (highly specific to avoid conflicts)
+- A payload type satisfying `SerializableState`
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/networkEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Data Format**: Accepts any [SerializableState](#serializablestate)
+- **Event Disambiguation**: ⚠️ The system only checks the event name - use highly specific names to avoid conflicts between different `NetworkEvent`s!
+
+### Local Events
+
+`LocalEvent`s are designed for communication between entities on the same client, offering maximum flexibility with minimal overhead. They execute essentially as **synchronous function calls**.
+
+**Creation**:
+```ts
+const doorEvent = new LocalEvent<{open: boolean, date: Date}>(
+  'setDoorState'
+)
+```
+
+A `LocalEvent` requires:
+- An optional name string (useful for debugging)
+- A type parameter for payload; it can be any type whatsoever (since there is no network serialization). Note that the example above *cannot* be done with [NetworkEvent](#network-events) because `Date` is not compatible with [SerializableState](#serializablestate).
+
+Usage example (where the event is sent to the component's entity):
+![[ horizonScripts/localEventExample.ts ]]
+
+**Properties**:
+- **Client Support**: Local only - events cannot cross [client](#clients-devices-and-the-server) boundaries
+- **Execution**: Immediate synchronous execution on the [local client](#clients-devices-and-the-server)
+- **Data Format**: Accepts any arbitrary type as payload type
+- **Event Disambiguation**: Uses referential equality - no risk of name conflicts.
+
+!!! warning You must use the exact same `LocalEvent` instance for both `sendLocalEvent` and `connectLocalEvent`.
+    Since `LocalEvent`s are disambiguated *referentially* you **must use the same `LocalEvent` instance**. In the code below, the first example will run `callback`. The second example does not.
+    ```ts
+    // Example 1: ✅ Right!
+    const evt = new LocalEvent('jump')
+    this.connectLocalEvent(entity, evt, callback)
+    // ... later ...
+    this.sendLocalEvent(entity, evt, {})
+
+    // Example 2: ❌ Wrong!
+    // The send is using a different event than the connect.
+    this.connectLocalEvent(entity, new LocalEvent('jump'), callback)
+    // ... later ...
+    this.sendLocalEvent(entity, new LocalEvent('jump'), {})
+    ```
+
+#### Built-In Local Events
+
+<mark>TODO</mark>
+
+* World.prePhysics{deltaTime: number} and World.onUpdate{deltaTime: number}
+* PlayerControls.onFocusedInteractionInputStarted{
+    interactionInfo: InteractionInfo[];
+  }
+* PlayerControls.onFocusedInteractionInputMoved{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onFocusedInteractionInputEnded{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onHolsteredItemsUpdated{
+  player: Player;
+  items: Entity[];
+  grabbedItem: Entity;
+}
+
 ### Broadcast events
+
+<mark>TODO</mark>
 
 * prePhysics and onUpdate
 Mention coalescence
 
 ### Converting Between Components and Entities
 
-When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#sending-and-receiving-events)). There are 2 ways to "find [component](#components) instances on the [local device](#clients-devices-and-the-server):
+When two components are running on the same [client](#clients-devices-and-the-server) they can directly call one another's functions (instead of going through [entities and the event system](#receiving-events)). There are 2 ways to "find [component](#components) instances on the [local client](#clients-devices-and-the-server):
 1. **components attached to entities**: you can do `entity.getComponents()` to get all components on an entity. Currently only one entity per component is supported, thus the method returns an array with at most one element. You can also pass in a class `entity.getComponents(ExampleComponent)` to get an array of `ExampleComponent` instances attached to the entity (which, again, will be at most one).
-2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local device](#clients-devices-and-the-server).
+2. **all component instances**: you can run `Component.getComponents(ExampleComponent)` to get an array of all instances of `ExampleComponent` on the [local client](#clients-devices-and-the-server).
 
 !!! danger `getComponents` cannot be used [until start](#component-lifecycle).
     You cannot call `entity.getComponents(...)` or `Component.getComponents(...)` in a property initializer, `initializeUI`, or in `preStart`. This information isn't ready until after the [prepare state](#component-lifecycle) of component instantiation.
 
 !!! example Calling a method on a component.
-    In this example we find all `ListenerComponent`s in the [local device](#clients-devices-and-the-server) from within the `SpeakerComponent`. We are then able to directly access the `props` and the `hear` method on `ListenerComponent`.
+    In this example we find all `ListenerComponent`s in the [local client](#clients-devices-and-the-server) from within the `SpeakerComponent`. We are then able to directly access the `props` and the `hear` method on `ListenerComponent`.
     ![[ horizonScripts/directFunctionCall.ts ]]
 
 ## Disposing Objects
@@ -3850,7 +4111,7 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Entering and Exiting a World
 
-When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#sending-and-receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -4848,15 +5109,15 @@ AnimationCallbackReasons
 AvatarGripPose
 AvatarGripPoseAnimationNames
 [BaseRaycastHit](#raycast-gizmo)
-BuiltInVariableType
+[BuiltInVariableType](#builtinvariabletype)
 ButtonIcon
 ButtonPlacement
 [clamp](#helper-functions)
 [Color](#color)
-[CodeBlockEvents](#code-block-event)
+[CodeBlockEvents](#built-in-code-block-events)
 [Comparable](#comparable-interface)
 [Component](#component-class)
-[CodeBlockEvent](#code-block-event)
+[CodeBlockEvent](#code-block-events)
 [DefaultFetchAsDataOptions](#data-asset-text-and-json)
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
@@ -4874,7 +5135,7 @@ DefaultFocusedInteractionTrailOptions
 [EntityStyle](#mesh-asset-style)
 [EntityTagMatchOperation](#entity-tags)
 [EulerOrder](#quaternion)
-[EventSubscription](#events-sending-and-receiving)
+[EventSubscription](#receiving-events)
 [FetchAsDataOptions](#data-asset-text-and-json)
 FocusedInteraction
 FocusedInteractionTapOptions
@@ -4902,7 +5163,7 @@ MonetizationTimeOption
 [ParticleFXPlayOptions](#particlefx-gizmo)
 [ParticleFXStopOptions](#particlefx-gizmo)
 [ParticleGizmo](#particlefx-gizmo)
-[PersistentSerializableState](#persistence)
+[PersistentSerializableState](#serializablestate)
 [PhysicalEntity](#physicalentity-class)
 [PhysicsForceMode](#applying-forces-and-torque)
 PlayAnimationOptions
@@ -4920,14 +5181,14 @@ PlayerInputStateChangeCallback
 [PlayerVisibilityMode](#entity-visibility)
 [PopupOptions](#tooltips-and-popups)
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
-PropTypes
+[PropTypes](#proptypes)
 [Quaternion](#quaternion)
 [radiansToDegrees](#helper-functions)
 [RaycastGizmo](#raycast-gizmo)
 [RaycastHit](#raycast-gizmo)
 [RaycastTargetType](#raycast-gizmo)
 [ReadableHorizonProperty](#horizon-properties)
-[SerializableState](#transfering-data-across-owners)
+[SerializableState](#serializablestate)
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
