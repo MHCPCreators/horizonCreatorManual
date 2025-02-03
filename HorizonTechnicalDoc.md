@@ -3047,17 +3047,21 @@ then if, or when, `component` is [torn down](#component-lifecycle), the interval
 
 [Async intervals](#async-delays-and-timers) are not effective for **running code every frame** because they are difficult to align the timing of (due to being [imprecise](#async-delays-and-timers)).
 
-The [World](#world-class) has two static members: `onPrePhysicsUpdate` and `onUpdate` which expose [Local Events](#local-events) that are [broadcast](#broadcast-events) every frame:
+The [World](#world-class) has two static members exposing [Local Events](#local-events) that are [broadcast](#broadcast-events) every frame (to all [clients](#clients-devices-and-the-server)):
+
+| `World` class<br/>`static` member | Type | Description |
+|---|---|---|
+| `onPrePhysicsUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#early-frame-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+| `onUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#early-frame-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+
+
 
 ```ts
 const subscription = component.connectLocalBroadcastEvent(
   World.onUpdate,
   (info) => {
-    // runs every frame!
-    console.log(
-      info.deltaTime +
-      'seconds have passed since last frame!'
-    )
+    // runs every frame before physics updates
+    console.log(`${info.deltaTime} seconds since last frame`)
   }
 )
 ```
@@ -3132,7 +3136,7 @@ type TransientSerializableStateNode = Player;
 
 ## Communication Between Components
 
-The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events. If two components are running on the same [client](#clients-devices-and-the-server) then you can have them [interact directly without using events](#converting-between-components-and-entities).
+The primary way in which components communicate with one another, and react to occurrences in the world, is by **sending** and **receiving** events through entities (or [through players](#routing-events-through-players)). If two components are running on the same [client](#clients-devices-and-the-server) then you can have them [interact directly without using events](#converting-between-components-and-entities).
 
 There are multiple kinds of events with different purposes. Event listeners are usually [connected](#receiving-events) in `preStart`. Events can be [sent](#receiving-events) at any time.
 
@@ -3151,16 +3155,20 @@ All event types can be instantiated with **custom user-made types** by simply ca
 **Connecting Events**: Events are "subscribed" to using a `Component` method starting with `connect...`, such as
 
 ```ts
-const subscription = component.connectLocalEvent(entity, event, callback)
+const subscription = component.connectLocalEvent(
+  entity, event, callback
+)
 ```
 
-which will result in `callback` being run every time `event` is sent to `entity` (if `entity` has the same owner as `component.owner`, since the line above used a *local* event). When using [broadcast](#broadcast-events), there is no specified entity to listen to.
+which will result in `callback` being run every time `event` is sent to `entity` (if `entity` has the same owner as `component.owner`, since the line above used a *local* event).When using [broadcast](#broadcast-events), there is no specified entity to listen to.
 
 ```ts
 component.connectLocalBroadcastEvent(event, callback)
 ```
 
 Many "system actions" are communicated by sending [built-in CodeBlockEvents](#built-in-code-block-events) to entities. There are also some [built-in local-events](#built-in-local-events).
+
+You can also connect to [events sent to players](#routing-events-through-players).
 
 **Disconnecting Events**: All `connect...` events return an `EventSubscription`, a type with a single `disconnect(): void` method. Calling
 
@@ -3193,7 +3201,20 @@ The `data` will then be passed into any callback that are connected to that even
 component.sendNetworkBroadcastEvent(networkEvent, data)
 ```
 
+You can also [send events to players](#routing-events-through-players).
+
 **Cannot Cancel**: once an event is sent there is no way to revoke it.
+
+### Routing Events through Players
+
+The (non-[broadcast](#broadcast-events)) `connect...` and `send...` methods on [Component](#component-class) allow either an [Entity](#entities) or a [Player](#players) for the `target` argument.
+
+Routing events through players follows the same rules as entities.
+
+The example below shows a script that has [props](#component-properties) for a [trigger](#trigger-gizmo) and an index. It [listens to](#receiving-events) the [OnPlayerEnterTrigger](#trigger-gizmo) event to know when a player enters the trigger. When one does, a network event is sent **to the player** to announce that they were "captured" by the trigger with the given index. Anyone listening to the `playerCaptured` event on that player will receive the event.
+
+Note that the `playerCaptured` event is `export`ed from the file so that other scripts can listen to it. Also, this particular example could have also been achieved with a [broadcast event](#broadcast-events).
+![[ horizonScripts/playerEventExample.ts ]]
 
 ### Code Block Events
 
@@ -3302,41 +3323,42 @@ Usage example (where the event is sent to the component's entity):
 
 #### Built-In Local Events
 
-<mark>TODO</mark>
-
-* World.prePhysics{deltaTime: number} and World.onUpdate{deltaTime: number}
-* PlayerControls.onFocusedInteractionInputStarted{
-    interactionInfo: InteractionInfo[];
-  }
-* PlayerControls.onFocusedInteractionInputMoved{
-  interactionInfo: InteractionInfo[];
-}
-* PlayerControls.onFocusedInteractionInputEnded{
-  interactionInfo: InteractionInfo[];
-}
-* PlayerControls.onHolsteredItemsUpdated{
-  player: Player;
-  items: Entity[];
-  grabbedItem: Entity;
-}
+There are currently two groups of built-in [LocalEvents](#local-events):
+  * The [World](#world-class) class has static members [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) for running code every frame ([before and after physics](#late-frame-phase), respectively). These are broadcast on all [clients](#clients-devices-and-the-server).
+  * The [PlayerControls](#player-controls) class has static members for `onFocusedInteractionInputStarted`, `onFocusedInteractionInputMoved`, `onFocusedInteractionInputEnded`, and `onHolsteredItemsUpdated` which are all [broadcast](#broadcast-events) on the [player device](#clients-devices-and-the-server) that own the controls.
 
 ### Broadcast events
 
-<mark>TODO</mark>
+[NetworkEvents](#network-events) and [LocalEvents](#local-events) both support broadcasting. Instead of [sending events](#sending-events) to and [listening to events](#receiving-events) on a specific entity, you instead simply listen for the event being "broadcast", and then any registered listener can receive it.
 
-Avoid using as an easy crutch
+Note: events are simply [LocalEvents](#local-events), [NetworkEvents](#network-events), or [CodeBlockEvents](#code-block-events). There is no special "broadcast event type". Instead, broadcast refers to the way that events are sent and received.
 
-* prePhysics and onUpdate
+!!! warning Me mindful not to overuse broadcast events.
+    Broadcast events decouple senders from receivers without requiring specific entity or player targets. However, overuse can lead to performance issues when many listeners run unnecessarily to check if events are relevant to them. If this happens, consider either splitting the event into more specific events or [routing through entities or players](##routing-events-through-players) instead.
 
-* broadcast doesn't take an entity
+For example, if you create the following `LocalEvent`:
 
-* broadcast network allows players to be chosen
+```ts
+const evt = new LocalEvent<{value: number}>()
+```
+then you send it like this (there is no `entity` receiver arg)
+```ts
+component.sendLocalBroadcastEvent(evt, {value: 10})
+```
+and it will be received by all listeners on the same [client](#clients-devices-and-the-server) (since it's a local event). To register one of those listeners, do:
+then you can register to listen to it being sent from
+```ts
+component.connectLocalBroadcastEvent(evt, callback)
+```
 
-* broadcast local is synchronous in unknown order
+**[LocalEvent](#local-events) Broadcast**: `sendLocalBroadcastEvent` will synchronously (immediately) call all registered listeners on the same [client](#clients-devices-and-the-server). The order that the callbacks are called in is undefined and should not be relied on. [There are some built-in LocalEvents](#built-in-local-events) which are broadcasted.
 
-* builtin local broadcast for onUpdate/onPrePhysicsUpdate
+**[NetworkEvent](#network-events) Broadcast**: `sendNetworkBroadcastEvent` is asynchronous (delayed). Any listeners on the same [client](#clients-devices-and-the-server) will process the event in the next [scripting frame phase](#scripting-frame-phase). Listeners on other clients will wait until they receive the event (over the network) and then will process the event in their next [scripting frame phase](#scripting-frame-phase).
 
-* builtin local broadcast for some playerControls
+!!! info NetworkEvent broadcast has an extra optional parameter for fine-grained control.
+    The `sendNetworkBroadcastEvent` method takes an extra, optional, final parameter: `player?: Player[]` which allows you to limit which [clients](#clients-devices-and-the-server) the event is sent to. This allows for fine-grained optimization, but should ⚠️ only be used if you absolutely understand what you are doing.
+
+**[CodeBlockEvent](#code-block-events) Broadcast**: There are no methods for sending or receiving broadcasted `CodeBlockEvent`s. However there are some [built-in CodeBlockEvents that can be connected to using *any entity*](#built-in-broadcasted-code-block-events) and thus act kind of like a broadcast.
 
 **Limit receiving players**: all `send...` methods (except for [CodeBlockEvents](#code-block-events)) take an additional optional final parameter: `players?: Player[]` which allows you to specify that the event will only be sent to those players' [clients](#clients-devices-and-the-server). This is an *expert-level* feature; **only use it if you truly know what you are doing**.
 
@@ -3544,7 +3566,7 @@ Horizon has a few helper functions in `horizon/core`:
 
 ## Clients (Devices and the Server)
 
-The Horizon Worlds VR simulation is a distributed system, with separation of various responsibilities between a central server and the individual client devices. The individual client devices are associated with the simulation runtime that renders the scene graph from the perspective of each individual Player. The central server does no rendering, per se, but runs its own simulation loop and has its own 'serverplayer' Player to represent it. 
+The Horizon Worlds VR simulation is a distributed system, with separation of various responsibilities between a central server and the individual client devices. The individual client devices are associated with the simulation runtime that renders the scene graph from the perspective of each individual Player. The central server does no rendering, per se, but runs its own simulation loop and has its own 'serverplayer' Player to represent it.
 
 Some features of the typescript api are only available on certain devices, i.e. the server or the player devices. See the following for restrictions:
 - _insert refs to events and apis that are runtime specific_
@@ -3622,7 +3644,7 @@ This "default" vs "local" terminology is somewhat confusing. The purpose of the 
 !!! info Different Components in a 'local' mode module can be executing in different runtimes
     Just because Components are defined in the same 'local' module does not mean that all Components in that module are necessarily executing in the same simulation runtime. The individual Component instances could be attached to Entities that are owned by different players. Each Component instance operates independently of the others defined in the module, and moves its execution to the runtime of its Entity owner.
 
-!!! info All Components attached to an Entity need not be running the same execution mode. 
+!!! info All Components attached to an Entity need not be running the same execution mode.
     Some creators are able to attach multiple Components to a single Entity. There is no requirement that all those components are running on the same execution runtime if some are 'default' mode and others are 'local' mode.
 
 ### Local execution mode motivation (Why local scripts?)
@@ -3671,7 +3693,7 @@ Such owner runtime executing Components will receive a `transferOwnership()` cal
 
 The SerializedState of the Component should be declared as a type, and used as the second `Component` template parameter to ensure proper type checking of the ownership callbacks.
 
-!!! example 
+!!! example
     ```ts
     type State = {ammo: number};
 
@@ -3681,20 +3703,20 @@ The SerializedState of the Component should be declared as a type, and used as t
       };
 
       private ammo: number = 0;
-      
+
       start() {
         // this gets called first, before receiveOwnership(), to set the
         // default behavior in case there is no orderly ownership transfer
         this.ammo = this.props.initialAmmo;
       }
-      
+
       receiveOwnership(state: State | null, fromPlayer: Player, toPlayer: Player) {
         // if there is no orderly ownership transfer, i.e. the transfered state is
         // 'null', use the value set in start(). Otherwise overwrite the start()
         // value.
         this.ammo = state?.ammo ?? this.ammo;
       }
-      
+
       transferOwnership(fromPlayer: Player, toPlayer: Player): State {
         return {ammo: this.ammo};
       }
@@ -3708,7 +3730,7 @@ The SerializedState of the Component should be declared as a type, and used as t
 
 ## Networking and Events
 
-Communication between Components is accomplished via a message passing protocol using one of three kinds of Events: 
+Communication between Components is accomplished via a message passing protocol using one of three kinds of Events:
 - LocalEvents
   - sent between Components executing in the same runtime
 - NetworkEvents
@@ -3723,7 +3745,7 @@ These event types can be dispatched and listened for in two different ways:
   - the event is sent from one sender to any receiver Component that has subscribed to the event
 
 ### LocalEvents
-Local events are effectively synchronous function calls between Components executing in the same runtime. As such, they can deliver any `object` payload, as there is no marshalling to a network format that might have trouble serializing certain data structures. 
+Local events are effectively synchronous function calls between Components executing in the same runtime. As such, they can deliver any `object` payload, as there is no marshalling to a network format that might have trouble serializing certain data structures.
 
 !!! warning LocalEvents cannot be sent to remote runtimes
     If a LocalEvent is sent to an Entity with a Component executing in a different runtime, the LocalEvent will be silently undelivered.
@@ -4792,6 +4814,23 @@ Grabbable and Attachable
 ## Onscreen Controls
 
 ## Player Controls
+
+<mark>TODO</mark>
+
+* PlayerControls.onFocusedInteractionInputStarted{
+    interactionInfo: InteractionInfo[];
+  }
+* PlayerControls.onFocusedInteractionInputMoved{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onFocusedInteractionInputEnded{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onHolsteredItemsUpdated{
+  player: Player;
+  items: Entity[];
+  grabbedItem: Entity;
+}
 
 `PlayerControls`
 
