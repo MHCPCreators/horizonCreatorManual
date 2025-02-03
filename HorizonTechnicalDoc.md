@@ -3286,11 +3286,27 @@ Usage example (where the event is sent to the component's entity):
 
 #### Built-In Local Events
 
-* prePhysics and onUpdate
-* player controls
-* holstering
+<mark>TODO</mark>
+
+* World.prePhysics{deltaTime: number} and World.onUpdate{deltaTime: number}
+* PlayerControls.onFocusedInteractionInputStarted{
+    interactionInfo: InteractionInfo[];
+  }
+* PlayerControls.onFocusedInteractionInputMoved{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onFocusedInteractionInputEnded{
+  interactionInfo: InteractionInfo[];
+}
+* PlayerControls.onHolsteredItemsUpdated{
+  player: Player;
+  items: Entity[];
+  grabbedItem: Entity;
+}
 
 ### Broadcast events
+
+<mark>TODO</mark>
 
 * prePhysics and onUpdate
 Mention coalescence
