@@ -1,4 +1,4 @@
-<!-- focusSection: Network -->
+<!-- focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -178,14 +178,122 @@
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
         1. [Simulation frame rate differences](#simulation-frame-rate-differences)
-    2. [Entity Ownership (xyz)](#entity-ownership-xyz)
-    3. [Entity Ownership](#entity-ownership)
+    2. [Entity Ownership](#entity-ownership)
+    3. [Local and Default Scripts](#local-and-default-scripts)
+        1. [Why Local Scripts and Ownership Matter: Network Latency](#why-local-scripts-and-ownership-matter-network-latency)
     4. [Authority and Reconciliation](#authority-and-reconciliation)
-    5. [Local and Default Scripts](#local-and-default-scripts)
-        1. [Local execution mode motivation (Why local scripts?)](#local-execution-mode-motivation-why-local-scripts)
-    6. [Ownership Transfer](#ownership-transfer)
-        1. [Auto Ownership Transfers](#auto-ownership-transfers)
-        2. [Transferring Data Across Owners](#transferring-data-across-owners)
+    5. [Ownership Transfer](#ownership-transfer)
+        1. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
+        2. [Auto Ownership Transfers](#auto-ownership-transfers)
+        3. [Transferring Data Across Owners](#transferring-data-across-owners)
+10. [Collision Detection](#collision-detection)
+    1. [Colliders](#colliders)
+    2. [Trigger Entry and Exit](#trigger-entry-and-exit)
+        1. [Collidability](#collidability)
+        2. [Controlling Collisions](#controlling-collisions)
+        3. [Collision Events](#collision-events)
+        4. [Triggers](#triggers)
+11. [Physics](#physics)
+    1. [Overview](#overview-4)
+    2. [Units](#units)
+    3. [Creating a Physical Entity](#creating-a-physical-entity)
+    4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
+    5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
+    6. [PhysicalEntity Class](#physicalentity-class)
+    7. [Projectiles](#projectiles)
+    8. [Applying Forces and Torque](#applying-forces-and-torque)
+    9. [Player Physics](#player-physics)
+    10. [Springs](#springs)
+        1. [Spring Push](#spring-push)
+        2. [Spring Spin](#spring-spin)
+12. [Players](#players)
+    1. [Identifying Players](#identifying-players)
+        1. [Player ID](#player-id)
+        2. [Player Indices](#player-indices)
+        3. [Listing All Players](#listing-all-players)
+        4. [Server Player](#server-player)
+        5. [Local Player](#local-player)
+    2. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
+    3. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
+    4. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
+        1. [Player Body Parts](#player-body-parts)
+        2. [Player Hand](#player-hand)
+    5. [VOIP Settings](#voip-settings)
+    6. [Haptics](#haptics)
+    7. [Throwing](#throwing)
+13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+    1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
+    2. [Can Grab](#can-grab)
+        1. [Setting "Who Can Grab?"](#setting-who-can-grab)
+        2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
+        3. [Grab Distance](#grab-distance)
+    3. [Grabbing Entities](#grabbing-entities)
+        1. [Grab Lock](#grab-lock)
+        2. [Force Holding](#force-holding)
+    4. [Releasing Entities](#releasing-entities)
+        1. [Manual release](#manual-release)
+        2. [Force release](#force-release)
+    5. [Grab Sequence and Events](#grab-sequence-and-events)
+        1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
+        2. [Moving Held Entities](#moving-held-entities)
+            1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
+            2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
+        3. [Grabbables and Ownership](#grabbables-and-ownership)
+14. [Attaching Entities](#attaching-entities)
+    1. [Creating an Attachable](#creating-an-attachable)
+    2. [Attachable By](#attachable-by)
+    3. [Avatar Attachable](#avatar-attachable)
+        1. [Scripted Attach](#scripted-attach)
+        2. [Socket Attachment](#socket-attachment)
+        3. [Sticky](#sticky)
+            1. [Stick To](#stick-to)
+        4. [Anchor](#anchor)
+            1. [Anchor To](#anchor-to)
+            2. [Auto Scale to Anchor](#auto-scale-to-anchor)
+    4. [Attach to 2D screen](#attach-to-2d-screen)
+15. [Holstering Entities](#holstering-entities)
+16. [Player Input](#player-input)
+    1. [Actions on Held Items](#actions-on-held-items)
+    2. [Onscreen Controls](#onscreen-controls)
+    3. [Player Controls](#player-controls)
+    4. [Focused Interaction](#focused-interaction)
+17. [Persistence](#persistence)
+    1. [Overview](#overview-5)
+    2. [Quests](#quests)
+    3. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+18. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+19. [NPCs](#npcs)
+20. [Spawning](#spawning)
+    1. [Simple Spawning](#simple-spawning)
+    2. [Despawning](#despawning)
+    3. [Advanced Spawning](#advanced-spawning)
+    4. [Sublevels](#sublevels)
+21. [Tooltips and Popups](#tooltips-and-popups)
+22. [Custom UI](#custom-ui)
+    1. [UIComponent Class](#uicomponent-class)
+    2. [Bindings](#bindings)
+    3. [Style](#style)
+    4. [View Types](#view-types)
+        1. [View](#view)
+        2. [Image](#image)
+        3. [Pressable](#pressable)
+        4. [Dynamic List](#dynamic-list)
+        5. [ScrollView](#scrollview)
+    5. [Animated Bindings](#animated-bindings)
+23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+    1. [Camera](#camera)
+24. [Performance Optimization](#performance-optimization)
+    1. [Physics Performance](#physics-performance)
+    2. [Gizmos](#gizmos)
+    3. [Bridge calls explanation](#bridge-calls-explanation)
+    4. [Draw-call specification](#draw-call-specification)
+    5. [Perfetto hints](#perfetto-hints)
+    6. [Memory](#memory-1)
+25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+27. [Glossary](#glossary)
+    1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
+28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -3498,7 +3606,7 @@ Each entity in the world is owned by exactly one [client](#clients-devices-and-t
   * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts*)*).
   * **Has scene graph authority**: The owning client is the *[authority](#authority-and-reconciliation)* for that entity's core attributes (such as position, visibility, and collision settings). When a client wants to modify an entity it doesn't own, it must send a message to the owning client requesting the change.
 
-When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer). When the owner changes, the [local components](#local-and-default-scripts) attached to the entity [move](#ownership-transfer).
+When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer). When the owner changes, the [local components](#local-and-default-scripts) attached to the entity [move](#ownership-transfer). When a [player leaves](#player-entering-and-exiting-a-world), all entities owned by them are [transferred](#ownership-transfer) back to the [server](#clients-devices-and-the-server).
 
 ## Local and Default Scripts
 In the Script dropdown in the desktop editor, scripts can be marked as *default* or *local* **execution mode**. All scripts are originally created with a *default* execution mode, and must be manually changed to *local* if so desired.
@@ -3601,16 +3709,27 @@ When an ownership transfer is initiated, the current owner stops acting as an au
 - Full-details sequencing diagrams.
 - Clarify how scripts are instantiated per-owner as part of entity transfer.
 
+### Discontinuous Ownership Transfers
+
+!!! warning Non-'orderly' ownership transfers cannot transfer script state
+    If the ownership transfer of an entity with owner runtime executing scripts occurs, the old owner will _not_ have an opportunity to execute `transferOwnership()`, and so the new owner will receive a `null` state in `receiveOwnership()`
+
+!!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
+    When a player runtime abruptly shuts down, there will not be any OnGrabEnd, OnAttachEnd, or OnPlayerExitWorld events delivered to the Components running in that runtime prior to the ownership transfer occurring. Unless the script has been written to have 'failsafe' behavior to return the intrinsic state of the Entity to a known default state when it is restarted in the server runtime, that Entity can become unusable due to having an inconsistent scripting state relative to its actual intrinsic state.
+
 ### Auto Ownership Transfers
 
-Entity ownership is _automatically_ transfered between runtimes in the following situations:
-- whenever an entity is grabbed or attached to a player
-  - as the entity needs to precisely track the player position, which is owned by the player's simulation runtime, the entity must also be owned by that runtime to get frame accurate updates of its position.
-- when an entity collides with another entity or player, and the 'preserve ownership on collision' property panel attribute of the entity is NOT enabled
-  - it is frequently desirable for entities to automatically be owned by the owner of whatever collided with them before they execute any scripts to take action on that collision.
-- when a player whose device owns an entity leaves the world
-  - as their device is no longer participating in the distributed simulation, all entities whose state they were responsible for are automatically transfered back to server runtime ownership.
-  - Note that this is not an 'orderly' transfer of ownership, as the departing owner runtime is 'gone' and not able to participate in any transfer of runtime state to the new server owner.
+There are a number of situations where an entity's ownership is changed automatically. These situations act exactly if the ownership was changed via `entity.owner.set(...)`:
+  1. When an entity is [grabbed by](#grabbing-entities) or [attached to](#attaching-entities) a player
+     * This ensures frame-accurate position updates when tracking player movement.
+  2. When an entity [collides](#collision-detection) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
+      * This makes it easy to have the collided entities act with [low latency for the player](#why-local-scripts-and-ownership-matter-network-latency) from then on.
+  3. When a [player leaves the world](#player-entering-and-exiting-a-world)
+      * Their owned entities transfer to the server.
+
+This is not an "orderly" transfer since the departing owner can't participate
+
+Note that exiting build preview mode does NOT automatically transfer ownership back to the server player. Handle this by explicitly transferring ownership in the OnPlayerExitWorld event handler.
 
 !!! warning Exiting build preview does NOT cause automatic ownership transfer
     When in build mode, exiting from preview back to build mode does _NOT_ automatically transfer ownership of any Entities owned by the build player back to the `serverplayer`. Any Components with 'local' execution mode will continue to run in the player's device runtime. This can be confusing if they are scripted to track player avatar location, as they will start to follow the 'big' build avatar around. It is best to handle 'OnPlayerExitWorld' events and explicitly transfer ownership of all scripted Entities owned by the departing player back to the 'serverplayer'.
@@ -3626,13 +3745,9 @@ The SerializedState of the Component should be declared as a type, and used as t
 !!! example
   ![[ horizonScripts/ownerDataTransferExample.ts ]]
 
-!!! warning Non-'orderly' ownership transfers cannot transfer script state
-    If the ownership transfer of an entity with owner runtime executing scripts occurs, the old owner will _not_ have an opportunity to execute `transferOwnership()`, and so the new owner will receive a `null` state in `receiveOwnership()`
-
-!!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
-    When a player runtime abruptly shuts down, there will not be any OnGrabEnd, OnAttachEnd, or OnPlayerExitWorld events delivered to the Components running in that runtime prior to the ownership transfer occurring. Unless the script has been written to have 'failsafe' behavior to return the intrinsic state of the Entity to a known default state when it is restarted in the server runtime, that Entity can become unusable due to having an inconsistent scripting state relative to its actual intrinsic state.
-
 # Collision Detection
+
+When an entity collides with another entity or player (unless "preserve ownership on collision" is enabled in the Property panel)
 
 ## Colliders
 
@@ -4073,18 +4188,39 @@ for determining which `Player`'s device the current script is running one. This 
 
 When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
-Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
+Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any [server-owned](#entity-ownership) entity to receive them.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
 | 🔈`OnPlayerEnterWorld` | <nobr>`player: Player`</nobr> | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
 | 🔈`OnPlayerExitWorld` | <nobr>`player: Player`</nobr> | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
 
-See the diagram in the [AFK section](#player-enter-and-exit-afk) for when and how these events are sent.
+When a player exits the world, [all entities owned by them](#entity-ownership) are [transferred to the server](#ownership-transfer).
+
+
+The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
+
+```mermaid {align="center"}
+flowchart TD
+    notInWorld([Player is not<br/>in the instance])
+    inWorld([Player is active<br/>in the instance])
+    inWorldAndAFK([Player is AFK<br/>in the instance])
+
+    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> in or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b></code></td></tr></table> --> inWorld
+
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
+
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b></code></td></tr></table> --> inWorld
+
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+```
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#entity-ownership).
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
-    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
     In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
@@ -4104,32 +4240,14 @@ There are two [built-in code block events](#system-code-block-events) associated
 | 🔈`OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
 | 🔈`OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
 
-The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
-
-```mermaid {align="center"}
-flowchart TD
-    notInWorld([Player is not<br/>in the instance])
-    inWorld([Player is active<br/>in the instance])
-    inWorldAndAFK([Player is AFK<br/>in the instance])
-
-    notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> to<br/>the instance or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b></code></td></tr></table> --> inWorld
-
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/> of the instance<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr></table> --> notInWorld
-
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
-
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr></table> --> notInWorld
-
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b></code></td></tr></table> --> inWorld
-
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr></table> --> notInWorld
-```
+See the [diagram in the player enter / exit section](#player-entering-and-exiting-a-world) for a detailed overview of when the above two events are sent.
 
 !!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
     <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
+    In complex worlds it is a good habit to regularly check [getPlayers()](#listing-all-players) to see which players are present and handle cleanup for any that left but were missed.
 
 ## Pose (Position and Body Parts)
 
