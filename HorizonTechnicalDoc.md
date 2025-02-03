@@ -296,7 +296,7 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     5. [Animated Bindings](#animated-bindings)
-23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
 24. [Performance Optimization](#performance-optimization)
     1. [Physics Performance](#physics-performance)
@@ -4960,7 +4960,6 @@ Grabbable and Attachable
 ## Focused Interaction
 
 # Persistence
-<mark>TODO</mark>- check what is possible to do or not from local scripts
 
 ## Overview
 Used to store information that persist beyond the duration of a session, or if a player leaves and returns to the same instance. The persistent data categories are:
@@ -4973,18 +4972,23 @@ Used to store information that persist beyond the duration of a session, or if a
 
 Currently, world persistent data is not available; the player that owns the data must be present to be able to retrieve their information. The [Leaderboards](#leaderboards) is an exception to this rule (see its chapter for more info).
 
+Persistent data can only be updated from server scripts, or from local scripts attached to an entity that is owned by the server. Quests are excluded from this rule: Quests APIs (referenced as achievements in TS) can be used regarless of the excecution mode of the scripts or the ownership of the entity where the scripts is attached to.
+
 ## Leaderboards
 
-Leaderboards are used to track scores and compare/compete against friends and other visitors asynchronously. Are tied to a gizmo that displays player names and ranked/ordered values in ascending or descending order. The leaderboard data can only be set, it can't be retrieved.
+Leaderboards are used to track scores and compare/compete against friends and other visitors asynchronously. These are tied to a gizmo that displays player names and ranked/ordered values in ascending or descending order. The leaderboard data can only be set; it can't be retrieved.
 
-The leaderboard data is the only type of persistent storage that captures and displays the player information even when they have left the the world or if the session has ended. This data is also updated across sessions when a world has multiple concurrent instance open at the same time. For these reasons, the leaderboards are often used to gain insight about how the experience is being used
+The leaderboard data is the only type of persistent storage that captures and displays the player information even when they have left the world or if the session has ended. This data is also updated across sessions when a world has multiple concurrent instance open at the same time.
 
 !!! info The Leaderboards are often used as a mechanism to gain insight about the world experience. Common examples are tracking how often players enter an area, or how frequently the visitors interact with elements in the world.
 
 Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard tracking and to delete previously stored values. Players can find this option in the in-app menu, General tab, "Leaderboard participation" and "Leaderboard data".
 
+Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard tracking and to delete previously stored values. Players can find this option in the in-app menu, General tab, "Leaderboard participation" and "Leaderboard data" options.
 
 #### Limitations
+
+There is a limit of 10 leaderboards per world. In terms of the data that can be displayed:
 
 | Data Type | Intake Data Type | Display Limitations |
 |---|---|---|
@@ -4994,17 +4998,18 @@ Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard 
 !!! warning Leaderboards do not have limits for the intake values, but the information will be truncated according to the Display Limitations.
 
 #### Creation
-There is a limit of 10 leaderboards per world. To create it using the Desktop Editor:
-1. Access the Systems menu and select the Leaderboards option
-1. Click on "Create Leaderboard" indicated with the + symbol
-1. Add a Name, preferably without spaces. This is the leaderboard ID that will be used in the scripting
-1. Select the display order: Descending or Ascending
-1. Indicate how frequently the leaderboard must be reset
+
+ To create a Leaderboard using the Desktop Editor:
+1. Access the Systems menu and select the Leaderboards option.
+1. Click on "Create Leaderboard" indicated with the + symbol.
+1. Add a Name, preferably without spaces. This is the leaderboard ID that will be used in the scripts.
+1. Select the display order: Descending or Ascending.
+1. Indicate how frequently the leaderboard must be reset.
 
 | Parameter | Cutoff Time |
 |---|---|
 | *Never* | Data persist, and doesn't reset |
-| *Daily* | each day at 12:00 AM PST |
+| *Daily* | Each day at 12:00 AM PST |
 | *Weekly* | Mondays at 12:00 AM PST |
 | *Monthly* | First day of the calendar month at 12:00 AM PST |
 6. In case of selecting a reset frequency, the "Reset persistent variable" toggle will be activated. This is for the scenarios when a player persistent variable is used to track the current value of a leaderboard.
@@ -5013,12 +5018,13 @@ There is a limit of 10 leaderboards per world. To create it using the Desktop Ed
 
 #### Modifying the Leaderboard
 After creating the leaderboard, its name will appear under the same creation menu of the Desktop Editor. If more than one leaderbard is available, they can be sorted by clicking on the "Sort" icon next to the + symbol. Hovering over the leaderboard name will enable the following actions:
-1. Edit, indicated by the pencil icon: All leaderboard attributes are editable.
-1. Delete, indicated by the trash can icon: It removes its data storage from the world.
+
+1. Edit, indicated by the pencil icon. All leaderboard attributes are editable.
+1. Delete, indicated by the trash can icon. It removes its data storage from the world.
 
 !!! warning Exercise caution when changing the name id or deleting the leaderboard: scripts that are referencing this leaderboard will have to be updated, otherwise it will cause compiling errors.
 
-!!! error The leaderboard data will be lost after its deletion, even if a new one is crated with the same name. Exception to this rule occurs if the current leaderboard values are also stored in a player persistent variable, and a script is configured to update the value in the gizmo when players return to the world; if a player never returns, their score will never be displayed again.
+!!! error The leaderboard data will be lost after its deletion, even if a new one is crated with the same name. Exception to this rule occurs if the current leaderboard values are also stored in a player persistent variable, and a script is configured to update the value on the gizmo when players return to the world; if a player never returns, their score will never be displayed again.
 
 #### Using the Gizmo
 The Leaderboard gizmo can be found in the Destop Editor under the Build Menu, Gizmos option. Search for the "World Leaderboard" option, and drag it into the world scene. Its properties are:
@@ -5026,7 +5032,7 @@ The Leaderboard gizmo can be found in the Destop Editor under the Build Menu, Gi
 - Leaderboard: a drop down to select what leaderboard data to display on the gizmo.
 - Display Title: front facing header. This doesn't have any relevance from the scripting perspective.
 - \# of Entries Per Page: controls how many records can be displayed at the same time (between 1 and 10).
-- UI Anchor Style: selecting `Static` (default) will display the show the gizmo in preview mode without any dynamic transformations. `Billboard` will make the gizmo rotate to intersect the POV of the observer.
+- UI Anchor Style: selecting `Static` (default) will show the gizmo in preview mode without any dynamic transformations. `Billboard` will make the gizmo rotate to face the POV of the observer.
 - Panel UI Mode: this can be set to `Light Mode` (white background) or `Dark Mode` (black background).
 - Entry Display Mode: `Raw Value` will show the score as an integer; `Time in Secs` will display the score in the `h:m:s` format.
 
@@ -5036,10 +5042,10 @@ During play and preview mode, players will be able to see the following data cat
 - Session: Player's score agains the other current visitors in the world.
 - Mutuals: How the player compares agains their friends.
 
-For all scenarios, the leaderboard will display the players names to the left and their scores to the right, sorted by values in descending or ascending order according to the leaderboard creation configuration.
+For all scenarios, the leaderboard will display the players names to the left, and their scores to the right, sorted by values in descending or ascending order according to the leaderboard creation configuration.
 
 #### APIs
-The Leaderboard doesn't have a dedicated type. It's values can be updated invocating the World.leaderboards.setScoreForPlayer API.
+The Leaderboard doesn't have a dedicated type. Its values can be updated invocating the World.leaderboards.setScoreForPlayer API.
 
 ```ts
 /**
@@ -5052,7 +5058,7 @@ The Leaderboard doesn't have a dedicated type. It's values can be updated invoca
 setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
 ```
 
-!!! info All world Leaderboards are updated every 3,300 ms (approximately).
+!!! info All world Leaderboards gizmos are updated at the same time, every 3,300 ms (approximately).
 
 By default, the leaderboard retains the value that is higher, when the display order is Descending; or the lowest value reported for a player, when the display order is Ascending. However, when the override parameter is set to true, any new score will be retained as the value to be displayed in the leaderboard gizmo.
 
@@ -5074,7 +5080,7 @@ A few examples:
 | Ascending                 | 5             | 6              | False              | 5                     |
 | Ascending                 | 5             | 6              | True               | 6                     |
 
-For all other configuration combinations, the new value will be displayed.
+For all other configurations, the new value will be displayed.
 
 ## Quests
 Quests (formerly known as achievements) are trackable goals to motivate players to engage with the world experiece. These goals can be related or not to the game progression.
