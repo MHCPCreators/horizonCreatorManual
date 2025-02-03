@@ -1,4 +1,4 @@
-<!-- focusSection:  -->
+<!-- focusSection: Scripting -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -161,7 +161,6 @@
         2. [Sending Events](#sending-events)
         3. [Code Block Events](#code-block-events)
             1. [Built-In Code Block Events](#built-in-code-block-events)
-                1. [Broadcast Built-In Code Block Events](#broadcast-built-in-code-block-events)
         4. [Network Events](#network-events)
         5. [Local Events](#local-events)
             1. [Built-In Local Events](#built-in-local-events)
@@ -1294,17 +1293,19 @@ OnPlayerConsumeFailed: CodeBlockEvent<[player: Player, item: string]>;
 OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 ```
 
+All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| OnItemPurchaseStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnItemPurchaseComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
-| OnItemConsumeStart | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnItemConsumeComplete | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr><br/><nobr>`success:boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
-| OnItemPurchaseSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnItemPurchaseFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnPlayerConsumeSucceeded | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnPlayerConsumeFailed | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| OnPlayerSpawnedItem | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | Sent when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
+| 🔈`OnItemPurchaseStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemPurchaseComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
+| 🔈`OnItemConsumeStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| 🔈`OnItemPurchaseSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemPurchaseFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerConsumeSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerConsumeFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | Sent when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
 
 **Limitations**: Only owners can make test purchases while in Preview mode.
 
@@ -1651,7 +1652,7 @@ We have 3 different types:
 | Low-Pass Cutoff | `number` | Reduces the amplitude of higher frequency signals. Values are between  1 and 20000. |
 | Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-**Typescript**: Sound Gizmos are referenced [as](#entity-as-method) the `AudioGizmo` class with the following properties and methods. 
+**Typescript**: Sound Gizmos are referenced [as](#entity-as-method) the `AudioGizmo` class with the following properties and methods.
 
 ```ts
 //Properties
@@ -1688,11 +1689,11 @@ enum AudibilityMode {
 |---|---|---|
 | Spawn on start | `boolean` | Determines if the Spawn Point Gizmo will be used to spawn players as they join the world. |
 | Set Position Only | `boolean` | Determines if the Spawn Point Gizmo will rotate the player to match its rotation when it spawns them. |
-| Player Gravity | `number` | Sets the gravity of each player to this value when this spawn is used. Values between 0.0 and 9.81. | 
+| Player Gravity | `number` | Sets the gravity of each player to this value when this spawn is used. Values between 0.0 and 9.81. |
 | Player Speed | `number` | Sets the speed of each player to this value when this spawn is used. Values between 0.0 and 45. |
 | Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view web and mobile players will have after using the spawn. |
 
-**Typescript**:  Spawn Point Gizmos are referenced [as](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods. 
+**Typescript**:  Spawn Point Gizmos are referenced [as](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods.
 
 ```ts
 //Properties
@@ -1708,7 +1709,7 @@ this.entity.as(SpawnPointGizmo).speed.set(4.5)
 this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 ```
 
-**Notes**: 
+**Notes**:
 - If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
 - The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
 
@@ -1722,7 +1723,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Color | `Color` | Sets the color of the light coming from the Static Light Gizmo.
 | Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
 
-**Typescript**:  Static Light Gizmos are referenced as the `Entity` class with no members. 
+**Typescript**:  Static Light Gizmos are referenced as the `Entity` class with no members.
 
 ### Text Gizmo
 **Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
@@ -1732,9 +1733,9 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Text | `string` | Sets the text displaying on the Text Gizmo. |
 | Auto Fit | `boolean` | Automatically determines the size of the font. If disabled, you can set the size manually. |
 | Fized Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
-| Visible | `boolean` | Determines if the Text Gizmo is visible to players. | 
+| Visible | `boolean` | Determines if the Text Gizmo is visible to players. |
 
-**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property. 
+**Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property.
 
 ```ts
 //Properties
@@ -1810,7 +1811,7 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 | Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
 | Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
 
-**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property. 
+**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property.
 
 ```ts
 //Properties
@@ -1827,10 +1828,12 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 | OnPlayerExitTrigger | `exitedBy: Player` | Sent each time a player has exited the trigger area. |
 | OnEntityEnterTrigger | `enteredBy: Entity` |  Sent each time an object has entered the trigger area. |
 | OnEntityExitTrigger | `player: Player` | Sent each time an object has exited the trigger area. |
-| occupied | `player: Player` | Sent when the first player enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
-| occupied | `object: Entity` | Sent when the first object enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
-| empty | `player: Player` | Sent when the last player exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
-| empty | `object: Entity` | Sent when the last object exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+| "occupied"<sup>†</sup> | <nobr>`by: Player \| Entity`</nobr> | Sent when the first player (or entity) enters a trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event. |
+| "empty"<sup>†</sup> | <nobr>`by: Player \| Entity`</nobr> | Sent when the last player (or entity) exits the trigger area. This is not a built-in codeblock like the others, you must create this as custom codeblock event.|
+
+†: The *occupied* and *empty* events in the table above are not currently exposed through `CodeBlockEvents`. To use them you you must allocate the events yourself, e.g.
+
+![[ horizonScripts/secretTriggerCodeBlockEvents.ts ]]
 
 **Limitations**: Using too many Trigger Gizmos can affect performance.
 
@@ -3212,19 +3215,26 @@ Usage example (where the event is sent to the component's entity):
 ![[ horizonScripts/codeBlockEventExample.ts ]]
 
 **Properties**:
-- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server), meaning that you can send to an entity with a different owner than the sender, and likewise connect to an entity with a different owner than the connector. One exception: [built-in broadcasted CodeBlockEvents](#built-in-broadcasted-code-block-events) *cannot* be received on a different client than the event is emitted on.
 - **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
 - **Data Format**: Requires a tuple of [BuiltInVariableType](#builtinvariabletype)s
 - **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
 #### Built-In Code Block Events
-The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger.
+The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger. See the [list of built-in CodeBlockEvents](#all-built-in-codeblockevents) for more info.
 
-##### Broadcast Built-In Code Block Events
+<a name="#built-in-broadcasted-code-block-events">**Broadcasted `CodeBlockEvents`**</a>: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the event is emitted on). The [list built-in CodeBlockEvents](#all-built-in-codeblockevents) includes information on which ones are *broadcast*. Throughout this document, 🔈 denotes a *server-broadcast* `CodeBlockEvent`; 🏠 denotes a *device-broadcast* `CodeBlockEvent`.
 
-**Broadcast `CodeBlockEvents`**: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the the event is emitted on). For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#ownership)). There is no way to *send* a broadcast event yourself.
+For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#ownership)). There is no way to *send* a broadcast event yourself.
 
-See [all built-in CodeBlockEvents](#all-built-in-codeblockevents) for a complete list (including which ones are broadcast).
+```ts
+// on a Component
+this.connectCodeBlockEvent(
+  entity, // any entity owned by the server
+  CodeBlockEvents.onPlayerEnterWorld,
+  callback
+)
+```
 
 ### Network Events
 
@@ -3245,7 +3255,7 @@ Usage example (where the event is sent to the component's entity):
 ![[ horizonScripts/networkEventExample.ts ]]
 
 **Properties**:
-- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server)
+- **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server), meaning that you can send to an entity with a different owner than the sender, and likewise connect to an entity with a different owner than the connector.
 - **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
 - **Data Format**: Accepts any [SerializableState](#serializablestate)
 - **Event Disambiguation**: ⚠️ The system only checks the event name - use highly specific names to avoid conflicts between different `NetworkEvent`s!
@@ -3269,10 +3279,10 @@ Usage example (where the event is sent to the component's entity):
 ![[ horizonScripts/localEventExample.ts ]]
 
 **Properties**:
-- **Client Support**: Local only - events cannot cross [client](#clients-devices-and-the-server) boundaries
-- **Execution**: Immediate synchronous execution on the [local client](#clients-devices-and-the-server)
-- **Data Format**: Accepts any arbitrary type as payload type
-- **Event Disambiguation**: Uses referential equality - no risk of name conflicts.
+  * **Client Support**: Local only - events cannot cross [client](#clients-devices-and-the-server) boundaries
+  * **Execution**: Immediate synchronous execution on the [local client](#clients-devices-and-the-server)
+  * **Data Format**: Accepts any arbitrary type as payload type
+  * **Event Disambiguation**: Uses referential equality - no risk of name conflicts.
 
 !!! warning You must use the exact same `LocalEvent` instance for both `sendLocalEvent` and `connectLocalEvent`.
     Since `LocalEvent`s are disambiguated *referentially* you **must use the same `LocalEvent` instance**. In the code below, the first example will run `callback`. The second example does not.
@@ -4191,10 +4201,12 @@ for determining which `Player`'s device the current script is running one. This 
 
 When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
 
+Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnPlayerEnterWorld` | `player: Player` | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
-| `OnPlayerExitWorld` | `player: Player` | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
+| 🔈`OnPlayerEnterWorld` | <nobr>`player: Player`</nobr> | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
+| 🔈`OnPlayerExitWorld` | <nobr>`player: Player`</nobr> | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
 
 See the diagram in the [AFK section](#player-enter-and-exit-afk) for when and how these events are sent.
 
@@ -4213,12 +4225,12 @@ A [player](#players) in an [instance](#instances) can become **inactive**. Horiz
 
 **Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
 
-There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK:
+There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK. Both are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
-| `OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
+| 🔈`OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
+| 🔈`OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
 
