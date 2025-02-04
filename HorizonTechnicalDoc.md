@@ -1,4 +1,4 @@
-<!-- focusSection:  -->
+<!-- focusSection: Scripting -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -169,23 +169,25 @@
         8. [Converting Between Components and Entities](#converting-between-components-and-entities)
     7. [Disposing Objects](#disposing-objects)
     8. [Frame Sequence](#frame-sequence)
-        1. [Early Frame Phase](#early-frame-phase)
-        2. [Scripting Frame Phase](#scripting-frame-phase)
-        3. [Late Frame Phase](#late-frame-phase)
+        1. [Frame Rate](#frame-rate)
+        2. [Frame sequence WIP stuff...](#frame-sequence-wip-stuff)
+        3. [Simulation Phase](#simulation-phase)
+        4. [Script Phase](#script-phase)
+        5. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
 9. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
-        1. [Simulation frame rate differences](#simulation-frame-rate-differences)
     2. [Entity Ownership](#entity-ownership)
     3. [Local and Default Scripts](#local-and-default-scripts)
         1. [Why Local Scripts and Ownership Matter: Network Latency](#why-local-scripts-and-ownership-matter-network-latency)
     4. [Authority and Reconciliation](#authority-and-reconciliation)
     5. [Ownership Transfer](#ownership-transfer)
-        1. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
-        2. [Automatic Ownership Transfers](#automatic-ownership-transfers)
-        3. [Transferring Data Across Owners](#transferring-data-across-owners)
+        1. [Ownership Transfer Sequence](#ownership-transfer-sequence)
+        2. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
+        3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
+        4. [Transferring Data Across Owners](#transferring-data-across-owners)
 10. [Collision Detection](#collision-detection)
     1. [Colliders](#colliders)
     2. [Trigger Entry and Exit](#trigger-entry-and-exit)
@@ -977,7 +979,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | **[Behavior](#interactive-entities)** |
 | [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collision-detection), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
-| [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#early-frame-phase) of the frame). |
+| [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#simulation-phase) of the frame). |
 | **Ownership** |
 | [owner](#entity-ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#entity-ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
 
@@ -985,7 +987,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 
 ### Simulated
 
-The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics calculations](#early-frame-phase) of the frame.
+The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics calculations](#simulation-phase) of the frame.
 
 When an [entity](#entities) has **`simulated` set to `false`**:
 * It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
@@ -1466,6 +1468,9 @@ stop(): void;                     // Stop and remove trail
 **Limitations**:
   * Performance intensive - use sparingly
   * Stopping the effect removes the entire drawn trail
+
+!!! bug Trail's sync incorrectly if stopped and started in the same frame.
+    When you `stop()` a [TrailFX Gizmo](#trailfx-gizmo) the trail *de-renders* (disappears). If you `stop()` and then `start()` in the same frame then the local client will see the trail disappear and start over. However other clients will only get the `play()` event (due to state compression) and so they won't see the trail "reset". If you need to stop and then start a trail, it is recommended to do it across (at least) 2 frames.
 
 ### Projectile Launcher Gizmo
 **Description**: Launches configurable particles with customizable physics properties. Ideal for weapons and launchers.
@@ -2899,16 +2904,15 @@ Likewise, when a group of entities are [spawned](#spawning), all them are prepar
     * All [async timeouts and intervals] created with the component are canceled.
     * All [event subscriptions](#receiving-events) created with the component are [disconnected](#receiving-events).
 
-!!! info Component Initialization Sequence
-    1. Property initializers run first
-    2. All components execute `preStart()` and `initializeUI()`
-    3. All components execute `start()`
+!!! info Initializing a collection of Components
+    When a set of components need to be initialized, **all are prepared before any are started**. This is important for [connecting to receive events](#receiving-events).
 
-    **Start of world**: The above order is true for all components at the start of the world.
-    **After spawn**: It is also true for all components resulting from a [spawn](#spawning).
-    **After ownership transfer**: It is also true for all components created with a new owner (e.g. if in a frame the current [client](#clients-devices-and-the-server)) has 3 new components then all 3 will be `preStart`ed before any are `start`ed.
+    This is true for:
+      * all components at the start of the instance
+      * all components in a group of [spawned](#spawning) entities
+      * all components [changing owner](#ownership-transfer) at the same time
 
-The diagram below shows the full lifecycle of a component. All green rectangle boxes are TypeScript code executing during the [Scripting Frame Phase](#scripting-frame-phase). The [full breakdown a frame](#frame-sequence) gives another view into when all these actions occur.
+The diagram below shows the full lifecycle of a component. All green rectangle boxes are TypeScript code executing during the [Script Phase](#script-phase). The [full breakdown a frame](#frame-sequence) gives another view into when all these actions occur and the [ownership transfer](#ownership-transfer) section explains how a "move" is implemented as one component *tearing down* and then a new one *preparing and starting*.
 
 ```mermaid {align="center"}
 %%{init: {'themeVariables': {'fontSize': '10px'}, 'flowchart': {'nodeSpacing': '40', 'rankSpacing': '32'}}}%%
@@ -2933,9 +2937,9 @@ flowchart TB
     end
 
     subgraph Active
-        ScriptingPhase@{shape: lean-r, label: <a href="#scripting-frame-phase">Scripting Frame Phase</a> runs}
-        EarlyPhase@{shape: lean-r, label: <a href="#early-frame-phase">Early Frame Phase</a> runs}
-        LatePhase@{shape: lean-r, label: <a href="#late-frame-phase">Late Frame Phase</a> runs}
+        ScriptingPhase@{shape: lean-r, label: <a href="#script-phase">Script Phase</a> runs}
+        EarlyPhase@{shape: lean-r, label: <a href="#simulation-phase">Simulation Phase</a> runs}
+        LatePhase@{shape: lean-r, label: <a href="#synchronization-phase">Synchronization Phase</a> runs}
 
         EarlyPhase --> ScriptingPhase --> TeardownReason{{What is the<br/>teardown reason?}}
         TeardownReason --"none"--> LatePhase --> EarlyPhase
@@ -3039,10 +3043,10 @@ component.async.setInterval(() => console.log('hi!'), 1000 /* ms */)
 
 then if, or when, `component` is [torn down](#component-lifecycle), the interval will be automatically canceled.
 
-**Late frame phase**: the callbacks passed to `setTimeout` and `setInterval` are executed in the [late frame phase](#late-frame-phase) when async callbacks are checked for readiness.
+**Synchronization phase**: the callbacks passed to `setTimeout` and `setInterval` are executed in the [Synchronization Phase](#synchronization-phase) when async callbacks are checked for readiness.
 
 !!! warning Timeouts and Intervals are not precisely timing. They make a "best attempt" at the delay (but may wait slightly *longer*).
-    The methods above are not precise in when the callback runs. They will wait at least as long as the requested `timeout` value and then run at *the next convenient time* after that. So, for example, if you create a `timeout` with a 0 millisecond delay, it won't run immediately; it will run "super soon" (likely during the next [late frame phase](#late-frame-phase)). If you create an interval with a timeout of 0 milliseconds, it may only run it a few times (or even just once) every frame, to prevent hurting perf.
+    The methods above are not precise in when the callback runs. They will wait at least as long as the requested `timeout` value and then run at *the next convenient time* after that. So, for example, if you create a `timeout` with a 0 millisecond delay, it won't run immediately; it will run "super soon" (likely during the next [Synchronization Phase](#synchronization-phase)). If you create an interval with a timeout of 0 milliseconds, it may only run it a few times (or even just once) every frame, to prevent hurting perf.
 
 !!! tip Use underscores to make numbers more readable.
     JavaScript (and therefore TypeScript) allows underscores to be inserted into numbers solely for readability. That means `123` and `1_2_3` are the same value. You can thus use underscores to make numbers more readable. So instead of writing `10000` to mean 10,000 milliseconds, you can write `10_000`!
@@ -3055,8 +3059,8 @@ The [World](#world-class) has two static members exposing [Local Events](#local-
 
 | `World` class<br/>`static` member | Type | Description |
 |---|---|---|
-| `onPrePhysicsUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#early-frame-phase)** to all clients [device and server](#clients-devices-and-the-server). |
-| `onUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#early-frame-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+| `onPrePhysicsUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+| `onUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
 
 
 
@@ -3150,9 +3154,65 @@ All event types can be instantiated with **custom user-made types** by simply ca
 
 | Event | Purpose | Timing | Payload |
 |---|---|---|---|
-| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Codeblock scripts. | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
+| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Codeblock scripts. | *Asynchronously* run in the next [Script Phase](#synchronization-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
 | **LocalEvent** | Communicate with a TypeScript scripted entity on the [same client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | Delivered *synchronously* (immediately). | *Anything* |
-| **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [scripting frame phase](#late-frame-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
+| **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [Script Phase](#synchronization-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
+
+**When to use each event type**: you should always try to use a [LocalEvent] or direct method call, and you need to cross a [network](#network) then use a [NetworkEvent]. Use [CodeBlockEvents](#code-block-events) when listening to [certain built-in events](#built-in-code-block-events) or when communicating with Codeblock scripts.
+
+Here's a flowchart that may help:
+
+```mermaid {align=center}
+flowchart
+  direction TB
+  Begin@{shape: start}
+  IsBuiltIn[Are you receiving<br/>to a built-in event?]
+  BuiltIn[Use the associated<br/>event type]
+  IsTS[What kind of scripts is/are<br/>the receiver#40;s#41; using?]
+  CodeBlock[How many receivers?]
+  CodeBlockOne[<a href="#code-block-events">CodeBlockEvent</a>]
+  CodeBlockMany[<a href="#code-block-events">CodeBlockEvent</a><br/>in a loop]
+  TS[Is/are the receiver#40;s#41;<br/>known to be on<br/>the same client?]
+  NetworkEvent[How many receivers?]
+  NetworkEventOne[<a href="#network-events">NetworkEvent</a>]
+  LocalEvent[How many receivers?]
+  LocalEventOne[Do you have a reference<br/>to the <a href="#converting-between-components-and-entities">Component</a>?]
+  LocalComponent[Method Call]
+  LocalEntity[<a href="#local-events">LocalEvent</a>]
+  LocalEventMany[Does the sender know<br/>who its receivers are?]
+  LocalEventManyLoop[<a href="#local-events">LocalEvent</a><br/>in a loop]
+  LocalEventManyBroadcast[<a href="#broadcast-events">Broadcast</a><br/><a href="#local-events">LocalEvent</a>]
+  NetworkEventMany[Does the sender know<br/>who its receivers are?]
+  NetworkEventManyLoop[<a href="#network-events">NetworkEvent</a><br/>in a loop]
+  NetworkEventManyBroadcast[<a href="#broadcast-events">Broadcast</a> a<br/><a href="#network-events">NetworkEvent</a>]
+  LocalEventManyRef[Do you have references<br/>to all their <a href="#converting-between-components-and-entities">Components</a>?]
+  LocalEventManyComponents[Method call<br/>in a loop]
+
+  Begin --> IsBuiltIn
+  IsBuiltIn --yes--> BuiltIn
+  IsBuiltIn --"No"--> IsTS
+  IsTS --Codeblock--> CodeBlock
+  IsTS --TypeScript--> TS
+  CodeBlock --One--> CodeBlockOne
+  CodeBlock --Many--> CodeBlockMany
+  TS --Yes--> LocalEvent
+  TS --"No"--> NetworkEvent
+  NetworkEvent --One--> NetworkEventOne
+  NetworkEvent --Many--> NetworkEventMany
+  LocalEvent --One--> LocalEventOne
+  LocalEvent --Many--> LocalEventMany
+  LocalEventOne --Yes--> LocalComponent
+  LocalEventOne --"No"--> LocalEntity
+  LocalEventMany --Yes--> LocalEventManyRef
+  LocalEventMany --"No"--> LocalEventManyBroadcast
+  NetworkEventMany --Yes--> NetworkEventManyLoop
+  NetworkEventMany --"No"--> NetworkEventManyBroadcast
+  LocalEventManyRef --Yes--> LocalEventManyComponents
+  LocalEventManyRef --"No"--> LocalEventManyLoop
+
+  classDef endNode fill:#cbffcd;
+  class BuiltIn,CodeBlockOne,CodeBlockMany,LocalComponent,LocalEntity,LocalEventManyComponents,LocalEventManyLoop,LocalEventManyBroadcast,NetworkEventManyLoop,NetworkEventManyBroadcast endNode
+```
 
 ### Receiving Events
 
@@ -3241,7 +3301,7 @@ Usage example (where the event is sent to the component's entity):
 
 **Properties**:
 - **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server), meaning that you can send to an entity with a different owner than the sender, and likewise connect to an entity with a different owner than the connector. One exception: [built-in broadcasted CodeBlockEvents](#built-in-broadcasted-code-block-events) *cannot* be received on a different client than the event is emitted on.
-- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Execution**: Runs in the next [Script Phase](#script-phase) after receipt (which maybe be on a different client after a "network trip")
 - **Data Format**: Requires a tuple of [BuiltInVariableType](#builtinvariabletype)s
 - **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
@@ -3292,7 +3352,7 @@ Usage example (where the event is sent to the component's entity):
 
 **Properties**:
 - **Client Support**: Can be sent and received across [clients](#clients-devices-and-the-server), meaning that you can send to an entity with a different owner than the sender, and likewise connect to an entity with a different owner than the connector.
-- **Execution**: Runs in the next [scripting frame phase](#scripting-frame-phase) after receipt (which maybe be on a different client after a "network trip")
+- **Execution**: Runs in the next [Script Phase](#script-phase) after receipt (which maybe be on a different client after a "network trip")
 - **Data Format**: Accepts any [SerializableState](#serializablestate)
 - **Event Disambiguation**: ⚠️ The system only checks the event name - use highly specific names to avoid conflicts between different `NetworkEvent`s!
 
@@ -3339,7 +3399,7 @@ Usage example (where the event is sent to the component's entity):
 #### Built-In Local Events
 
 There are currently two groups of built-in [LocalEvents](#local-events):
-  * The [World](#world-class) class has static members [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) for running code every frame ([before and after physics](#late-frame-phase), respectively). These are broadcast on all [clients](#clients-devices-and-the-server).
+  * The [World](#world-class) class has static members [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) for running code every frame ([before and after physics](#synchronization-phase), respectively). These are broadcast on all [clients](#clients-devices-and-the-server).
   * The [PlayerControls](#player-controls) class has static members for `onFocusedInteractionInputStarted`, `onFocusedInteractionInputMoved`, `onFocusedInteractionInputEnded`, and `onHolsteredItemsUpdated` which are all [broadcast](#broadcast-events) on the [player device](#clients-devices-and-the-server) that own the controls.
 
 ### Broadcast events
@@ -3368,7 +3428,7 @@ component.connectLocalBroadcastEvent(evt, callback)
 
 **[LocalEvent](#local-events) Broadcast**: `sendLocalBroadcastEvent` will synchronously (immediately) call all registered listeners on the same [client](#clients-devices-and-the-server). The order that the callbacks are called in is undefined and should not be relied on. [There are some built-in LocalEvents](#built-in-local-events) which are broadcasted.
 
-**[NetworkEvent](#network-events) Broadcast**: `sendNetworkBroadcastEvent` is asynchronous (delayed). Any listeners on the same [client](#clients-devices-and-the-server) will process the event in the next [scripting frame phase](#scripting-frame-phase). Listeners on other clients will wait until they receive the event (over the network) and then will process the event in their next [scripting frame phase](#scripting-frame-phase).
+**[NetworkEvent](#network-events) Broadcast**: `sendNetworkBroadcastEvent` is asynchronous (delayed). Any listeners on the same [client](#clients-devices-and-the-server) will process the event in the next [Script Phase](#script-phase). Listeners on other clients will wait until they receive the event (over the network) and then will process the event in their next [Script Phase](#script-phase).
 
 !!! info NetworkEvent broadcast has an extra optional parameter for fine-grained control.
     The `sendNetworkBroadcastEvent` method takes an extra, optional, final parameter: `player?: Player[]` which allows you to limit which [clients](#clients-devices-and-the-server) the event is sent to. This allows for fine-grained optimization, but should ⚠️ only be used if you absolutely understand what you are doing.
@@ -3420,27 +3480,34 @@ When you call `registerDisposeOperation` you get back a `DisposeOperationRegistr
 !!! info `PlayerControls` takes a `DisposableObject`
     In the [PlayerControls](#player-controls) class, the static method `connectLocalInput` takes a `DisposableObject` object as an argument. The controls will be *unregistered* when the disposable object disposes.
 
-## Frame Sequence
+## Frames
 
-<mark>TODO</mark>
+Each [client](#clients-devices-and-the-server) in an [instance](#instances) runs a fixed set of actions repeatedly while the instance runs. The sequence of actions is called the **[frame sequence](#frame-sequence)** and each run of the sequence is called one **frame**. The number of frames per second (fps) is called the [frame rate](#frame-rate).
 
-NOTE: a pre-physics handler in code blocks scripts runs before start
+### Frame Rate
 
-`async` runs AFTER default.
+The number of frames that occur per second is called the **frame rate** and is abbreviated "fps" for "frames per second". The time it takes to run each frame is the *frame time* (the time per frame).
 
-> On Frame N during PrePhysics:
->  moving object into a trigger
->
-> On Frame N+1 during Events:
->  triggerEnter is handled
->
-> I think the rule is as simple as:
->
-> Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
+$$\text{frame rate} = \frac{1}{\text{frame time}}$$
+
+[Clients](#clients-devices-and-the-server) don't all have the same frame rate! For example, the server (typically) runs at 60 frames per second and some VR headsets run at 72 frames per second. It's possible, and very likely, that **scripts execute *more frequently* on player devices than they do on the server**.
+
+If you need to know the frame time, e.g. to run your simulations or animations, **do not rely on a specific frame rate or frame time**. Use the `deltaTime` provided by [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) to get the time, in seconds, since the last frame (the last frame time).
+
+!!! note There is no separate "physics simulation rate".
+    In many game engines the physics simulation runs at a different rate than the rendering does. The physics simulation rate is often called a "fixed update". In Horizon there is no such separation. Every [client](#clients-devices-and-the-server) executes the [same sequence every frame](#frame-sequence), including both physics simulation and rendering (although rendering is skipped on the [server](#clients-devices-and-the-server) since it lacks a display).
+
+### Frame sequence
+
+Every action in Horizon happens somewhere within a frame. Frames execute in 3 main stages, in the following order:
+
+1. **[Simulation Phase](#simulation-phase)**: Updates player movement and recorded animations. Computes physics updates and detects collisions. Allows code to be run [before or after the physics calculations](#prephysics-vs-onupdate-events).
+2. **[Script Phase](#script-phase)**: Handles [CodeBlockEvents](#code-block-events), [LocalEvents](#local-events), and [NetworkEvents](#network-events). Processes [player input](#player-input) changes and runs [async callbacks](#async-delays-and-timers). Changes to the [scene graph](#scene-graph) are committed.
+3. **[Synchronization Phase](#synchronization-phase)**: Processes received [network](#network) information, sends out network updates, and renders the scene (if not the server).
 
 ```mermaid {align="center"}
 flowchart LR
-  subgraph Early [Early Frame Phase]
+  subgraph Early [Simulation Phase]
     Pre-Physics(Pre-Physics) --> Physics --> On-Update(On-Update)
   end
 
@@ -3448,11 +3515,11 @@ flowchart LR
     locomotion(Update players from<br/>locomotion and pose,<br/>update recorded<br/>animation playback) --> physicsStep(Run physics calculations,<br/>identify collisions)
   end
 
-  subgraph Scripting [Scripting Frame Phase]
+  subgraph Scripting [Script Phase]
     PrepareMutations(Prepare Scene<br/>Graph mutations<br>for Commit) --> Components(New components prepare,<br/>new components start)  --> Events(NetworkEvents handled,<br/>PlayerInput handled,<br/>CodeBlockEvents handled) --> mutations(Commit Scene <br/>Graph Mutations) --> Async(Async callbacks run,<br/>ownership callbacks run,</br>disposables handled)
   end
 
-  subgraph Late [Late Frame Phase]
+  subgraph Late [Synchronization Phase]
     receive(Prepare received<br/>Events to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render@{shape:pill}
   end
 
@@ -3470,6 +3537,22 @@ flowchart LR
   style Events fill:#dfe,stroke:#8a9
   style Components fill:#dfe,stroke:#8a9
 ```
+
+Each phase plays a critical role in ensuring smooth gameplay, accurate physics, and responsive interactions.
+
+NOTE: a pre-physics handler in code blocks scripts runs before start
+
+`async` runs AFTER default.
+
+> On Frame N during PrePhysics:
+>  moving object into a trigger
+>
+> On Frame N+1 during Events:
+>  triggerEnter is handled
+>
+> I think the rule is as simple as:
+>
+> Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
 
 Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
 
@@ -3491,7 +3574,7 @@ Proved: code block event handlers will eventually timeout but it seems to be upw
 
 Proved: each code block event handler is wrapped in a try.
 
-### Early Frame Phase
+### Simulation Phase
 
 <mark>TODO</mark>
 
@@ -3499,7 +3582,7 @@ Proved: each code block event handler is wrapped in a try.
 * Physics Phase
 * OnUpdate Phase
 
-### Scripting Frame Phase
+### Script Phase
 
 <mark>TODO</mark>
 
@@ -3510,7 +3593,7 @@ Proved: each code block event handler is wrapped in a try.
 * Committing Scene Graph Mutations
 * Async Handling
 
-### Late Frame Phase
+### Synchronization Phase
 
 <mark>TODO</mark>
 
@@ -3584,22 +3667,15 @@ Horizon has a few helper functions in `horizon/core`:
 Horizon Worlds [instances](#instances) run as a *distributed systems* with multiple machines involved. Each machine is called a **client**. Clients have the full [scene graph](#scene-graph), can [run code](#scripting), and have a [Player](#players) associated with them.
 
 There are two types of clients:
-  * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#late-frame-phase) the world from their player's camera / eyes every frame, and [synchronize](#late-frame-pahse) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
-  * **Server**: a special client that lives on Meta's servers. It's associated player is the special [server player](#server-player). The server client runs all [default scripts and local scripts on entities owned by the server player](#local-and-default-scripts). The server operates just like player devices except that it skips [rendering](#late-frame-phase) at the end of each frame.
+  * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#synchronization-phase) the world from their player's camera / eyes every frame, and [synchronize](#late-frame-pahse) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
+  * **Server**: a special client that lives on Meta's servers. It's associated player is the special [server player](#server-player). The server client runs all [default scripts and local scripts on entities owned by the server player](#local-and-default-scripts). The server operates just like player devices except that it skips [rendering](#synchronization-phase) at the end of each frame.
 
 Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connected to on the server (such as [OnPlayerEnterWorld](#player-entering-and-exiting-a-world)) whereas others can only be connected to on a player device (such as [OnPlayerEnteredFocusedInteraction](#focused-interaction)).
 
 <mark>TODO</mark> Other APIs that have client-affinity?
 
-### Simulation frame rate differences
-
-Worlds run [fixed sequence of actions each frame](#frame-sequence). The number of frames that occur per second is called the **frame rate** and is abbreviated "fps" for "frames per second". The time it takes to run each frame is the *frame time* (the time per frame).
-
-$$\text{frame rate} = \frac{1}{\text{frame time}}$$
-
-[Clients](#clients-devices-and-the-server) don't all have the same frame rate! For example, the server (typically) runs at 60 frames per second and some VR headsets run at 72 frames per second. It's possible, and very likely, that **scripts execute *more frequently* on player devices than they do on the server**.
-
-If you need to know the frame time, e.g. to run your simulations or animations, **do not rely on a specific frame rate or frame time**. Use the `deltaTime` provided by [onPrePhysicsUpdate and onUpdate](#run-every-frame-prephysics-and-onupdate) to get the time, in seconds, since the last frame (the last frame time).
+!!! info Client have varying frame rates.
+    The server typically runs at 60 frames per second. Quest VR headsets run at 72 fps. Do not rely on or hardcode specific frame rates. There's more information in the [frame rate](#frame-rate) section.
 
 ## Entity Ownership
 Each entity in the world is owned by exactly one [client](#clients-devices-and-the-server). An entity's owner:
@@ -3654,60 +3730,102 @@ This process takes at least a few frames (or more if slow networks are involved)
 
     | Flight Owner | Steps | When The Player Sees | When Other Players See |
     |---|---|---|---|
-    | Player | <ol><li>Player [presses button](#player-input) on their device</li><li>Device [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to server](#late-frame-phase)📡; from there it's [sent to other clients](#late-frame-phase)📡</li></ol> | End of frame | 2 network trips |
-    | Server | <ol><li>Player [presses button](#player-input) on their device</li><li>Button press [sent to server](#late-frame-phase)📡</li><li>Server [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to all clients](#late-frame-phase)📡</li></ol> | 2 network trips | 2 network trips |
+    | Player | <ol><li>Player [presses button](#player-input) on their device</li><li>Device [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to server](#synchronization-phase)📡; from there it's [sent to other clients](#synchronization-phase)📡</li></ol> | End of frame | 2 network trips |
+    | Server | <ol><li>Player [presses button](#player-input) on their device</li><li>Button press [sent to server](#synchronization-phase)📡</li><li>Server [enables light](#dynamic-light-gizmo)</li><li>Light's [state sent to all clients](#synchronization-phase)📡</li></ol> | 2 network trips | 2 network trips |
 
 ## Authority and Reconciliation
 
-!!! info Derived attributes depend on parents
-    An entity's owner is the authority on its intrinsic attributes, but there are many attributes that are *derived* from the entity's [parent and ancestors](#ancestors). For example an entity's [position](#position) is computed from its [local position](#local-transforms) and it's parent's position.
+Each [entity](#entities) in a world has exactly one [owner](#entity-ownership) which is authoritative on its intrinsic state (such as [position](#position)).
 
-When any of the simulation runtimes wants to make a change to the intrinsic state of an entity, a network message needs to be sent to the owner runtime of that entity to actually effect the change. When that owner receives change requests, it will apply them in the order received to update the state, and then broadcast the new state out to all other runtimes. Once those runtimes receive the new state, its effect will reflect in future rendering and interactions on that runtime.
+When a [client](#clients-devices-and-the-server) modifies an entity it doesn't own:
 
-!!! info Changes made to entities owned by the same runtime have no network latency
+1. The client sends a network message to the owning client (through the server)
+2. The owner processes changes in order received
+3. The owner broadcasts updated state to all clients
+4. Other clients apply the changes in their simulations
 
-!!! warning State change compression may occur if multiple changes handled at once
-    If there are multiple state change requests for the same state element received in a given frame, the value broadcast to other runtimes at the end of the frame will only be the _last_ value processed.  For instance, if you have a playing TrailFX and you stop and play it within the same frame, the 'stop' will likely not get broadcast to other runtimes and they will only see that it remains playing, and will thus not delete its old trail. If the entity is also owned by the runtime doing the state change requests, it may see intermediate states (e.g. it will stop the TrailFX, deleting its trail, and then start it again at its current location).
+Authority Considerations:
 
-!!! warning Ownership transfers are not instantaneous
-    The transfer of authoritative entity intrisnic state ownership between runtimes requires network communication between runtimes, and takes an undefined amount of time, tho usually less than 500 msec. This is a significant delay relative to the rendering frame rate, and needs to be accomodated by any game logic.
+1. **Eventual Consistency**: If network latency causes updates to arrive in different orders on different devices, calculated positions might temporarily disagree. The system will automatically reconcile these differences within a few frames (once entities stop moving for long enough for all [clients](#clients-devices-and-the-server) to have the same state). Note that if updates are ongoing (as is typical) then it is **likely all [clients](#clients-devices-and-the-server) *always* have slightly divergent views of the world**.
 
-!!! warning Entity intrinsic state authority is undefined during an ownership transfer
-    During the ownership transfer period, attempted changes to the intrinsic state of the entity will likely be lost or reverted when the transfer to the new owner completes. It is important to not try to change state on an entity after an ownership transfer has been initiated until it is clear that the new owner has acquired authority over its state, such as by sending events indicating this is the case, or by polling the owner of the entity to see it has changed to the desired target.
+2. **State Change Compression**: Multiple changes in one frame compress to the final value. So if a client updates the position of an entity multiple times across a frame then only the [final value is broadcast out](#synchronization-phase). Note that this cause unexpected behavior in trails due to a bug (explained in [TrailFX Gizmos](#trailfx-gizmo)).
 
-!!! danger Ownership does not cascade to children
-    When you transfer ownership of an entity, the ownership is _not_ automatically transferred for the children (or their descendents). If you want children to be transferred as well, you must manually transfer ownership of everything you care about.
+!!! info Some attributes are *derived* from the entity and its [parent (and ancestors)](#ancestors).
+    For example, an entity's [position](#position) is computed from its [local position](#local-transforms) and its parent's position.
 
-    !!! example
-        ```ts
-        anEntity.owner.set(newOwner)
-        anEntity.children.get().forEach(c => c.owner.set(newOwner))
-        ```
-        This transfers ownership of an entity and its children but not their children. Rather than just recursively transferring everything, instead consider what needs to actually be transferred (many entities states are not interacted with via scripts)!
+    Consider a situation where the [parent entity](#ancestors) is owned by the [server](#clients-devices-and-the-server) and the child entity is owned by a [player device](#clients-devices-and-the-server):
 
-TODO - What is the entity's relationship to the server upon instantiation?
-- done, I think?
-How does the local script affect the entity?
-- ???
-Explain the involvement of a manager (server objects that delegate ownership of entities that should be locally owned)
-- ???
-Explain framerate(cycle speed?) changes between local and server
-- done?
-Explain the relationship of local to server modules and wired references
-- ???
-Link to network/codeblock events
-- is this describe elsewhere? maybe I am duplicating work
-Maybe ownership cleanup tip (transfer to server on exit world during edit)
-- I think covered?
+    1. **Server's View** (owning the parent):
+      * Has authority over parent entity's position
+      * Receives child entity's local position from the owning player device
+      * Calculates child's world position by combining the parent's position, which it *asserts*, and the child's local position, which it *is sent*.
+
+    2. **Owner Player Device's View** (owning the child):
+      * Receives parent entity's position from the server
+      * Has authority over child entity's local position
+      * Calculates child's world position by combining the parent's position, which it *is sent*, and the child's local position, which it *asserts*.
+
+    3. **Other Player Devices' View** (owning neither parent nor child):
+      * Receives parent entity's position from server
+      * Receives child entity's local position from owning player device
+      * Calculates child's world position by combining both *received* positions
+
+    This means that if either the server moves the parent entity or the owning player device moves the child entity then all clients will recalculate the child's final world position. This recalculation happens automatically each frame during the [Synchronization Phase](#synchronization-phase).
 
 ## Ownership Transfer
-Entity ownership transfer happens through either programatic action or automatically via certain built-in behaviors.
 
-When an ownership transfer is initiated, the current owner stops acting as an authority for the intrinsic state of the entity. The receiving owner will use the last broadcast intrinsic state prior to the ownership transfer being initiated as the intrinsic state to manage for that entity when it acknowledges its ownership authority. In the meantime, any state change requests sent by any runtimes will likely be routed to the incorrect owner and may get either lost or reverted when the new owner asserts its authority over the entity state.
+Ownership transfer is the process by which an entity’s authority is "moved" from one [client](#clients-devices-and-the-server) to another. It affects both the entity’s intrinsic state (e.g. position, visibility, collision settings) and its attached [local components](#local-and-default-scripts). Transfers may be initiated programmatically via `entity.owner.set(newOwner)` or occur automatically (see [Automatic Ownership Transfers](#automatic-ownership-transfers)).
 
-- API overview of `transferOwnership` and `receiveOwnership` and `SerializableState`.
-- Full-details sequencing diagrams.
-- Clarify how scripts are instantiated per-owner as part of entity transfer.
+
+**Transfer Duration**: ownership transfers are not instantaneous, though are typically less than 0.5 seconds. This delay is significant relative to frame rates (its some small-ish handful of frames).
+
+**Interim Inconsistencies**: During the transfer, any state change requests may be lost or reverted until the new owner fully assumes authority. You can avoid this with one easy guideline: ⚠️ **don't modify entities you don't own**, meaning that if a script isn't "responsible" for the ownership of an entity it should only send it events (and not `set` any of its [properties](#horizon-properties)).
+
+**Non-Cascading Behavior**: Transfers affect only the targeted entity. Child entities retain their original owner unless explicitly transferred. You may want to transfer an entities children along with it (or in some extreme cases, transfer recursively). Here's how to transfer `entity` and it's children to `newOwner`:
+```ts
+entity.owner.set(newOwner);
+entity.children.get().forEach(c => c.owner.set(newOwner));
+```
+
+### Ownership Transfer Sequence
+
+An ownership transfer is initiated by a [client](#clients-devices-and-the-server) running the code `entity.owner.set(newPlayer)` or via an [automatic ownership transfer](#automatic-ownership-transfers). The ownership change request is sent (by the server) to the [client](#clients-devices-and-the-server) that currently owns `entity`. Then the following occurs.
+
+The component is [torn down](#component-lifecycle):
+1. [transferOwnership](#transferring-data-across-owners) is called to get the *[transfer state](#transferring-data-across-owners)*.
+1. the component is [disposed](#component-lifecycle)
+
+The transfer request (with the relevant information) [propagates from the old client to the new](#synchronization-phase):
+
+3. the state is sent to the server as a "transfer request"
+1. the server validates the request and then forwards it onto the [client](#clients-devices-and-the-server) matching the new owner
+
+The new component is [prepared and started](#component-lifecycle):
+
+5. a new component is *[prepared](#component-lifecycle)* on the client associated with `toPlayer` (property initializers run,  `initializeUI` runs if it's a UIComponent, and then `preStart` runs).
+1. `start()` runs on the new component
+1. [receiveOwnership](#transferring-data-across-owners) is called on the new component along with [the state](#transferring-data-across-owners) from step #1  (or `null` if the transfer is [discontinuous](#discontinuous-ownership-transfers))
+
+In the process above (and diagram below) that if one of the players involved is the [server player](#server-player) then steps #3 and #4 are merged into just one step.
+
+```mermaid {align="center}
+%%{init: { 'sequence': {'showSequenceNumbers': 'true'} }}%%
+sequenceDiagram
+    participant ClientA as Client A (player "A")
+    participant Server
+    participant ClientB as Client B (player "B")
+
+    note over ClientA: ownership change<br/>is requested
+    ClientA ->> ClientA: state = component.transferOwnership(A, B)
+    ClientA ->> ClientA: component.dispose()
+    ClientA->>Server: Change ownership<br>{from:A, to:B, state}
+    note over Server: Validate ownership change
+    Server->>ClientB: Change ownership<br>{from:A, to:B, state}
+    ClientB ->> ClientB: Allocate newComponent<br>newComponent.preStart()
+    ClientB ->> ClientB: newComponent.start()
+    ClientB ->> ClientB: newComponent.receiveOwnership(state, A, B)
+    note over ClientB: newComponent "active"
+```
 
 ### Discontinuous Ownership Transfers
 
@@ -3719,7 +3837,7 @@ When [ownership](#entity-ownership) of an entity is transferred from one [Player
 
 **Receiving Ownership**: In a discontinuous transfer the `state` argument in [receiveOwnership](#ownership-transfer) will be `null`.
 
-!!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
+!!! warning Not handling discontinuous ownership transfers on local components is a frequent source of bugs.
     When a player abruptly leaves a world (usually because of quitting the app or crashing), there will not be any [OnGrabEnd](#grab-sequence-and-events), [OnAttachEnd](#attaching-entities), or [OnPlayerExitWorld](#player-entering-and-exiting-a-world) events delivered to the [Components](#components) running on that client prior to the ownership transfer occurring.
 
     If the script isn't written to properly handle suddenly "resetting" then that Entity can become unusable / unpredictable due to having an scripting state that is incompatible with the state of the world.
@@ -5401,3 +5519,5 @@ NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frame
 - When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
 - Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
 * when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
+
+* TODO: no attach end or grab end if player crashes
