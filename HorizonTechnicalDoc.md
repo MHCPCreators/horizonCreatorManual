@@ -1,4 +1,4 @@
-<!-- focusSection: Scripting -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -168,12 +168,12 @@
         7. [Broadcast events](#broadcast-events)
         8. [Converting Between Components and Entities](#converting-between-components-and-entities)
     7. [Disposing Objects](#disposing-objects)
-    8. [Frame Sequence](#frame-sequence)
+    8. [Frames](#frames)
         1. [Frame Rate](#frame-rate)
-        2. [Frame sequence WIP stuff...](#frame-sequence-wip-stuff)
-        3. [Simulation Phase](#simulation-phase)
-        4. [Script Phase](#script-phase)
-        5. [Synchronization Phase](#synchronization-phase)
+        2. [Frame sequence](#frame-sequence)
+            1. [Simulation Phase](#simulation-phase)
+            2. [Script Phase](#script-phase)
+            3. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
@@ -2941,8 +2941,8 @@ flowchart TB
         EarlyPhase@{shape: lean-r, label: <a href="#simulation-phase">Simulation Phase</a> runs}
         LatePhase@{shape: lean-r, label: <a href="#synchronization-phase">Synchronization Phase</a> runs}
 
-        EarlyPhase --> ScriptingPhase --> TeardownReason{{What is the<br/>teardown reason?}}
-        TeardownReason --"none"--> LatePhase --> EarlyPhase
+        EarlyPhase --> ScriptingPhase --> TeardownReason{{Is there a<br/>teardown reason?}}
+        TeardownReason --"no"--> LatePhase --> EarlyPhase
     end
 
     subgraph Teardown
@@ -3154,11 +3154,11 @@ All event types can be instantiated with **custom user-made types** by simply ca
 
 | Event | Purpose | Timing | Payload |
 |---|---|---|---|
-| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with Codeblock scripts. | *Asynchronously* run in the next [Script Phase](#synchronization-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
+| **CodeBlockEvent** | Listen to [built-in CodeBlockEvents](#built-in-code-block-events). Communicate with [Codeblock scripts](#scripting). | *Asynchronously* run in the next [Script Phase](#synchronization-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server). | Tuple of [BuiltInVariableType](#builtinvariabletype)s. |
 | **LocalEvent** | Communicate with a TypeScript scripted entity on the [same client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | Delivered *synchronously* (immediately). | *Anything* |
 | **NetworkEvent** | Communicate with a TypeScript scripted entity on [any client](#clients-devices-and-the-server). Supports [broadcast](#broadcast-events). | *Asynchronously* run in the next [Script Phase](#synchronization-phase) if sent to the [same client](#clients-devices-and-the-server). Otherwise, it runs after a network trip on the receiving [client](#clients-devices-and-the-server) | [SerializableState](#serializablestate) |
 
-**When to use each event type**: you should always try to use a [LocalEvent] or direct method call, and you need to cross a [network](#network) then use a [NetworkEvent]. Use [CodeBlockEvents](#code-block-events) when listening to [certain built-in events](#built-in-code-block-events) or when communicating with Codeblock scripts.
+**When to use each event type**: you should always try to use a [LocalEvent] or direct method call, and you need to cross a [network](#network) then use a [NetworkEvent]. Use [CodeBlockEvents](#code-block-events) when listening to [certain built-in events](#built-in-code-block-events) or when communicating with [Codeblock scripts](#scripting).
 
 Here's a flowchart that may help:
 
@@ -3282,7 +3282,7 @@ Note that the `playerCaptured` event is `export`ed from the file so that other s
 
 ### Code Block Events
 
-`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with Codeblock scripts. **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with Codeblock scripts, then you *must* use `CodeBlockEvent`s).
+`CodeBlockEvent`s are a **legacy event type** used for listening to [built-in events](#built-in-code-block-events) and for communicating with [Codeblock scripts](#scripting). **Do not create custom `CodeBlockEvent`s** as they can conflict with built-in events and cause unexpected behavior (unless you are communicating with [Codeblock scripts](#scripting), then you *must* use `CodeBlockEvent`s).
 
 **Creation**:
 ```ts
@@ -3305,6 +3305,9 @@ Usage example (where the event is sent to the component's entity):
 - **Data Format**: Requires a tuple of [BuiltInVariableType](#builtinvariabletype)s
 - **Event Disambiguation**: System checks both name and parameterTypes before executing listeners
 
+!!! warning CodeBlockEvents have a per-frame limit.
+    If `sendCodeBlockEvent` is called, including for [built-in events](#built-in-code-block-events), 2048 times or more in a frame, then an error is thrown, disrupting [event execution for the frame](#script-phase).
+
 #### Built-In Code Block Events
 The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger. See the [list of built-in CodeBlockEvents](#all-built-in-codeblockevents) for more info.
 
@@ -3321,16 +3324,16 @@ this.connectCodeBlockEvent(
 )
 ```
 
-!!! info CodeBlockEvents are the only way for TypeScript and Codeblock scripts to communicate
-    Codeblock scripts are unable to use either [LocalEvents](#local-events) or [NetworkEvents](#network-events), thus the only method of communication between them is via [CodeBlockEvents](#code-block-events).
+!!! info CodeBlockEvents are the only way for TypeScript and [Codeblock scripts](#scripting) to communicate
+    [Codeblock scripts](#scripting) are unable to use either [LocalEvents](#local-events) or [NetworkEvents](#network-events), thus the only method of communication between them is via [CodeBlockEvents](#code-block-events).
 
 !!! bug Sending a CodeBlockEvent with an Asset parameter to scripts with 'local' execution mode will throw a silent error.
-    If you do try to send an Asset in a CodeBlockEvent from a script executing on the [server](#clients-devices-and-the-server) to one executing on a [player device](#clients-devices-and-the-server), the server script execution will be silently killed at the point where you try to send the event. Recall that unless you are communicating with Codeblock scripts, the **advice is to never use custom CodeBlockEvents**. Use [LocalEvents](#local-events) and [NetworkEvents](#network-events) for all your event sending and receiving.
+    If you do try to send an Asset in a CodeBlockEvent from a script executing on the [server](#clients-devices-and-the-server) to one executing on a [player device](#clients-devices-and-the-server), the server script execution will be silently killed at the point where you try to send the event. Recall that unless you are communicating with [Codeblock scripts](#scripting), the **advice is to never use custom CodeBlockEvents**. Use [LocalEvents](#local-events) and [NetworkEvents](#network-events) for all your event sending and receiving.
 
-!!! danger A TypeScript connecting to an entity with an attached Codeblock script can lead to issues.
-    Some times TypeScript and Codeblock scripts will "fight each other" when both listening to events from the same entity. It is a subtle bug that doesn't appear in all cases. However we recommend: **do not have TypeScript and Codeblock scripts listen to events from the same entity**.
+!!! danger A TypeScript connecting to an entity with an attached [Codeblock scripts](#scripting) can lead to issues.
+    Some times TypeScript and [Codeblock scripts](#scripting) will "fight each other" when both listening to events from the same entity. It is a subtle bug that doesn't appear in all cases. However we recommend: **do not have TypeScript and [Codeblock scripts](#scripting) listen to events from the same entity**.
 
-    Example: Imagine a [trigger](#trigger-gizmo) that has a Codeblock script attached to it that listens to [trigger enter](#trigger-entry-and-exit) on `self` (Codeblock's version of `this.entity`). If you then have a TypeScript script also connect to the [trigger enter](#trigger-entry-and-exit) event then it turns out that neither script will receive trigger events for that trigger.
+    Example: Imagine a [trigger](#trigger-gizmo) that has a [Codeblock script](#scripting) attached to it that listens to [trigger enter](#trigger-entry-and-exit) on `self` (Codeblock's version of `this.entity`). If you then have a TypeScript script also connect to the [trigger enter](#trigger-entry-and-exit) event then it turns out that neither script will receive trigger events for that trigger.
 
 ### Network Events
 
@@ -3511,7 +3514,7 @@ flowchart LR
     Pre-Physics(Pre-Physics) --> Physics --> On-Update(On-Update)
   end
 
-  subgraph Physics [Physics Phase]
+  subgraph Physics [Physics Updates]
     locomotion(Update players from<br/>locomotion and pose,<br/>update recorded<br/>animation playback) --> physicsStep(Run physics calculations,<br/>identify collisions)
   end
 
@@ -3538,31 +3541,63 @@ flowchart LR
   style Components fill:#dfe,stroke:#8a9
 ```
 
-Each phase plays a critical role in ensuring smooth gameplay, accurate physics, and responsive interactions.
+#### Simulation Phase
 
-NOTE: a pre-physics handler in code blocks scripts runs before start
+The **Simulation Phase** runs at the start of the frame and includes physics calculations and avatar/animation updates.
 
-`async` runs AFTER default.
+1. **Pre-Physics**
+    - [Broadcasts](#broadcast-events) the [World.onPrePhysicsUpdate](#run-every-frame-prephysics-and-onupdate) event locally, causing all local listeners to run.
+1. **Physics Updates**
+    - Players update their [positions and pose](#pose-position-and-body-parts) based on locomotion inputs.
+    - Animation playback is updated.
+    - Physics calculations run, applying [forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
+    - Collisions [with object and players](#collision-detection) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
 
-> On Frame N during PrePhysics:
->  moving object into a trigger
->
-> On Frame N+1 during Events:
->  triggerEnter is handled
->
-> I think the rule is as simple as:
->
-> Any CODE BLOCK EVENT generated in a frame is process the next frame, no exceptions.
+1. **On-Update**
+    - [Broadcasts](#broadcast-events) the [World.onUpdate](#run-every-frame-prephysics-and-onupdate) event locally, causing all local listeners to run.
 
-Proved: preStart and start run in "frame -1". Code blocks "start" event is handled in frame "0" (after frame 0's prePhysics and default).
+ - Player positions that are modified in the `onPrePhysicsUpdate` callbacks will be used in the *physics updates* that follow. However, **modifications to entities will not be used in the *physics updates***.
+
+#### Script Phase
+
+The **Script Phase** executes all event listeners, handles player input, instantiates components, and commits pending scene graph changes.
+
+1. **Scene Graph Updates Preparation**
+    - Any [scene graph](#scene-graph) mutations performed via [property.set(...)](#horizon-properties) throughout the frame thus far are copied to the side and the "pending updates" cache is cleared. See the details below.
+1. **Component Initialization**
+    - New components are instantiated (due to the instance starting, assets [spawning](#spawning) in, or entities having their [ownership transferred](#ownership-transfer) to this [device](#clients-devices-and-the-server)). Those new components will [all be prepared and then started](#component-lifecycle).
+1. **Event Processing**
+    - [NetworkEvent](#network-events) listeners run
+    - [PlayerInput](#player-input) callbacks run
+    - [CodeBlockEvent](#code-block-events) listeners run (including [built-in](#built-in-code-block-events) ones, such as those prepared in the [physics calculations](#simulation-phase)).
+1. **Scene Graph Updates**
+    - The mutations prepared in step #2 are now applied. See the details below.
+1. **Final Callbacks**
+    - Any asynchronous callbacks (e.g., `setTimeout`, `setInterval`) that are "passed due" are run.
+    - Any entities owned by the [local device](#clients-devices-and-the-server) that had [owner.set(...)](#ownership-transfer) called on them during the frame will now have [transferOwnership](#ownership-transfer) called to get the *transfer* state that will be dispatched in the [Synchronization Phase](#synchronization-phase). These entities will be marked for [disposal](#component-lifecycle).
+    - Any components that were created in step #2 due to an [ownership transfer](#ownership-transfer) will have [receiveOwnership](#ownership-transfer) called on them with their *transferred state* (or with `null` if the transfers were [discontinuous](#discontinuous-ownership-transfers)).
+    - Any components that were marked for [disposal](#component-lifecycle) (due to being spawned out, the instance stopping, or in the step 2 bullets above) will have `dispose()` called. All their [event subscriptions](#receiving-events) will be `disconnect`ed. All the ongoing [timeouts and intervals](#async-delays-and-timers) will be `clear`ed.
+
+<mark>TODO</mark> finish the below:
+
+**Scene Graph Mutations**: This means that any mutations created in the [Simulation Phase](#simulation-phase) are committed, but any mutations created in steps #2 or #3 are *not* committed (due to the copy-aside in step #1). Those changes will not be committed until the next frame (when they are copied in step #1). See the physics exception below.
+
+<mark>TODO</mark> explain the subtleties with position setting and physics
+
+#### Synchronization Phase
+
+The **Synchronization Phase** finalizes the frame, managing network synchronization and rendering the world (on [player-device clients](#clients-devices-and-the-server)).
+
+1. **Network Sync**
+   - Events sent this frame are broadcasted to other clients.
+   - Networked entity transformations are synchronized across players.
+
+2. **Render (if on a player device)**
+   - The game world is rendered for the player based on updated entity states.
+
+<mark>TODO</mark>
 
 Proved: async runs at end of frame. An interval / timeout of 0ms (or some other tiny value) is allowed to run many times per frame (but is capped via some max time - meaning that the async phase will deplete the timer queue only for so long).
-
-Proved: creating an async function ANYWHERE in a frame (EVEN during that frame's async phase) is eligible to be run during that frame's async phase (as long as it's delay is small enough and we haven't hit the "budget").
-
-Proved: creating a timeout / interval in start() with timeout of 0ms will run in that frame before prePhysics.
-
-Proved: 0ms is the default time when omitted.
 
 Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
 
@@ -3573,34 +3608,6 @@ Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you ge
 Proved: code block event handlers will eventually timeout but it seems to be upward of some 10s of seconds. Even if each event takes a long time, Horizon will do its best to process the entire queue every frame. It never punts events to a future frame. Meaning... it may stall the JS thread for 10s+ (frame isn't stuck, just JS thread) to process all the events.
 
 Proved: each code block event handler is wrapped in a try.
-
-### Simulation Phase
-
-<mark>TODO</mark>
-
-* PrePhysics Phase
-* Physics Phase
-* OnUpdate Phase
-
-### Script Phase
-
-<mark>TODO</mark>
-
-* Component Initialization
-* Network Events Handling
-* Player Input Handling
-* Code Block Events Handling
-* Committing Scene Graph Mutations
-* Async Handling
-
-### Synchronization Phase
-
-<mark>TODO</mark>
-
-* Network Sync
-* Render (if a player device)
-
-<mark>TODO</mark>
 
 ## Component Inheritance
 
@@ -4134,7 +4141,7 @@ export declare class PhysicalEntity extends Entity {
 
 ## Player Physics
 
-Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics phase the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics updates the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
 
 Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
     NOT async
