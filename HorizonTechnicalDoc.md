@@ -1,11 +1,11 @@
-<!-- focusSection: -->
+<!-- focusSection:  -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
 > This is an in-development (Jan '25) <b>community-written</b> document.
 > For questions contact <i>wafflecopters</i>.
 
-**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, Shards632, and Tellous and help from HomeMed, SeeingBlue, and UnravelWinter.
+**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous, and UnravelWinder with additional help from HomeMed.
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
@@ -184,7 +184,7 @@
     4. [Authority and Reconciliation](#authority-and-reconciliation)
     5. [Ownership Transfer](#ownership-transfer)
         1. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
-        2. [Auto Ownership Transfers](#auto-ownership-transfers)
+        2. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         3. [Transferring Data Across Owners](#transferring-data-across-owners)
 10. [Collision Detection](#collision-detection)
     1. [Colliders](#colliders)
@@ -3711,13 +3711,22 @@ When an ownership transfer is initiated, the current owner stops acting as an au
 
 ### Discontinuous Ownership Transfers
 
-!!! warning Non-'orderly' ownership transfers cannot transfer script state
-    If the ownership transfer of an entity with owner runtime executing scripts occurs, the old owner will _not_ have an opportunity to execute `transferOwnership()`, and so the new owner will receive a `null` state in `receiveOwnership()`
+When [ownership](#entity-ownership) of an entity is transferred from one [Player](#players) to another, including possibly the [server player](#server-player), we say that the transfer is a **continuous ownership transfer**. Whenever the "from" `Player` is unavailable we say that it is a **discontinuous ownership transfer**.
+
+**Causes**: Discontinuous transfers occur when:
+1. A component initializes for the first time in an instance (either because the [instance](#instances) started or it just [spawned](#spawning) in).
+2. A player quits the app or crashes then the player's runtime is no longer available to package up the data.
+
+**Receiving Ownership**: In a discontinuous transfer the `state` argument in [receiveOwnership](#ownership-transfer) will be `null`.
 
 !!! warning Not handling non-'orderly' ownership transfers of 'local' execution mode Components is a frequent source of bugs
-    When a player runtime abruptly shuts down, there will not be any OnGrabEnd, OnAttachEnd, or OnPlayerExitWorld events delivered to the Components running in that runtime prior to the ownership transfer occurring. Unless the script has been written to have 'failsafe' behavior to return the intrinsic state of the Entity to a known default state when it is restarted in the server runtime, that Entity can become unusable due to having an inconsistent scripting state relative to its actual intrinsic state.
+    When a player abruptly leaves a world (usually because of quitting the app or crashing), there will not be any [OnGrabEnd](#grab-sequence-and-events), [OnAttachEnd](#attaching-entities), or [OnPlayerExitWorld](#player-entering-and-exiting-a-world) events delivered to the [Components](#components) running on that client prior to the ownership transfer occurring.
 
-### Auto Ownership Transfers
+    If the script isn't written to properly handle suddenly "resetting" then that Entity can become unusable / unpredictable due to having an scripting state that is incompatible with the state of the world.
+
+    A common pattern is to have *local scripts* send their state out to a server-owned entity so that if they "reset" they can then "ask" (via an [event](#communication-between-components)) for the state, when they start up again.
+
+### Automatic Ownership Transfers
 
 There are a number of situations where an entity's ownership is changed automatically. These situations act exactly if the ownership was changed via `entity.owner.set(...)`:
   1. When an entity is [grabbed by](#grabbing-entities) or [attached to](#attaching-entities) a player
@@ -3725,25 +3734,45 @@ There are a number of situations where an entity's ownership is changed automati
   2. When an entity [collides](#collision-detection) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
       * This makes it easy to have the collided entities act with [low latency for the player](#why-local-scripts-and-ownership-matter-network-latency) from then on.
   3. When a [player leaves the world](#player-entering-and-exiting-a-world)
-      * Their owned entities transfer to the server.
+      * The entities they [own](#entity-ownership) transfer to the server.
+      * This is [discontinuous](#discontinuous-ownership-transfers) since the departing owner can't participate.
 
-This is not an "orderly" transfer since the departing owner can't participate
+!!! bug Exiting build preview does **not** automatically transfer ownership.
+    When in [build mode](#visitation-modes-edit-preview-and-publish), exiting from preview back to edit mode does _not_ automatically transfer ownership of any Entities owned by the build player back to the [server player](#server-player) even though the [player exited](#player-entering-and-exiting-a-world).
 
-Note that exiting build preview mode does NOT automatically transfer ownership back to the server player. Handle this by explicitly transferring ownership in the OnPlayerExitWorld event handler.
-
-!!! warning Exiting build preview does NOT cause automatic ownership transfer
-    When in build mode, exiting from preview back to build mode does _NOT_ automatically transfer ownership of any Entities owned by the build player back to the `serverplayer`. Any Components with 'local' execution mode will continue to run in the player's device runtime. This can be confusing if they are scripted to track player avatar location, as they will start to follow the 'big' build avatar around. It is best to handle 'OnPlayerExitWorld' events and explicitly transfer ownership of all scripted Entities owned by the departing player back to the 'serverplayer'.
+    Components with *local* execution mode will continue to run in the player's device runtime. This can be confusing if they are scripted to track player avatar location, as they will start to follow the "big" build avatar around. It is best to handle `OnPlayerExitWorld` events and explicitly transfer ownership of all scripted Entities owned by the departing player back to the [server player](#server-player).
 
 ### Transferring Data Across Owners
 
-Entities that are performing 'orderly' transfers of ownership between runtimes and that have Component(s) with 'local' execution mode in the runtime of their owner have an opportunity to transfer additional script state along with ownership. This state is not part of the intrinsic state of the entity, rather it is specific internal state of any typescript Component(s) running in the former owners simulation runtime.
+During [continuous ownership transfers](#discontinuous-ownership-transfers), components with local execution mode can transfer state [from the old component to the new one](#ownership-transfer).
 
-Such owner runtime executing Components will receive a `transferOwnership()` call to serialize any desired state. After the ownership transfer, when the Component is executed on the new owner's runtime, the Component there will receive a `receiveOwnership()` call to deserialize state into the local typescript object. As the information being serialized will be transferred over the network, the serialized state has the same payload constraints as NetworkEvent payloads.
-
-The SerializedState of the Component should be declared as a type, and used as the second `Component` template parameter to ensure proper type checking of the ownership callbacks.
+In order to create a component that transfers data during an [ownership transfer](#ownership-transfer):
+1. **Define a type** representing the data that will be transferred. The date must adhere to the [SerializableState](#serializablestate) type.
+    ```ts
+    type Ammo = {count: number};
+    ```
+2. Pass the type into the **second generic slot when extending `Component`**.
+    ```ts
+    class Weapon extends Component<typeof Weapon, Ammo> { ... }
+    ```
+3. Implement **`transferOwnership`** on the component to package up data that will be transferred. The `transferOwnership` method also passes in the players involved in the transfer. It's possible, and likely, for one of them to be the [server player](#server-player).
+    ```ts
+    transferOwnership(from: Player, to: Player): Ammo {
+      return {count: this.ammo};
+    }
+    ```
+4. Implement **`receiveOwnership`** on the component to use the data packaged up by the previous owner. The `receiveOwnership` method also passes in the players involved in the transfer. It's possible, and likely, for one of them to be the [server player](#server-player). The state will be *`null`* if the transfer is [discontinuous](#discontinuous-ownership-transfers) (first awakening, or from a player that disconnected).
+    ```ts
+    receiveOwnership(state: Ammo | null, from: Player, to: Player) {
+      if (state !== null) {
+        this.ammo = state.count
+      }
+    }
+    ```
 
 !!! example
-  ![[ horizonScripts/ownerDataTransferExample.ts ]]
+    The example below shows a simple script that tracks how much ammo is in a weapon. When the gun is [transferred](#ownership-transfer), it maintains the same ammo count. Note that if the [transfer is discontinuous](#discontinuous-ownership-transfers) the amount of ammo will be the value in the [props](#component-properties).
+    ![[ horizonScripts/ownerDataTransferExample.ts ]]
 
 # Collision Detection
 
@@ -4136,39 +4165,32 @@ which returns the current list of players in the world (human and [NPC](#npc-giz
 
 ### Server Player
 
-There is a special instance of the `Player` class that represents the _server_. It has an `id` but no meaningful `index`. All `Player` APIs work for the server player, but return default values (example: the location will return the origin; name will return the empty string).
+There is a special instance of the `Player` class that represents the [_server_](#clients-devices-and-the-server). It has an `id` but no meaningful `index`. All `Player` APIs work for the server player, but return default values (example: the location will return the origin; name will return the empty string).
 
-The server player does not count as one of the human players: it does not get assigned an `index` and it does not count toward the <a href="#maximum-player-count">maximum player count</a> being reached.
+The **server player does not count as one of the human player**s:
+  * it does not get assigned an `index`
+  * it does not count toward the <a href="#maximum-player-count">maximum player count</a> being reached
+  * it is not included in the [getPlayer()](#listing-all-players) array
+
+The server player [owns all entities](#entity-ownership) when the world starts (or when entities are [spawned](#spawning) in).
 
 The `World` class has the method
-
 ```ts
 getServerPlayer(): Player
 ```
-
-which can be used to access it. The primary use cases are
-
-1. transferring ownership back to the server:
-
-```ts
-anEntity.owner.set(world.getServerPlayer());
-```
-
-2. checking if an entity is owned by the server:
-
-```ts
-if (anEntity.owner.get() === world.getServerPlayer()) {
-  /* ... */
-}
-```
-
-3. checking if a script is running locally or not:
-
-```ts
-if (world.getLocalPlayer() === world.getServerPlayer()) {
-  /* ... */
-}
-```
+which can be used to access the server player. The primary use cases are:
+1. Transferring ownership to the server
+    ```ts
+    entity.owner.set(world.getServerPlayer());
+    ```
+2. Checking if an entity is owned by the server
+    ```ts
+    if (entity.owner.get() === world.getServerPlayer()) { ... }
+    ```
+3. Checking if a script is running locally
+    ```ts
+    if (world.getLocalPlayer() === world.getServerPlayer()) { ... }
+    ```
 
 ### Local Player
 
@@ -4197,7 +4219,6 @@ Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#buil
 
 When a player exits the world, [all entities owned by them](#entity-ownership) are [transferred to the server](#ownership-transfer).
 
-
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
 
 ```mermaid {align="center"}
@@ -4208,16 +4229,19 @@ flowchart TD
 
     notInWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> in or<br/><a href="#visitation-modes-edit-preview-and-publish">enters preview mode<a/></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterWorld</b></code></td></tr></table> --> inWorld
 
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 
     inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
 
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 
     inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b></code></td></tr></table> --> inWorld
 
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#auto-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 ```
+
+!!! bug Entities are not [transferred to the server](#ownership-transfer) when leaving [preview mode](#visitation-modes-edit-preview-and-publish).
+    When a player exits the instance all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#entity-ownership).
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
@@ -4658,7 +4682,7 @@ Attaching entities involves two built-in code block events being sent to the att
 | `OnAttachStart` | <nobr>`player: Player`</nobr> | ? |
 | `OnAttachEnd` | <nobr>`player: Player`</nobr> | ? |
 
-The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change and **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box).
+The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
 
 ```mermaid {align="center"}
 flowchart TD
@@ -4667,7 +4691,7 @@ flowchart TD
 
   detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player releases<br/>attachable entity<br/>on body part</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color: #0000"><b>OnGrabEnd</b></code></td></tr></table> ---> attach
 
-  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>attachToPlayer()</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b></code></td></tr></table> ---> attach
+  detach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>attachToPlayer()</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><I>If held:</I><br/> <b>OnGrabEnd</b></code></td></tr><tr><td style="background-color:#ffffcd"><u><a href="#automatic-ownership-transfers">ownership transfer</a></u></td></tr></table> ---> attach
 
   attach -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff"><i>player grabs <br/>attachable entity</i></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnGrabStart</b></code></td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnAttachEnd</b></code></td></tr></table> --> detach
 
@@ -4688,7 +4712,7 @@ flowchart TD
 
 Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
 
-**Attach and ownership**: When `entity.attachToPlayer(player, anchor)`, `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#auto-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
+**Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
 **Anchor**: The anchor is specified by the `AttachablePlayerAnchor` enum which currently has values for `Head` and `Torso`. See [socket attachment](#socket-attachment) for changing the exact position and rotation of where an attachable attaches.
 
