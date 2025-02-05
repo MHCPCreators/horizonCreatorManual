@@ -1,4 +1,4 @@
-<!--focusSection: Scripting -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -173,7 +173,8 @@
         2. [Frame sequence](#frame-sequence)
             1. [Simulation Phase](#simulation-phase)
             2. [Script Phase](#script-phase)
-            3. [Synchronization Phase](#synchronization-phase)
+            3. [Scene Graph Mutations](#scene-graph-mutations)
+            4. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
