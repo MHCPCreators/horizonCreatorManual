@@ -14,7 +14,7 @@
 1. [Overview](#overview)
 2. [Worlds](#worlds)
     1. [Creating a World](#creating-a-world)
-    2. [Metadata and Publishing](#metadata-and-publishing)
+    2. [Publishing and Player Settings](#publishing-and-player-settings)
     3. [Editor Roles](#editor-roles)
     4. [World Snapshot](#world-snapshot)
     5. [World Backups](#world-backups)
@@ -332,11 +332,10 @@ The tools support many features for managing and scripting players, physics, 3D 
 
 # Worlds
 
-You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#metadata-and-publishing) enables you to configure worlds settings and publish the world when ready. Worlds are saved in automatic system "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
+You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#publishing-and-player-settings) enables you to configure worlds settings and publish the world when ready. Worlds are saved in automatic system "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
 
 ## Creating a World
 
-<mark>TODO</mark>
 Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
 Once installed on your PC, navigate to the `Store` from the menu on the left.
 Search `Meta Horizon Worlds` in the upper-right and install.
@@ -352,7 +351,7 @@ Name your world and click `Create`.
 
 <img src="images/create-a-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
-## Metadata and Publishing
+## Publishing and Player Settings
 
 Let's *NOT* document all of what is below. These are here for reference to see which ones we want to document.
 
@@ -392,14 +391,13 @@ Player Settings
 Disable Dynamic LOD Toggles on Avatar (makes it easier to increase player count)
 Enable Max Quality Avatar
 
-
 Name, description, comfort setting, player count, etc.
 
 ## Editor Roles
 
 The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. **Collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppvs))? | Can assign [editor roles](#editor-roles)? |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#publishing-and-player-settings) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppvs))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
@@ -4209,7 +4207,7 @@ springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>)
 
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
-**Max player count**: Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#metadata-and-publishing).
+**Max player count**: Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#publishing-and-player-settings).
 
 **Construction / New**: `Player` instances are allocated by the system; you should *never allocate them directly* (never use `new Player`).
 
@@ -4348,11 +4346,14 @@ flowchart TD
     inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 ```
 
-!!! bug Entities are not [transferred to the server](#ownership-transfer) when leaving [preview mode](#visitation-modes-edit-preview-and-publish).
-    When a player exits the instance all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
-
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#entity-ownership).
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
+
+!!! bug `OnPlayerExit` and `OnPlayerExitAFK` are not sent if a player leaves suddenly.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
+
+!!! bug Entities are not [transferred to the server](#ownership-transfer) when leaving [preview mode](#visitation-modes-edit-preview-and-publish).
+    When a player exits the instance all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
 
 !!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
     In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
@@ -4643,6 +4644,8 @@ forceHold(player: Player, hand: Handedness, allowRelease: boolean): void;
 
 It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a VR player can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
 
+**Not quite instantaneous**: calling `forceHold` "animates" the entity into the players hand. It can be a number of frames until they are holding it and the [OnGrabStart](#grab-sequence-and-events) event is sent.
+
 !!! example Giving players a weapon when the game starts
     A common use case for force-holding is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-holding it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
 
@@ -4711,6 +4714,9 @@ flowchart TD
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3,4 stroke:red,stroke-width:1px;
 ```
+
+!!! bug `OnGrabEnd` and `OnMultiGrabEnd` are not sent if a player leaves suddenly.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
 
 ### Hand-off (Switching Hands or Players)
 
@@ -4808,6 +4814,9 @@ flowchart TD
    linkStyle 0,1 stroke:green,stroke-width:1px;
     linkStyle 2,3 stroke:red,stroke-width:1px;
 ```
+
+!!! bug `OnAttachEnd` are not sent if a player leaves suddenly.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
 
 !!! info Transitioning between Held and Attached results in being both at the same time.
     An entity goes *from being held to being attached* when `attachToPlayer` is called. An entity goes *from being attached to held* when a player [grabs](#can-grab) or when `forceGrab` is called. In both of these cases the entity is **momentarily held and attached at the same time**.
@@ -5901,14 +5910,6 @@ In the table below:
 | [OnProjectileHitWorld](#projectile-launcher-gizmo) | `position: Vec3`<br/>`normal: Vec3` |
 | [OnProjectileLaunched](#projectile-launcher-gizmo) | `launcher: Entity` |
 
-# OPEN QUESTIONS - <mark>TODO</mark> {ignore=true}
+# OPEN QUESTIONS - {ignore=true}
 
-TODO: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
-
-NOTE: force-hold can take a number of frames to send the grabEvent (saw 13 frames in a test - which is about 250ms, or 1/4s)
-
-- When do entity.owner vs world.getLocalPlayer() change - it seems that in `transferOwnership` that the former has already changed but not the latter?
-- Does simulation=false disable a collision (e.g. can something still hit it or go through a trigger)? The answer should be yes!
-* when calling allowPlayerJoin(false), can players join by invite or is the instance actually LOCKED vs Closed?
-
-* TODO: no attach end or grab end if player crashes
+<mark>TODO</mark>: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
