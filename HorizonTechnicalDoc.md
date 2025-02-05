@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Instances -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -531,9 +531,32 @@ flowchart TD
 * Travel to friend
 * Instruction how to get an actual link...
 
-## Resetting an Instance
+## Starting, Stopping and Resetting an Instance
 
-<mark>TODO</mark> stop / play / pause and `world.reset()`.
+An **instance starts** when any of the following occur:
+  * player chooses "new session" (instance is created and starts)
+  * player travels to a world with no currently [available instance](#available-instances) (instance is created and starts)
+  * player travels to the editor for a world that doesn't currently have the editor instance running (instance is created and starts)
+  * creator presses the "Play" button in the desktop editor (instance is not created, but it is started)
+
+When an instance starts, all the [script files are run](#script-file-execution) and the [components](#components) associated with the [entities](#entities) in the [scene graph](#scene-graph) are [initialized](#component-lifecycle).
+
+An **instance stops** when any of the following occur:
+  * the instance has had no players in it for a while
+  * creator presses the "Stop" button in the desktop editor
+
+When an instance stops in the desktop editor all the components are disposed. In a non-editor instance, all the running scripts can simply be halted.
+
+An **instance resets** when any of the following occur:
+  * [World class](#world-class) `reset()` method is called
+  * creator presses the "Reset" button in the desktop editor
+
+When an instance resets, all components are disposed, all assets are [despawned](#despawning), all entities are reset to their initial state in the [world snapshot](#world-snapshot), all (new) components are initialized.
+
+!!! Be careful resetting a playing instance.
+    If an instance is reset while it is playing, it is possible that some in-flight [events](#communication-between-components) end up arriving and being handled after the reset! Thus it is recommend to **not use `world.reset()`** and instead implement your own reset logic (which is also a better experience for the players).
+
+    In the desktop editor we recommend that when you want to test the world that you habitually **press: "Stop, then Reset, then Play"**.
 
 # Scene Graph
 
@@ -2676,7 +2699,7 @@ The `World` class represents the currently running [instance](#instances) and th
 | `static onUpdate` | The built-in [LocalEvent](#local-events) for subscribing to the [on-update frame event](#run-every-frame-prephysics-and-onupdate). |
 | `static onPrePhysicsUpdate` | The built-in [LocalEvent](#local-events) for subscribing to the [pre-physics frame event](#run-every-frame-prephysics-and-onupdate). |
 | **Instance Management** |
-| `reset` | [Reset the instance](#resetting-an-instance). |
+| `reset` | [Reset the instance](#starting-stopping-and-resetting-an-instance). |
 | `matchmaking` | Manage the instance's [open setting](#open-and-closed-instances). |
 | **Instance Players** |
 | `getPlayerFromIndex` | Find which, if any, [Player](#players) has the given [index](#player-indices). |
