@@ -357,19 +357,24 @@ Let's *NOT* document all of what is below. These are here for reference to see w
 
 <mark>TODO</mark>
 
-Publish World "box"
-  Status: unpublished
-  Name
-  Description
-  World rating (a flow that result in: <mark>TODO</mark>)
-  Comfort rating: Not Rated, Comfortable, Moderate, Intense
-  (World) Tags (select N from list)
-  Mute Assist (boolean)
-  Visible to public (boolean)
-  Members-only world (boolean)
-  Boolean (boolean)
-  Available Through Web and Mobile
-  Compatible with Web and Mobile
+**Publishing**
+<img src="images/publish-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+
+| Field | Description |
+|---|---|
+| World Status | Displays the current status of the world. |
+| Name | Allows you to name your world. Beware, renaming your world will change the name of the folder where the scripts are saved when using Typescript. |
+| Description | Allows you to set a description for your world. This will be seen when viewing your world in the Horizon menu, online, or in the app.
+| World Rating | Will prompt a series of questions about your world to determine your world rating. (10+, 13+, 18+)(a flow that result in: <mark>TODO</mark> Not sure what this TODO means.) |
+| Comfort Rating | Allows you to select a rating for your world that players will see before they visit. This lets players know what kind of experience they can expect. You cannot publish a world as `NOT_RATED`. `COMFORTABLE` suggest not a lot of movement involved, overall calm and slow environment. `Moderate` suggest your world has some limited movement or possible motion sickness inducing aspects. `INTENSE` suggest your world may not be suitable for users who suffer from motion sickness. |
+| Tags | Allows you to set up to 3 Tags for your world that helps categorize it in the menu and tells players what kind of experience they can expect. | 
+| Mute Assist | Turning this on will allow your world to detect loud sounds, profanity or offensive language and prompt your players to mute the offending players. |
+| Visible to Public | Determines whether your world will appear in the Horizon Menu, searches, or be featured. If disabled, players can only join your world through invites or Door Gizmo. |
+| Members-Only World | Enables `Moderation Presence Required` option. Only allows users who are invited to join your world. Does not allow IWP. WARNING: When enabled and published, it cannot be disabled again. |
+| Moderation Presence Required | If enabled, invited players can only enter the world when the creator or a moderator is present. |
+| Beta | If enabled, shows your world in Beta status so players know there could be bugs or issues. |
+| Available Through Web and Mobile | Determines whether players can join your world on web and mobile.
+| Compatible with Web and Mobile | Determines whether your world is optimized for web and mobile so players can know what to expect. |
 
 Player Settings
   VOIP: Global vs Local
