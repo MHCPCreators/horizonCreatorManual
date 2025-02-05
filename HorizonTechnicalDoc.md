@@ -1,4 +1,4 @@
-<!--focusSection: Instances -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -26,7 +26,7 @@
         1. [Open and Closed Instances](#open-and-closed-instances)
     4. [Instance Selection](#instance-selection)
     5. [Travel, Doors, and Links](#travel-doors-and-links)
-    6. [Resetting an Instance](#resetting-an-instance)
+    6. [Starting, Stopping and Resetting an Instance](#starting-stopping-and-resetting-an-instance)
 4. [Scene Graph](#scene-graph)
     1. [Hierarchy](#hierarchy)
         1. [Ancestors](#ancestors)
@@ -525,11 +525,22 @@ flowchart TD
 
 ## Travel, Doors, and Links
 
-<mark>TODO:</mark>
+Players move around Horizon worlds by *traveling* from one location to another. A player is traveling when they are in the loading screen, going from one world to another.
 
-* Doors act like an in-experience Hyperlink
-* Travel to friend
-* Instruction how to get an actual link...
+A player may travel for a number of reasons:
+  * they are loading into Horizon worlds
+  * they selected a world, in their menu
+  * they selected a person and then "join", in their menu
+  * they pressed a button on a [door](#door-gizmo)
+  * they walked into a "travel area" (such as in Venues)
+  * they were voted out of their current instance
+  * they experience an error and were sent back to their "home" space
+
+The [door gizmo](#door-gizmo) allows you to put "travel buttons" in your world and link them together.
+
+To get a **URL (text link) to one of your worlds** go here: https://horizon.meta.com/creator/worlds_all and then choose a world and navigate to its details page. You will be at a URL starting with `https://horizon.meta.com/world/...`. That is the URL / link for that world!
+
+If you are visiting a world in the browser and copy the URL, it will include a session id, which can help people join you (if you send them that URL).
 
 ## Starting, Stopping and Resetting an Instance
 
