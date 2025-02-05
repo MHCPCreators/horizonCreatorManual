@@ -265,7 +265,7 @@
         2. [Simple vs Tracked Quests](#simple-vs-tracked-quests)
         3. [Using the Quests Gizmo](#using-the-quests-gizmo)
         4. [Resetting Quests](#resetting-quests)
-    3. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+    3. [In-World Purchases (IWPs)](#in-world-purchases-iwps)
         1. [Creation](#creation-1)
         2. [Using the Gizmo](#using-the-gizmo)
         3. [APIs Overview](#apis-overview)
@@ -275,7 +275,7 @@
         1. [Using Persistent Player Variables](#using-persistent-player-variables)
         2. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
         3. [Persistent Variable Groups](#persistent-variable-groups)
-        4. [PPV Object Data](#ppv-object-data)
+        4. [Persistent Variable Object Data](#persistent-variable-object-data)
         5. [PPV - TODO Scrap notes](#ppv---todo-scrap-notes)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
@@ -863,8 +863,17 @@ rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRot
 
 ### Billboarding
 
-<mark>TODO</mark>
-Leaderboard setting
+An entity is a "billboard" when it automatically rotates to face the player. This uses *per-player rotation* so that each player can see the entity facing toward them.
+
+[Empty objects and groups](#empty-object-and-groups) have a property (in the property panel) called **Billboard** with 3 options:
+
+| Billboard Setting  |   |
+|---|---|
+| None | No automatic rotation |
+| Lock-Y | Auto-rotate *per-player* around the y-axis so that the entity always points its [local forward axis](#local-transforms) in the direction of the player (but locked to the *xz*-plane). It's local up axis will always point straight up in the world. |
+| Freeform | Auto-rotate *per-player* around any axis to face the player as best as possible. The entity's [local forward axis](#local-transforms) will point exactly in the direction of the player. |
+
+**Billboard User Interfaces (UIs)**: [Leaderboard gizmos](#using-the-world-leaderboard-gizmo) contain a setting called "UI Anchor Style" which can be set to "Static" or "Billboard". When set to "Billboard" it acts just like a group with the billboard property set to "Freeform". All other UIs ([Custom UI](#custom-ui), [Debug Console Gizmo](#debug-console-gizmo), [Quests Gizmo](#quests-gizmo), etc) can be made into a billboard by putting them in a [group](#empty-object-and-groups) or as the child of an [empty object](#empty-object-and-groups) and then using the billboard option there.
 
 # Entities
 
@@ -1312,7 +1321,7 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 | 🔈`OnItemPurchaseStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | 🔈`OnItemPurchaseComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
 | 🔈`OnItemConsumeStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwps) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
 | 🔈`OnItemPurchaseSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | 🔈`OnItemPurchaseFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
 | 🔈`OnPlayerConsumeSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
@@ -4934,14 +4943,14 @@ Persistence allows **data to be stored beyond a single session**, ensuring that 
 Persistent data is categorized into the following types:
 1. [Leaderboards](#leaderboards) – Track and display scores globally.
 1. [Quests](#quests) – Track player progression with world-based achievements.
-1. [In-World Purchases (IWP)](#in-world-purchases-iwp) – Store ownership of purchased items.
+1. [In-World Purchases (IWP)](#in-world-purchases-iwps) – Store ownership of purchased items.
 1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) – Store per-player custom data.
 
 !!! info Persistent data can only be set on the [server](#clients-devices-and-the-server) (except [Quests](#quests)).
-    [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
+    [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwps), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
 
 !!! info Persistent data is only accessible when a player is in the instance.
-    Persistent data for [Quests](#quests), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) is tied to individual players and can only be accessed when the player is present in the instance.
+    Persistent data for [Quests](#quests), [In-World Purchases (IWP)](#in-world-purchases-iwps), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) is tied to individual players and can only be accessed when the player is present in the instance.
 
 !!! warning There is no persistent world data.
     Persistence is currently tied to individual players. A world cannot store "global" variables that persist *across sessions* (other than [leaderboards](#leaderboards) which don't have a way to *read* the data back).
@@ -5008,7 +5017,7 @@ To **delete a leaderboard**, go to the systems menu, select Leaderboards in the 
 | Leaderboard | dropdown | Contains a list of all the available leaderboards in your world. |
 | Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
 | Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
-| UI Anchor Style | `Static` or `Billboard` | `Billboard` causes the Leaderboard Gizmo to have per-player rotation so that [each player sees the leaderboard always rotate to face toward them](#billboarding). `Static` uses the normal rotation behavior of entities (meaning that it's fixed in place unless it or one of its [ancestors](#ancestors) transforms).  |
+| UI Anchor Style | `Static` or `Billboard` | `Billboard` causes the Leaderboard Gizmo to have per-player rotation so that each player sees the leaderboard always rotate to face toward them (a ["Freeform" billboard](#billboarding)). `Static` uses the normal rotation behavior of entities (meaning that it's fixed in place unless it or one of its [ancestors](#ancestors) transforms).  |
 | Panel UI Mode | `Light Mode` or `Dark Mode` | Determines the color theme. Light vs dark refers to the background color of the gizmo.
 | Entry Display Mode | `Raw Value` or ` Time in Secs` | `Raw Value` will display the value as an integer. `Time in Secs` will display the number in `hours:minutes:seconds` formats. E.g. a score of 90 (seconds) would render as `1:30`. |
 
@@ -5132,8 +5141,8 @@ There are two ways of resetting a quest completion or progression:
 
 When resetting [tracked quests](#simple-vs-tracked-quests) the [persistent variable](#player-persistent-variables-ppvs) has to be reset first, otherwise the quest will change back to completed.
 
-## In-World Purchases (IWP)
-In-World Purchases (IWP) are transactions where players can use their Meta Credits to acquire in game items, enhancements or entitlements, and to give kudos to the world creator. Currently there is no limit to the number of transactions, but the individual pricing can only be set between 25 to 20,000 Meta Credits.
+## In-World Purchases (IWPs)
+In-World Purchases (IWPs) are transactions where players can use their Meta Credits to acquire in game items, enhancements or entitlements, and to give kudos to the world creator. Currently there is no limit to the number of transactions, but the individual pricing can only be set between 25 to 20,000 Meta Credits.
 
 ### Creation
 IWP can be created through he Desktop Editor by navigating to the Commerce section, under the Systems menu. Clicking on `Create In-world Item` will open the configuration panel with the following mandatory fields:
@@ -5288,7 +5297,7 @@ Player Persistent Variables (PPVs) store custom data that persists across sessio
 * **Per-Player Storage**: Each player has their own independent values
 * **Server-Side Updates**: Can only be modified from server scripts
 * **Runtime Access**: PPV data is only accessible when the player is in the instance
-* **Type Safety**: Variables are strongly typed as either `number`s or [object](#ppv-object-data)
+* **Type Safety**: Variables are strongly typed as either `number`s or [object](#persistent-variable-object-data)
 * **[Group Organization](#persistent-variable-groups)**: PPVs are organized into named groups for better management
 
 **PPV Limitations**
@@ -5325,7 +5334,7 @@ To create a PPV group using the Desktop Editor:
   1. Toggle "Add to this world" to make it available
   1. Click Create
 
-### PPV Object Data
+### Persistent Variable Object Data
 
 When a PPV is [created](#creating-editing-and-deleting-player-persistent-variables), it's type is set to "number" or "object". If "object" is chosen then you can read and write values with the type [PersistentSerializableState](#serializablestate) (which is similar to `JSON.stringify` but also supports `Vec3`, `Entity`, and others. It *does not support `Player`* since [player ids](#player-id) are per-instance).
 
