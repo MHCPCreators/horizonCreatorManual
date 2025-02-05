@@ -339,6 +339,15 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 ## Creating a World
 
 <mark>TODO</mark>
+Download and install [Desktop Editor](https://www.meta.com/en-gb/help/quest/1517439565442928/).
+Navigate to the `Store` from the menu on the left.
+Search `Meta Horizon Worlds` in the upper-right and install.
+Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
+![Start in Desktop Editor](start-in-desktop.png)
+Click `New world` in the upper-right.
+![New world](new-world.png)
+Name your world and click `Create`.
+![Create a World](create-a-world.png)
 
 ## Metadata and Publishing
 
