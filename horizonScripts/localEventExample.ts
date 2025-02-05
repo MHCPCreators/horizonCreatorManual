@@ -7,13 +7,13 @@ const doorEvent = new LocalEvent<{open: boolean, date: Date}>(
 )
 
 class ExampleComponent extends Component<typeof ExampleComponent> {
-  preStart() {
+  override preStart() {
     this.connectLocalEvent(this.entity, doorEvent, (info) => {
       console.log(`I got ${info.open} on ${info.date}!`)
     })
   }
 
-  start() {
+  override start() {
     this.sendLocalEvent(this.entity, doorEvent, {
       open: true, date: new Date()
     })

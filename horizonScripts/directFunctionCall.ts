@@ -5,7 +5,7 @@ class ListenerComponent extends Component<typeof ListenerComponent> {
     name: { type: PropTypes.String }
   }
 
-  start() {}
+  override start() {}
 
   hear(message: string) {
     console.log('I heard: ' + message)
@@ -14,7 +14,7 @@ class ListenerComponent extends Component<typeof ListenerComponent> {
 Component.register(ListenerComponent)
 
 class SpeakerComponent extends Component<typeof SpeakerComponent> {
-  start() {
+  override start() {
     const listeners = Component.getComponents(ListenerComponent)
 
     for (const listener of listeners) {

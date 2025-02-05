@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Persistence -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -271,7 +271,7 @@
         3. [APIs Overview](#apis-overview)
         4. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
         5. [Broadcast Events](#broadcast-events-1)
-    4. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+    4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
@@ -319,7 +319,7 @@ Use the Horizon creation tools you can create team-vs-team shooter games, fantas
 
 The tools support many features for managing and scripting players, physics, 3D mesh import, projectiles, purchases, grabbable items, wearable items, player inputs, lights, UI, NPCs, and more.
 
-**Desktop Editor**: Horizon Worlds can be installed on a Windows PC through the Meta Quest Link App. Once installed, you click on the elipsis (the 3 dots menu) Start in Desktop Mode, this opens app with a set of tools where you can create, edit and publish worlds. At this moment, the Deskotp Editor is not supported in MAC computers.
+**Desktop Editor**: Horizon Worlds can be installed on a Windows PC through the Meta Quest Link App. Once installed, you click on the ellipsis (the 3 dots menu) Start in Desktop Mode, this opens app with a set of tools where you can create, edit and publish worlds. At this moment, the Desktop Editor is not supported in MAC computers.
 
 **VR Editor**: in Quest VR devices the Meta Horizon Worlds app contains an edit mode that allows for creating and editing worlds inside of VR. It offers a natural and intuitive experience where you can place object directly with your hands and immerse yourself in your creations. The VR editor does not provide access to all tools that the desktop has. For the majority of this documentation, we will be covering Desktop Editor mode only.
 
@@ -394,7 +394,7 @@ Name, description, comfort setting, player count, etc.
 
 The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. **Collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
-| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
+| Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppvs))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
@@ -447,7 +447,7 @@ There are three types of instances: **published instances**, **editor instances*
 | *Editor* | Use the "Edit World" button if you are the [world owner, editor, or a tester](#editor-roles). | Yes, if you are the [owner or a editor](#editor-roles). | 1 |
 | *Preview* | Use the "Preview version" button on the [Creator Portal](https://horizon.meta.com/creator/), or using the Preview Configuration actions (send link to Meta Quest phone app, open in browser or copy preview url). | No | No limit |
 
-Preview instances mirror the same functionality as Published instance. The difference is that Preview instances will contain recent-unpublished edits of a world. Preview instances are not discoverables.
+Preview instances mirror the same functionality as Published instance. The difference is that Preview instances will contain recent-unpublished edits of a world. Preview instances are not discoverable.
 
 ### Visitation Modes: Edit, Preview, and Publish
 
@@ -1300,7 +1300,7 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 | Property | Type | Description |
 |---|---|---|
 | Visible | `boolean` | Sets whether the Mirror Gizmo is visible to players. |
-| Photo Capture | `boolean` | Sets whethers players can take pictures using the Mirror Gizmo. |
+| Photo Capture | `boolean` | Sets whether players can take pictures using the Mirror Gizmo. |
 | Name Tag Visibility | `Show` or `Hide` | Sets whether player name tags will appear in the Mirror Gizmo, including pictures. |
 | Has Edit Avatar Button | `boolean` | Sets whether players can use the Mirror Gizmo to edit their avatars. |
 | Has Frame | `boolean` | Sets whether the Mirror Gizmo has a border around the edge. |
@@ -1315,7 +1315,7 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 
 **TypeScript**: Mirror Gizmos are referenced as the `Entity` class with no properties or methods
 
-**Limitations**: Mirror Gizmos are costly, recommend only one per world and becareful about how much geometry it reflects in your world to avoid performance issues.
+**Limitations**: Mirror Gizmos are costly, recommend only one per world and be careful about how much geometry it reflects in your world to avoid performance issues.
 ### Navigation Volume
 **Description**: Allows the creation of navigation meshes thats NPCs can use to walk. Also see [NPCs](#npcs)
 
@@ -1580,7 +1580,7 @@ We have 3 different types:
 | Loop |  `boolean` | Determines if the sound will repeat after it is finished.
 | Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
 | Volume | `number` | Sets the volume of the Sound Recorder Gizmo. Values are between 0.0 and 1.0.
-| Pitch | `number` | Sets the pithc of the Sound Record Gizmo. Values are between -24 and 24.
+| Pitch | `number` | Sets the pitch of the Sound Record Gizmo. Values are between -24 and 24.
 | Global | `boolean` | Determines whether the Sound Recorder Gizmo will play where everyone in the world can hear it. |
 | Minimum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
 | Maximum Distance | `number` | Sets the distance from the Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
@@ -1592,7 +1592,7 @@ We have 3 different types:
 | Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
 | Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
 | Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0.
-| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24.
+| Pitch | `number` | Sets the pitch of the Pre-made Sound Record Gizmo. Values are between -24 and 24.
 | Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
 | Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
 | Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
@@ -1605,9 +1605,9 @@ We have 3 different types:
 | Loop |  `boolean` | Determines if the sound will repeat after it is finished. |
 | Play on Start | `boolean` | Determines if the sound will start to play when the world starts. |
 | Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0. |
-| Volume Randomness | `number` | Randomally adjust the Audio Graph Gizmo volume each play. Values are between 0.0 and 1.0. |
-| Pitch | `number` | Sets the pithc of the Pre-made Sound Record Gizmo. Values are between -24 and 24. |
-| Pitch Randomness | `number` | Randomally adjust the Audio Graph Gizmo pitch each play. Values are between 0.0 and 4.0. |
+| Volume Randomness | `number` | Randomly adjust the Audio Graph Gizmo volume each play. Values are between 0.0 and 1.0. |
+| Pitch | `number` | Sets the pitch of the Pre-made Sound Record Gizmo. Values are between -24 and 24. |
+| Pitch Randomness | `number` | Randomly adjust the Audio Graph Gizmo pitch each play. Values are between 0.0 and 4.0. |
 | Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
 | Minimum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume levels starts to fade. Values between 0.0 and 1000.0 |
 | Maximum Distance | `number` | Sets the distance from the Pre-made Sound Recorder Gizmo before the volume completely fades out. Values are between 0.0 and 1000.0. |
@@ -1694,7 +1694,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 |---|---|---|
 | Text | `string` | Sets the text displaying on the Text Gizmo. |
 | Auto Fit | `boolean` | Automatically determines the size of the font. If disabled, you can set the size manually. |
-| Fized Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
+| Fixed Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
 | Visible | `boolean` | Determines if the Text Gizmo is visible to players. |
 
 **Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following property.
@@ -4880,13 +4880,13 @@ Persistent data is categorized into the following types:
 1. [Leaderboards](#leaderboards) – Track and display scores globally.
 1. [Quests](#quests) – Track player progression with world-based achievements.
 1. [In-World Purchases (IWP)](#in-world-purchases-iwp) – Store ownership of purchased items.
-1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) – Store per-player custom data.
+1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) – Store per-player custom data.
 
 !!! info Persistent data can only be set on the [server](#clients-devices-and-the-server) (except [Quests](#quests)).
-    [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
+    [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
 
 !!! info Persistent data is only accessible when a player is in the instance.
-    Persistent data for [Quests](#quests), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) is tied to individual players and can only be accessed when the player is present in the instance.
+    Persistent data for [Quests](#quests), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) is tied to individual players and can only be accessed when the player is present in the instance.
 
 !!! warning There is no persistent world data.
     Persistence is currently tied to individual players. A world cannot store "global" variables that persist *across sessions* (other than [leaderboards](#leaderboards) which don't have a way to *read* the data back).
@@ -4898,7 +4898,7 @@ Persistent data is categorized into the following types:
 Leaderboards store and display player scores, allowing players to compare progress even when they are not in the same session. Leaderboards have two parts: a **leaderboard** and **leaderboard gizmos**. [Leaderboards contain the *properties*](#creating-editing-and-deleting-leaderboards) (such as name, sort order, and auto-reset behavior). [Leaderboard Gizmos](#using-the-world-leaderboard-gizmo) are an entity in the world that allow a player to see and interact with the data.
 
 * **Global Persistence**: Unlike other persistent data, leaderboards retain and display scores across all instances, even when the player is not present.
-* **Write-Only (by default)**: Scores can be updated (written) but not retrieved (read) via scripts. However, to work around this, you can create a [player persistent variable](#player-persistent-variables-ppv) and then [always set them together](#using-a-leaderboard-with-a-player-persistent-variable).
+* **Write-Only (by default)**: Scores can be updated (written) but not retrieved (read) via scripts. However, to work around this, you can create a [player persistent variable](#player-persistent-variables-ppvs) and then [always set them together](#using-a-leaderboard-with-a-player-persistent-variable).
 * **Privacy and Player Control**: Players can opt out of leaderboard tracking and delete stored scores from the *in-app menu → General tab → Leaderboard Participation / Data*.
 
 !!! tip One Cool Trick: Leaderboards Metrics Tracking
@@ -4932,7 +4932,7 @@ To **create a Leaderboard** using the Desktop Editor:
     | *Daily* | Each day at 12:00 AM PST |
     | *Weekly* | Mondays at 12:00 AM PST |
     | *Monthly* | First day of the calendar month at 12:00 AM PST |
-1. If the previous setting is anything other than *Never*, the *Reset persistent variable* toggle will be activated. If enabled allows you to specify a [player persistence variable](#player-persistent-variables-ppv) which will be reset whenever the leaderboard is (see the section on [reading leaderboard data](#using-a-leaderboard-with-a-player-persistent-variable)).
+1. If the previous setting is anything other than *Never*, the *Reset persistent variable* toggle will be activated. If enabled allows you to specify a [player persistence variable](#player-persistent-variables-ppvs) which will be reset whenever the leaderboard is (see the section on [reading leaderboard data](#using-a-leaderboard-with-a-player-persistent-variable)).
 
 To **edit a leaderboard**, go to the systems menu, select Leaderboards in the dropdown, and then hover over the leaderboard and click the *pencil icon*.
 
@@ -4950,7 +4950,7 @@ To **delete a leaderboard**, go to the systems menu, select Leaderboards in the 
 
 | Property | Type | Description |
 |---|---|---|
-| Leaderboard | dropdown | Contains a list of all the avaliable leaderboards in your world. |
+| Leaderboard | dropdown | Contains a list of all the available leaderboards in your world. |
 | Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
 | Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
 | UI Anchor Style | `Static` or `Billboard` | `Billboard` causes the Leaderboard Gizmo to have per-player rotation so that [each player sees the leaderboard always rotate to face toward them](#billboarding). `Static` uses the normal rotation behavior of entities (meaning that it's fixed in place unless it or one of its [ancestors](#ancestors) transforms).  |
@@ -4995,7 +4995,7 @@ Example scenarios:
 
 ### Using a Leaderboard with a Player Persistent Variable
 
-There is no API to *read* leaderboard data. However a common trick is to create a [player persistent variable](#player-persistent-variables-ppv) and then whenever you set the leaderboard value, also set the persistent variable with the example same value. If you are not careful about the *override* parameter then the two will get out of sync. If you use this technique, it is **recommended to always set *override* to true** and handle the logic yourself (by reading the persistent variable, comparing, and then deciding if you need to update).
+There is no API to *read* leaderboard data. However a common trick is to create a [player persistent variable](#player-persistent-variables-ppvs) and then whenever you set the leaderboard value, also set the persistent variable with the example same value. If you are not careful about the *override* parameter then the two will get out of sync. If you use this technique, it is **recommended to always set *override* to true** and handle the logic yourself (by reading the persistent variable, comparing, and then deciding if you need to update).
 
 Note that if you ever [delete a leaderboard](#creating-editing-and-deleting-leaderboards) there is no way to get its data back. But, if you use the technique described above, you can at least set the leaderboard data again when [players enter](#player-entering-and-exiting-a-world) the [instance](#instances).
 
@@ -5030,11 +5030,11 @@ To **delete a quest**, access it through *Systems → Quests* and click the tras
 
 A **simple** quest is one that is simple accomplished at some point in time (set via `player.setAchievementComplete(...)`).
 
-A **tracked** quest is tied to *reaching a value*, tracked in a [player persistent variable](#player-persistent-variables-ppv). For example, an achievement might be to "find 10 chickens". For this achievement you would create a persistent variable that you increment each time the player finds a chicken. You would then set the **Quest Type to Tracked**, set that variable as the **Persistent Variable**, and then set 10 as the **Completion Threshold**. When the variable reaches 10, the player will be automatically assigned the achievement.
+A **tracked** quest is tied to *reaching a value*, tracked in a [player persistent variable](#player-persistent-variables-ppvs). For example, an achievement might be to "find 10 chickens". For this achievement you would create a persistent variable that you increment each time the player finds a chicken. You would then set the **Quest Type to Tracked**, set that variable as the **Persistent Variable**, and then set 10 as the **Completion Threshold**. When the variable reaches 10, the player will be automatically assigned the achievement.
 
 Note that with tracked quests you can still use `player.setAchievementComplete(...)` if for any reason you want to grant the achievement.
 
-To **revoke a Tracked quest** you must *both* lower the tracked [persistent variable](#player-persistent-variables-ppv) *and* call `player.setAchievementComplete(scriptId, false)`. Simply lowering the variable will *not* revoke the achievement.
+To **revoke a Tracked quest** you must *both* lower the tracked [persistent variable](#player-persistent-variables-ppvs) *and* call `player.setAchievementComplete(scriptId, false)`. Simply lowering the variable will *not* revoke the achievement.
 
 ### Using the Quests Gizmo
 
@@ -5075,13 +5075,13 @@ There are two ways of resetting a quest completion or progression:
 1. Calling `player.setAchievementComplete(scriptId, false)` (`false` revokes it for the player).
 1. Through the *systems menu > Quests*. Click `Debug Quests` (represented with a gear icon). From here, click on *Reset all quests* or toggle off the individual quests to reset.
 
-When resetting [tracked quests](#simple-vs-tracked-quests) the [persistent variable](#player-persistent-variables-ppv) has to be reset first, otherwise the quest will change back to completed.
+When resetting [tracked quests](#simple-vs-tracked-quests) the [persistent variable](#player-persistent-variables-ppvs) has to be reset first, otherwise the quest will change back to completed.
 
 ## In-World Purchases (IWP)
 In-World Purchases (IWP) are transactions where players can use their Meta Credits to acquire in game items, enhancements or entitlements, and to give kudos to the world creator. Currently there is no limit to the number of transactions, but the individual pricing can only be set between 25 to 20,000 Meta Credits.
 
 ### Creation
-IWP can be created through he Destop Editor by navigating to the Commerce section, under the Systems menu. Clicking on `Create In-world Item` will open the configuration panel with the following mandatory fields:
+IWP can be created through he Desktop Editor by navigating to the Commerce section, under the Systems menu. Clicking on `Create In-world Item` will open the configuration panel with the following mandatory fields:
 
 | Field | Description | Limitations |
 |---|---|---|
@@ -5101,7 +5101,7 @@ The IWP gizmo can be found in the Desktop Editor under the Build Menu, Gizmos op
 - Customize Purchase Dialog Position: enabling this option reveals
 -- The XYZ ***local*** offset from the gizmo position, where the purchase UI will appear when the player interacts with the IWP.
 -- A field to control the degrees of rotation on the local X axis (Pitch).
--- **NOTE:** the rotation of the Y axis (yaw) is automatically calculated, and is equivalent to the lookat rotation of the backward direction of the player's head.
+-- **NOTE:** the rotation of the Y axis (yaw) is automatically calculated, and is equivalent to the look-at rotation of the backward direction of the player's head.
 - UI Property:
 -- Trigger: The IWP is an invisible volumetric area. This is useful for customizing the look and feel of the purchase area. VR player have to physically enter the trigger area with their avatar to initiate the purchase. XS players will see an interactive icon.
 -- Button: Displays the cost of the item. This is only visible when observing the IWP gizmo from the front (+Z), otherwise it will look invisible.
@@ -5214,59 +5214,109 @@ OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
 
 <mark>TODO</mark>- I haven't been able to make the OnPlayerSpawnedItem work
 
-!!! warning The OnItemPurchaseComplete event will be broadcasted twice after a player finishes a transaction. The first event will output true for the success callback, and immediatly after a second event will be emitted with a false output. Consider ignoring the second event if it's received shortly after a sucessful purchase from the same player.
-!!! info The OnItemConsumeComplete event is broadcasted inmediatly after a purchase for Consumable with auto-use. For consumables added to the inventory, the event is broadcasted after calling IWPSellerGizmo.consumeItemForPlayer.
-!!! info The OnItemConsumeStart ovent is broadcasted when a player initiates a consume intent from their inventory menu, but the invetory will not be deplenished automatically. The handler of this event must contain a call to the IWPSellerGizmo.consumeItemForPlayer to complete the operation. This is intetional, to prevent accidental use actions.
+!!! warning The OnItemPurchaseComplete event will be broadcasted twice after a player finishes a transaction. The first event will output true for the success callback, and immediately after a second event will be emitted with a false output. Consider ignoring the second event if it's received shortly after a successful purchase from the same player.
+!!! info The OnItemConsumeComplete event is broadcasted immediately after a purchase for Consumable with auto-use. For consumables added to the inventory, the event is broadcasted after calling IWPSellerGizmo.consumeItemForPlayer.
+!!! info The OnItemConsumeStart event is broadcast when a player initiates a consume intent from their inventory menu, but the inventory will not be replenished automatically. The handler of this event must contain a call to the IWPSellerGizmo.consumeItemForPlayer to complete the operation. This is intentional, to prevent accidental use actions.
 
 ```ts
 this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnItemConsumeStart, (player, item) => {
     //... any additional handling logic
     this.entity.as(hz.IWPSellerGizmo).consumeItemForPlayer(player, item)
 })
-
 ```
 
-## Player Persistent Variables (PPV)
-Player Persistent Variables (PPV) retain the player information beyond the duration of the session. This information is tied to the player's profile, therefore it's only possible to retrieve it or modify it while the player is in the world.
+## Player Persistent Variables (PPVs)
+
+Player Persistent Variables (PPVs) store custom data that persists across sessions for each player. PPVs provide flexible storage for tracking player state, progress, and preferences. Every PPV exists with a [variable group](#persistent-variable-groups), which can be shared between worlds.
+
+**PPV Properties**
+* **Per-Player Storage**: Each player has their own independent values
+* **Server-Side Updates**: Can only be modified from server scripts
+* **Runtime Access**: PPV data is only accessible when the player is in the instance
+* **Type Safety**: Variables are strongly typed as either `number`s or [object](#ppv-object-data)
+* **[Group Organization](#persistent-variable-groups)**: PPVs are organized into named groups for better management
+
+**PPV Limitations**
+* PPV recognition requires world reload after creation
+* Reading or writing PPVs at rapid rates can significantly degrade perf and [frame rate](#frame-rate).
+
+### Using Persistent Player Variables
+
+After [creating a ppv](#creating-editing-and-deleting-player-persistent-variables) in a [variable group](#persistent-variable-groups), you can read and write data to it, per-player, only when the player is in the instance.
+
+The [World class](#world-class) has a property `persistentStorage` that contains the `getPlayerVariable` (taking the player and the variable name) and `setPlayerVariable` (taking the player, variable name, and value to set).
+
+!!! example Increment a counter every time a player enters the world.
+    ![[ horizonScripts/incrementPPVOnEnter.ts ]]
+
+### Creating, Editing, and Deleting Player Persistent Variables
+
+**Editing PPVs**: ...
+
+**Deleting PPVs**: When a ppv is deleted, its becomes unavailable to all the worlds it is used in.
+
+### Persistent Variable Groups
+
+Every player persistent variable belows to a **variables group**.
+
+**Variables can be shared between worlds** (<mark>TODO</mark> of the same owner?) to create some cool cross-world experiences (such as earning a "key" in one world that unlocks a door in another; you do this by setting the ppv in the first world and reading it in the second).
+
+**Limitations**: A group can have up to 100 variables in it. A world can have a maximum of 6 groups associated / accessible within it.
+
+To create a PPV group using the Desktop Editor:
+  1. Access the Systems dropdown and select Persistent Variables
+  1. Click Create Variable Group
+  1. Provide a name and optional description
+  1. Toggle "Add to this world" to make it available
+  1. Click Create
+
+### PPV Object Data
+
+When a PPV is [created](#creating-editing-and-deleting-player-persistent-variables), it's type is set to "number" or "object". If "object" is chosen then you can read and write values with the type [PersistentSerializableState](#serializablestate) (which is similar to `JSON.stringify` but also supports `Vec3`, `Entity`, and others. It *does not support `Player`* since [player ids](#player-id) are per-instance).
+
+When you read data you need to use TypeScript's `as` operator to cast it to the write type:
 
 ```ts
-    /**
-     * A persistent storage object, which contains a set of functions that interact with player variables.
-     *
-     * For information about using player variables, see the
-     * {@link https://developers.meta.com/horizon-worlds/learn/documentation/typescript/getting-started/object-type-persistent-variables | Persistent Variables} guide.
-     */
-    persistentStorage: IPersistentStorage;
+type UserStats = { points: number }
 
-
-    /**
-     * Gets the value of a persistent player variable.
-     * @param player - The player for whom to get the value.
-     * @param key - The name of the variable to get.
-     * @returns The value of the variable as some PersistentSerializableState, defaulting to number.
-     */
-    getPlayerVariable<T extends PersistentSerializableState = number>(player: Player, key: string): T extends number ? T : T | null;
-    /**
-     * Sets a persistent player variable
-     * @param player - The player for whom to set the value.
-     * @param key - The name of the variable to set.
-     * @param value - The value to assign to the variable.
-     */
-    setPlayerVariable<T extends PersistentSerializableState>(player: Player, key: string, value: T): void;
+const data = this.world.persistentStorage.getPlayerVariable<UserStats>(
+  player, 'key'
+)
 ```
 
-  - Variable Groups
-  - Types: `number` and JSON-serializable `object`.
-- Creation
-- Read / Write
-- Resetting
+The `getPlayerVariable` method will return `null` if the data has never been set for that player.
 
+⚠️ **Reading object data has no type checks, no built-in versioning, and no migration tools**. You are responsible for the types of the data that you read and write. If you write a `{name: string}` and read it back as a `boolean[]` then you will have runtime errors when trying to use the value. We **recommend always storing actual object types** that **include a "kind" key and a "versionNumber" key**. This will make it much easier to change the data format in the future and have it easy to write code that can handle data written in the old vs new format. When you change the way you store data there is **no way to run a data migration** to change all persisted data, so instead your code has to be resilient and be able to read to versions that have ever been written.
+
+!!! example Versioning PPV Object Data
+    ```ts
+    const UserStatsPPVKey = 'key'
+    type UserStats =    { kind: 'stats', version: 0, points: number }
+    type UserStats_v1 = {
+      kind: 'stats', version: 1, points: number, visits: number
+    }
+
+    const data = this.world.persistentStorage.getPlayerVariable<
+      UserStats | UserStats_v1
+    >(
+      player, UserStatsPPVKey
+    )
+
+    if (data?.kind === 'stats') {
+      if (data.version === 0) {
+        console.log(`User score: ${data.points}`)
+      } else if (data.version === 1) {
+        console.log(`User score: ${data.points}, visits: ${data.visits}`)
+      }
+    }
+    ```
+
+### PPV - TODO Scrap notes
 
 -   When duplicating a world. Only the world owner can duplicate a world
 -   When creating new variable groups in a world, there is an option to create and add to the existing world
 -   When adding a variable group that existed previously
 -- can be sorted in alphabetical order A-Z or Z-A
-    -- can store a number or an object
     -- PPV name accept anything, even special characters
     -- Renaming a ppv is possible by hovering over the ppv variable name, and clicking the pen icon. The new name can't be same as another existing PPV variable. If the name matches another ppv, an error will appear at the button of the screen explaining this issue, and the menu UI will look like the repeated name has been accepted. However, after closing and reopening the menu, the variable will return to its original name.
     -- Once a variable has been created, the type can't be changed
@@ -5274,17 +5324,13 @@ Player Persistent Variables (PPV) retain the player information beyond the durat
     -- Trailing or leading spaces will be automatically deleted from the ui name
     -- It takes time for the ppvs to be recognized in the world. After creating the PPVs, you might need to leave and come back into the world before being able to use them
     -- NPCs can be registered in PPVs
-    -- A maximum of 6 ppv groups can be added to the world
-    -- A maximum of 100 ppvs can be created inside a group (this hasn't been validated)
     -- Clicking the Debug Values button will reset the values of all the ppvs variables withing a group. It only affects the player that clicks that button "Clear All Debug Values"
     -- but if any of the ppv values has been previously set, the ui will allow the player to set the values
     -- _ Remove from world: PPVs can be removed from the world
     -- _ Edit variable group: Name can be changed, add a description, and toggle on and off Add to this world
     -- \* View details: displays the owner's name, last modified date, creation date, edit the sharing permissions (CHECK THIS, I DON'T KNOW IF THIS IS 2P), and a list of all the worlds where the current groups is being used
-    -- When a ppv is deleted, it gets deleted from all the worlds from where is being used
     -- groups can be removed from the world immediately right after they are created and none of its PPVs have been used
     -- If the ppvs have been used before, toggling the "Add to this world" option will not tame any effect, unless, the ppv is renamed first (the intent), so the save btn is activated
-    -- updating persistence data is a networked operations. Attempting to update these values at a very rapid pace would cause performance issues. In the case of setting/getting ppvs at a rapid pace, might fail ?
 
 # Spawning
 

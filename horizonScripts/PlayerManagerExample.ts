@@ -10,7 +10,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     private events: EventSubscription[] = []
     private allPlayers = new Map<Player, PlayerState>()
 
-    preStart(): void {
+    override preStart(): void {
         this.events = [
             this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player) => {
                 this.setPlayerState(player, 'InWorld')
@@ -27,10 +27,10 @@ class PlayerManager extends Component<typeof PlayerManager> {
         ]
     }
 
-    start() {
+    override start() {
     }
 
-    dispose(): void {
+    override dispose(): void {
         this.events.forEach((sub) => sub.disconnect())
     }
 

@@ -14,7 +14,7 @@ class TriggerCaptureComponent extends Component<
     index : { type : PropTypes.Number }
   }
 
-  preStart() {
+  override preStart() {
     const {trigger, index} = this.props
     if (trigger) {
       this.connectCodeBlockEvent(

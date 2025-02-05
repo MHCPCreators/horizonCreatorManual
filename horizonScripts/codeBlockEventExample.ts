@@ -8,13 +8,13 @@ const cbEvent = new CodeBlockEvent<[food: string, count: number]>(
 )
 
 class ExampleComponent extends Component<typeof ExampleComponent> {
-  preStart() {
+  override preStart() {
     this.connectCodeBlockEvent(this.entity, cbEvent, (food, count) => {
       console.log(`I need to buy ${count} ${food}!`)
     })
   }
 
-  start() {
+  override start() {
     this.sendCodeBlockEvent(this.entity, cbEvent, 'apples', 5)
   }
 }

@@ -7,13 +7,13 @@ const networkEvent = new NetworkEvent<{ code: number }>(
 )
 
 class ExampleComponent extends Component<typeof ExampleComponent> {
-  preStart() {
+  override preStart() {
     this.connectNetworkEvent(this.entity, networkEvent, ({code}) => {
       console.log(`I got ${code}!`)
     })
   }
 
-  start() {
+  override start() {
     this.sendNetworkEvent(this.entity, networkEvent, {code: 42})
   }
 }
