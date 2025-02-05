@@ -1,4 +1,4 @@
-<!--focusSection: Persistence -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -272,6 +272,11 @@
         4. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
         5. [Broadcast Events](#broadcast-events-1)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
+        1. [Using Persistent Player Variables](#using-persistent-player-variables)
+        2. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
+        3. [Persistent Variable Groups](#persistent-variable-groups)
+        4. [PPV Object Data](#ppv-object-data)
+        5. [PPV - TODO Scrap notes](#ppv---todo-scrap-notes)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
