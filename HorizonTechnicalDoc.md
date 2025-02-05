@@ -319,21 +319,21 @@ Use the Horizon creation tools you can create team-vs-team shooter games, fantas
 
 The tools support many features for managing and scripting players, physics, 3D mesh import, projectiles, purchases, grabbable items, wearable items, player inputs, lights, UI, NPCs, and more.
 
-**Desktop Editor**: on Windows the Horizon executable can be launched in "Edit" mode (TODO - explain) which opens app in a set of tools where you can create and edit worlds.
+**Desktop Editor**: Horizon Worlds can be installed on a Windows PC through the Meta Quest Link App. Once installed, you click on the elipsis (the 3 dots menu) Start in Desktop Mode, this opens app with a set of tools where you can create, edit and publish worlds. At this moment, the Deskotp Editor is not supported in MAC computers.
 
-**VR Editor**: in Quest VR devices the Meta Horizon Worlds app contain an edit mode that allows for creating and editing worlds inside of VR. It offers a natural and intuitive experience where you can place object directly with your hands and immerse yourself in your creations. The VR editor does not provide access to all tools that the desktop has.
+**VR Editor**: in Quest VR devices the Meta Horizon Worlds app contains an edit mode that allows for creating and editing worlds inside of VR. It offers a natural and intuitive experience where you can place object directly with your hands and immerse yourself in your creations. The VR editor does not provide access to all tools that the desktop has. For the majority of this documentation, we will be covering Desktop Editor mode only.
 
-**TypeScript and Code Blocks**. Horizon uses [TypeScript](https://www.typescriptlang.org/) as its scripting language. TypeScript scripts can only be edited in the Desktop Editor. Horizon also has a custom block-based scripting system (where you write scripts by combining blocks together) that it calls **Code Blocks**. Codeblock Scripts can only be edited in the VR Editor.
+**TypeScript and Code Blocks**. Horizon uses [TypeScript](https://www.typescriptlang.org/) as its scripting language. TypeScript scripts can only be edited in the Desktop Editor. Horizon also has a custom block-based scripting system (where you write scripts by combining blocks together) that it calls **Code Blocks**. Codeblock Scripts can only be edited in the VR Editor. This documentation only includes TypeScript features.
 
 # Worlds
 
-You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#metadata-and-publishing) enables you to configure worlds settings and publish the world when ready. Worlds are saved in "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
+You use the Desktop Editor to edit worlds, adding content and scripts to build out your ideas. The [publishing menu](#metadata-and-publishing) enables you to configure worlds settings and publish the world when ready. Worlds are saved in automatic system "files" called [world snapshots](#world-snapshot) which allow [rollback](#world-backups). A published world may be running many [instances](#instances) at once.
 
 ## Creating a World
 
 <mark>TODO</mark>
-Download and install [Desktop Editor](https://www.meta.com/en-gb/help/quest/1517439565442928/).
-Navigate to the `Store` from the menu on the left.
+Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
+Once installed on your PC, navigate to the `Store` from the menu on the left.
 Search `Meta Horizon Worlds` in the upper-right and install.
 Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
 
@@ -392,13 +392,13 @@ Name, description, comfort setting, player count, etc.
 
 ## Editor Roles
 
-The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. Other people, called **collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
+The **owner** is the person who [created the world](#creating-a-world). Once a world is created, there is no way to change the owner. **Collaborators**, can than be added to (and removed from) the world via the Collaborators menu. When adding a collaborator, you choose whether they are an editor or tester.
 
 | Role | Can travel to [editor instances](#instance-lifetime)? | Can enter [build mode](#visitation-modes-edit-preview-and-publish), edit [scene](#scene-graph), and edit [scripts](#scripting)? | Can [publish](#metadata-and-publishing) the world? | Can edit [persistence](#persistence) settings (create and edit [leaderboards](#leaderboards), [quests](#quests), and [PPVs](#player-persistent-variables-ppv))? | Can assign [editor roles](#editor-roles)? |
 |---|---|---|---|---|---|
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
-| *Tester* |  ✅ | ❌ | ❌ | ❌ | ❌ |
+| *Tester* |  ✅ (using the VR Headset) | ❌ | ❌ | ❌ | ❌ |
 
 ## World Snapshot
 
@@ -409,18 +409,20 @@ When you create a new world, Horizon creates a new "file" on their servers which
 
 ## World Backups
 
-The editor regularly "auto saves" the world, creating a new [world snapshot](#world-snapshot) that is calls a **backup**. You can manually create a snapshot as a via the "Save Backup" option.
+The editor regularly "auto saves" the world, creating a new [world snapshot](#world-snapshot) that is called a **backup**. You can manually create a snapshot as a via the "Save Backup" option.
 
-The list of all previous saved snapshots are viewable in the "Backups" menu. This menu allows you to see the list of backups, see when background were created, modify the name and description, or to **restore** a backup to be the current snapshot.
+The list of all previous saved snapshots are viewable in the "Backups" menu. This menu allows you to see the list of backups, see when it was created, modify the name and description, or to **restore** a backup to be the current snapshot.
 
 For instance, before starting a major change to the world, you could create a backup, and then if you run into issues, you could restore that "safe" backup back to when the world was "unchanged". You can also look back into backups to investigate when a certain bug appeared, or to go back and make an [asset](#assets) or copy a [script](#scripting) that you have since modified or deleted.
 
 !!! tip Source Control
     Currently there is no way to put a whole world into an external source control system, such as git, but it is possible to [put the scripts into source control](#scripts-in-source-control).
 
+!!! warning Restoring a backup will overwrite the editable version of the world. Currently, branching is not available.
+
 # Instances
 
-Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#maximum-player-count">maximum player count</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
+Once published, Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#maximum-player-count">maximum player count</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
 
 !!! info Horizon sometimes refers to Instances as "Sessions"
     In all technical documentation, Horizon uses the word *instance*. Given that this is a somewhat technical term, it refers to them as **sessions** within the user-facing side of the product. For example, a person can "create a new session".
@@ -437,12 +439,15 @@ Horizon maybe have multiple *copies* of a world running at the same time. For ex
 
 ## Instance Types
 
-There are two types of instances: **published instances** and **editor instances**. The editing tools, for modifying a world, are only available inside of an *editor instance*. There is no way to turn one into the other; when Horizon [starts up a new instances](#instance-selection), based on how the player is traveling, and then the type never changes, for as long as the instance is [alive](#instance-lifetime).
+There are three types of instances: **published instances**, **editor instances** and **preview instances**. The editing tools, for modifying a world, are only available inside of an *editor instance*. There is no way to turn one into the other; when Horizon [starts up a new instances](#instance-selection), based on how the player is traveling, and then the type never changes, for as long as the instance is [alive](#instance-lifetime).
 
 | Instance Type  | How do you travel to one? | Can you open the editing tools? | How many instances are allowed? |
 |---|---|---|---|
 |  *Published*  | Use the "Visit World" button, or [travel](#travel-doors-and-links) to a friend, travel via a door. | No | No limit |
 | *Editor* | Use the "Edit World" button if you are the [world owner, editor, or a tester](#editor-roles). | Yes, if you are the [owner or a editor](#editor-roles). | 1 |
+| *Preview* | Use the "Preview version" button on the [Creator Portal](https://horizon.meta.com/creator/), or using the Preview Configuration actions (send link to Meta Quest phone app, open in browser or copy preview url). | No | No limit |
+
+Preview instances mirror the same functionality as Published instance. The difference is that Preview instances will contain recent-unpublished edits of a world. Preview instances are not discoverables.
 
 ### Visitation Modes: Edit, Preview, and Publish
 
