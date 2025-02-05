@@ -3565,12 +3565,28 @@ Component.register(Child)
 ```
 
 ## Script File Execution
-<mark>TODO</mark>
-Auto-Restart on Script Edit
 
-restarts
-spin up (once per file per client - except on edit / reset)
-transfer
+Whenever a TypeScript file is saved, the editor will reload it. That results in:
+
+* dispose existing?
+* file runs (top-level scope)
+* necessary components initialized
+* props updated in editor
+
+When world starts:
+* all files are run (top-level scope) on server
+* all components are instantiated
+
+When player joins
+* all files are run on their client device
+
+When asset / sublevel spawns in
+* all files are run
+* all components are instantiated
+
+When ownership transfer occurs
+* components are disposed
+* new components are initialized (file is NOT run)
 
 ## Helper Functions
 
