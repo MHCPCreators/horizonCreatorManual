@@ -1160,13 +1160,12 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
 | Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile still can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
-| Mipmap | `boolean` | ? <mark>TODO</mark>Finish this |
-| Focus Prompt | `boolean` | ? |
-| Focus prompt distance | `number` | ? |
+| Mipmap | `boolean` | Allows you to adjust the `Mipmap Value`. |
+| Mipmap Value | `number` | Controls the level of detail drawn at a distance to avoid aliasing issues with text. Values between -1.0 and 1.0. Default is 0.0. |
+| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. Does not affect VR players. |
+| Focus prompt distance | `number` | Determines the distance(in meters) players can interact with the UI. |
 
 **TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
-
-**Limitations**:
 
 ### Debug Console Gizmo
 
