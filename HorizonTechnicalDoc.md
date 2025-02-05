@@ -1,4 +1,4 @@
-<!--focusSection: Worlds -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -256,24 +256,22 @@
     3. [Player Controls](#player-controls)
     4. [Focused Interaction](#focused-interaction)
 17. [Persistence](#persistence)
-    1. [Overview](#overview-3)
-    2. [Leaderboards](#leaderboards)
-            1. [Limitations](#limitations-1)
-            1. [Creation](#creation-1)
-            2. [Modifying the Leaderboard](#modifying-the-leaderboard)
-            3. [Using the Gizmo](#using-the-gizmo)
-            4. [APIs](#apis)
-    3. [Quests](#quests)
-            1. [Creation](#creation-2)
-            1. [Using the Gizmo](#using-the-gizmo-1)
-            2. [Resetting](#resetting)
-    4. [In-World Purchases (IWP)](#in-world-purchases-iwp)
-            1. [Creation](#creation-3)
-            1. [Using the Gizmo](#using-the-gizmo-2)
-            2. [APIs Overview](#apis-overview)
-            3. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
-            4. [Broadcast Events](#broadcast-events-1)
-    5. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
+    1. [Leaderboards](#leaderboards)
+        1. [Creating, Editing, and Deleting Leaderboards](#creating-editing-and-deleting-leaderboards)
+        2. [Using the World Leaderboard Gizmo](#using-the-world-leaderboard-gizmo)
+        3. [Using a Leaderboard with a Player Persistent Variable](#using-a-leaderboard-with-a-player-persistent-variable)
+    2. [Quests](#quests)
+        1. [Creating, Editing, and Deleting Quests](#creating-editing-and-deleting-quests)
+        2. [Simple vs Tracked Quests](#simple-vs-tracked-quests)
+        3. [Using the Quests Gizmo](#using-the-quests-gizmo)
+        4. [Resetting Quests](#resetting-quests)
+    3. [In-World Purchases (IWP)](#in-world-purchases-iwp)
+        1. [Creation](#creation-1)
+        2. [Using the Gizmo](#using-the-gizmo)
+        3. [APIs Overview](#apis-overview)
+        4. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
+        5. [Broadcast Events](#broadcast-events-1)
+    4. [Player Persistent Variables (PPV)](#player-persistent-variables-ppv)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
     2. [Despawning](#despawning)
@@ -822,6 +820,7 @@ rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRot
 ### Billboarding
 
 <mark>TODO</mark>
+Leaderboard setting
 
 # Entities
 
@@ -1266,15 +1265,15 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| 🔈`OnItemPurchaseStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemPurchaseComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | Sent when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
-| 🔈`OnItemConsumeStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | Sent when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
-| 🔈`OnItemPurchaseSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemPurchaseFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | Sent when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerConsumeSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerConsumeFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | Sent when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | Sent when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
+| 🔈`OnItemPurchaseStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemPurchaseComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
+| 🔈`OnItemConsumeStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwp) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
+| 🔈`OnItemPurchaseSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnItemPurchaseFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerConsumeSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerConsumeFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
+| 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
 
 **Limitations**: Only owners can make test purchases while in Preview mode.
 
@@ -1488,21 +1487,7 @@ type LaunchProjectileOptions = {
 
 ### Quests Gizmo
 
-**Description**: Displays a list of Quest avaliable in your world for players to track their progress. Also see [Quests](#quests)
-
-| Property | Type | Description |
-|---|---|---|
-| Displayed Title | `string` | Displayed a title at the top of the Quest Gizmo windows. |
-| Number of Entries Per Page | `number` | Determines how many questions will be displayed on a single page. Values can been between 1 and 6.
-| Panel UI Mode | `Light Mode` or `Dark Mode` | Sets the Quest Gizmos display mode. |
-| LoD Radius | `number` | Sets the distance(in meters) that the Quest Gizmo will appear for players. |
-| Visible | `boolean` | Sets whether the Quest Gizmo is visible to players. |
-
-**Typescript**: Quest Gizmos are referenced as the `Entity` class with no members.
-
-| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
-|---|---|---|
-| onAchievementComplete | `player:Player`<br/>`scriptID:string` | Sent when an achievement is completed by a player. |
+**Description**: Displays a list of Quests available in your world for players to track their progress. See the [Quests](#quests) section for full details.
 
 ### Raycast Gizmo
 **Description**: Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
@@ -1562,7 +1547,7 @@ type PlayerRaycastHit = BaseRaycastHit & {
 #### How to Raycast
 <mark>TODO</mark>
 
-**Limtations**: Raycasting too often in a short period of time can hurt performance.
+**Limitations**: Raycasting too often in a short period of time can hurt performance.
 
 ### Script Gizmo
 See FBS or [Script API](#scripting)
@@ -1574,7 +1559,7 @@ See FBS or [Script API](#scripting)
 |---|---|---|
 | Apply Orientation | `boolean` | Applies a rotation on the player that teleports onto the Snap Destination Gizmo
 
-**Typescript**: Snap Destination Gizmos are referenced as the `Entity` class with no methods.
+**Typescript**: Snap Destination Gizmos are referenced as the `Entity` class (with no special methods).
 
 ### Sound Recorder Gizmo
 **Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
@@ -1810,31 +1795,7 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 **Limitations**: Using too many Trigger Gizmos can affect performance.
 
 ### World Leaderboard Gizmo
-**Description**: Used to display player scores in your world.
-
-| Property | Type | Description |
-|---|---|---|
-| Leaderboard | dropdown | Contains a list of all the avaliable leaderboards in your world. |
-| Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
-| Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
-| UI Anchor Style | `Static` or `Billboard` | `Static` sets the Leaderboard Gizmo stay in one place when viewed by the player. `Billboard` causes the Leaderboard Gizmo to rotate to always face the player who is viewing it. |
-| Panel UI Mode | `Light Mode` or `Dark Mode` | Determines how the Leaderboard Gizmo is displayed to players. |
-| Entry Display Mode | `Raw Value` or ` Time in Secs` | Determines how the data will be displayed. Leaderboard Gizmos only accept numberical data and it can be displayed as a number or time. |
-
-**Typescript**: Leaderboard Gizmos are referenced as the `Entity` class with no methods. Although there is one related method from the `World` class:
-
-```ts
-setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void; //Sets the leaderboard score for a player.
-```
-
-<mark>TODO</mark>
-- Kind of data allowed
-- Player opt-out
-- Creation
-- Using the Gizmo
-- APIs
-- Resetting
-  - Daily / Weekly / Monthly
+**Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
 
 # Assets
 
@@ -3534,6 +3495,7 @@ The **Script Phase** executes all event listeners, handles player input, instant
 1. **Scene Graph Updates Preparation**
     - Any [scene graph](#scene-graph) mutations performed via [property.set(...)](#horizon-properties) throughout the frame thus far are copied to the side and the "pending updates" cache is cleared. There are [subtleties in how scene graph mutations are applied](#scene-graph-mutations).
 1. **Component Initialization**
+    - New [files](#script-file-execution), from world start or [spawning](#spawning), are executed, running all code in the *top-level scope* (initializing *globals*, running `static` class members and blocks, etc).
     - New components are instantiated (due to the instance starting, assets [spawning](#spawning) in, or entities having their [ownership transferred](#ownership-transfer) to this [device](#clients-devices-and-the-server)). Those new components will [all be prepared and then started](#component-lifecycle).
 1. **Event Processing**
     - [NetworkEvent](#network-events) listeners run
@@ -3632,9 +3594,7 @@ There are two types of clients:
   * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#synchronization-phase) the world from their player's camera / eyes every frame, and [synchronize](#late-frame-pahse) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
   * **Server**: a special client that lives on Meta's servers. It's associated player is the special [server player](#server-player). The server client runs all [default scripts and local scripts on entities owned by the server player](#local-and-default-scripts). The server operates just like player devices except that it skips [rendering](#synchronization-phase) at the end of each frame.
 
-Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connected to on the server (such as [OnPlayerEnterWorld](#player-entering-and-exiting-a-world)) whereas others can only be connected to on a player device (such as [OnPlayerEnteredFocusedInteraction](#focused-interaction)).
-
-<mark>TODO</mark> Other APIs that have client-affinity?
+Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connected to on the server (such as [OnPlayerEnterWorld](#player-entering-and-exiting-a-world)) whereas others can only be connected to on a player device (such as [OnPlayerEnteredFocusedInteraction](#focused-interaction)). Similarly, most [persistence APIs](#persistence) can only be called from [scripts](#scripting) running on the server.
 
 !!! info Client have varying frame rates.
     The server typically runs at 60 frames per second. Quest VR headsets run at 72 fps. Do not rely on or hardcode specific frame rates. There's more information in the [frame rate](#frame-rate) section.
@@ -3737,7 +3697,6 @@ Authority Considerations:
 ## Ownership Transfer
 
 Ownership transfer is the process by which an entity’s authority is "moved" from one [client](#clients-devices-and-the-server) to another. It affects both the entity’s intrinsic state (e.g. position, visibility, collision settings) and its attached [local components](#local-and-default-scripts). Transfers may be initiated programmatically via `entity.owner.set(newOwner)` or occur automatically (see [Automatic Ownership Transfers](#automatic-ownership-transfers)).
-
 
 **Transfer Duration**: ownership transfers are not instantaneous, though are typically less than 0.5 seconds. This delay is significant relative to frame rates (its some small-ish handful of frames).
 
@@ -4288,14 +4247,14 @@ for determining which `Player`'s device the current script is running one. This 
 
 ## Player Entering and Exiting a World
 
-When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is sent when a player leaves the instance.
+When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is [broadcast](#built-in-broadcasted-code-block-events) when a player leaves the instance.
 
 Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any [server-owned](#entity-ownership) entity to receive them.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| 🔈`OnPlayerEnterWorld` | <nobr>`player: Player`</nobr> | Sent when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
-| 🔈`OnPlayerExitWorld` | <nobr>`player: Player`</nobr> | Sent when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
+| 🔈`OnPlayerEnterWorld` | <nobr>`player: Player`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player enters the instance. This occurs when a **player [travels](#instance-selection) to the instance**; it also happens when a player goes from **[edit mode to preview mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is already in [getPlayers()](#listing-all-players) when this event is sent. |
+| 🔈`OnPlayerExitWorld` | <nobr>`player: Player`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player exits the instance. This occurs when a **player [travels](#travel-doors-and-links) away from the instance** or quits Horizon Worlds; it also happens when a player goes from **[preview mode to edit mode](#visitation-modes-edit-preview-and-publish)** in the editor. The player is no longer in [getPlayers()](#listing-all-players) when this event is sent (unless they are in build mode; then they remain in the array). |
 
 When a player exits the world, [all entities owned by them](#entity-ownership) are [transferred to the server](#ownership-transfer).
 
@@ -4341,8 +4300,8 @@ There are two [built-in code block events](#system-code-block-events) associated
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| 🔈`OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | Sent when a player becomes inactive. |
-| 🔈`OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | Sent when a player is no longer inactive. |
+| 🔈`OnPlayerEnterAFK` | <nobr>`player: Player`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player becomes inactive. |
+| 🔈`OnPlayerExitAFK` | <nobr>`player: Player`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player is no longer inactive. |
 
 See the [diagram in the player enter / exit section](#player-entering-and-exiting-a-world) for a detailed overview of when the above two events are sent.
 
@@ -4910,208 +4869,213 @@ Grabbable and Attachable
 
 # Persistence
 
-## Overview
-Used to store information that persist beyond the duration of a session, or if a player leaves and returns to the same instance. The persistent data categories are:
-1. Leaderboards
-1. Quests
-1. In-World Purchases
-1. Player Persistent Variables
+Persistence allows **data to be stored beyond a single session**, ensuring that player progress, achievements, and purchases remain available when they return.
+
+Persistent data is categorized into the following types:
+1. [Leaderboards](#leaderboards) – Track and display scores globally.
+1. [Quests](#quests) – Track player progression with world-based achievements.
+1. [In-World Purchases (IWP)](#in-world-purchases-iwp) – Store ownership of purchased items.
+1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) – Store per-player custom data.
+
+!!! info Persistent data can only be set on the [server](#clients-devices-and-the-server) (except [Quests](#quests)).
+    [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
+
+!!! info Persistent data is only accessible when a player is in the instance.
+    Persistent data for [Quests](#quests), [In-World Purchases (IWP)](#in-world-purchases-iwp), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppv) is tied to individual players and can only be accessed when the player is present in the instance.
+
+!!! warning There is no persistent world data.
+    Persistence is currently tied to individual players. A world cannot store "global" variables that persist *across sessions* (other than [leaderboards](#leaderboards) which don't have a way to *read* the data back).
 
 <mark>TODO</mark>- - Cloning a world
 
-Currently, world persistent data is not available; the player that owns the data must be present to be able to retrieve their information. The [Leaderboards](#leaderboards) is an exception to this rule (see its chapter for more info).
-
-Persistent data can only be updated from server scripts, or from local scripts attached to an entity that is owned by the server. Quests are excluded from this rule: Quests APIs (referenced as achievements in TS) can be used regarless of the excecution mode of the scripts or the ownership of the entity where the scripts is attached to.
-
 ## Leaderboards
 
-Leaderboards are used to track scores and compare/compete against friends and other visitors asynchronously. These are tied to a gizmo that displays player names and ranked/ordered values in ascending or descending order. The leaderboard data can only be set; it can't be retrieved.
+Leaderboards store and display player scores, allowing players to compare progress even when they are not in the same session. Leaderboards have two parts: a **leaderboard** and **leaderboard gizmos**. [Leaderboards contain the *properties*](#creating-editing-and-deleting-leaderboards) (such as name, sort order, and auto-reset behavior). [Leaderboard Gizmos](#using-the-world-leaderboard-gizmo) are an entity in the world that allow a player to see and interact with the data.
 
-The leaderboard data is the only type of persistent storage that captures and displays the player information even when they have left the world or if the session has ended. This data is also updated across sessions when a world has multiple concurrent instance open at the same time.
+* **Global Persistence**: Unlike other persistent data, leaderboards retain and display scores across all instances, even when the player is not present.
+* **Write-Only (by default)**: Scores can be updated (written) but not retrieved (read) via scripts. However, to work around this, you can create a [player persistent variable](#player-persistent-variables-ppv) and then [always set them together](#using-a-leaderboard-with-a-player-persistent-variable).
+* **Privacy and Player Control**: Players can opt out of leaderboard tracking and delete stored scores from the *in-app menu → General tab → Leaderboard Participation / Data*.
 
-!!! info The Leaderboards are often used as a mechanism to gain insight about the world experience. Common examples are tracking how often players enter an area, or how frequently the visitors interact with elements in the world.
+!!! tip One Cool Trick: Leaderboards Metrics Tracking
+    Leaderboards can be used to gain insight into a world's. Common examples are tracking how often players enter an area, or how frequently the visitors interact with elements in the world. Typically these leaderboards are out-of-view of players and only viewable to the creator.
 
-Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard tracking and to delete previously stored values. Players can find this option in the in-app menu, General tab, "Leaderboard participation" and "Leaderboard data".
-
-Prioritizing privacy, Horizon Worlds allows players to opt-out from leaderboard tracking and to delete previously stored values. Players can find this option in the in-app menu, General tab, "Leaderboard participation" and "Leaderboard data" options.
-
-#### Limitations
-
+**Leaderboard Limitations**
 There is a limit of 10 leaderboards per world. In terms of the data that can be displayed:
 
 | Data Type | Intake Data Type | Display Limitations |
 |---|---|---|
-| *Raw Value* | Integers | Int values, from -2,147,483,648 to 2,147,483,647 (min value for the overflow) |
+| *Raw Value* | Integers | Integer values from -2<sup>31</sup> to 2<sup>31</sup>-1<br/>(roughly -2 billion to 2 billion) |
 | *Time in Secs* | Integers | <mark>TODO</mark> Time data range |
 
-!!! warning Leaderboards do not have limits for the intake values, but the information will be truncated according to the Display Limitations.
+!!! warning Leaderboard values are clamped to integers in the range -2<sup>31</sup> to 2<sup>31</sup>-1.
 
-#### Creation
+### Creating, Editing, and Deleting Leaderboards
 
- To create a Leaderboard using the Desktop Editor:
-1. Access the Systems menu and select the Leaderboards option.
-1. Click on "Create Leaderboard" indicated with the + symbol.
+To **create a Leaderboard** using the Desktop Editor:
+1. Access the Systems dropdown and select *Leaderboards*.
+1. Click on *Create Leaderboard* indicated with the [+] symbol.
 1. Add a Name, preferably without spaces. This is the leaderboard ID that will be used in the scripts.
-1. Select the display order: Descending or Ascending.
+1. Select the display order:
+    | Display Order | Meaning |
+    |---|---|
+    | *Ascending* | Scores *increase* as you go down the leaderboard.<br/>The *lowest value is at the top*. |
+    | *Descending* | Scores *decrease* as you go down the leaderboard.<br/>The *highest value is at the top*. |
 1. Indicate how frequently the leaderboard must be reset.
+    | Parameter | Cutoff Time |
+    |---|---|
+    | *Never* | Data persists and is never reset |
+    | *Daily* | Each day at 12:00 AM PST |
+    | *Weekly* | Mondays at 12:00 AM PST |
+    | *Monthly* | First day of the calendar month at 12:00 AM PST |
+1. If the previous setting is anything other than *Never*, the *Reset persistent variable* toggle will be activated. If enabled allows you to specify a [player persistence variable](#player-persistent-variables-ppv) which will be reset whenever the leaderboard is (see the section on [reading leaderboard data](#using-a-leaderboard-with-a-player-persistent-variable)).
 
-| Parameter | Cutoff Time |
-|---|---|
-| *Never* | Data persist, and doesn't reset |
-| *Daily* | Each day at 12:00 AM PST |
-| *Weekly* | Mondays at 12:00 AM PST |
-| *Monthly* | First day of the calendar month at 12:00 AM PST |
-6. In case of selecting a reset frequency, the "Reset persistent variable" toggle will be activated. This is for the scenarios when a player persistent variable is used to track the current value of a leaderboard.
+To **edit a leaderboard**, go to the systems menu, select Leaderboards in the dropdown, and then hover over the leaderboard and click the *pencil icon*.
 
-<mark>TODO</mark> I didn't validate the reset parameters, I copied those descriptions from the desktop editor
+To **delete a leaderboard**, go to the systems menu, select Leaderboards in the dropdown, and then hover over the leaderboard and click the *trash can icon*. Deleting a leaderboard will cause all [leaderboard gizmos](#world-leaderboard-gizmo) associated with it to to no longer render any data (until they are reconfigured with a new/different leaderboard).
 
-#### Modifying the Leaderboard
-After creating the leaderboard, its name will appear under the same creation menu of the Desktop Editor. If more than one leaderbard is available, they can be sorted by clicking on the "Sort" icon next to the + symbol. Hovering over the leaderboard name will enable the following actions:
+!!! warning Exercise caution when editing or deleting leaderboards.
+    If you change the leaderboard name (which is the *script id*), or delete the leaderboard, then all scripts that reference the leaderboard will have to be updated.
 
-1. Edit, indicated by the pencil icon. All leaderboard attributes are editable.
-1. Delete, indicated by the trash can icon. It removes its data storage from the world.
+!!! danger Leaderboard data is lost after its deletion.
+    Once a leaderboard is deleted, the data is gone. Even if a new one is create a new leaderboard with the same name, the data is gone.
 
-!!! warning Exercise caution when changing the name id or deleting the leaderboard: scripts that are referencing this leaderboard will have to be updated, otherwise it will cause compiling errors.
+    If you [pair the leaderboard with a player persistent variable](#using-a-leaderboard-with-a-player-persistent-variable) then you could recover the data (partially) by setting the leaderboard data (from the PPV) whenever players enter the world again.
 
-!!! error The leaderboard data will be lost after its deletion, even if a new one is crated with the same name. Exception to this rule occurs if the current leaderboard values are also stored in a player persistent variable, and a script is configured to update the value on the gizmo when players return to the world; if a player never returns, their score will never be displayed again.
+### Using the World Leaderboard Gizmo
 
-#### Using the Gizmo
-The Leaderboard gizmo can be found in the Destop Editor under the Build Menu, Gizmos option. Search for the "World Leaderboard" option, and drag it into the world scene. Its properties are:
+| Property | Type | Description |
+|---|---|---|
+| Leaderboard | dropdown | Contains a list of all the avaliable leaderboards in your world. |
+| Displayed Title | `string` | Sets the title of the Leaderboard Gizmo window. |
+| Number of Entries Per Page | `number` | Sets how many scores you can see per page.  Value is between 1 and 10. |
+| UI Anchor Style | `Static` or `Billboard` | `Billboard` causes the Leaderboard Gizmo to have per-player rotation so that [each player sees the leaderboard always rotate to face toward them](#billboarding). `Static` uses the normal rotation behavior of entities (meaning that it's fixed in place unless it or one of its [ancestors](#ancestors) transforms).  |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Determines the color theme. Light vs dark refers to the background color of the gizmo.
+| Entry Display Mode | `Raw Value` or ` Time in Secs` | `Raw Value` will display the value as an integer. `Time in Secs` will display the number in `hours:minutes:seconds` formats. E.g. a score of 90 (seconds) would render as `1:30`. |
 
-- Leaderboard: a drop down to select what leaderboard data to display on the gizmo.
-- Display Title: front facing header. This doesn't have any relevance from the scripting perspective.
-- \# of Entries Per Page: controls how many records can be displayed at the same time (between 1 and 10).
-- UI Anchor Style: selecting `Static` (default) will show the gizmo in preview mode without any dynamic transformations. `Billboard` will make the gizmo rotate to face the POV of the observer.
-- Panel UI Mode: this can be set to `Light Mode` (white background) or `Dark Mode` (black background).
-- Entry Display Mode: `Raw Value` will show the score as an integer; `Time in Secs` will display the score in the `h:m:s` format.
-
-During play and preview mode, players will be able to see the following data categories:
+During play and preview mode, players will be able to see the following data categories displayed on the leaderboard:
 - Global: Top world leaderboard, from creation or since the last reset.
 - My Rank: Same as global, but scrolled to the ranked position of the player.
-- Session: Player's score agains the other current visitors in the world.
-- Mutuals: How the player compares agains their friends.
+- Session: Player's score against the other current visitors in the world.
+- Mutuals: How the player compares against their friends.
 
-For all scenarios, the leaderboard will display the players names to the left, and their scores to the right, sorted by values in descending or ascending order according to the leaderboard creation configuration.
+The leaderboard shows players names and their scores, sorted by values in descending or ascending order according to the [leaderboard properties](#creating-editing-and-deleting-leaderboards).
 
-#### APIs
-The Leaderboard doesn't have a dedicated type. Its values can be updated invocating the World.leaderboards.setScoreForPlayer API.
+**Typescript**: Leaderboard Gizmos are referenced as the `Entity` class (with no special methods). However, there is one related method on the [World class](#world-class):
 
 ```ts
-/**
- * Sets the leaderboard score for a player.
- * @param leaderboardName - The name of the leader board.
- * @param player - The player for whom the score is updated.
- * @param score - The new score.
- * @param override - If `true`, overrides the previous score; otherwise the previous score is retained.
- */
-setScoreForPlayer(leaderboardName: string, player: Player, score: number, override: boolean): void;
+// World
+setScoreForPlayer(
+  leaderboardName: string,
+  player: Player,
+  score: number,
+  override: boolean
+): void;
 ```
 
-!!! info All world Leaderboards gizmos are updated at the same time, every 3,300 ms (approximately).
+The **leaderboardName** parameter is the *name* field that you set in [leaderboard creation](#creating-editing-and-deleting-leaderboards).
 
-By default, the leaderboard retains the value that is higher, when the display order is Descending; or the lowest value reported for a player, when the display order is Ascending. However, when the override parameter is set to true, any new score will be retained as the value to be displayed in the leaderboard gizmo.
+The **override** parameter specifies whether to *ignore [sort order](#creating-editing-and-deleting-leaderboards)* when setting the value. By default, when you call `setScoreForPlayer`, it only keeps the score if the score is better (in regard to the sort order). So if the sort order is set to "Descending" (meaning that highest scores are at the top), then the `score` will only be persisted if it is *higher* than the player's current score on the leaderboard. When *override is true* it will set `score` as the player's new value, even if it is *worse* than their current one.
 
-Theoretical scenarios:
+Example scenarios:
 
-| Leaderboard Display Order | New Value Is | Override Parameter | Final Leaderboard Value |
-|---------------------------|--------------|--------------------|-------------------------|
-| Descending                | Lower        | False              | No change               |
-| Descending                | Lower        | True               | New value               |
-| Ascending                 | Higher       | False              | No change               |
-| Ascending                 | Higher       | True               | New value               |
+| Display Order | Current Value | Incoming Value | Override Parameter | Final Value |
+|---|---|---|---|---|
+| Descending | 5 | 4 | False | 5 |
+| Descending | 5 | 4 | True  | 4 |
+| Ascending  | 5 | 6 | False | 5 |
+| Ascending  | 5 | 6 | True  | 6 |
 
-A few examples:
+!!! Leaderboard gizmos update their data every few seconds.
+    When you call `setScoreForPlayer`, the score is immediately store. But to improve perf, leaderboard gizmos only update the data that they display every few seconds.
 
-| Leaderboard Display Order | Current Value | Incoming Score | Override Parameter | New Leaderboard Value |
-|---------------------------|---------------|----------------|--------------------|-----------------------|
-| Descending                | 5             | 4              | False              | 5                     |
-| Descending                | 5             | 4              | True               | 4                     |
-| Ascending                 | 5             | 6              | False              | 5                     |
-| Ascending                 | 5             | 6              | True               | 6                     |
+### Using a Leaderboard with a Player Persistent Variable
 
-For all other configurations, the new value will be displayed.
+There is no API to *read* leaderboard data. However a common trick is to create a [player persistent variable](#player-persistent-variables-ppv) and then whenever you set the leaderboard value, also set the persistent variable with the example same value. If you are not careful about the *override* parameter then the two will get out of sync. If you use this technique, it is **recommended to always set *override* to true** and handle the logic yourself (by reading the persistent variable, comparing, and then deciding if you need to update).
+
+Note that if you ever [delete a leaderboard](#creating-editing-and-deleting-leaderboards) there is no way to get its data back. But, if you use the technique described above, you can at least set the leaderboard data again when [players enter](#player-entering-and-exiting-a-world) the [instance](#instances).
 
 ## Quests
-Quests (formerly known as achievements) are trackable goals to motivate players to engage with the world experiece. These goals can be related or not to the game progression. The Quests gizmo can only display progression local to the observer; in other words, players can't see the completed or pending achievements of other players.
 
-#### Creation
-Quests can be created through the Desktop Editor by navigating to the Qeusts section, under the Systems menu. Clicking on `Create Quest` will open the configuration panel with the following mandatory fields:
+Quests (formerly known as Achievements) track player achievements and goals, providing motivation for players to engage with world content. Each quest represents a trackable objective that can be displayed to players through [Quest gizmos](#using-the-quests-gizmo). Unlike [leaderboards](#leaderboards), quest data is private; players can only see their own quest progress and completions.
 
-| Field | Description | Limitations |
+**Quest Properties**
+- **Individual Progress**: Each player's quest progress is tracked separately
+- **Two Types**: Simple (binary complete/incomplete) or Tracked (tied to a PPV value)
+- **Local Scripts Updates**: Unlike other persistence types, quests can be updated from any [client](#clients-devices-and-the-server), including scripts running on [player-owned entities](#entity-ownership).
+- **Privacy**: Quest progress is only visible to the individual player
+
+### Creating, Editing, and Deleting Quests
+
+Quests are created through the Desktop Editor by navigating to the Quests section, under the Systems menu. Clicking on `Create Quest` will open the configuration panel with the following mandatory fields:
+
+| Field | Description | Notes |
 |---|---|---|
-| Script ID | Reference ID that will be used in scriptiong calls (must be unique). This ID can't be changed after the quest is created. The visitors will not see this information | 20 characters |
-| Name | Name or short title of the achievement that will be displayed on the Quest Gizmo. | 40 characters |
-| Description | Quest description that will be displayed on the Quest Gizmo. | 100 characters |
-| Quest Type | ***Simple***: must be marked as completed with a script API call.  ***Tracked***: must be linked to a player persistent variable. The quest will be marked as completed once the PPV reaches a specific value. |  |
-| Persistent Variables | ***Tracked Quests Only*** The player persistent variable that the quest will track to determine the its completion. This PPV must be created in advance, as it can't be configured from the quest creation UI. |  |
-| Completion Threshold | ***Tracked Quests Only*** The value that the PPV must reach before the quest is marked as complete. |  |
+| Script ID | Unique identifier used in scripts | Cannot be changed after creation |
+| Name | Display name shown to players | 40 character limit |
+| Description | Quest details shown to players | 100 character limit |
+| Quest Type | [Simple or Tracked](#simple-vs-tracked-quests) | Affects completion tracking |
+| Persistent Variable | For [Tracked quests](#simple-vs-tracked-quests) only | PPV to track (link to one already existing) |
+| Completion Threshold | For [Tracked quests](#simple-vs-tracked-quests) only | Value PPV must reach |
 
+To **edit a quest**, access it through *Systems → Quests* and click the pencil icon. Note that the Script ID cannot be changed after creation.
 
-#### Using the Gizmo
-The Quests gizmo can be found in the Desktop Editor under the Build Menu, Gizmos option. Search for the "Quests" option, and drag it into the world scene. Its relevant properties are:
+To **delete a quest**, access it through *Systems → Quests* and click the trash can icon.
 
-- Displayed Title: "Quest" by default, but this can be changed to match the experience.
-- \# of Entries Per Page: 1 to 6 quests per page.
-- Panel UI Mode: `Light Mode` for white background and `Dark Mode` for black background.
-` LoD Radius: Maximum visibility distance. When a player is farther than this distance, the gizmo will be hidden; it will appear again once the player is within the defined proximity.
+### Simple vs Tracked Quests
 
-!!! info It's not currently possible to control the display order of the quests<mark>TODO: this is possible for 2p</mark>. Completed Quests are moved to the end of the list.
+A **simple** quest is one that is simple accomplished at some point in time (set via `player.setAchievementComplete(...)`).
 
-```ts
+A **tracked** quest is tied to *reaching a value*, tracked in a [player persistent variable](#player-persistent-variables-ppv). For example, an achievement might be to "find 10 chickens". For this achievement you would create a persistent variable that you increment each time the player finds a chicken. You would then set the **Quest Type to Tracked**, set that variable as the **Persistent Variable**, and then set 10 as the **Completion Threshold**. When the variable reaches 10, the player will be automatically assigned the achievement.
 
-#### APIs
-/**
- * Represents an Quests gizmo in the world.
- */
-export declare class AchievementsGizmo extends Entity {
-/**
-    * Controls what Quests should be displayed on a gizmo. The default behaviour of the gizmo is to display all of quests created in a world, unless this API is used.
-    *
-    * @param achievementScriptIDs - List of Quests script IDs.
-    */
-displayAchievements(achievementScriptIDs: Array<string>): void;
-}
+Note that with tracked quests you can still use `player.setAchievementComplete(...)` if for any reason you want to grant the achievement.
 
-```
+To **revoke a Tracked quest** you must *both* lower the tracked [persistent variable](#player-persistent-variables-ppv) *and* call `player.setAchievementComplete(scriptId, false)`. Simply lowering the variable will *not* revoke the achievement.
 
-The following API are part the Player class:
+### Using the Quests Gizmo
+
+The Quest gizmo displays quest information to players. Each player sees only their own quest progress.
+
+| Property | Type | Description |
+|---|---|---|
+| Displayed Title | `string` | Header text shown on the gizmo |
+| Number of Entries Per Page | `number` | Quests shown per page (1-6) |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Color theme (light vs dark refers to background color) |
+| LoD Radius | `number` | Maximum visibility distance |
+
+**Typescript**: Quest Gizmos are referenced [as](#entity-as-method) the `AchievementsGizmo` class with the method
 
 ```ts
-/**
-    * Indicates whether a player has completed an quest.
-    * @param achievementScriptID - The scriptID of the quest. This an unmutable attribute
-    * that can be set when creating the quest.
-    * @returns `true` if the player has completed the quest, `false` otherwise.
-    */
-hasCompletedAchievement(achievementScriptID: string): boolean;
-
-/**
-    * Changes the completion state of a quest. This is only required for Simple Quests.
-    * @param achievementScriptID - The scriptID of the quest. This an unmutable attribute
-    * that can be set when creating the quest.
-    * @param complete - `true` sets the quest to complete; `false` sets the quest to incomplete.
-    */
-setAchievementComplete(achievementScriptID: string, complete: boolean): void;
-
- /**
-    * The broadcast codeblock event that is triggered when a quest is completed.
-    */
-OnAchievementComplete: CodeBlockEvent<[player: Player, scriptId: string]>;
-
+// AchievementsGizmo
+displayAchievements(scriptIDs: string[]): void
 ```
 
-#### Resetting
+allowing you to specify a subset of quests that will appear on the gizmo. For example, you could have two Quest gizmos in the world and have one show the "easy quests" and the other show the "hard ones".
+
+The [Player](#players) class has two methods for setting and for querying if an achievement is complete:
+
+```ts
+// Player
+setAchievementComplete(scriptID: string, complete: boolean): void;
+hasCompletedAchievement(scriptID: string): boolean;
+```
+
+There is also a [broadcast CodeBlockEvent](#built-in-broadcasted-code-block-events) for knowing when an achievement has been completed. There are no events for knowing if one was revoked.
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| 🔈onAchievementComplete | <nobr>`player: Player`<br/>`scriptID: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when an achievement is completed by a player. |
+
+### Resetting Quests
 There are two ways of resetting a quest completion or progression:
-1. Using scripting, by invoking the setAchievementComplete with the parameter complete set to false
-1. Through the systems menu > Quests. Click `Debug Quests` (represented with a gear icon). From here, click on Reset all quests or toggle off the individual quests to reset.
+1. Calling `player.setAchievementComplete(scriptId, false)` (`false` revokes it for the player).
+1. Through the *systems menu > Quests*. Click `Debug Quests` (represented with a gear icon). From here, click on *Reset all quests* or toggle off the individual quests to reset.
 
-!!! warning For tracked quests, the ppv variable has to be reset first, otherwise the quest will change back to completed.
-
+When resetting [tracked quests](#simple-vs-tracked-quests) the [persistent variable](#player-persistent-variables-ppv) has to be reset first, otherwise the quest will change back to completed.
 
 ## In-World Purchases (IWP)
 In-World Purchases (IWP) are transactions where players can use their Meta Credits to acquire in game items, enhancements or entitlements, and to give kudos to the world creator. Currently there is no limit to the number of transactions, but the individual pricing can only be set between 25 to 20,000 Meta Credits.
 
-#### Creation
+### Creation
 IWP can be created through he Destop Editor by navigating to the Commerce section, under the Systems menu. Clicking on `Create In-world Item` will open the configuration panel with the following mandatory fields:
 
 | Field | Description | Limitations |
@@ -5126,7 +5090,7 @@ IWP can be created through he Destop Editor by navigating to the Commerce sectio
 
 <mark>TODO</mark> packs
 
-#### Using the Gizmo
+### Using the Gizmo
 The IWP gizmo can be found in the Desktop Editor under the Build Menu, Gizmos option. Search for the "In-world Item" option, and drag it into the world scene. Its relevant properties are:
 - In-word Item: a drop down to select the corresponding IWP.
 - Customize Purchase Dialog Position: enabling this option reveals
@@ -5138,12 +5102,12 @@ The IWP gizmo can be found in the Desktop Editor under the Build Menu, Gizmos op
 -- Button: Displays the cost of the item. This is only visible when observing the IWP gizmo from the front (+Z), otherwise it will look invisible.
 -- Icon: A small Meta Credit icon will be displayed. The icon is billboard, it can be observed from direction.
 
-#### APIs Overview
+### APIs Overview
   - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
 - Test Purchases
   - Owner & editors can but Testers cannot (will be charged)
 
-#### In-world Item Gizmo APis
+### In-world Item Gizmo APis
 
 <mark>TODO</mark> - copy/paste from the API, needs rewording
 
@@ -5202,7 +5166,7 @@ export declare class IWPSellerGizmo extends Entity {
 }
 
 ```
-#### Broadcast Events
+### Broadcast Events
 
 ```ts
  /**
@@ -5256,10 +5220,6 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnItemConsumeStart, (pla
 })
 
 ```
-
-
-
-
 
 ## Player Persistent Variables (PPV)
 Player Persistent Variables (PPV) retain the player information beyond the duration of the session. This information is tied to the player's profile, therefore it's only possible to retrieve it or modify it while the player is in the world.
