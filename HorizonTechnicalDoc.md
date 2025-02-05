@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Scripting -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -782,7 +782,7 @@ The transformation origin point of an entity is called its **pivot point**. It r
 1. **All other entities** (e.g. door, text gizmo, box collider gizmo, etc) have a built-in pivot point (usually at their center).
 
 !!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
-    The desktop editor lets you choose to put the "manipulator handlers" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
+    The desktop editor lets you choose to put the "manipulator handles" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
 
 ### Transform Relative To
 
@@ -3249,6 +3249,9 @@ would make it so that `callback` is no longer called. It's good practice to disc
 
     **Never `connect` in `start`. Never `send` in `preStart`**. This can cause events to get missed!
 
+!!! warning Long-running event callbacks will hurt execution [frame rate](#frame-rate) and eventually time out and be "killed".
+    If an event callbacks runs for a long time it will "stall" all script execution (since it is single-threaded). Eventually Horizon will kill a long-running callback (but only after some number of seconds). When a long callback runs for too long it can block most of the other system behavior and cause unexpected results. Extremely large work-loads should be split up across frames.
+
 ### Sending Events
 
 There are many events sent by the system ([built-in CodeBlockEvents](#built-in-code-block-events) and [built-in local-events](#built-in-local-events)). You can also `new` your own events and then send and receive them as well.
@@ -3541,6 +3544,9 @@ flowchart LR
   style Components fill:#dfe,stroke:#8a9
 ```
 
+!!! warning Script execution is *single-threaded* (long-running functions will "stall" the engine).
+    If a callback ([event](#receiving-events) or [async](#async-delays-and-timers)) runs for too much time it will "stall" all script execution. Eventually Horizon will kill a long-running callback (but only after some number of seconds). When a callback runs for too long it can block most of the other system behavior and cause unexpected results. Extremely large work-loads should be split up across frames.
+
 #### Simulation Phase
 
 The **Simulation Phase** runs at the start of the frame and includes physics calculations and avatar/animation updates.
@@ -3563,7 +3569,7 @@ The **Simulation Phase** runs at the start of the frame and includes physics cal
 The **Script Phase** executes all event listeners, handles player input, instantiates components, and commits pending scene graph changes.
 
 1. **Scene Graph Updates Preparation**
-    - Any [scene graph](#scene-graph) mutations performed via [property.set(...)](#horizon-properties) throughout the frame thus far are copied to the side and the "pending updates" cache is cleared. See the details below.
+    - Any [scene graph](#scene-graph) mutations performed via [property.set(...)](#horizon-properties) throughout the frame thus far are copied to the side and the "pending updates" cache is cleared. There are [subtleties in how scene graph mutations are applied](#scene-graph-mutations).
 1. **Component Initialization**
     - New components are instantiated (due to the instance starting, assets [spawning](#spawning) in, or entities having their [ownership transferred](#ownership-transfer) to this [device](#clients-devices-and-the-server)). Those new components will [all be prepared and then started](#component-lifecycle).
 1. **Event Processing**
@@ -3571,16 +3577,16 @@ The **Script Phase** executes all event listeners, handles player input, instant
     - [PlayerInput](#player-input) callbacks run
     - [CodeBlockEvent](#code-block-events) listeners run (including [built-in](#built-in-code-block-events) ones, such as those prepared in the [physics calculations](#simulation-phase)).
 1. **Scene Graph Updates**
-    - The mutations prepared in step #2 are now applied. See the details below.
+    - The mutations prepared in step #2 are now applied. There are [subtleties in how scene graph mutations are applied](#scene-graph-mutations).
 1. **Final Callbacks**
-    - Any asynchronous callbacks (e.g., `setTimeout`, `setInterval`) that are "passed due" are run.
+    - Any [asynchronous](#async-delays-and-timers) callbacks (e.g., `setTimeout`, `setInterval`) that are "passed due" are run (meaning that the current time is equal to or later than their scheduled times). Note that Horizon will limit how many async callbacks run in one frame; if too much time has been used, and there are still async callbacks to run, it may delay running them until the next frame. Note that events do *not* do this. [CodeBlockEvents](#code-block-events) and [NetworkEvents](#network-events) are all processed until the queue is empty.
     - Any entities owned by the [local device](#clients-devices-and-the-server) that had [owner.set(...)](#ownership-transfer) called on them during the frame will now have [transferOwnership](#ownership-transfer) called to get the *transfer* state that will be dispatched in the [Synchronization Phase](#synchronization-phase). These entities will be marked for [disposal](#component-lifecycle).
     - Any components that were created in step #2 due to an [ownership transfer](#ownership-transfer) will have [receiveOwnership](#ownership-transfer) called on them with their *transferred state* (or with `null` if the transfers were [discontinuous](#discontinuous-ownership-transfers)).
     - Any components that were marked for [disposal](#component-lifecycle) (due to being spawned out, the instance stopping, or in the step 2 bullets above) will have `dispose()` called. All their [event subscriptions](#receiving-events) will be `disconnect`ed. All the ongoing [timeouts and intervals](#async-delays-and-timers) will be `clear`ed.
 
-<mark>TODO</mark> finish the below:
+#### Scene Graph Mutations
 
-**Scene Graph Mutations**: This means that any mutations created in the [Simulation Phase](#simulation-phase) are committed, but any mutations created in steps #2 or #3 are *not* committed (due to the copy-aside in step #1). Those changes will not be committed until the next frame (when they are copied in step #1). See the physics exception below.
+This means that any mutations created in the [Simulation Phase](#simulation-phase) are committed, but any mutations created in steps #2 or #3 are *not* committed (due to the copy-aside in step #1). Those changes will not be committed until the next frame (when they are copied in step #1). See the physics exception below.
 
 <mark>TODO</mark> explain the subtleties with position setting and physics
 
@@ -3593,21 +3599,7 @@ The **Synchronization Phase** finalizes the frame, managing network synchronizat
    - Networked entity transformations are synchronized across players.
 
 2. **Render (if on a player device)**
-   - The game world is rendered for the player based on updated entity states.
-
-<mark>TODO</mark>
-
-Proved: async runs at end of frame. An interval / timeout of 0ms (or some other tiny value) is allowed to run many times per frame (but is capped via some max time - meaning that the async phase will deplete the timer queue only for so long).
-
-Proved: a single async timeout that takes too long gets killed with an error in the console. Throwing (and the associated error allocation) take so much CPU time that basically no other async handlers will run this frame.
-
-Proved: The `deltaTime` in the PrePhysicsUpdate and OnUpdate has a maximum of 0.1. Horizon always runs all the code in a frame. When the code in a frame takes too long to run, the framerate on the device executing the script will drop. For example, an OnUpdate handler running at 20fps in a server-executed script will cause all server-executed scripts and all server-owned physics objects to update at 20fps. A player-device executed script running at 18fps causes that player's entire experience in the Horizon app to run at 18fps until the player exits that world.
-
-Proved: if `sendCodeBlockEvent` is called 2048 times (or more) in a frame you get an error (and none of the events are processed that frame). Note 2047 times is allowed; 2048 is not. There is a bug where the thrown error implies that 2048 is allowed (it's not!).
-
-Proved: code block event handlers will eventually timeout but it seems to be upward of some 10s of seconds. Even if each event takes a long time, Horizon will do its best to process the entire queue every frame. It never punts events to a future frame. Meaning... it may stall the JS thread for 10s+ (frame isn't stuck, just JS thread) to process all the events.
-
-Proved: each code block event handler is wrapped in a try.
+   - The game world is rendered for the player based on the state of the world as it is on their [client](#clients-devices-and-the-server) due to that client's current [reconciliation](#authority-and-reconciliation).
 
 ## Component Inheritance
 
@@ -4753,7 +4745,7 @@ There are two approaches for moving a held entity:
 #### Moving a Held Entity Locally in Relation to the Hand
 In a gun-recoil animation you want the player hand to be able to move freely, yet have the gun apply an additional local rotation "on top of it". If you set the position / rotation of the entity when a user takes an action (such as firing the gun) then that change will only last for one frame (which might be ok for a quick recoil effect) because the entity's position / rotation will be immediately updated the next frame from the avatar's hand.
 
-If you want a multi-frame or ongoing effect then you need to set the position / rotation of the entity repeatedly in an [OnUpdate](#run-every-frame-prephysics-and-onupdate) handler. In summary: **every frame in which you want the entity change from where the avatar want it, you must set it yourself**.
+If you want a multi-frame or ongoing effect then you need to set the position / rotation of the entity repeatedly in an [OnUpdate](#run-every-frame-prephysics-and-onupdate) callback. In summary: **every frame in which you want the entity change from where the avatar want it, you must set it yourself**.
 
 #### Moving a Held Entity Globally in Relation to the World
 When building a lever, for example, you want the avatar hand to "lock onto" the lever. In this case you want to completely control the position of the avatar hand. To do this,  set `locked` to `true` on the grabbable entity. This will prevent the entity from being moved by physics or by the avatar. Then you can move the entity by setting its `position` and `rotation`. The avatar hand will then be moved to match.
