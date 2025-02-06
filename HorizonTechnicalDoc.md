@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Attaching Entities -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -357,8 +357,6 @@ Name your world and click `Create`.
 
 ## Publishing and Player Settings
 
-Let's *NOT* document all of what is below. These are here for reference to see which ones we want to document.
-
 <mark>TODO</mark>
 
 **Publishing**
@@ -369,7 +367,7 @@ Let's *NOT* document all of what is below. These are here for reference to see w
 | World Status | Displays the current status of the world. |
 | Name | Allows you to name your world. Beware, renaming your world will change the name of the folder where the scripts are saved when using Typescript. |
 | Description | Allows you to set a description for your world. This will be seen when viewing your world in the Horizon menu, online, or in the app.
-| World Rating | Will prompt a series of questions about your world to determine your world rating. (10+, 13+, 18+)(a flow that result in: <mark>TODO</mark> Not sure what this TODO means.) |
+| World Rating | Will prompt a series of questions about your world to determine your world rating: 10+, 13+, or 18+. |
 | Comfort Rating | Allows you to select a rating for your world that players will see before they visit. This lets players know what kind of experience they can expect. You cannot publish a world as `NOT_RATED`. `COMFORTABLE` suggest not a lot of movement involved, overall calm and slow environment. `Moderate` suggest your world has some limited movement or possible motion sickness inducing aspects. `INTENSE` suggest your world may not be suitable for users who suffer from motion sickness. |
 | Tags | Allows you to set up to 3 Tags for your world that helps categorize it in the menu and tells players what kind of experience they can expect. |
 | Mute Assist | Turning this on will allow your world to detect loud sounds, profanity or offensive language and prompt your players to mute the offending players. |
@@ -1291,7 +1289,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 | Fog Color | `Color` | Sets a custom color to the fog in your world. |
 | Fog Density |  `number` | Sets how dense or thick the fog is. Accepts values between 0.0000 and 0.1000. |
 | Show Grid | `boolean` | Determines whether the world grid is visible at x:0, y:0, z:0. |
-| VOIP Settings([Player Audio](#player-audio)) <-- Doesn't exist <mark>TODO</mark>  | `Environment`(<mark>TODO</mark> (VOIP=Env will pass back to last env gizmo), `Default`, `Nearby`, `Extended`, `Whisper`, or `Mute`. `Default` is default. | Sets the default VOIP setting for all players in your world. |
+| [VOIP Settings](#voip-settings) | `Environment`, `Default`, `Nearby`, `Extended`, `Whisper`, or `Mute`. `Default` is default. | Sets the default [VOIP setting](#voip-settings) for all players in your world. |
 
 **Typescript**: TypeScript: Environment Gizmos are referenced as Entity instances with no additional scripting capabilities.
 
@@ -1986,6 +1984,8 @@ Triangulate. Normals direction.
 Workflows / advice for greyboxing.
 
 # Scripting
+
+<mark>TODO</mark> - FBS section
 
 Scripts are how you create dynamism in worlds. You use them to create interactivity and movement. You use scripts to make something simple like a door that opens when you approach it as well as the most complex things, such as an entire complex team-vs-team shooter game (which would use many separate scripts).
 
@@ -3966,8 +3966,6 @@ Torque
 !!! note Scripting torque allows for the use of radians
     See [rotational force API](#)
 
-TODO - Shouldn't the in-between frames be ignored? In other words, how is it doing FixedUpdate?
-
 ## Creating a Physical Entity
 For an entity to become a physical entity:
 1. Have an [active collider](#collidability)
@@ -4351,7 +4349,6 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 
 !!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
-    <mark>TODO<mark> if a local entity connects to a server owned one, is it forward these 2 events?
 
 !!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
     In complex worlds it is a good habit to regularly check [getPlayers()](#listing-all-players) to see which players are present and handle cleanup for any that left but were missed.
@@ -4555,8 +4552,6 @@ flowchart TD
 !!! bug Entities with grab anchors can be grabbed even when collidable is set to false.
     There is currently a bug where when an entity has a grab anchor it can still be grabbed even when collidable is set to false. If you want to make an entity, with a grab anchor, "disappear" you should move it far away (instead of just setting visibility and collidability to false).
 
-<mark>TODO</mark> does grab anchor override any other rules?
-
 ### Setting "Who Can Grab?"
 
 `Interactive` entities have a setting in the Properties panel called "Who Can Grab?" with the following options controlling who can grab the entity.
@@ -4739,11 +4734,18 @@ Here is a simple example of a grabbable entity that is constrained to move along
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
+<mark>TODO</mark>
+
 Entities can be attached to players.
 Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
 Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in Properties panel.
 
+!!! warning Attaching multiple entities to one player.
+    It's possible for a VR player to put multiple entities on their head at the same time, for example. You can also use [scripted attach](#scripted-attach) to put multiple entities on a player at the same attachment anchor. If this behavior is undesirable, you should track when entities are attached to which players and handle the case where a second entity is attached to an anchor.
+
 ## Creating an Attachable
+
+<mark>TODO</mark>
 
 ## Attachable By
 This setting defines the permissions of which players can *manually* attach the entity (by releasing the entity while holding it over their body). This setting does not affect [scripted attach](#scripted-attach) with `attachToPlayer`.
@@ -4760,8 +4762,6 @@ Attaching an entity to player can be done by the following:
 |---|---|
 | *Release on body part* | Upon releasing the held entity, the entity checks if collision has occurred between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
 | *Script* | See attachables API.|
-
-<mark>TODO</mark> - Explain what happens when multiple attached
 
 Attaching entities involves two built-in code block events being sent to the attachable. If the player attached or detached by hand (only possible for a VR player) then there are also events related to [grabbing](#grab-sequence-and-events).
 
@@ -4801,7 +4801,7 @@ flowchart TD
 
 ### Scripted Attach
 
-Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
+Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-attachment-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
 
 **Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
@@ -4810,6 +4810,14 @@ Entities can be attached to players and detached from players in scripting using
 !!! bug Non-grabbable collidable attachables can continuously push the player when they are attached.
     When a `attachToPlayer` is called on a **Collidable** entity with **Motion=Animated** or **Interaction=Physics** or `simulated` set to `false`, the entity can continuously push the player (forever). To mitigate this, disable collision on the entity before calling `attachToPlayer`.
 
+### Detaching
+
+An attachable entity can be detached in 2 ways:
+1. By calling `entity.detach()`
+1. A VR player grabs the attachment off their, or someone else's, body (if it is [grabbable](#creating-a-grabbable-entity) and the player [can grab](#can-grab) it).
+
+In both cases the `OnAttachEnd` event is sent (as shown in [the diagram](#avatar-attachable)).
+
 ### Socket Attachment
 
 By default, attachables anchor their [pivot point](#pivot-points) to the attach point with no local rotation (e.g. attaching a hat to a head will have the hat's [up vector](#local-transforms) aligned with the head's up vector, and likewise for right and forward vectors).
@@ -4817,18 +4825,17 @@ By default, attachables anchor their [pivot point](#pivot-points) to the attach 
 You can modify the attachment position and rotation (expressed as a local offset) in the Properties panel by setting `Anchor Position` and `Anchor Rotation` on the attachable entity. In scripting, you can get and set the attachment offsets with `socketAttachmentPosition : HorizonProperty<Vec3>` and `socketAttachmentRotation : HorizonProperty<Quaternion>` on the `AttachableEntity` class.
 
 !!! example Attach 1 meter in front of a player's torso.
-The code below will attach `attachable` to `player` on their torso. Moving the socket position forward a meter, via `new Vec3(0, 0, 1)`, moves `attachable` to always be 1 meter forward from `player`'s torso.
-```ts
-attachable.attachToPlayer(player, AttachablePlayerAnchor.Torso)
-attachable.socketAttachmentPosition.set(new Vec3(0, 0, 1))
-```
+    The code below will attach `attachable` to `player` on their torso. Moving the socket position forward a meter, via `new Vec3(0, 0, 1)`, moves `attachable` to always be 1 meter forward from `player`'s torso.
+    ```ts
+    attachable.attachToPlayer(player, AttachablePlayerAnchor.Torso)
+    attachable.socketAttachmentPosition.set(new Vec3(0, 0, 1))
+    ```
 
-### Sticky
+### Sticky Attachments
 Whereas attachable entities may have their `Motion` set to `Animated`, `Sticky` entities work best when set to `Grabbable`. Upon releasing the held entity, it will attach to where the collision occurs between the active collider and the [Attachable By](#attachable-by) permitted player.
 
-#### Stick To
+#### Stick Attachment To
 The following is a list of player body parts that the attachable entity may stick to.
-
 
 | Body Part Setting | Sets the stickiness to |
 |---|---|
@@ -4839,20 +4846,18 @@ The following is a list of player body parts that the attachable entity may stic
 !!! warning Using code to attach a sticky entity does not place the entity at the center of the body part.
     Wherever the entity is located upon calling `attachToPlayer()` will be where the entity will begin to follow the body part.
 
-    Set `Avatar Attachable` to [Anchor](#anchor) to reposition the entity to the body part when doing a scripted attach.
+    Set `Avatar Attachable` to [Anchor](#attachment-anchors) to reposition the entity to the body part when doing a scripted attach.
 
-### Anchor
+### Attachment Anchors
 When attached, an anchored entity will position its [pivot point](#pivot-points) at a specified anchor position.
 
-The anchor position is a body part specified in [Anchor To](#anchor-to). Anchor position can be altered by setting [socket attachment](#socket-attachment) offset values.
+The anchor position is a body part specified in [Anchor To](#anchor-attachment-to). Anchor position can be altered by setting [socket attachment](#socket-attachment) offset values.
 
-By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#pose-position-and-body-parts) it is attached to. E.g. by default a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
+By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#pose-position-and-body-parts) it is attached to. For example, by default, a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
 
 !!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
 
-<mark>TODO</mark> - Explain detach via a grab by a ["Who Can Grab?"](#setting-who-can-grab) permitted player and detach via [code](#detach).
-
-#### Anchor To
+#### Anchor Attachment To
 The following is a list of player body parts that the attachable entity may anchor to.
 
 | Body Part Setting | Sets the attachment point to |
@@ -5388,7 +5393,18 @@ The `getPlayerVariable` method will return `null` if the data has never been set
 
 # Spawning
 
+**Spawning** is the act of loading content into a world [instance](#instances) while it is already running (meaning that the content was not "laid out" in world already and isn't in the [world snapshot](#world-snapshot)). For example, imagine a racing game that has 100 kinds of vehicles to choose from and allows 8 players. It would use too much memory and really impact perf to put 800 vehicles into the world (so all 8 players have full choice). Instead, you could create a [UI](#custom-ui) to let players choose from and then load in the vehicle that they choose. This act of "load in when needed" is *spawning*.
+
+**What can be spawned**: ... <mark>TODO</mark>
+
+Spawning requires a "template" or "blueprint", a description of entities / meshes / scripts / properties, that should be "stamped" into the world. Horizon calls these blueprints **assets**.
+
+**Assets never contain entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
+
 Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
+
+**Techniques**:
+  * Spawning an environment gizmo...
 
 Assets must have an `Asset Type` and `Folder`.
 
@@ -5403,21 +5419,41 @@ Saved Asset will receive an ID that is used for spawning.
 
 !!! note Asset Folders can be shared with other users.
 
-
 ## Simple Spawning
-```ts
-  /**
-     * Asynchronously spawns an asset.
-     * @param asset - The asset to spawn.
-     * @param position - The position where the asset is spawned.
-     * @param rotation - The rotation of the spawned asset. If invalid, is replace with `Quaternion.one` (no rotation).
-     * @param scale - The scale of the spawned asset.
-     * @returns A promise resolving to all of the root entities within the asset.
-     */
-    spawnAsset(asset: Asset, position: Vec3, rotation?: Quaternion, scale?: Vec3): Promise<Entity[]>;
-```
+
+The simplest way to spawn an asset is using the [World class'](#world-class) `spawnAsset` method which takes the following parameters:
+| `spawnAsset` Parameter Name | Type | Default Value | Notes |
+|---|---|--|----|
+| asset | [Asset](#assets) | n/a - required | The asset to spawn. |
+| position | [Vec3](#vec3) | n/a - required | The global [position](#position) to spawn the asset. It's [pivot point](#pivot-points) will be at that location. |
+| rotation | [Quaternion](#quaternion) | `Quaternion.one`<br/>("no rotation") | The global [rotation](#rotation) to spawn the asset with. It will be rotated around its [pivot point](#pivot-points). |
+| scale | [Vec3](#vec3) | `Vec3.one`<br/>("no-stretch" scale) | The global [scale](#position) to spawn the asset with, as a multiple of the assets *inherent size*. |
+
+`spawnAsset` will spawn the specified asset with the specified [transform](#transforms) data and return a `Promise<Entity[]>` which will *resolve* with a list of entities matching the top-level entities defined in the asset. If the spawn fails for any reason, the promise will *reject*.
+
+**Root entity**: The first entity, in the list that `spawnAsset` resolves with, is called the **root entity**; it was the first entity you selected in the desktop editor when you made the asset (if it is a multi-entity asset). The root entity is imported for [despawning](#deleting-simply-spawned-entities). The other entities in the array are called the **associated entities**.
+
+**Not immediate (asynchronous)**: Spawning takes time. It needs to prepare the information, send it to all [clients](#clients-devices-and-the-server), wait for them to all load it and be ready, and then the spawn will complete. The means that if even one player has a slow network that the entire spawn process can be prolonged. It you want **to make spawning faster, use [controller-based spawning](#advanced-spawning)**.
+
+**Spawning static content**: You can spawn [static](#static-vs-dynamic-entities) anywhere in the world, but once it is spawned you cannot move it, since it would have to be [dynamic](#static-vs-dynamic-entities) to be moved in scripting. The closest you could get to moving a static spawned entity would be [despawn](#despawning) it and then spawn it again elsewhere. Since spawning is not immediate, you **cannot use this technique to move anything quickly**.
+
+### Deleting Simply Spawned Entities
+
+The [World Class](#world-class) has one more spawn-related method: `deleteAsset` (which is misnamed; it should be "delete spawned entities) which takes the following parameters:
+
+| `deleteAsset` Parameter Name | Type | Default Value | Notes |
+|---|---|--|----|
+| entity | [Entity](#entities) | n/a - required | The entity to remove from the [instance](#instances). It is an error to pass in an entity that wasn't spawned via `spawnAsset`. |
+| fullDelete | `boolean` | `true` | If `true` the `entity` must be the *root entity* (the first one in the spawned entities array). The `entity` and all its *associated entities* will be deleted (essentially undoing the single "spawn event" that created them all). |
+
+The `deleteAsset` method returns a `Promise<undefined>` which resolves when the spawned entities have been fully removed from the [instance](#instances).
+
+**Entity exists()**: after calling `deleteAsset` on `entity`, `entity.exists()` will then return `false`. If `fullDelete` was set to `true` then all entities created in the same "spawn event" will also no longer exist.
 
 ## Despawning
+
+<mark>TODO</mark>
+act of getting rid of spawned content. If `spawnedAsset` was used then `deleteAsset` must be. If `SpawnController` was used then ... DUNNO ... !
 
 ## Advanced Spawning
 ```ts
@@ -5499,11 +5535,6 @@ export declare class SpawnControllerBase {
  * see the {@link https://developers.meta.com/horizon-worlds/learn/documentation/typescript/asset-spawning/world-streaming | World Streaming} guide.
  */
 export declare class SublevelEntity extends Entity {
-    /**
-     * Creates a human-readable representation of the SublevelEntity.
-     * @returns A string representation of the SublevelEntity.
-     */
-    toString(): string;
     /**
      * Gets the current state of the sublevel.
      */
