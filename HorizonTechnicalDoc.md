@@ -189,7 +189,8 @@
     3. [Controlling Collisions](#controlling-collisions)
     4. [Collision Events](#collision-events)
     5. [Trigger Collisions](#trigger-collisions)
-    6. [Raycasts](#raycasts)
+    6. [Tag Bubbling](#tag-bubbling)
+    7. [Raycasts](#raycasts)
 11. [Physics](#physics)
     1. [Overview](#overview-2)
     2. [PhysicalEntity Class](#physicalentity-class)
@@ -340,20 +341,23 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 
 ## Creating a World
 
-Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
-Once installed on your PC, navigate to the `Store` from the menu on the left.
-Search `Meta Horizon Worlds` in the upper-right and install.
-Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
+1. Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
 
-<img src="images/start-in-desktop.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Once installed on your PC, navigate to the `Store` from the menu on the left.
 
-Click `New world` in the upper-right.
+1. Search `Meta Horizon Worlds` in the upper-right and install.
 
-<img src="images/new-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
 
-Name your world and click `Create`.
+     <img src="images/start-in-desktop.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
-<img src="images/create-a-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Click `New world` in the upper-right.
+
+    <img src="images/new-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+
+1. Name your world and click `Create`.
+
+    <img src="images/create-a-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
 ## Publishing and Player Settings
 
@@ -3872,7 +3876,26 @@ Trigger detection is done at the _collider_ level. When a collider enters/leaves
 
 This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
 
+## Tag Bubbling
+
+When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [triggers](#trigger-collisions), [collision detection](#collision-events), and [raycasts](#raycasts).
+
+```mermaid {align=center}
+flowchart
+  entity{{Does it have<br/>the right <a href="#entity-tags">tag</a>?}} --"yes"--> endEntity((use the<br/>entity))
+  entity --"no"--> checkParent{{Does it have a parent?}}
+  checkParent --"no"--> bail((stop))
+  checkParent --"yes"--> moveToParent[Shift focus to<br/>the parent]
+  moveToParent --> entity
+
+  style moveToParent fill:#fed,stroke:#a98
+  style endEntity fill:#dfe,stroke:#8a9
+  style bail fill:#fde,stroke:#a89
+```
+
 ## Raycasts
+
+<mark>TODO</mark> - clarify if an entity has to be dynamic to get `Entity` as the `targetType`.
 
 **Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
 
@@ -3916,6 +3939,28 @@ The **return type** of the `raycast` method is `RaycastHit | null`. The result i
   * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`.
   * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field.
   * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
+
+**Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#collidability), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
+
+Here's the algorithm that is run (it's [tag bubbling](#tag-bubbling)):
+
+```mermaid {align=center}
+flowchart
+  checkType{{What is the collider that was hit associated with?}}
+
+  checkType --"entity"--> entity{{Does it have<br/>the right <a href="#entity-tags">tag</a>?}}
+  checkType --"player"--> endPlayer((return *Player*<br/>with the player))
+  entity --"yes"--> endEntity((return *Entity*<br/>with the entity))
+  entity --"no"--> checkParent{{Does it have a parent?}}
+  checkParent --"no"--> endStatic((return *Static*))
+  checkParent --"yes"--> moveToParent[Shift focus to<br/>the parent]
+  moveToParent --> entity
+
+  style moveToParent fill:#fed,stroke:#a98
+  style endEntity fill:#dfe,stroke:#8a9
+  style endStatic fill:#dfe,stroke:#8a9
+  style endPlayer fill:#dfe,stroke:#8a9
+```
 
 Here's the `RaycastHit` type, which shows the 3 bullets above, in code:
 ```ts
