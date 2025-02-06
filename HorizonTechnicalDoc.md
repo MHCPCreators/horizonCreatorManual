@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Collisions -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -3892,8 +3892,6 @@ flowchart
 
 ## Raycasts
 
-<mark>TODO</mark> - clarify if an entity has to be dynamic to get `Entity` as the `targetType`.
-
 **Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
 
 **Raycast Gizmo Properties**
@@ -3901,8 +3899,10 @@ flowchart
 | Property | Type | Description |
 |---|---|---|
 | Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which [collision layer(s)](#collision-layers) the raycast will interact with. |
-| Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. <mark>TODO</mark> - when it hits a differently tagged item what does it do?
+| Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. |
 | Raycast Distance | `number` | The maximum distance (in meters) that the ray should travel before concluding it didn't hit anything. |
+
+**Limitations**: Raycasting too often in a short period of time can hurt performance.
 
 **Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
 
@@ -3920,7 +3920,7 @@ which takes the following parameters:
 |---|---|---|
 | origin | [Vec3](#vec3) | The location in the world that the ray should start. |
 | direction | [Vec3](#vec3) | The direction the ray should travel in. |
-| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). |
+| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. |
 
 The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#collidability) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
 
@@ -3933,8 +3933,8 @@ The **return type** of the `raycast` method is `RaycastHit | null`. The result i
 | target | `Entity`, `Player`, or *absent* (see the note below the table) | The `Entity` or `Player` hit (matching `targetType`). This field is *missing* if `targetType` is `RaycastTargetType.Static`. |
 
 **Target Type and Target**: The `RaycastHit` type contains the field `targetType` which will contain a value of `RaycastTargetType` (values are: `Entity`, `Player`, and `Static`). The values in `targetType` and `target` depend on what the ray first intersected with:
-  * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`.
-  * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field.
+  * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`. Note that this might return one of the entity's [ancestor](#ancestors)'s (see the diagram below). It can return an entity that is [static of dynamic](#static-vs-dynamic-entities).
+  * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field. Note that "Static" is not the same as [static entities](#static-vs-dynamic-entities); this is used when there is no tag match (and is thus *misnamed*).
   * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
 
 **Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#collidability), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
@@ -3978,8 +3978,6 @@ type RaycastHit = {
   }
 )
 ```
-
-**Limitations**: Raycasting too often in a short period of time can hurt performance.
 
 # Physics
 
