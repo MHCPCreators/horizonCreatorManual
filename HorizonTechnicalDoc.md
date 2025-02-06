@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Persistence -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -268,9 +268,11 @@
     3. [In-World Purchases (IWPs)](#in-world-purchases-iwps)
         1. [Creating, Editing, and Deleting IWPs](#creating-editing-and-deleting-iwps)
         2. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
-        3. [APIs Overview](#apis-overview)
-        4. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
-        5. [IWP Broadcast CodeBlockEvents](#iwp-broadcast-codeblockevents)
+        3. [In-World Item Id String](#in-world-item-id-string)
+        4. [In-World Durable Items](#in-world-durable-items)
+        5. [In-World Consumable Items](#in-world-consumable-items)
+        6. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
+        7. [IWP Broadcast CodeBlockEvents](#iwp-broadcast-codeblockevents)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
         1. [Using Persistent Player Variables](#using-persistent-player-variables)
         2. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
@@ -367,7 +369,7 @@ Let's *NOT* document all of what is below. These are here for reference to see w
 | Description | Allows you to set a description for your world. This will be seen when viewing your world in the Horizon menu, online, or in the app.
 | World Rating | Will prompt a series of questions about your world to determine your world rating. (10+, 13+, 18+)(a flow that result in: <mark>TODO</mark> Not sure what this TODO means.) |
 | Comfort Rating | Allows you to select a rating for your world that players will see before they visit. This lets players know what kind of experience they can expect. You cannot publish a world as `NOT_RATED`. `COMFORTABLE` suggest not a lot of movement involved, overall calm and slow environment. `Moderate` suggest your world has some limited movement or possible motion sickness inducing aspects. `INTENSE` suggest your world may not be suitable for users who suffer from motion sickness. |
-| Tags | Allows you to set up to 3 Tags for your world that helps categorize it in the menu and tells players what kind of experience they can expect. | 
+| Tags | Allows you to set up to 3 Tags for your world that helps categorize it in the menu and tells players what kind of experience they can expect. |
 | Mute Assist | Turning this on will allow your world to detect loud sounds, profanity or offensive language and prompt your players to mute the offending players. |
 | Visible to Public | Determines whether your world will appear in the Horizon Menu, searches, or be featured. If disabled, players can only join your world through invites or Door Gizmo. |
 | Members-Only World | Enables `Moderation Presence Required` option. Only allows users who are invited to join your world. Does not allow IWP. WARNING: When enabled and published, it cannot be disabled again. |
@@ -567,8 +569,8 @@ An **instance resets** when any of the following occur:
 
 When an instance resets, all components are disposed, all assets are [despawned](#despawning), all entities are reset to their initial state in the [world snapshot](#world-snapshot), all (new) components are initialized.
 
-!!! Be careful resetting a playing instance.
-    If an instance is reset while it is playing, it is possible that some in-flight [events](#communication-between-components) end up arriving and being handled after the reset! Thus it is recommend to **not use `world.reset()`** and instead implement your own reset logic (which is also a better experience for the players).
+!!! warning Be areful resetting a playing instance.
+    If an instance is reset while it is playing, it is possible that some in-flight [events](#communication-between-components) end up arriving and being handled after the reset! Thus it is recommended to **not use `world.reset()`** and instead implement your own reset logic (which is also a better experience for the players).
 
     In the desktop editor we recommend that when you want to test the world that you habitually **press: "Stop, then Reset, then Play"**.
 
@@ -4915,6 +4917,8 @@ Grabbable and Attachable
 
 ## Focused Interaction
 
+?
+
 # Persistence
 
 Persistence allows **data to be stored beyond a single session**, ensuring that player progress, achievements, and purchases remain available when they return.
@@ -5137,7 +5141,7 @@ In-World Purchases (IWPs) allow players to use Meta Credits to acquire virtual i
 To **create an IWP** using the Desktop Editor:
 1. Access the Systems dropdown and select Commerce
 1. Click "Create In-world Item"
-1. Configure required fields:
+1. Configure required fields, shown in the table below
 
 | Field | Description | Notes |
 |---|---|---|
@@ -5145,7 +5149,7 @@ To **create an IWP** using the Desktop Editor:
 | Description | Item details shown in UI | 250 character limit |
 | Thumbnail | Display icon (using in purchase flow and in UI showcasing the available purchases in the world) | Select from provided options (currently thumbnails must be created in the editor and cannot be uploaded) |
 | Item Price | Cost in Meta Credits | 25-20,000 range |
-| Item Type | Durable or Consumable | Durable means "purchased once forever" and Consumable means "can be purchased and consumed, and then purchased again, indefinitely" |
+| Item Type | [Durable](#in-world-durable-items) or [Consumable](#in-world-consumable-items) | Durable means "purchased once forever" and Consumable means "can be purchased and consumed, and then purchased again, indefinitely" |
 | Asset Reference | Link the asset to be spawned | For Durable items only |
 | Auto Use | Triggers use on purchase | For Consumable items only |
 
@@ -5160,112 +5164,118 @@ The IWP gizmo can be found in the Desktop Editor under the Build Menu, Gizmos op
 | In-world Item | dropdown | Contains a list of all the In-World Items you have created in this world. |
 | Customize Purchase Dialog Position | `boolean` | If enabled, allows you to adjust the `Purchase Dialog Position` (expressed [in local coordinates](#local-transforms)). |
 | Purchase Dialog Position | `Vec3` | Adjust the position on screen the Purchase Dialog menu appears. |
-| UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed. `Trigger` doesn't show anything and only spawns the menu when a player enters into the trigger area. `Button` will show a small symbol that will open the menu when interacted with. `Icon` will show the item price as an icon you can interact with. |
+| UI Property | `Trigger`, `Button`, or `Icon`. Default is `Trigger`. | Determines how your In-world Item Gizmo is displayed.<ul><li>`Trigger` doesn't render anything; it opens the menu when a player enters into the trigger area.</li><li>`Button` renders a small symbol in the world that opens the menu when pressed. The button is *not* a [billboard](#billboarding).<li>`Icon` shows a small button with the meta credit price. The icon is a [billboard](#billboarding).</li></ul> |
 
-Its relevant properties are:
--- **NOTE:** the rotation of the Y axis (yaw) is automatically calculated, and is equivalent to the look-at rotation of the backward direction of the player's head.
-- UI Property:
--- Trigger: The IWP is an invisible volumetric area. This is useful for customizing the look and feel of the purchase area. VR player have to physically enter the trigger area with their avatar to initiate the purchase. XS players will see an interactive icon.
--- Button: Displays the cost of the item. This is only visible when observing the IWP gizmo from the front (+Z), otherwise it will look invisible.
--- Icon: A small Meta Credit icon will be displayed. The icon is billboard, it can be observed from direction.
+**Testing**: The In-World Item Gizmo allows [the world owner & editors](#editor-roles) to test purchases (in [preview and play mode](#visitation-modes-edit-preview-and-publish)) without being charged. Testers *cannot* perform test-purchases; they will be charged.
 
-### APIs Overview
-  - Events are broadcast `CodeBlockEvent`s and can be subscribed to from anywhere (except maybe local?)
-- Test Purchases
-  - Owner & editors can but Testers cannot (will be charged)
+**TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class. There are methods for [durables](#in-world-durable-items) and for [consumables](#in-world-consumable-items).
 
-### In-world Item Gizmo APis
+### In-World Item ID String
 
-```ts
-export declare class IWPSellerGizmo extends Entity {
-  playerOwnsItem(player: Player, item: string): boolean;
-  quantityPlayerOwns(player: Player, item: string): number;
+Every in-world item ([Durable](#in-world-durable-items) or [Consumable](#in-world-consumable-items)) has a `string` `id` that is used in the TypeScript APIs for interacting with in-world items.
 
-  playerHasConsumedItem(player: Player, item: string): boolean;
-  timeSincePlayerConsumedItem(player: Player, item: string, timeOption: MonetizationTimeOption): number;
-  consumeItemForPlayer(player: Player, item: string): void;
-}
-```
-### IWP Broadcast CodeBlockEvents
+Right now there is *no way to get an IWP id in the desktop editor*: go to https://horizon.meta.com/creator/monetization_purchases and select "Item management". The `id`s are listed under the column **SKU Name**.
+
+### In-World Durable Items
+
+**Durable items** are purchased once and then owned forever. An example would be unlocking a golden sword (that you then never lose).
+
+**TypeScript**: Unlike leaderboards and quests, you need an actual `IWPSellerGizmo`, [via as](#entity-as-method), to interact with durable items. There is one method on the `IWPSellerGizmo` class related to durable items, which lets you check if a given `player` owns the item with the given [item id](#in-world-item-id-string):
 
 ```ts
-OnItemPurchaseStart: CodeBlockEvent<[player: Player, item: string]>;
-/**
- * The event that is triggered when a player:
- * - Closes the purchase UI or cancels the transaction. The success result would be false.
- * - Completes the transaction. When the purchase is completed, this event will be broadcasted
- * twice: first with the success parameter set to true, and a second one with the success parameter set to false.
-*//
-OnItemPurchaseComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnItemConsumeStart: CodeBlockEvent<[player: Player, item: string]>;
-/**
- * The event that is triggered:
- * - Immediately after a player purchases an auto-use consumable item.
- * - After calling IWPSellerGizmo.consumeItemForPlayer to use the inventory owned by the player.
- */
-OnItemConsumeComplete: CodeBlockEvent<[player: Player, item: string, success: boolean]>;
-OnPlayerSpawnedItem: CodeBlockEvent<[player: Player, item: Entity]>;
+// IWPSellerGizmo
+playerOwnsItem(player: Player, item: string): boolean;
 ```
 
-<mark>TODO</mark>- I haven't been able to make the OnPlayerSpawnedItem work. The regular CodeBlockEvents.OnAssetSpawned does work though.
+There are also [durable item CodeBlockEvents](#in-world-item-codeblockevents) that can be connected to.
 
-  |  Event | Consumable `with` auto-use | Consumable `without` auto-use| Durable `with` asset | Durable `without` asset | Consumable Pack `without` auto-use | Consumable Pack `with` auto-use |
-|---|---|---|---|---|---|---|
-| `OnItemPurchaseStart`: player interacts with the IWP gizmo | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `OnItemPurchaseComplete`: player finishes the transaction, with a success or fail result | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `OnItemConsumeStart` | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| `OnItemConsumeComplete` | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| `OnPlayerSpawnedItem` | ❌ | ❌ | ??? | ❌ |  ❌ | ❌ |
+There is no method for granting access to a durable item. If you want to allow people to "unlock" the item (e.g. with time instead of money) then you would have to use a combination of a durable item *and* a [player persistent variable](#player-persistent-variables-ppvs), providing the functionality if they have *either*.
 
-<mark>TODO</mark>- I haven't been able to make the OnPlayerSpawnedItem work
-
-!!! warning The OnItemPurchaseComplete event will be broadcasted twice after a player finishes a transaction. The first event will output true for the success callback, and immediately after a second event will be emitted with a false output. Consider ignoring the second event if it's received shortly after a successful purchase from the same player.
-!!! info The OnItemConsumeComplete event is broadcasted immediately after a purchase for Consumable with auto-use. For consumables added to the inventory, the event is broadcasted after calling IWPSellerGizmo.consumeItemForPlayer.
-!!! info The OnItemConsumeStart event is broadcast when a player initiates a consume intent from their inventory menu, but the inventory will not be replenished automatically. The handler of this event must contain a call to the IWPSellerGizmo.consumeItemForPlayer to complete the operation. This is intentional, to prevent accidental use actions.
-
-
-Correct process (packs and non-packs with auto-use OFF)
-1. `OnItemConsumeStart` is really like "human did initiate consumption" (should be OnItemConsumeUserRequest)
-1. call `consumeItemForPlayer`
-1. Get `OnItemConsumeComplete`
-
-```ts
-this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnItemConsumeStart, (player, item) => {
-    //... any additional handling logic
-    this.entity.as(hz.IWPSellerGizmo).consumeItemForPlayer(player, item)
-})
-```
-
-
-
-
-TypeScript: In-World Item Gizmos are referenced [as](#entity-as-method) the IWPSellerGizmo class with the following methods:
-
-```ts
-consumeItemForPlayer(player, item) //Consumes a specific item owned by the player.
-playerHasConsumedItem(player, item) //Indicates whether a player used a specific item.
-playerOwnsItem(player, item) //Indicates whether the player owns a specific item.
-quantityPlayerOwns(player, item) //Gets the number of the items that the player owns.
-timeSincePlayerConsumedItem(player, item, timeOption) //Gets the time since a player consumed the item.
-```
-**Built-In CodeBlockEvents**: the following events are [sent to](#sending-and-receiving-events) a `IWPSellerGizmo`:
+#### Durable In-World Item CodeblockEvents
 
 All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
 
+### In-World Consumable Items
+
+**Consumable items** are purchased and then *used*. They can be purchased again and then used. It is possible to have many at once ("stockpiling" until you use them). An example would be a speed boost that lasts for 5 minutes once activated. When a player tries to use a consumable you are [sent a request that you must handle](#handling-an-item-consume-item-request). There are a number of  other APIs, listed below.
+
+**TypeScript**: Unlike leaderboards and quests, you need an actual `IWPSellerGizmo`, [via as](#entity-as-method), to interact with durable items.
+
+There are [consumable item CodeBlockEvents](#in-world-item-codeblockevents) that can be connected to.
+
+There are also a few methods on the `IWPSellerGizmo` class related to durable items. In the below methods `item` is an [item id](#in-world-item-id-string):
+
+1. Check how many of the given item a player has:
+    ```ts
+    // IWPSellerGizmo
+    quantityPlayerOwns(player: Player, item: string): number
+    ```
+1. Check if the player has *ever* consumed the item:
+    ```ts
+    // IWPSellerGizmo
+    playerHasConsumedItem(player: Player, item: string): boolean
+    ```
+1. Check when the player last consumed the item. The API asks for a `MonetizationTimeOption` to request `Seconds`, `Hours`, or `Days`. Note that (unfortunately) it will return `0` if the item has never been consumed:
+    ```ts
+      // IWPSellerGizmo
+      timeSincePlayerConsumedItem(
+        player: Player,
+        item: string,
+        timeOption: MonetizationTimeOption
+      ): number;
+      ```
+1. Consume the item for a player (if they have one otherwise a [OnItemConsumeComplete](#in-world-item-codeblockevents) is sent with `success` set to `false`):
+    ```ts
+    consumeItemForPlayer(player: Player, item: string): void
+    ```
+
+#### Auto-use Consumable In-World Items
+
+<mark>TODO</mark>
+OnItemConsumeStart
+OnItemConsumeComplete
+
+#### Handling an Item-Consume Item Request
+
+1. **Listen for consume-requests**: When a player attempts to use a [consumable item](#in-world-consumable-items), `CodeBlockEvents.OnItemConsumeStart` is [broadcast](#built-in-broadcasted-code-block-events). You *need to listen to this event and handle it*; if you do not, then the item will not be consumed.
+
+1. **Decide whether to consume**: When you [receive the event](#receiving-events) you need to decide if you want the player to actually consume the item. For example, if the item is a 5-minute power boost and they already consumed one only 2 minutes ago, then you might not want them to consume another until the current one runs out!
+
+1. **Consume, if desired**: If you want the play to consume the item then *you should call `consumeItemForPlayer`, with the player and the [item id](#in-world-item-id-string). You will then get a [OnItemConsumeComplete](#in-world-item-codeblockevents) event with `success` set to `true`.
+
+1. **Otherwise, ignore**: If you don't call `consumeItemForPlayer` (because you don't want them to consume it) then the request will timeout and send a [OnItemConsumeComplete](#in-world-item-codeblockevents) event with `success` set to `false`.
+
+!!! example Consume an item when the player requests to.
+    Here is a simple example that always consumes a bagel every time the player tries to (in their menu):
+    ```ts
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnItemConsumeStart, (player, item) => {
+      if (item === 'bagel_id') {
+        const iwpGizmo = this.entity.as(hz.IWPSellerGizmo)
+        iwpGizmo.consumeItemForPlayer(player, item)
+      }
+    })
+    ```
+
+#### In-World Item CodeBlockEvents
+
+All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them. Events marked with 🧱 are for [durable items](#in-world-durable-items); events marked with 🍏 are for [consumable items](#in-world-consumable-items).
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| 🔈`OnItemPurchaseStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemPurchaseComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has closed a purchase menu. The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the purchase was successful. |
-| 🔈`OnItemConsumeStart` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has attempted to consume a consumable item. A player has opened a purchase menu. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemConsumeComplete` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player has finished attempting to consume a consumable item. Item consumptions must be recognized and approved or they will fail (see [In-World Purchases](#in-world-purchases-iwps) ). The parameters give you a reference to the `Player`, the item id(as a `string`), and a `boolean` that tell us if the consumption was successful. |
-| 🔈`OnItemPurchaseSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnItemPurchaseFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerConsumeSucceeded` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully consumes an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerConsumeFailed` | <nobr>`player: Player`<nobr/><br/><nobr>`item:string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to consume an item. The parameters give you a reference to the `Player` and the item id(as a `string`). |
-| 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item:Entity`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
+| <norbr>🔈🧱🍏`OnItemPurchaseStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player opens the purchase menu (both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). |
+| <nobr>🔈🧱🍏`OnItemPurchaseComplete`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player closes the purchase menu (for both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). `success` contains if purchase was successful.  |
+| <nobr>~~🔈🧱🍏`OnItemPurchaseSucceeded`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. |
+| <nobr>~~🔈🧱🍏`OnItemPurchaseFailed`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. |
+| <nobr>🔈🍏`OnItemConsumeStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player tries to consume an item. You [should handle this event](#handling-an-item-consume-item-request). This is not sent for [auto-use consumables](#auto-use-consumable-in-world-items). |
+| <nobr>🔈🍏`OnItemConsumeComplete`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player 's attempt-to-consume finishes, based on if you [handled the request](#handling-an-item-consume-item-request). For an [auto-use consumable](#auto-use-consumable-in-world-items) this will be broadcast right after purchase. |
+| <nobr>~~🔈🍏`OnPlayerConsumeSucceeded`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player consumes an item. |
+| <nobr>~~🔈🍏`OnPlayerConsumeFailed`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to consume an item.|
+| 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item: Entity`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
 
-**Limitations**: Only owners can make test purchases while in Preview mode.
+!!! info An`OnItemPurchaseComplete` event with `success` set to `false` does not imply ownership.
+    If a person tries to buy an item they already own you will get a `success=false` event. Some times a `success=false` event will even send (🐞 erroneously) right after a `success=true` event. When `OnItemPurchaseComplete` is sent `success=false` you should check if the player owns the item with `playerOwnsItem` *before* reacting to the failure.
 
+<mark>TODO</mark>- I haven't been able to make the OnPlayerSpawnedItem work
 
 ## Player Persistent Variables (PPVs)
 
@@ -5852,18 +5862,18 @@ In the table below:
 | [OnGrabStart](#grab-sequence-and-events) | `isRightHand: boolean`<br/>`player: Player` |
 | OnIndexTriggerDown | `player: Player` |
 | OnIndexTriggerUp | `player: Player` |
-| [OnItemConsumeComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
-| [OnItemConsumeStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| 🔈[OnItemPurchaseComplete](#in-world-item-gizmo) | `player: Player`<br/>`item: string, success: boolean` |
-| 🔈[OnItemPurchaseFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| 🔈[OnItemPurchaseStart](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| 🔈[OnItemPurchaseSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| [OnItemConsumeComplete](#in-world-consumable-items) | `player: Player`<br/>`item: string, success: boolean` |
+| [OnItemConsumeStart](#in-world-consumable-items) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseComplete](#in-world-durable-items) | `player: Player`<br/>`item: string, success: boolean` |
+| 🔈[OnItemPurchaseFailed](#in-world-durable-items) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseStart](#in-world-durable-items) | `player: Player`<br/>`item: string` |
+| 🔈[OnItemPurchaseSucceeded](#in-world-durable-items) | `player: Player`<br/>`item: string` |
 | [OnMultiGrabEnd](#grab-sequence-and-events) | `player: Player` |
 | [OnMultiGrabStart](#grab-sequence-and-events) | `player: Player` |
 | OnPassiveInstanceCameraCreated | `sessionId: Player`<br/>`cameraMode: string` |
 | OnPlayerCollision | `collidedWith: Player`<br/>`collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string` |
-| 🔈[OnPlayerConsumeFailed](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
-| 🔈[OnPlayerConsumeSucceeded](#in-world-item-gizmo) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerConsumeFailed](#in-world-consumable-items) | `player: Player`<br/>`item: string` |
+| 🔈[OnPlayerConsumeSucceeded](#in-world-consumable-items) | `player: Player`<br/>`item: string` |
 | 🔈[OnPlayerEnterAFK](#player-enter-and-exit-afk) | `player: Player` |
 | [OnPlayerEnterTrigger](#trigger-gizmo) | `enteredBy: Player` |
 | 🔈[OnPlayerEnterWorld](#player-entering-and-exiting-a-world) | `player: Player` |
