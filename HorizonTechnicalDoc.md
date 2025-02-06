@@ -472,19 +472,23 @@ A player can only travel to an instance if that instance is **available for the 
 1. **Is Safe**: Horizon has an undisclosed, and evolving, set of rules for what it deems *safe*, regarding travel. These rules may include: which players have blocked one another (and how recently), if the traveling player has recently been voted out of that instance, if the instance has a moderated event running, and more.
 1. **[Instance is Open](#open-and-closed-instances)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
 
-### Open and Closed Instances
+### Open, Private, & Matchmaking
 
-**New instances default to open.**  When a [new instance is created](#instance-selection) via the "Travel" button it is **open**.
+**Open Instance**  Open instances are created by default when joining a world. They can also be created by using the 3 dots on a published world page and selecting `Launch an Open Session`. Anyone can join an open instance.
 
-**Player can create closed instances.** When a player explicitly creates a new instance, via "Create New Session", they can choose whether the instance is open (allowing anyone to join) or closed (allowing only invited-players to join).
+**Private Instance** Players can create a private instance by using the `Launch a Closed Session` option under the 3 dots on a published world page. Only invited players can join a private instance.
 
-**Openness can be changed with scripting.** You can change whether or not the current instance is open via TypeScript with
+**Matchmaking** Creators can also decide when to open and close an `Open Instance`(but not a `Private Instance`) by using the Matchmaking API. When an instance is closed in this way, players cannot join or be invited to join.
+
+Matchmaking is a property of the `World` class.
+
 ```ts
-this.world.matchmaking.allowPlayerJoin(isOpen)
-```
-which returns a `Promise<void>` to signal when the change has taken effect.
+//Property
+allowPlayerJoin(allow: boolean): Promise<void>;
 
-<mark>TODO: when calling `allowPlayerJoin(false)`, can players join by invite or is the instance actually LOCKED vs Closed?</mark>
+//Example
+this.world.matchmaking.allowPlayerJoin(false)
+```
 
 ## Instance Selection
 
