@@ -1,4 +1,4 @@
-<!--focusSection: Collisions -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -4888,7 +4888,7 @@ This image illustrates the [local coordinate axes](#local-transforms) of 4 attac
 
 #### Auto Scale to Anchor
 <mark>TODO</mark> We dont know the use-case for this feature. So we're describing our experience with it.
-Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its orignal scale. Will not automatically scale back to the orignal scale. 
+Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its orignal scale. Will not automatically scale back to the orignal scale.
 
 !!! bug `Auto Scale to Anchor` does nothing when toggled until you leave the world and come back.
 
