@@ -23,7 +23,7 @@
     2. [Instance Types](#instance-types)
         1. [Visitation Modes: Edit, Preview, and Publish](#visitation-modes-edit-preview-and-publish)
     3. [Available Instances](#available-instances)
-        1. [Open and Closed Instances](#open-and-closed-instances)
+        1. [Open, Closed, and Private Instances (Matchmaking)](#open-closed-and-private-instances-matchmaking)
     4. [Instance Selection](#instance-selection)
     5. [Travel, Doors, and Links](#travel-doors-and-links)
     6. [Starting, Stopping and Resetting an Instance](#starting-stopping-and-resetting-an-instance)
@@ -94,6 +94,7 @@
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
 7. [Custom Model Import](#custom-model-import)
+    1. [Overview](#overview-1)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
@@ -189,6 +190,8 @@
     4. [Trigger Collisions](#trigger-collisions)
     5. [Raycasts](#raycasts)
 11. [Physics](#physics)
+    1. [Overview](#overview-2)
+    2. [PhysicalEntity Class](#physicalentity-class)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
@@ -251,6 +254,10 @@
     3. [Player Controls](#player-controls)
     4. [Focused Interaction](#focused-interaction)
 17. [Persistence](#persistence)
+    1. [Leaderboards](#leaderboards)
+        1. [Creating, Editing, and Deleting Leaderboards](#creating-editing-and-deleting-leaderboards)
+        2. [Using the World Leaderboard Gizmo](#using-the-world-leaderboard-gizmo)
+        3. [Using a Leaderboard with a Player Persistent Variable](#using-a-leaderboard-with-a-player-persistent-variable)
     2. [Quests](#quests)
         1. [Creating, Editing, and Deleting Quests](#creating-editing-and-deleting-quests)
         2. [Simple vs Tracked Quests](#simple-vs-tracked-quests)
@@ -470,15 +477,17 @@ A player can only travel to an instance if that instance is **available for the 
 
 1. **[Isn't at maximum player count](#maximum-player-count)**: a player can only travel to a world if there as at least one [index](#player-indices) available. If the capacity is set to 20 and there are 19 people there, then 1 more can travel to the world. It is then unavailable for all players until at one player leaves.
 1. **Is Safe**: Horizon has an undisclosed, and evolving, set of rules for what it deems *safe*, regarding travel. These rules may include: which players have blocked one another (and how recently), if the traveling player has recently been voted out of that instance, if the instance has a moderated event running, and more.
-1. **[Instance is Open](#open-and-closed-instances)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
+1. **[Instance is Open](#open-closed-and-private-instances-matchmaking)**: all [published instances](#instance-types) exist as either *open* or *closed*. An **open instance** can be joined by an player (if the above criteria are met). A **closed instance** can only be joined by players who are explicitly invited by players already in the instance.
 
-### Open, Private, & Matchmaking
+### Open, Closed, and Private Instances (Matchmaking)
 
-**Open Instance**  Open instances are created by default when joining a world. They can also be created by using the 3 dots on a published world page and selecting `Launch an Open Session`. Anyone can join an open instance.
+Instances can be *open* or *private*, controlling whether anyone can join, or if you can join by invite only. The *matchmaking* APIs allow you to *close* an *open instance* meaning that no one else can jon.
 
-**Private Instance** Players can create a private instance by using the `Launch a Closed Session` option under the 3 dots on a published world page. Only invited players can join a private instance.
+**Open Instance**: An instance is **open** if anyone can join it. Open instances are created by default when joining a world. They can also be created by using the 3 dots on a published world page and selecting `Launch an Open Session`. Anyone can join an open instance.
 
-**Matchmaking** Creators can also decide when to open and close an `Open Instance`(but not a `Private Instance`) by using the Matchmaking API. When an instance is closed in this way, players cannot join or be invited to join.
+**Private Instance**: An instance is **private** when people can only join it by invite. Players can create a private instance by using the `Launch a Closed Session` option under the 3 dots on a published world page.
+
+**Matchmaking**: Creators can also decide when to open and close an `Open Instance`(but not a `Private Instance`) by using the Matchmaking API. When an instance is closed in this way, players cannot join or be invited to join.
 
 Matchmaking is a property of the `World` class.
 
@@ -2639,7 +2648,7 @@ The `World` class represents the currently running [instance](#instances) and th
 | `static onPrePhysicsUpdate` | The built-in [LocalEvent](#local-events) for subscribing to the [pre-physics frame event](#run-every-frame-prephysics-and-onupdate). |
 | **Instance Management** |
 | `reset` | [Reset the instance](#starting-stopping-and-resetting-an-instance). |
-| `matchmaking` | Manage the instance's [open setting](#open-and-closed-instances). |
+| `matchmaking` | Manage the instance's [open setting](#open-closed-and-private-instances-matchmaking). |
 | **Instance Players** |
 | `getPlayerFromIndex` | Find which, if any, [Player](#players) has the given [index](#player-indices). |
 | `getPlayers` | Get [all current players in the instance](#listing-all-players). |
