@@ -4793,7 +4793,7 @@ flowchart TD
     linkStyle 2,3 stroke:red,stroke-width:1px;
 ```
 
-!!! bug `OnAttachEnd` are not sent if a player leaves suddenly.
+!!! bug `OnAttachEnd` is not sent if a player leaves suddenly.
     When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases a held entity when they leave the instance (e.g. when the entity has **AttachableBy=Owner** so no one else can grab it), then [detach](#detaching) the entity on `OnPlayerEnterAFK` and [re-attach](#scripted-attach) it on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 !!! info Transitioning between Held and Attached results in being both at the same time.
