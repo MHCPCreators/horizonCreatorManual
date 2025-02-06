@@ -561,7 +561,7 @@ An **instance resets** when any of the following occur:
 
 When an instance resets, all components are disposed, all assets are [despawned](#despawning), all entities are reset to their initial state in the [world snapshot](#world-snapshot), all (new) components are initialized.
 
-!!! warning Be areful resetting a playing instance.
+!!! warning Be careful resetting a playing instance.
     If an instance is reset while it is playing, it is possible that some in-flight [events](#communication-between-components) end up arriving and being handled after the reset! Thus it is recommended to **not use `world.reset()`** and instead implement your own reset logic (which is also a better experience for the players).
 
     In the desktop editor we recommend that when you want to test the world that you habitually **press: "Stop, then Reset, then Play"**.
@@ -1299,8 +1299,8 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 |---|---|---|
 | LoD Radius | `number` | Determines at what distance(in meters) the media board will appear for players. |
 | Panel UI Mode | `Light Mode` or `Dark Mode` | Set the view for the gizmo. |
-| Pinned Page | `number` | <mark>TODO</mark> |
-| Deterministic Ranking | `boolean` | If enabled, all players will see the same images. If disabled, images players see will be tailored to them.
+| Pinned Page | `number` | Up to 30 photos can be listed, each photo is a page numbered 1-30. If a valid number if used here, the mediaboard will always show that page. |
+| Deterministic Ranking | `boolean` | If enabled, photes will be ranked by recency rather than likes. |
 
 **TypeScript**:  Media Board Gizmos are referenced as the `Entity` class with no properties or methods.
 
