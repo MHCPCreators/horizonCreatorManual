@@ -1,4 +1,4 @@
-<!--focusSection: Attaching Entities -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -242,11 +242,12 @@
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
         1. [Scripted Attach](#scripted-attach)
-        2. [Socket Attachment](#socket-attachment)
-        3. [Sticky](#sticky)
-            1. [Stick To](#stick-to)
-        4. [Anchor](#anchor)
-            1. [Anchor To](#anchor-to)
+        2. [Detaching](#detaching)
+        3. [Socket Attachment](#socket-attachment)
+        4. [Sticky Attachments](#sticky-attachments)
+            1. [Stick Attachment To](#stick-attachment-to)
+        5. [Attachment Anchors](#attachment-anchors)
+            1. [Anchor Attachment To](#anchor-attachment-to)
             2. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
 15. [Holstering Entities](#holstering-entities)
@@ -283,6 +284,7 @@
         5. [PPV - TODO Scrap notes](#ppv---todo-scrap-notes)
 18. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
+        1. [Deleting Simply Spawned Entities](#deleting-simply-spawned-entities)
     2. [Despawning](#despawning)
     3. [Advanced Spawning](#advanced-spawning)
     4. [Sublevels](#sublevels)
