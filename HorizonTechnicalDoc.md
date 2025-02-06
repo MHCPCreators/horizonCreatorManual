@@ -4336,9 +4336,12 @@ flowchart TD
 
 ## Player Enter and Exit AFK
 
-A [player](#players) in an [instance](#instances) can become **inactive**. Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
+A [player](#players) in an [instance](#instances) can become **inactive**. The avatar of a player who has gone afk becomes a spinning coin.
+![Player who has gone afk](images/afkPlayer.png)
 
-**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen or when they temporarily switch to a different app. A VR player goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
+Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
+
+**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen, when they temporarily switch to a different app, or when they quit the app. A VR player goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
 
 **Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
 
