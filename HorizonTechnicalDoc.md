@@ -4807,10 +4807,7 @@ flowchart TD
 
 Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-attachment-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
 
-**Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor`. If the entity has a Local Script, the ownership is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
-
-!!! warning `attachToPlayer` only automatically transfers ownership of the entity when it has a Local Script on it.
-    This behavior is different from `forceHold`, which always automatically transfer ownership of the entity to the player capable of holding the entity.
+**Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor` and the ownership `entity` is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
 **Anchor**: The anchor is specified by the `AttachablePlayerAnchor` enum which currently has values for `Head` and `Torso`. See [socket attachment](#socket-attachment) for changing the exact position and rotation of where an attachable attaches.
 
