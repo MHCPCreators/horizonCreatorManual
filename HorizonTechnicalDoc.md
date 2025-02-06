@@ -4313,23 +4313,23 @@ flowchart TD
 
     inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>or quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 
-    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive (AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
+    inWorld -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes inactive or quits Horizon(AFK)</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerEnterAFK</b></code></td></tr></table> --> inWorldAndAFK
 
     inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player <a href="#travel-doors-and-links">travels</a> out<br/>of the instance</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitWorld</b></code></td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 
     inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player becomes active</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000"><b>OnPlayerExitAFK</b></code></td></tr></table> --> inWorld
 
-    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
+    inWorldAndAFK -- <table style="margin:0;overflow: visible"><tr><td style="background-color:#deefff">player quits Horizon</td></tr><tr><td style="background-color:#cbffcd"><code style="background-color:#0000">-</td></tr><tr><td style="background-color:#ffffcd"><u>owned entities do NOT <a href="#automatic-ownership-transfers">transfer to the server</a></u></td></tr></table> --> notInWorld
 ```
 
 !!! warning `OnPlayerEnterWorld` and `OnPlayerExitWorld` are sent to only [server-owned entities](#entity-ownership).
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
 
-!!! bug `OnPlayerExit` and `OnPlayerExitAFK` are not sent if a player leaves suddenly.
-    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
+!!! bug `OnPlayerExitWorld` is not sent if a player leaves suddenly.
+    When a player leaves suddenly (crash, quit the Horizon app, turn off the device, etc...) then some player-related events such as [OnPlayerExitWorld](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases held entities when they leave the world, then [detach](#detaching)/[forceRelease](#force-release) the entities on `OnPlayerEnterAFK` and [attach](#scripted-attach)/[forceHold](#force-holding) them on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 !!! bug Entities are not [transferred to the server](#ownership-transfer) when leaving [preview mode](#visitation-modes-edit-preview-and-publish).
-    When a player exits the instance all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
+    When `OnPlayerExitWorld` is called on a player all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
 
 !!! warning In build mode, `OnPlayerEnterWorld` can occur twice in succession for one player id.
     In published mode, `OnPlayerEnterWorld` occurs only once per [player id](#player-id). In build mode, a player on the desktop editor triggers `OnPlayerEnterWorld` twice when they enter Preview mode from a stopped instance. This means that if you're tracking a list of all players using `OnPlayerEnterWorld`, add the new player to a set or dictionary instead of an array.
@@ -4356,9 +4356,6 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 
 !!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
-
-!!! bug If a player kills the app after going AFK, `OnPlayerExitWorld` is not triggered.
-    In complex worlds it is a good habit to regularly check [getPlayers()](#listing-all-players) to see which players are present and handle cleanup for any that left but were missed.
 
 ## Pose (Position and Body Parts)
 
@@ -4692,7 +4689,7 @@ flowchart TD
 ```
 
 !!! bug `OnGrabEnd` and `OnMultiGrabEnd` are not sent if a player leaves suddenly.
-    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases held entities when they leave the instance, then [forceRelease](#force-release) the entities on `OnPlayerEnterAFK` and [forceHold](#force-holding) them on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 ### Hand-off (Switching Hands or Players)
 
@@ -4797,7 +4794,7 @@ flowchart TD
 ```
 
 !!! bug `OnAttachEnd` are not sent if a player leaves suddenly.
-    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. If you need to do careful tracking of whether entities are held or not then its worth regularly checking the list of [all players](#listing-all-players) to see if any relevant players have left the instance.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases held entities when they leave the instance, then [detach](#detaching) the entities on `OnPlayerEnterAFK` and [attach](#scripted-attach) them on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 !!! info Transitioning between Held and Attached results in being both at the same time.
     An entity goes *from being held to being attached* when `attachToPlayer` is called. An entity goes *from being attached to held* when a player [grabs](#can-grab) or when `forceGrab` is called. In both of these cases the entity is **momentarily held and attached at the same time**.
