@@ -5,7 +5,7 @@
 > This is an in-development (Jan '25) <b>community-written</b> document.
 > For questions contact <i>wafflecopters</i>.
 
-**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous, and UnravelWinder with additional help from HomeMed.
+**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous (Matt Torres), and UnravelWinder with additional help from HomeMed.
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
