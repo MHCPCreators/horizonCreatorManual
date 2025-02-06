@@ -341,20 +341,23 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 
 ## Creating a World
 
-Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
-Once installed on your PC, navigate to the `Store` from the menu on the left.
-Search `Meta Horizon Worlds` in the upper-right and install.
-Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
+1. Download and install [Meta Quest Link App](https://www.meta.com/en-gb/help/quest/1517439565442928/).
 
-<img src="images/start-in-desktop.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Once installed on your PC, navigate to the `Store` from the menu on the left.
 
-Click `New world` in the upper-right.
+1. Search `Meta Horizon Worlds` in the upper-right and install.
 
-<img src="images/new-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Launch from the `Library` by clicking the 3 dots and select `Start in Desktop Mode`.
 
-Name your world and click `Create`.
+     <img src="images/start-in-desktop.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
-<img src="images/create-a-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+1. Click `New world` in the upper-right.
+
+    <img src="images/new-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
+
+1. Name your world and click `Create`.
+
+    <img src="images/create-a-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
 ## Publishing and Player Settings
 
