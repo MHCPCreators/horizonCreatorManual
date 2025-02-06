@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Collisions -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -3833,6 +3833,16 @@ OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, norm
 OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
 ```
 
+## Collision Layers
+
+`LayerType`
+
+```ts
+enum LayerType {
+  Player = 0, Objects = 1, Both = 2
+}
+```
+
 ## Collidability
 
 Mesh entities and Collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
@@ -3863,13 +3873,15 @@ This means that whenever it seems both a parent and a child could get a trigger 
 
 ## Raycasts
 
-Used to cast a ray (like a "laser beam") out into the world and identity the first thing it hits (player or entity) and information about the hit (location, surface normal, etc).
+**Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
+
+**Raycast Gizmo Properties**
 
 | Property | Type | Description |
 |---|---|---|
-| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which layers the raycast will interact with. |
-| Object Tag | `string` | Sets the tag required for the raycast to interact with an object. |
-| Raycast Distance | `number` | Determines how far the raycast will travel. |
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which [collision layer(s)](#collision-layers) the raycast will interact with. |
+| Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. <mark>TODO</mark> - when it hits a differently tagged item what does it do?
+| Raycast Distance | `number` | The maximum distance (in meters) that the ray should travel before concluding it didn't hit anything. |
 
 **Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
 
@@ -3885,19 +3897,27 @@ which takes the following parameters:
 
 | `RaycastGizmo`'s `raycast()`<br/>Method Arguments | Type | Notes |
 |---|---|---|
-| origin | [Vec3](#vec3) | ? |
-| direction | [Vec3](#vec3) | ? |
-| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | ? |
+| origin | [Vec3](#vec3) | The location in the world that the ray should start. |
+| direction | [Vec3](#vec3) | The direction the ray should travel in. |
+| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). |
 
+The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#collidability) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
+
+| `RaycastHit` Property | Type | Description |
+|---|---|---|
+| distance | `number` | The distance traveled from the ray start location until the `hitPoint`. |
+| hitPoint | [Vec3](#vec3) | The world location where the ray first hit an [active collider](#collidability). |
+| normal | [Vec3](#vec3) | A vector [pointing straight out from the surface](#https://en.wikipedia.org/wiki/Normal_(geometry)) where the ray hit. This is useful for [reflecting](#vector-reflect) the ray, for example. |
+| targetType | `RaycastTargetType` | The type that was hit. `RaycastTargetType` has the values: `Entity`, `Player`, and `Static`. See the notes below this table.  |
+| target | `Entity`, `Player`, or *absent* (see the note below the table) | The `Entity` or `Player` hit (matching `targetType`). This field is *missing* if `targetType` is `RaycastTargetType.Static`. |
+
+**Target Type and Target**: The `RaycastHit` type contains the field `targetType` which will contain a value of `RaycastTargetType` (values are: `Entity`, `Player`, and `Static`). The values in `targetType` and `target` depend on what the ray first intersected with:
+  * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`.
+  * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field.
+  * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
+
+Here's the `RaycastHit` type, which shows the 3 bullets above, in code:
 ```ts
-enum LayerType {
-  Player = 0, Objects = 1, Both = 2
-}
-
-enum RaycastTargetType {
-  Player = 0, Entity = 1, Static = 2
-}
-
 // Equivalent
 type RaycastHit = {
   distance: number; // meters
