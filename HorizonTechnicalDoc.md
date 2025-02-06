@@ -250,6 +250,8 @@
             2. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
 15. [Holstering Entities](#holstering-entities)
+    1. [Cross-screen Holstering](#cross-screen-holstering)
+        1. [Holstering Sequence](#holstering-sequence)
 16. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
@@ -4907,8 +4909,46 @@ Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable 
     The attachable follows their camera's position, but the orientation will be wrong.
 
 # Holstering Entities
+Holstering is the action of attaching an entity to the player with the purpose of storing it for later use. Common holstered item examples are things like a torch, a grenade, or even food. In VR, You would simply [attach](#anchor-attachment-to) the entity to the player and ensure that it is [grabbable](#can-grab). Cross-world players may use the [built-in cross-screen holstering system](#cross-screen-holstering).
 
-Grabbable and Attachable
+## Cross-screen Holstering
+This cross-screen holstering system is basically a simple inventory system that makes use of the holster UI icon. Since a cross-screen player can only hold one entity at a time, this system gives the player a simple way to swap between a held entity and one of their attached entities. A player with at least one attached entity can holster by pressing Z on desktop or tapping the holster icon on mobile.
+
+!!! warning You must attach one entity to use the holstering system
+    The holster icon will only be displayed after attaching an entity. This means if the player grabs an entity, but does not already have an entity attached, the holster icon will not display.
+    
+    You can attach an entity to a player anytime, like by trigger enter or world enter events. After that, the player will see the holster icon.
+
+### Holstering Sequence
+
+```mermaid {align="center}
+%%{init: { 'sequence': {'showSequenceNumbers': 'true'} }}%%
+sequenceDiagram
+    participant Player
+    participant HolsterIcon as Holster Icon
+    participant EntityA as Entity A
+    participant EntityB as Entity B
+
+    note over Player: attachToPlayer() is called
+    EntityA ->> Player: attached
+    note over Player: Entity A is now holstered
+    EntityB ->> Player: grabbed
+    Player ->> HolsterIcon: pressed
+    Player ->> EntityB: released
+    Player ->> EntityA: detached
+    note over Player: Entity A is now unholstered
+    Player ->> EntityA: grabbed
+```
+
+!!! tip Entities do not holster automatically on release
+    You will need to add a script that attaches the entity to the player when released if you want that released entity to become holstered.
+
+When a player has more than one attached entity, they will see this UI when pressing the holster icon.
+<img src="images/holstering-menu.png" style="display: block;margin-left:auto;margin-right:auto"/>
+
+The icon that is displayed can be selected in the entity's `Holster Icon` property in the properties panel.
+
+The player may choose to unholster 1 of their attached items. They can only see 6 holstered items at a time in the UI. The player can press Z or the arrow button to see the next set of 6 items. Maximum amount of holstered items is limited to the maximum amount of grabbable entities allowed in a world.
 
 # Player Input
 
