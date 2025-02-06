@@ -358,8 +358,6 @@ Name your world and click `Create`.
 
 ## Publishing and Player Settings
 
-<mark>TODO</mark>
-
 **Publishing**
 <img src="images/publish-world.png" style="display: block;;margin-left:auto;margin-right:auto"/>
 
@@ -379,27 +377,26 @@ Name your world and click `Create`.
 | Available Through Web and Mobile | Determines whether players can join your world on web and mobile.
 | Compatible with Web and Mobile | Determines whether your world is optimized for web and mobile so players can know what to expect. |
 
-Player Settings
-  VOIP: Global vs Local
-  <a name="maximum-player-count">Maximum Player Count</a> (4 to 32)
-  Suggested Minimum Player Count (1 up to Max)
-  Emotes (boolean)
-  Emotes Audio (boolean)
-  Can Hands Collide With Physics Objects
-  Can Hands Collide With Static Objects
-  Custom Player Movement
-  Generate Instant Replays
-  Frame Budget Boost (Early Access) -- (Default, On, Off)
-  Spawn Nearby (boolean)
-  Footsteps Volume
-  Footsteps Min Distance
-  Footsteps Max Distance
-  Hide Action by Default (boolean)
-    -- mobile only setting, can be overridden by setting icon in Properties
-Disable Dynamic LOD Toggles on Avatar (makes it easier to increase player count)
-Enable Max Quality Avatar
-
-Name, description, comfort setting, player count, etc.
+**Player Settings**
+| Field | Description |
+|---|---|
+| VOIP Settings | `Global` will set every player to global voice. It is not possible to change any VOIP settings further (all gizmos and TypeScript related to VOIP are ignored). The `Local` setting gives the world the default setting, which can then be further changed by environment gizmos and TypeScript. |
+| Maximum Player Count | Set the maxium number of people who can be in your world at the same time. Values are between 4 and 32, default is 8. |
+| Suggested Minimum Player Count | Sets the recommended minimum number of people needed to enjoy your world. |
+| Emotes | Allows players to use emotes in your world |
+| Emotes Audio | Allows emotes to play sound effects in your world. |
+| Can Hands Collide With Physics Objects | Sets whether players hands will collide with interactive objects or pass through them. |
+| Can Hands Collide With Static Objects | Sets whether players hands will collide with static objects or pass through them. |
+| Custom Player Movement | Allows you to move players by script. Warns players they may be moved by script in your world. |
+| Generate Instant Replays | Allows scripts to record players after a specific action or event. Requires [horizon/capturing](https://horizon.meta.com/resources/scripting-api/capturing.md/) API |
+| Frame Budget Boost (Early Access) | Helps boost frames. Setting to `Default` or `On` may cause visual distortions. [Learn more...](https://fb.me/fbb) |
+| Spawn Nearby | When enabled players joining your world will spawn near other players. |
+| Footsteps Volume | Adjusts the volume of footstep audio |
+| Footsteps Min Distance | Foots steps will play at full volume up to this distance(in meters). |
+| Footsteps Max Distance | Foots steps fade out until they reach the max distance then you will be unable to hear them. |
+| Hide Action by Default | Mobile Only. Hides action icons by default unless specified otherwise in items properties. |  |
+| Disable Dynamic LOD Toggles on Avatar | If enabled, LOD will no longer be applied to avatars. This descreases their detail for players when viewed from a distance. |
+| Enable Max Quality Avatar | Enabled advanced shading and increased texture resolution on avatars. May affect performance. |
 
 ## Editor Roles
 
