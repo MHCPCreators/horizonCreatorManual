@@ -1,4 +1,4 @@
-<!--focusSection: Persistence -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -268,11 +268,13 @@
     3. [In-World Purchases (IWPs)](#in-world-purchases-iwps)
         1. [Creating, Editing, and Deleting IWPs](#creating-editing-and-deleting-iwps)
         2. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
-        3. [In-World Item Id String](#in-world-item-id-string)
+        3. [In-World Item ID String](#in-world-item-id-string)
         4. [In-World Durable Items](#in-world-durable-items)
+            1. [Durable In-World Item CodeblockEvents](#durable-in-world-item-codeblockevents)
         5. [In-World Consumable Items](#in-world-consumable-items)
-        6. [In-world Item Gizmo APis](#in-world-item-gizmo-apis)
-        7. [IWP Broadcast CodeBlockEvents](#iwp-broadcast-codeblockevents)
+            1. [Auto-use Consumable In-World Items](#auto-use-consumable-in-world-items)
+            2. [Handling an Item-Consume Item Request](#handling-an-item-consume-item-request)
+            3. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
         1. [Using Persistent Player Variables](#using-persistent-player-variables)
         2. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
