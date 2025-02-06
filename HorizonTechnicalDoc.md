@@ -72,7 +72,6 @@
         14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
         15. [Quests Gizmo](#quests-gizmo)
         16. [Raycast Gizmo](#raycast-gizmo)
-            1. [How to Raycast](#how-to-raycast)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
         19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
@@ -184,24 +183,22 @@
         2. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
         3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         4. [Transferring Data Across Owners](#transferring-data-across-owners)
-10. [Collision Detection](#collision-detection)
-    1. [Colliders](#colliders)
-    2. [Trigger Entry and Exit](#trigger-entry-and-exit)
-        1. [Collidability](#collidability)
-        2. [Controlling Collisions](#controlling-collisions)
-        3. [Collision Events](#collision-events)
-        4. [Triggers](#triggers)
+10. [Collisions](#collisions)
+    1. [Collidability](#collidability)
+    2. [Controlling Collisions](#controlling-collisions)
+    3. [Collision Events](#collision-events)
+    4. [Trigger Collisions](#trigger-collisions)
+    5. [Raycasts](#raycasts)
 11. [Physics](#physics)
     1. [Overview](#overview-2)
-    2. [Units](#units)
+    2. [PhysicalEntity Class](#physicalentity-class)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [PhysicalEntity Class](#physicalentity-class)
-    7. [Projectiles](#projectiles)
-    8. [Applying Forces and Torque](#applying-forces-and-torque)
-    9. [Player Physics](#player-physics)
-    10. [Springs](#springs)
+    6. [Projectiles](#projectiles)
+    7. [Applying Forces and Torque](#applying-forces-and-torque)
+    8. [Player Physics](#player-physics)
+    9. [Springs](#springs)
         1. [Spring Push](#spring-push)
         2. [Spring Spin](#spring-spin)
 12. [Players](#players)
@@ -1058,7 +1055,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-asset) use [tinting](#tinting). |
 | visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
 | **[Behavior](#interactive-entities)** |
-| [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collision-detection), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
+| [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
 | [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#simulation-phase) of the frame). |
 | **Ownership** |
@@ -1086,7 +1083,7 @@ When `entity.tags.get().contains(thing)` returns `true` we say that the **`entit
 
 Tags (currently) have three primary use cases:
 1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) has a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
-1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-detection) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
+1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
 1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
 ```ts
@@ -1515,64 +1512,7 @@ type LaunchProjectileOptions = {
 **Description**: Displays a list of Quests available in your world for players to track their progress. See the [Quests](#quests) section for full details.
 
 ### Raycast Gizmo
-**Description**: Used to cast a laser capable of returning information about what it hit, like distance, hit point, hit normal, and more.
-
-| Property | Type | Description |
-|---|---|---|
-| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which layers the raycast will interact with. |
-| Object Tag | `string` | Sets the tag required for the raycast to interact with an object. |
-| Raycast Distance | `number` | Determines how far the raycast will travel. |
-
-**Typescript**: Raycast Gizmos are referenced as the `RaycastGizmo` class with the following method.
-
-```ts
-//Casts a ray from the Raycast gizmo using the given origin and direction and then retrieves collision information.
-raycast(origin: Vec3, direction: Vec3, options?: {
-    layerType?: LayerType;
-    maxDistance?: number;
-}): RaycastHit | null;
-
-//The type of layer in the world.
-enum LayerType {
-  Player = 0, //The layer is for both players and objects.
-  Objects = 1, //The layer is for objects.
-  Both = 2 //The layer for players.
-}
-
-//The results of a raycast collision
-export declare type RaycastHit = StaticRaycastHit | EntityRaycastHit | PlayerRaycastHit;
-
-enum RaycastTargetType {
-  Player = 0,
-  Entity = 1,
-  Static = 2
-}
-
-type BaseRaycastHit = {
-  distance: number; // meters
-  hitPoint: Vec3;
-  normal: Vec3;
-};
-
-type StaticRaycastHit = BaseRaycastHit & {
-  targetType: RaycastTargetType.Static;
-};
-
-type EntityRaycastHit = BaseRaycastHit & {
-  targetType: RaycastTargetType.Entity;
-  target: Entity;
-};
-
-type PlayerRaycastHit = BaseRaycastHit & {
-  targetType: RaycastTargetType.Player;
-  target: Player;
-};
-
-```
-#### How to Raycast
-<mark>TODO</mark>
-
-**Limitations**: Raycasting too often in a short period of time can hurt performance.
+**Description**: Used to cast a ray (like a "laser beam") out into the world and identity the first thing it hits (player or entity) and information about the hit (location, surface normal, etc). See the [raycasting](#raycasts) section for full details.
 
 ### Script Gizmo
 See FBS or [Script API](#scripting)
@@ -1782,8 +1722,6 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
 ### Trigger Gizmo
 
-<mark>TODO - Enable And disable trigger and note about costly to performance.</mark>
-
 **Description**: Detects when a player or object enters or exits an area.
 
 | Property | Type | Description |
@@ -1792,6 +1730,8 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 | Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
 | Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
 | Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
+
+Under the hood, triggers detect *enter* and *exit* using collisions [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
 
 **Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following property.
 
@@ -1804,6 +1744,7 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
     console.log('Player entered the world.', enteredBY.name.get());
 })
 ```
+
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
 | OnPlayerEnterTrigger | `enteredBy: Player` | Sent each time a player has entered the trigger area. |
@@ -3508,7 +3449,7 @@ The **Simulation Phase** runs at the start of the frame and includes physics cal
     - Players update their [positions and pose](#pose-position-and-body-parts) based on locomotion inputs.
     - Animation playback is updated.
     - Physics calculations run, applying [forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
-    - Collisions [with object and players](#collision-detection) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
+    - Collisions [with object and players](#collisions) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
 
 1. **On-Update**
     - [Broadcasts](#broadcast-events) the [World.onUpdate](#run-every-frame-prephysics-and-onupdate) event locally, causing all local listeners to run.
@@ -3813,7 +3754,7 @@ When [ownership](#entity-ownership) of an entity is transferred from one [Player
 There are a number of situations where an entity's ownership is changed automatically. These situations act exactly if the ownership was changed via `entity.owner.set(...)`:
   1. When an entity is [grabbed by](#grabbing-entities) or [attached to](#attaching-entities) a player
      * This ensures frame-accurate position updates when tracking player movement.
-  2. When an entity [collides](#collision-detection) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
+  2. When an entity [collides](#collisions) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
       * This makes it easy to have the collided entities act with [low latency for the player](#why-local-scripts-and-ownership-matter-network-latency) from then on.
   3. When a [player leaves the world](#player-entering-and-exiting-a-world)
       * The entities they [own](#entity-ownership) transfer to the server.
@@ -3856,13 +3797,9 @@ In order to create a component that transfers data during an [ownership transfer
     The example below shows a simple script that tracks how much ammo is in a weapon. When the gun is [transferred](#ownership-transfer), it maintains the same ammo count. Note that if the [transfer is discontinuous](#discontinuous-ownership-transfers) the amount of ammo will be the value in the [props](#component-properties).
     ![[ horizonScripts/ownerDataTransferExample.ts ]]
 
-# Collision Detection
+# Collisions
 
 When an entity collides with another entity or player (unless "preserve ownership on collision" is enabled in the Property panel)
-
-## Colliders
-
-## Trigger Entry and Exit
 
 - Colliding with dynamic vs static.
 - Colliding with player vs entities.
@@ -3883,7 +3820,7 @@ OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, norm
 OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
 ```
 
-### Collidability
+## Collidability
 
 Mesh entities and Collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
 
@@ -3898,18 +3835,75 @@ and is otherwise ignored by the physics system. For example if the floor's colli
 !!! info In order for a group to be seen by the physics system it must have at least one active collider within it (however deep).
     For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
 
-### Controlling Collisions
+## Controlling Collisions
 
 - Turn collidable on / off
 - Control can collide with players, entities, or both
 
-### Collision Events
+## Collision Events
 
-### Triggers
+## Trigger Collisions
 
 Trigger detection is done at the _collider_ level. When a collider enters/leaves a trigger then (if it is an entity-detecting trigger) Horizon starts with the entity and traverse up the ancestor chain until it finds the first entity with a matching tag, send it the event, and then STOPS the traversal.
 
 This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
+
+## Raycasts
+
+Used to cast a ray (like a "laser beam") out into the world and identity the first thing it hits (player or entity) and information about the hit (location, surface normal, etc).
+
+| Property | Type | Description |
+|---|---|---|
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which layers the raycast will interact with. |
+| Object Tag | `string` | Sets the tag required for the raycast to interact with an object. |
+| Raycast Distance | `number` | Determines how far the raycast will travel. |
+
+**Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
+
+```ts
+/// Raycast Gizmo
+raycast(origin: Vec3, direction: Vec3, options?: {
+  layerType?: LayerType;
+  maxDistance?: number;
+}): RaycastHit | null;
+```
+
+which takes the following parameters:
+
+| `RaycastGizmo`'s `raycast()`<br/>Method Arguments | Type | Notes |
+|---|---|---|
+| origin | [Vec3](#vec3) | ? |
+| direction | [Vec3](#vec3) | ? |
+| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | ? |
+
+```ts
+enum LayerType {
+  Player = 0, Objects = 1, Both = 2
+}
+
+enum RaycastTargetType {
+  Player = 0, Entity = 1, Static = 2
+}
+
+// Equivalent
+type RaycastHit = {
+  distance: number; // meters
+  hitPoint: Vec3;
+  normal: Vec3;
+} & (
+  | {
+    targetType: RaycastTargetType.Static
+  } | {
+    targetType: RaycastTargetType.Entity;
+    target: Entity;
+  } | {
+    targetType: RaycastTargetType.Player;
+    target: Player;
+  }
+)
+```
+
+**Limitations**: Raycasting too often in a short period of time can hurt performance.
 
 # Physics
 
@@ -3946,27 +3940,41 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 
 Somewhere: force vs impulse vs velocity change
 
-## Units
-| Name | Unit | Description |
+## PhysicalEntity Class
+
+In the table below, "💪" means that a force is generated. "🌀" means that a torque is generated.
+
+| `PhysicalEntity` Class Member | Type | Description |
 |---|---|---|
-|Time|Seconds when using [onUpdate event](#run-every-frame-prephysics-and-onupdate)|Amount of time passed since last frame|
-|Position|Measured in Meters|The location of an entity|
-|Velocity|Meters/Seconds|The location change over time|
-|Acceleration|Meters/Seconds^2|Velocity change over time|
-|Mass|Measured in Kilograms|Entity's resistance to acceleration when a force is applied|
-|Gravity|Simply denoted as gravity|acceleration due to gravity (approximately 9.81m/s2 on Earth)|
-|Weight|Newtons or (Mass * Gravity)|The the force needed to accelerate one kilogram of mass by one meter per second squared.|
+| `gravityEnabled` | <nobr>`WritableHorizonProperty<boolean>`</nobr> | When `true`, a force 💪 is generated every [frame](#simulation-phase). |
+| 💪`applyForce` | ? | ? |
+| 💪`applyLocalForce` | ? | ? |
+| <nobr>💪🌀`applyForceAtPosition`</nobr> | ? | ? |
+| 🌀`applyTorque` | ? | ? |
+| 🌀`applyLocalTorque` | ? | ? |
+| <nobr>💪🌀`zeroVelocity`</nobr> | ? | ? |
+| 💪`springPushTowardPosition` | ? | ? |
+| 🌀`springSpinTowardRotation` | ? | ? |
 
-Angular force
-| Name | Unit | Description |
-|---|---|-
-|Angle|Degrees in Properties panel|Amount of rotation|
+```ts
+export declare class PhysicalEntity extends Entity {
+  gravityEnabled: WritableHorizonProperty<boolean>;
 
-Torque
+  locked: HorizonProperty<boolean>;
+  velocity: ReadableHorizonProperty<Vec3>;
+  angularVelocity: ReadableHorizonProperty<Vec3>;
 
+  applyForce(vector: Vec3, mode: PhysicsForceMode): void;
+  applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
+  applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
+  applyTorque(vector: Vec3): void;
+  applyLocalTorque(vector: Vec3): void;
+  zeroVelocity(): void;
 
-!!! note Scripting torque allows for the use of radians
-    See [rotational force API](#)
+  springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+  springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+}
+```
 
 ## Creating a Physical Entity
 For an entity to become a physical entity:
@@ -3996,103 +4004,21 @@ TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantee
 
 ## Simulated vs Locked Entities
 
-## PhysicalEntity Class
-
-```ts
-export declare class PhysicalEntity extends Entity {
-    /**
-     * Gets a string representation of the entity.
-     * @returns The human readable string representation of this entity.
-     */
-    toString(): string;
-    /**
-     * Whether the entity has a gravity effect on it.
-     * If `true`, gravity has an effect, otherwise gravity does not have an effect.
-     */
-    gravityEnabled: WritableHorizonProperty<boolean>;
-    /**
-     * `true` if the physics system is blocked from interacting with the entity; `false` otherwise.
-     */
-    locked: HorizonProperty<boolean>;
-    /**
-     * The velocity of an object in world space, in meters per second.
-     */
-    velocity: ReadableHorizonProperty<Vec3>;
-    /**
-     * The angular velocity of an object in world space.
-     */
-    angularVelocity: ReadableHorizonProperty<Vec3>;
-    /**
-     * Applies a force at a world space point. Adds to the current velocity.
-     * @param vector - The force vector.
-     * @param mode - The amount of force to apply.
-     */
-    applyForce(vector: Vec3, mode: PhysicsForceMode): void;
-    /**
-     * Applies a local force at a world space point. Adds to the current velocity.
-     * @param vector - The force vector.
-     * @param mode - The amount of force to apply.
-     */
-    applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
-    /**
-     * Applies a force at a world space point using a specified position as the center of force.
-     * @param vector - The force vector.
-     * @param position - The position of the center of the force vector.
-     * @param mode - The amount of force to apply.
-     */
-    applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
-    /**
-     * Applies torque to the entity.
-     * @param vector - The force vector.
-     */
-    applyTorque(vector: Vec3): void;
-    /**
-     * Applies a local torque to the entity.
-     * @param vector - The force vector.
-     */
-    applyLocalTorque(vector: Vec3): void;
-    /**
-     * Sets the velocity of an entity to zero.
-     */
-    zeroVelocity(): void;
-    /**
-     * Pushes a physical entity toward a target position as if it's attached to a spring.
-     * This should be called every frame and requires the physical entity's motion type to be interactive.
-     *
-     * @param position - The target position, or 'origin' of the spring
-     * @param options - Additional optional arguments to control the spring's behavior.
-     *
-     * @example
-     * ```
-     * var physEnt = this.props.obj1.as(PhysicalEntity);
-     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
-     *  physEnt.springPushTowardPosition(this.props.obj2.position.get(), {stiffness: 5, damping: 0.2});
-     * })
-     * ```
-     */
-    springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
-    /**
-     * Spins a physical entity toward a target rotation as if it's attached to a spring.
-     * This should be called every frame and requires the physical entity's motion type to be interactive.
-     *
-     * @param rotation - The target quaternion rotation.
-     * @param options - Additional optional arguments to control the spring's behavior.
-     *
-     * @example
-     * ```
-     * var physEnt = this.props.obj1.as(PhysicalEntity);
-     * this.connectLocalBroadcastEvent(World.onUpdate, (data: { deltaTime: number }) => {
-     *  physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
-     * })
-     * ```
-     */
-    springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
-}
-```
-
 ## Projectiles
 
 ## Applying Forces and Torque
+
+Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and the torque to apply in the next [simulation phase](#simulation-phase)**. When code runs in [event callbacks](#receiving-events) and [async callbacks], it can add to the pending force and torque values.
+
+Through a [frame](#frame-sequence) different [event callbacks](#receiving-events) and [async callbacks](#async-delays-and-timers) may call a number of different methods on a [PhysicalEntity](#physicalentity-class):
+  * `applyForce(vector: Vec3, mode: PhysicsForceMode)`
+  applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
+    applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
+    applyTorque(vector: Vec3): void;
+    applyLocalTorque(vector: Vec3): void;
+    zeroVelocity(): void;
+    springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+    springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
 
 ## Player Physics
 
