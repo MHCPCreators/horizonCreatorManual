@@ -1,4 +1,4 @@
-<!--focusSection: Collisions -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -184,11 +184,13 @@
         3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         4. [Transferring Data Across Owners](#transferring-data-across-owners)
 10. [Collisions](#collisions)
-    1. [Collidability](#collidability)
-    2. [Controlling Collisions](#controlling-collisions)
-    3. [Collision Events](#collision-events)
-    4. [Trigger Collisions](#trigger-collisions)
-    5. [Raycasts](#raycasts)
+    1. [Collision Layers](#collision-layers)
+    2. [Collidability](#collidability)
+    3. [Controlling Collisions](#controlling-collisions)
+    4. [Collision Events](#collision-events)
+    5. [Trigger Collisions](#trigger-collisions)
+    6. [Tag Bubbling](#tag-bubbling)
+    7. [Raycasts](#raycasts)
 11. [Physics](#physics)
     1. [Overview](#overview-2)
     2. [PhysicalEntity Class](#physicalentity-class)
@@ -3889,6 +3891,8 @@ flowchart
 ```
 
 ## Raycasts
+
+<mark>TODO</mark> - clarify if an entity has to be dynamic to get `Entity` as the `targetType`.
 
 **Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
 
