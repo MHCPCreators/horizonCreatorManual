@@ -4741,18 +4741,28 @@ Here is a simple example of a grabbable entity that is constrained to move along
     When you change the owner of a grabbable entity while it is held, it will be [force released](#force-release). However, the [`OnGrabEnd`](#grab-sequence-and-events) event **will not** be sent. If you are tracking which entities are and are not held (by the `GrabStart` and `GrabEnd` events), this is likely to "break" your ability to correctly track the entity.
 
 # Attaching Entities
-<mark>TODO</mark>
 
-Entities can be attached to players.
-Entity must be an [interactive entity](#interactive-entities) and have an [active collider](#collidability).
-Entity must have `Avatar Attachable` set to `Sticky` or `Anchor` in Properties panel.
+Entities can be attached to players and avatar NPCs.
 
 !!! warning Attaching multiple entities to one player.
     It's possible for a VR player to put multiple entities on their head at the same time, for example. You can also use [scripted attach](#scripted-attach) to put multiple entities on a player at the same attachment anchor. If this behavior is undesirable, you should track when entities are attached to which players and handle the case where a second entity is attached to an anchor.
 
 ## Creating an Attachable
 
-<mark>TODO</mark>
+1. Set item properties in Horizon to `Motion: Animated`, or `Motion: Interactive` if you want players to grab the item or give it physics.
+
+1. Make sure `Collidable` is Enabled.
+
+1. Find the `Avatar Attachable` setting and select `Sticky` or `Anchor`.
+
+1. If `Anchor` then select the `Anchor To` setting to either `Head`, `Torso`, `LeftHip`, or `RightHip`.
+
+1. Either let the player grab the item and attach it to themselves or attach it by script.
+
+You can adjust the Anchor Position and Rotation which affects where and how the items appears on the player around the specified anchor.
+
+!!! note Attaching by Hand versus Script
+    Entity must have `Motion: Animated`, or `Motion: Interactive` and `Collidable` enabled to configure attachment settings and attach by hand, but none of that is required to attach by script after it has been configured.
 
 ## Attachable By
 This setting defines the permissions of which players can *manually* attach the entity (by releasing the entity while holding it over their body). This setting does not affect [scripted attach](#scripted-attach) with `attachToPlayer`.
@@ -4882,7 +4892,10 @@ This image illustrates the [local coordinate axes](#local-transforms) of 4 attac
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
 
 #### Auto Scale to Anchor
-This settings currently has no effect on the attachable entities.
+<mark>TODO</mark> We dont know the use-case for this feature. So we're describing our experience with it.
+Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its orignal scale. Will not automatically scale back to the orignal scale. 
+
+!!! bug `Auto Scale to Anchor` does nothing when toggled until you leave the world and come back.
 
 ## Attach to 2D screen
 This toggle causes the attachable entity to become **screen-attached**. This means the entity's transformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
