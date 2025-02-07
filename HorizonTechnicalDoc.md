@@ -1,4 +1,4 @@
-<!--focusSection: Collisions -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -56,46 +56,46 @@
         2. [Entity Tags](#entity-tags)
         3. [Entity Visibility](#entity-visibility)
             1. [Entity Visibility Permissions](#entity-visibility-permissions)
-    4. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
-        1. [Collider Gizmo](#collider-gizmo)
-        2. [Custom UI Gizmo](#custom-ui-gizmo)
-        3. [Debug Console Gizmo](#debug-console-gizmo)
-        4. [Door Gizmo](#door-gizmo)
-        5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-        6. [Environment Gizmo](#environment-gizmo)
-        7. [In-World Item Gizmo](#in-world-item-gizmo)
-        8. [Media Board Gizmo](#media-board-gizmo)
-        9. [Mirror Gizmo](#mirror-gizmo)
-        10. [Navigation Volume](#navigation-volume)
-        11. [NPC Gizmo](#npc-gizmo)
-        12. [ParticleFx Gizmo](#particlefx-gizmo)
-        13. [TrailFx Gizmo](#trailfx-gizmo)
-        14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-        15. [Quests Gizmo](#quests-gizmo)
-        16. [Raycast Gizmo](#raycast-gizmo)
-        17. [Script Gizmo](#script-gizmo)
-        18. [Snap Destination Gizmo](#snap-destination-gizmo)
-        19. [Sound Gizmos](#sound-gizmos)
-        20. [Spawn Point Gizmo](#spawn-point-gizmo)
-        21. [Static Light Gizmo](#static-light-gizmo)
-        22. [Text Gizmo](#text-gizmo)
-            1. [Using a Text Gizmo](#using-a-text-gizmo)
-            2. [Limitations](#limitations)
-            3. [Text Gizmo Markup](#text-gizmo-markup)
-            4. [Text Gizmo Tags](#text-gizmo-tags)
-                1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
-            5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-        23. [Trigger Gizmo](#trigger-gizmo)
-            1. [Trigger Collisions](#trigger-collisions)
-        24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
-6. [Assets](#assets)
+6. [All Gizmos (Intrinsic Entity Types)](#all-gizmos-intrinsic-entity-types)
+    1. [Collider Gizmo](#collider-gizmo)
+    2. [Custom UI Gizmo](#custom-ui-gizmo)
+    3. [Debug Console Gizmo](#debug-console-gizmo)
+    4. [Door Gizmo](#door-gizmo)
+    5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+    6. [Environment Gizmo](#environment-gizmo)
+    7. [In-World Item Gizmo](#in-world-item-gizmo)
+    8. [Media Board Gizmo](#media-board-gizmo)
+    9. [Mirror Gizmo](#mirror-gizmo)
+    10. [Navigation Volume](#navigation-volume)
+    11. [NPC Gizmo](#npc-gizmo)
+    12. [ParticleFx Gizmo](#particlefx-gizmo)
+    13. [TrailFx Gizmo](#trailfx-gizmo)
+    14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+    15. [Quests Gizmo](#quests-gizmo)
+    16. [Raycast Gizmo](#raycast-gizmo)
+    17. [Script Gizmo](#script-gizmo)
+    18. [Snap Destination Gizmo](#snap-destination-gizmo)
+    19. [Sound Gizmos](#sound-gizmos)
+    20. [Spawn Point Gizmo](#spawn-point-gizmo)
+    21. [Static Light Gizmo](#static-light-gizmo)
+    22. [Text Gizmo](#text-gizmo)
+        1. [Using a Text Gizmo](#using-a-text-gizmo)
+        2. [Text Gizmo Limitations](#text-gizmo-limitations)
+        3. [Text Gizmo Markup](#text-gizmo-markup)
+        4. [Text Gizmo Tags](#text-gizmo-tags)
+            1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
+        5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
+    23. [Trigger Gizmo](#trigger-gizmo)
+        1. [Trigger Collisions](#trigger-collisions)
+    24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+7. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
     2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
     3. [Texture Asset](#texture-asset)
     4. [Material Asset](#material-asset)
     5. [Asset Template](#asset-template)
-7. [Custom Model Import](#custom-model-import)
+8. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-1)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
@@ -109,7 +109,7 @@
         3. [Memory](#memory)
     4. [Horizon Lighting](#horizon-lighting)
     5. [General Tips](#general-tips)
-8. [Scripting](#scripting)
+9. [Scripting](#scripting)
     1. [Creating and Editing Scripts](#creating-and-editing-scripts)
         1. [Syncing Scripts](#syncing-scripts)
         2. [Scripts in Source Control](#scripts-in-source-control)
@@ -174,7 +174,7 @@
     9. [Component Inheritance](#component-inheritance)
     10. [Script File Execution](#script-file-execution)
     11. [Helper Functions](#helper-functions)
-9. [Network](#network)
+10. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Entity Ownership](#entity-ownership)
     3. [Local and Default Scripts](#local-and-default-scripts)
@@ -185,26 +185,24 @@
         2. [Discontinuous Ownership Transfers](#discontinuous-ownership-transfers)
         3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         4. [Transferring Data Across Owners](#transferring-data-across-owners)
-10. [Collisions](#collisions)
+11. [Collisions](#collisions)
     1. [Colliders](#colliders)
         1. [Active Colliders](#active-colliders)
         2. [Separating a Collider from a Mesh](#separating-a-collider-from-a-mesh)
     2. [Collision Events](#collision-events)
     3. [Entity Tag Bubbling](#entity-tag-bubbling)
-    4. [Raycasts](#raycasts)
-11. [Physics](#physics)
+12. [Physics](#physics)
     1. [Overview](#overview-2)
     2. [PhysicalEntity Class](#physicalentity-class)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [Projectiles](#projectiles)
-    7. [Applying Forces and Torque](#applying-forces-and-torque)
-    8. [Player Physics](#player-physics)
-    9. [Springs](#springs)
+    6. [Applying Forces and Torque](#applying-forces-and-torque)
+    7. [Player Physics](#player-physics)
+    8. [Springs](#springs)
         1. [Spring Push](#spring-push)
         2. [Spring Spin](#spring-spin)
-12. [Players](#players)
+13. [Players](#players)
     1. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
@@ -219,7 +217,7 @@
     5. [VOIP Settings](#voip-settings)
     6. [Haptics](#haptics)
     7. [Throwing](#throwing)
-13. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
+14. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
@@ -236,7 +234,7 @@
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
             2. [Moving a Held Entity Globally in Relation to the World](#moving-a-held-entity-globally-in-relation-to-the-world)
         3. [Grabbables and Ownership](#grabbables-and-ownership)
-14. [Attaching Entities](#attaching-entities)
+15. [Attaching Entities](#attaching-entities)
     1. [Creating an Attachable](#creating-an-attachable)
     2. [Attachable By](#attachable-by)
     3. [Avatar Attachable](#avatar-attachable)
@@ -249,15 +247,15 @@
             1. [Anchor Attachment To](#anchor-attachment-to)
             2. [Auto Scale to Anchor](#auto-scale-to-anchor)
     4. [Attach to 2D screen](#attach-to-2d-screen)
-15. [Holstering Entities](#holstering-entities)
+16. [Holstering Entities](#holstering-entities)
     1. [Cross-screen Holstering](#cross-screen-holstering)
         1. [Holstering Sequence](#holstering-sequence)
-16. [Player Input](#player-input)
+17. [Player Input](#player-input)
     1. [Actions on Held Items](#actions-on-held-items)
     2. [Onscreen Controls](#onscreen-controls)
     3. [Player Controls](#player-controls)
     4. [Focused Interaction](#focused-interaction)
-17. [Persistence](#persistence)
+18. [Persistence](#persistence)
     1. [Leaderboards](#leaderboards)
         1. [Creating, Editing, and Deleting Leaderboards](#creating-editing-and-deleting-leaderboards)
         2. [Using the World Leaderboard Gizmo](#using-the-world-leaderboard-gizmo)
@@ -284,14 +282,14 @@
         3. [Persistent Variable Groups](#persistent-variable-groups)
         4. [Persistent Variable Object Data](#persistent-variable-object-data)
         5. [PPV - TODO Scrap notes](#ppv---todo-scrap-notes)
-18. [Spawning](#spawning)
+19. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
         1. [Deleting Simply Spawned Entities](#deleting-simply-spawned-entities)
     2. [Despawning](#despawning)
     3. [Advanced Spawning](#advanced-spawning)
     4. [Sublevels](#sublevels)
-19. [Tooltips and Popups](#tooltips-and-popups)
-20. [Custom UI](#custom-ui)
+20. [Tooltips and Popups](#tooltips-and-popups)
+21. [Custom UI](#custom-ui)
     1. [UIComponent Class](#uicomponent-class)
     2. [Bindings](#bindings)
     3. [Style](#style)
@@ -302,24 +300,24 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     5. [Animated Bindings](#animated-bindings)
-21. [Navigation Mesh](#navigation-mesh)
+22. [Navigation Mesh](#navigation-mesh)
     1. [Navigation Mesh Volume](#navigation-mesh-volume)
     2. [Navigation Mesh Profile](#navigation-mesh-profile)
     3. [Navigation Mesh Agent](#navigation-mesh-agent)
-22. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-23. [Performance Optimization](#performance-optimization)
+24. [Performance Optimization](#performance-optimization)
     1. [Physics Performance](#physics-performance)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-26. [Glossary](#glossary)
+25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+27. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-27. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -609,16 +607,16 @@ We call the children, and their children, and their children, etc of an entity i
 
 ### Empty Object and Groups
 
-Empty Objects and Groups are two methods of "collection" entities together. They are similar in most regards, with only a few differences:
+Empty Objects and Groups are two entity types that create "collections"  of entities. They are similar in most regards, with **only a few differences**:
 
-| Collection Type | [Pivots](#pivot-points) | [Interactive Entity](#interactive-entities) Children | [Projectile Launcher](#projectiles) | [Child Count](#hierarchy) |
+| Type | [Pivots](#pivot-points) | [Interactive](#interactive-entities) Children | [Projectile Launcher](#projectile-launcher-gizmo) | [Child Count](#hierarchy) |
 |---|---|---|---|---|
-| Group | Always at the **center of all their children**. Meaning that moving one child will move the [pivot point](#pivot-points). | Children have their **interaction disabled**. | [Projectile collisions](#projectiles) happen **on the group**. | 1+
-| Empty Object | The **center of the Empty Object** is always the [pivot point](#pivot-points). | Children **can be [Interactive Entities](#interactive-entities)**, if the Empty Object's `Motion` is `None`. | [Projectile collisions](#projectiles) happen **on a child**. | 0+ |
+| Group | At the **build-mode center of all their children**. Meaning that moving a child in build-mode will move the [pivot point](#pivot-points). | Children have their **interaction disabled** and cannot be [grabbable](#grabbing-and-holding-entities) or [physical](#physicalentity-class). | [Projectile collisions](#projectile-launcher-gizmo) happen **on the group**. | 1+
+| Empty Object | The **center of the Empty Object** is always the [pivot point](#pivot-points). | Children **can be [Interactive Entities](#interactive-entities)**, if the Empty Object's `Motion` is `None`. | [Projectile collisions](#projectile-launcher-gizmo) happen **on a child**. | 0+ |
 
-Empty Objects and Groups behave identically in regards to collisions and triggers in all cases other than projectiles launched from the projectile gizmo.
+Empty Objects and Groups **behave identically in regards to [collisions](#collisions), [triggers](#trigger-gizmo), and [raycasts](#raycast-gizmo)**. In all of those examples, an entity with an [active collider](#active-colliders) is found and then [tag bubbling](#entity-tag-bubbling) is used to find the entity to use as the receiver.
 
-<mark>TODO - explain how collisions and triggers both do the algorithm of "start with the colliding leaf object and walk up the ancestor chain until you find the first with a matching tag and then immediately stop".</mark>
+The **behave differently with the [projectile launcher](#projectile-launcher-gizmo)**. When a projectile launch is hit, Horizon checks if it has a [parent](#ancestors) and if the parent is a group. If there is a group parent, it uses that as the entity. Otherwise it uses the original entity it started with. Thus a group will appear to "bubble up" one level; empty objects do not.
 
 ## Coordinate System
 
@@ -975,14 +973,14 @@ The intrinsic type classes (in the table below) all subclass `Entity`. All the [
 
 [Intrinsic entity types](#intrinsic-entity-types) are organized in the desktop editor into a few top-level categories:
 * **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#mesh-asset).
-* **Gizmos**: entities that have in-world behavior (such as for spawning a player at a location, showing UI, rendering a particle effect, launching a projectile, and so much more). These are all listed in the [table below](#intrinsic-entity-types) and enumerated in full detail [below](#all-intrinsic-entity-types).
+* **Gizmos**: entities that have in-world behavior (such as for spawning a player at a location, showing UI, rendering a particle effect, launching a projectile, and so much more). These are all listed in the [table below](#intrinsic-entity-types) and enumerated in full detail [below](#all-gizmos-intrinsic-entity-types).
 * **Colliders**: mesh-less entities that still have [a "shape" that can be collided with](#collider-gizmo) (such as sphere, cube, and capsule). It's type is just `Entity`.
 * **Sounds**: a large library of pre-made sound effects; you can also create more using the AI sound feature. These all instantiate [sounds gizmos](#sound-gizmo) (which have the type `AudioGizmo`).
 * **Empty Object**: a special ["collection" entity](#empty-object-and-groups). It's TypeScript type is just `Entity`.
 * **Group**: another special ["collection" entity](#empty-object-and-groups). It's TypeScript type is just `Entity`.
 * **Sublevel**: an abstract entity containing information for spawning in [portions of levels](#sublevels).
 
-There is a [full list of all intrinsic entity types and their documentation](#all-intrinsic-entity-types) below.
+There is a [full list of all intrinsic entity types and their documentation](#all-gizmos-intrinsic-entity-types) below.
 
 ### Behavior Entity Types
 
@@ -1152,7 +1150,7 @@ When `entity.tags.get().contains(thing)` returns `true` we say that the **`entit
 Tags (currently) have three primary use cases:
 1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) have a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
 1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
-1. **Controlling raycasts**: [Raycast gizmos](#raycast-gizmo) have a Properties panel setting that lets you specify a *tag* so that the raycast will only generate [RaycastTargetType.Entity](#raycasts) hit results for entities that have that tag.
+1. **Controlling raycasts**: [Raycast gizmos](#raycast-gizmo) have a Properties panel setting that lets you specify a *tag* so that the raycast will only generate [RaycastTargetType.Entity](#raycast-gizmo) hit results for entities that have that tag.
 1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
 ```ts
@@ -1228,7 +1226,7 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
     entity.visible.set(true) // only player B can see it
     ```
 
-## All Intrinsic Entity Types
+# All Gizmos (Intrinsic Entity Types)
 
 All [intrinsic entity types](#intrinsic-entity-types) are listed in the table below, each of which link to detailed documentation.
 
@@ -1267,7 +1265,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
 | [World Promotion](#world-promotion-gizmo) | `Entity` |
 
-### Collider Gizmo
+## Collider Gizmo
 **Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
 | Property | Type | Description |
 |---|---|---|
@@ -1276,7 +1274,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **TypeScript**: Collider Gizmos are references as `Entity` instances with no additional scripting capabilities.
 
-### Custom UI Gizmo
+## Custom UI Gizmo
 **Description**: Presents a custom UI (User Interface) to your players. Also see [Custom UI](#custom-ui)
 | Property | Type | Description |
 |---|---|---|
@@ -1292,7 +1290,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **Limitations**: Custom UI Gizmo and their bindings will cause performance issues. See [Custom UI](#custom-ui) for recommendations.
 
-### Debug Console Gizmo
+## Debug Console Gizmo
 
 **Description**: Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).  Debug consoles are never visible to non-collaborators on the world.
 
@@ -1302,7 +1300,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 **TypeScript**: Debug Console is referenced as `Entity` instances with no additional scripting capabilities.
 
-### Door Gizmo
+## Door Gizmo
 
 **Description**: Showcase selected public (or unlisted) worlds and allow players to easily travel to them.
 
@@ -1318,7 +1316,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
   * Performance intensive due to VFX - use sparingly.
   * Doors play a "shimmering sound" on loop that are audible near them; there is no way to disable the sound. The only partial workaround is to put the door in [a group or empty object](#empty-object-and-groups) and move that parent from the "play area"; the sound will then be too far away to hear.
 
-### Dynamic Light Gizmo
+## Dynamic Light Gizmo
 
 **Description**: Casts movable and changing light during runtime. It can move, rotate, change intensity, etc. If you don't need the light to change, use a [static light](#static-light-gizmo) for better performance.
 
@@ -1343,7 +1341,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
   * Performance intensive due to per-frame light/shadow processing
   * Dynamic light gizmos do **not** obey [entity visibility](#entity-visibility). They must be turned on/off using their 'enabled' property.
 
-### Environment Gizmo
+## Environment Gizmo
 **Description**: Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
 
 | Property | Type | Description |
@@ -1367,10 +1365,10 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 - Multiple Environment Gizmos are allowed, but only one can be active at a time. You cannot use typescript to directly change their 'Active' property. You can use asset spawning to add a new Environment Gizmo dynamically that will become the new 'Active' gizmo.
 - When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
-### In-World Item Gizmo
+## In-World Item Gizmo
 **Description**: Used to sell In-World Items to users in your worlds. See the [in-world purchases](#using-the-in-world-purchase-gizmo) section for detail.
 
-### Media Board Gizmo
+## Media Board Gizmo
 **Description**: Allows players to scroll through pictures that have been shared to the world and approved by the creator.
 
 | Property | Type | Description |
@@ -1382,7 +1380,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 
 **TypeScript**:  Media Board Gizmos are referenced as the `Entity` class with no properties or methods.
 
-### Mirror Gizmo
+## Mirror Gizmo
 **Description**: A stationary gizmo that allows players to see a reflection of themselves and the world. Can be used to edit avatars and take pictures.
 
 | Property | Type | Description |
@@ -1404,7 +1402,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 **TypeScript**: Mirror Gizmos are referenced as the `Entity` class with no properties or methods
 
 **Limitations**: Mirror Gizmos are costly, recommend only one per world and be careful about how much geometry it reflects in your world to avoid performance issues.
-### Navigation Volume
+## Navigation Volume
 **Description**: Allows the creation of [navigation mesh profiles](#navigation-mesh-profile) that can be used to route paths around obstacles in your world. Can be used directly by [NavMeshAgents](#navigation-mesh-agent) or indirectly by other animated objects such as [NPCs](#npcs).
 
 | Property | Type | Description |
@@ -1414,7 +1412,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 
 **TypeScript**:  Navigation Volume Gizmos are referenced as the `Entity` class with no properties or methods
 
-### NPC Gizmo
+## NPC Gizmo
 **Description**: Represents an NPC Avatar (bot) spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs).
 
 | Property | Type | Description |
@@ -1450,7 +1448,7 @@ export declare enum AgentSpawnResult //The result of a player spawn request
 - Some methods that work on Players do not work on NPCs, e.g. `GrabbableEntity.forceHold()`, for which `AvatarAIAgent.grabbableInteraction.grab()` should be used instead.
 - NPCs do not persist their PPV values past world shutdown.
 
-### ParticleFx Gizmo
+## ParticleFx Gizmo
 
 **Description**: Play built-in particle effects (smoke burst, water spray, muzzle flare, camp fire, etc). Available from two places in the editor:
 1. Gizmo ParticleFX: Created via Build Menu's Gizmos section
@@ -1503,7 +1501,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
 !!! bug `oneShot` is currently being ignored.
     Currently (Feb 2025) the `oneShot` property has no impact on whether an effect loops or not. It will also use the value in the Looping setting. This is a bug.
 
-### TrailFx Gizmo
+## TrailFx Gizmo
 **Description**: Emits a colored line behind moving objects with a configurable length, width, and color gradient.
 | Property | Type | Description |
 |---|---|---|
@@ -1530,7 +1528,7 @@ stop(): void;                     // Stop and remove trail
 !!! bug Trail's sync incorrectly if stopped and started in the same frame.
     When you `stop()` a [TrailFX Gizmo](#trailfx-gizmo) the trail *de-renders* (disappears). If you `stop()` and then `start()` in the same frame then the local client will see the trail disappear and start over. However other clients will only get the `play()` event (due to state compression) and so they won't see the trail "reset". If you need to stop and then start a trail, it is recommended to do it across (at least) 2 frames.
 
-### Projectile Launcher Gizmo
+## Projectile Launcher Gizmo
 **Description**: Launches configurable particles with customizable physics properties. Ideal for weapons and launchers.
 
 | Property | Type | Description |
@@ -1548,9 +1546,7 @@ stop(): void;                     // Stop and remove trail
 **TypeScript**: projectile launcher gizmos are referenced [as](#entity-as-method) the `ProjectileLauncherGizmo` class with the following members:
 ```typescript
 // ProjectileLauncherGizmo
-projectileGravity: WritableHorizonProperty<number>;  // Gravity force applied to projectile
-
-// Launch a projectile with optional parameters
+projectileGravity: WritableHorizonProperty<number>;
 launch(options?: LaunchProjectileOptions): void;
 ```
 
@@ -1573,7 +1569,6 @@ type LaunchProjectileOptions = {
 | `OnProjectileHitWorld` | <nobr>`position: Vec3`</nobr><br/><nobr>`normal: Vec3`</nobr> | Sent when a projectile hits a [static entity](#static-vs-dynamic-entities) (Motion is `None`). This event is only sent if `Static Collision` is enabled in the Properties panel. |
 | `OnProjectileExpired` | <nobr>`position: Vec3`</nobr><br/><nobr>`rotation: Quaternion`</nobr><br/><nobr>`velocity: Vec3`</nobr> | Sent when a projectile despawns by duration limit only. |
 
-
 **Limitations**:
   * Requires setting Projectile Preset before use
   * Maximum 10 active projectiles per launcher (the 11th launch causes the oldest alive to "vanish")
@@ -1581,17 +1576,105 @@ type LaunchProjectileOptions = {
   * OnProjectileHitWorld only triggers for entities with Motion set to None
   * High projectile speeds may cause collision detection issues
 
-### Quests Gizmo
+Note that [empty objects and groups](#empty-object-and-groups) **behave differently with the [projectile launcher](#projectile-launcher-gizmo)**. When a projectile launch is hit, Horizon checks if it has a [parent](#ancestors) and if the parent is a group. If there is a group parent, it uses that as the entity. Otherwise it uses the original entity it started with. Thus a group will appear to "bubble up" one level; empty objects do not.
+
+## Quests Gizmo
 
 **Description**: Displays a list of Quests available in your world for players to track their progress. See the [Quests](#quests) section for full details.
 
-### Raycast Gizmo
-**Description**: Used to cast a ray (like a "laser beam") out into the world and identity the first thing it hits (player or entity) and information about the hit (location, surface normal, etc). See the [raycasting](#raycasts) section for full details.
+## Raycast Gizmo
 
-### Script Gizmo
+**Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
+
+**Raycast Gizmo Properties**
+
+| Property | Type | Description |
+|---|---|---|
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which "collision layer(s)" the raycast will interact with. |
+| Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. |
+| Raycast Distance | `number` | The maximum distance (in meters) that the ray should travel before concluding it didn't hit anything. |
+
+**Limitations**: Raycasting too often in a short period of time can hurt performance.
+
+**Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
+
+```ts
+/// Raycast Gizmo
+raycast(origin: Vec3, direction: Vec3, options?: {
+  layerType?: LayerType;
+  maxDistance?: number;
+}): RaycastHit | null;
+```
+
+which takes the following parameters:
+
+| `RaycastGizmo`'s `raycast()`<br/>Method Arguments | Type | Notes |
+|---|---|---|
+| origin | [Vec3](#vec3) | The location in the world that the ray should start. |
+| direction | [Vec3](#vec3) | The direction the ray should travel in. |
+| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
+
+The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#active-colliders) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
+
+| `RaycastHit` Property | Type | Description |
+|---|---|---|
+| distance | `number` | The distance traveled from the ray start location until the `hitPoint`. |
+| hitPoint | [Vec3](#vec3) | The world location where the ray first hit an [active collider](#active-colliders). |
+| normal | [Vec3](#vec3) | A vector [pointing straight out from the surface](#https://en.wikipedia.org/wiki/Normal_(geometry)) where the ray hit. This is useful for [reflecting](#vector-reflect) the ray, for example. |
+| targetType | `RaycastTargetType` | The type that was hit. `RaycastTargetType` has the values: `Entity`, `Player`, and `Static`. See the notes below this table.  |
+| target | `Entity`, `Player`, or *absent* (see the note below the table) | The `Entity` or `Player` hit (matching `targetType`). This field is *missing* if `targetType` is `RaycastTargetType.Static`. |
+
+**Target Type and Target**: The `RaycastHit` type contains the field `targetType` which will contain a value of `RaycastTargetType` (values are: `Entity`, `Player`, and `Static`). The values in `targetType` and `target` depend on what the ray first intersected with:
+  * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`. Note that this might return one of the entity's [ancestor](#ancestors)'s (see the diagram below). It can return an entity that is [static of dynamic](#static-vs-dynamic-entities).
+  * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field. Note that "Static" is not the same as [static entities](#static-vs-dynamic-entities); this is used when there is no tag match (and is thus *misnamed*).
+  * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
+
+**Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#active-colliders), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
+
+Here's the algorithm that is run (it's [tag bubbling](#entity-tag-bubbling)):
+
+```mermaid {align=center}
+flowchart
+  checkType{{What is the collider that was hit associated with?}}
+
+  checkType --"entity"--> entity{{Does it have<br/>the right <a href="#entity-tags">tag</a>?}}
+  checkType --"player"--> endPlayer((return *Player*<br/>with the player))
+  entity --"yes"--> endEntity((return *Entity*<br/>with the entity))
+  entity --"no"--> checkParent{{Does it have a parent?}}
+  checkParent --"no"--> endStatic((return *Static*))
+  checkParent --"yes"--> moveToParent[Shift focus to<br/>the parent]
+  moveToParent --> entity
+
+  style moveToParent fill:#fed,stroke:#a98
+  style endEntity fill:#dfe,stroke:#8a9
+  style endStatic fill:#dfe,stroke:#8a9
+  style endPlayer fill:#dfe,stroke:#8a9
+```
+
+Here's the `RaycastHit` type, which shows the 3 bullets above, in code:
+```ts
+// Equivalent
+type RaycastHit = {
+  distance: number; // meters
+  hitPoint: Vec3;
+  normal: Vec3;
+} & (
+  | {
+    targetType: RaycastTargetType.Static
+  } | {
+    targetType: RaycastTargetType.Entity;
+    target: Entity;
+  } | {
+    targetType: RaycastTargetType.Player;
+    target: Player;
+  }
+)
+```
+
+## Script Gizmo
 See FBS or [Script API](#scripting)
 
-### Snap Destination Gizmo
+## Snap Destination Gizmo
 **Description**: Designed to help position and orientate players that land on it using teleport locomotion. Has no effect for players using slide locomotion.
 
 | Property | Type | Description
@@ -1600,7 +1683,7 @@ See FBS or [Script API](#scripting)
 
 **Typescript**: Snap Destination Gizmos are referenced as the `Entity` class (with no special methods).
 
-### Sound Gizmos
+## Sound Gizmos
 **Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
@@ -1682,7 +1765,7 @@ enum AudibilityMode {
 - Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
 - The `OnAudioCompleted` event is not sent when sounds loop back to the beginning.
 
-### Spawn Point Gizmo
+## Spawn Point Gizmo
 **Description**: Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
 
 | Property | Type | Description |
@@ -1714,7 +1797,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 - If multiple spawn points have `Spawn on start` enabled, one will be picked at random for each player entering the world.
 - The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
 
-### Static Light Gizmo
+## Static Light Gizmo
 
 **Description**: Emits static light that cannot be moved during run-time. Improved performance over [Dynamic Light Gizmo](#dynamic-light-gizmo).
 
@@ -1726,7 +1809,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 
 **Typescript**:  Static Light Gizmos are referenced simply as the `Entity` class.
 
-### Text Gizmo
+## Text Gizmo
 **Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
 
 | Property | Type | Description |
@@ -1745,7 +1828,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 //Properties
 text: HorizonProperty<string>; //The content to display in the text label
 ```
-#### Using a Text Gizmo
+### Using a Text Gizmo
 The initial text of a text gizmo can be set in the Properties panel. Changing the text after that can be done via the `text` [read-write property](#horizon-properties) on the `TextGizmo` class, such as:
 
 ```ts
@@ -1757,17 +1840,17 @@ this.entity.as(TextGizmo).text.set('Hello World')
 
 !!! note Text gizmos contribute to [draw calls](#draw-calls).
 
-#### Limitations
+### Text Gizmo Limitations
 
 The total length of the text, including all markup, cannot be longer than 1000 characters. If the text is longer than 1000 characters, the text will be truncated.
 
 The text gizmo only supports the English characters (essentially whatever can be typed on an English keyboard without any modifier keys). This means that the text gizmo is not capable of displaying any of the following: á ê ï o ū ç ñ ¿ 月 😂, for example.
 
-#### Text Gizmo Markup
+### Text Gizmo Markup
 
 Horizon exposes Unity's TextMeshPro markup. The rest of this guide is a summary of [Unity's TextMeshPro documentation](https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html).
 
-#### Text Gizmo Tags
+### Text Gizmo Tags
 
 Text markup is able to modify the contents (e.g. making all letters uppercase), styling (such as size or color), and layout (such as alignment, rotation, and spacing) of the text. Markup is specified using tags, which are a word surrounded in angle brackets (e.g. `<b>`). Once a tag is specified, all text that comes after it will have that attribute applied, until that tag "closes" by specifying the tag with a slash before the name (e.g. `</b>`).
 
@@ -1787,7 +1870,7 @@ Text markup is able to modify the contents (e.g. making all letters uppercase), 
 
     > this is **bold text**
 
-##### Text Gizmo Tag Parameters
+#### Text Gizmo Tag Parameters
 
 Some tags accept a parameter, which is specified after the tag name and an equals sign.
 
@@ -1798,11 +1881,11 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
     > This is <span style="font-size:75%">small</span>
 
-#### Supported Text Gizmo Tags
+### Supported Text Gizmo Tags
 
 ![[ markup/TextGizmoTable.html ]]
 
-### Trigger Gizmo
+## Trigger Gizmo
 
 **Description**: Detects when a player or object enters or exits an area.
 
@@ -1842,13 +1925,13 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 
 **Limitations**: Using too many Trigger Gizmos can affect performance due to their impact on the physics system for collision detection.
 
-#### Trigger Collisions
+### Trigger Collisions
 
 Trigger detection is done at the [collider](#colliders) level. When a collider enters/leaves a trigger set to [detect objects](#trigger-gizmo) with a tag, Horizon checks to see if the collider is associated with an entity (instead of a player). If so, it then checks to see if the entity has the tag, and if so, returns it; if not, it walks up the [ancestor chain](#ancestors) looking for an entity with the tag, or reaches the top (this is the [tag bubbling](#entity-tag-bubbling) algorithm).
 
 If the above process finds an entity then it the [OnEntityEnterTrigger / OnEntityExitTrigger](#trigger-gizmo) event will be sent *to the trigger*. If this is an "enter" event and the trigger was just empty, then the "secret" [occupied](#trigger-gizmo) is also sent. If this is an "exit" event and the trigger was just non-empty, then the "secret" [empty](#trigger-gizmo) event is also sent
 
-### World Leaderboard Gizmo
+## World Leaderboard Gizmo
 **Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
 
 # Assets
@@ -2741,7 +2824,7 @@ The `World` class represents the currently running [instance](#instances) and th
 
 ## Components
 
-Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-intrinsic-entity-types), and more).
+Components are the powerhouse of scripting in Horizon. They contain the logic and behaviors for [reacting to events](#receiving-events) in the world and making stuff happen in the world (such as [transforming entities](#transforms), activating [gizmos](#all-gizmos-intrinsic-entity-types), and more).
 
 The **primary steps for scripting** are:
 1. Create a [new file](#creating-and-editing-scripts) (or add to an existing one)
@@ -3914,25 +3997,26 @@ OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, norm
 
 **Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exists on [mesh entities](#mesh-asset), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
 
-**Colliders (not meshes) drive [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycasts)** but only if they are [active](#active-colliders).
+**Colliders (not meshes) drive [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycast-gizmo)** but only if they are [active](#active-colliders).
 
 When a cube enters a trigger, the trigger detects its *collider* (which is shaped like a cube). When a player's head enters a trigger, the trigger detects' the heads *collider* (which is roughly sphere-shaped and has less resolution than the actual avatar head!). When two spheres collide and bounce off one another (with [physics](#physics)), it was actually their colliders (which are spheres) that collided. All of the built-in custom model primitives have built-in colliders already. **When you import your own [meshes](#mesh-asset), Horizon uses the *meshes* to generate the colliders**. At times it makes sense to [separate out the collider](#separating-a-collider-from-a-mesh) to improve performance (don't pre-optimize this until you actually have a performance problem!).
 
 ### Active Colliders
 
-In order for a collider to be detected it needs to be an **active collider**, otherwise it is ignored in [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycasts).
+In order for a collider to be detected it needs to be an **active collider**, otherwise it is ignored in [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycast-gizmo).
 
 A **collider is active** when the following true
 1. Its entity has `collidable` set `true`
 1. It has *no `parent`* or its `parent` (and all [ancestors](#ancestors)) have `collidable` set to `true`
-1. It is not occluded by other colliders in the world. *Occlusion is typically from a specific direction*. Example: if you want to grab an object but it is behind a wall then the wall's collider will occlude the object (from the vantage point of the player trying to grab it).
+1. It is *not occluded* by other colliders in the world (e.g. it's not inside or blocked by some other collider)
 
-and is otherwise ignored by the physics system. For example if the floor's collider is inactive an avatar will fall through it. If a grabbable entity's collider is inactive you cannot grab it.
+Regarding #3, *occlusion is often from a specific direction*. Example: if you want to grab an object but it is behind a wall then the wall's collider will occlude the object (from the vantage point of the player trying to grab it).
 
-Note that many entities, such as a [particle effect](#particlefx-gizmo) do not have a collider and thus can never have an active collider within them.
+**Inactive colliders are ignored by the physics system**. If the floor's collider is inactive an avatar will fall through it. If a [grabbable entity](#grabbing-and-holding-entities)'s collider is inactive you cannot grab it. If a wall's collider then a [raycast](#raycast-gizmo) cannot hit it.
 
-!!! info In order for a group to be seen by the physics system it must have at least one active collider within it (however deep).
-    For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
+**Many entities do not have a collider** and thus can never have an active collider (e.g. [particle effect](#particlefx-gizmo)). But they could have children with colliders.
+
+**[Empty objects and groups](#empty-object-and-groups) don't have colliders** but their children may have them. When an empty object or group interacts with [triggers](#trigger-collisions), [collisions](#collisions), or [raycasts](#raycast-gizmo) they have to have active colliders within them.
 
 ### Separating a Collider from a Mesh
 
@@ -3956,7 +4040,7 @@ You shouldn't try separating out colliders unless:
 
 ## Entity Tag Bubbling
 
-When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [trigger detection](#trigger-collisions), [collision detection](#collision-events), and [raycasting](#raycasts).
+When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [trigger detection](#trigger-collisions), [collision detection](#collision-events), and [raycasting](#raycast-gizmo).
 
 ```mermaid {align=center}
 flowchart
@@ -3992,95 +4076,6 @@ function findRelatedEntityWithTag(
 
   return undefined
 }
-```
-
-## Raycasts
-
-**Description**: "Raycasting" is the act of "firing a laser" from a location out into a direction and finding the first thing that it collides with (player, entity, or nothing) and information about the hit (location, surface normal, etc). The act of "casting a ray" into the world like this is thus called a **raycast**. In order to raycast in Horizon you need a Raycast Gizmo to do it from.
-
-**Raycast Gizmo Properties**
-
-| Property | Type | Description |
-|---|---|---|
-| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which "collision layer(s)" the raycast will interact with. |
-| Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. |
-| Raycast Distance | `number` | The maximum distance (in meters) that the ray should travel before concluding it didn't hit anything. |
-
-**Limitations**: Raycasting too often in a short period of time can hurt performance.
-
-**Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
-
-```ts
-/// Raycast Gizmo
-raycast(origin: Vec3, direction: Vec3, options?: {
-  layerType?: LayerType;
-  maxDistance?: number;
-}): RaycastHit | null;
-```
-
-which takes the following parameters:
-
-| `RaycastGizmo`'s `raycast()`<br/>Method Arguments | Type | Notes |
-|---|---|---|
-| origin | [Vec3](#vec3) | The location in the world that the ray should start. |
-| direction | [Vec3](#vec3) | The direction the ray should travel in. |
-| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
-
-The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#active-colliders) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
-
-| `RaycastHit` Property | Type | Description |
-|---|---|---|
-| distance | `number` | The distance traveled from the ray start location until the `hitPoint`. |
-| hitPoint | [Vec3](#vec3) | The world location where the ray first hit an [active collider](#active-colliders). |
-| normal | [Vec3](#vec3) | A vector [pointing straight out from the surface](#https://en.wikipedia.org/wiki/Normal_(geometry)) where the ray hit. This is useful for [reflecting](#vector-reflect) the ray, for example. |
-| targetType | `RaycastTargetType` | The type that was hit. `RaycastTargetType` has the values: `Entity`, `Player`, and `Static`. See the notes below this table.  |
-| target | `Entity`, `Player`, or *absent* (see the note below the table) | The `Entity` or `Player` hit (matching `targetType`). This field is *missing* if `targetType` is `RaycastTargetType.Static`. |
-
-**Target Type and Target**: The `RaycastHit` type contains the field `targetType` which will contain a value of `RaycastTargetType` (values are: `Entity`, `Player`, and `Static`). The values in `targetType` and `target` depend on what the ray first intersected with:
-  * **An entity with the right tag**: if the ray collided with an entity that has [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Entity` and the `target` field will be of type `Entity`. Note that this might return one of the entity's [ancestor](#ancestors)'s (see the diagram below). It can return an entity that is [static of dynamic](#static-vs-dynamic-entities).
-  * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field. Note that "Static" is not the same as [static entities](#static-vs-dynamic-entities); this is used when there is no tag match (and is thus *misnamed*).
-  * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
-
-**Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#active-colliders), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
-
-Here's the algorithm that is run (it's [tag bubbling](#entity-tag-bubbling)):
-
-```mermaid {align=center}
-flowchart
-  checkType{{What is the collider that was hit associated with?}}
-
-  checkType --"entity"--> entity{{Does it have<br/>the right <a href="#entity-tags">tag</a>?}}
-  checkType --"player"--> endPlayer((return *Player*<br/>with the player))
-  entity --"yes"--> endEntity((return *Entity*<br/>with the entity))
-  entity --"no"--> checkParent{{Does it have a parent?}}
-  checkParent --"no"--> endStatic((return *Static*))
-  checkParent --"yes"--> moveToParent[Shift focus to<br/>the parent]
-  moveToParent --> entity
-
-  style moveToParent fill:#fed,stroke:#a98
-  style endEntity fill:#dfe,stroke:#8a9
-  style endStatic fill:#dfe,stroke:#8a9
-  style endPlayer fill:#dfe,stroke:#8a9
-```
-
-Here's the `RaycastHit` type, which shows the 3 bullets above, in code:
-```ts
-// Equivalent
-type RaycastHit = {
-  distance: number; // meters
-  hitPoint: Vec3;
-  normal: Vec3;
-} & (
-  | {
-    targetType: RaycastTargetType.Static
-  } | {
-    targetType: RaycastTargetType.Entity;
-    target: Entity;
-  } | {
-    targetType: RaycastTargetType.Player;
-    target: Player;
-  }
-)
 ```
 
 # Physics
@@ -4181,8 +4176,6 @@ TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantee
 ## PrePhysics vs OnUpdate Events
 
 ## Simulated vs Locked Entities
-
-## Projectiles
 
 ## Applying Forces and Torque
 

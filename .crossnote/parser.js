@@ -5,18 +5,17 @@
   onWillParseMarkdown: async function(markdown) {
     const firstLine = markdown.slice(0, markdown.indexOf('\n'))
     const focusSectionTitleMatch = firstLine.match(/<!--\s*focusSection:\s*(.*?)\s*-->/)
-    const focusSectionTitle = focusSectionTitleMatch?.[1]
+    const focusSectionTitleRaw = focusSectionTitleMatch?.[1]
 
-    if (focusSectionTitle) {
-      // Find the section of code starting with '# focusSectionTitle' then go until either the end of the doc or the next line starting with '# '
+    if (focusSectionTitleRaw) {
+      const focusSectionTitle = focusSectionTitleRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
       const focusSectionRegex = new RegExp(
         `^# ${focusSectionTitle}$(?:\\n(?!^# ).*)*`,
         'gm'
       )
 
       const focusSectionMatch = markdown.match(focusSectionRegex)
-
-      //return focusSectionMatch?.toString() ?? "oops"
 
       if (focusSectionMatch) {
         return focusSectionMatch.join('\n\n')
