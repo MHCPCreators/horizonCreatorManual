@@ -614,7 +614,7 @@ Empty Objects and Groups are two entity types that create "collections"  of enti
 | Group | At the **build-mode center of all their children**. Meaning that moving a child in build-mode will move the [pivot point](#pivot-points). | Children have their **interaction disabled** and cannot be [grabbable](#grabbing-and-holding-entities) or [physical](#physicalentity-class). | [Projectile collisions](#projectile-launcher-gizmo) happen **on the group**. | 1+
 | Empty Object | The **center of the Empty Object** is always the [pivot point](#pivot-points). | Children **can be [Interactive Entities](#interactive-entities)**, if the Empty Object's `Motion` is `None`. | [Projectile collisions](#projectile-launcher-gizmo) happen **on a child**. | 0+ |
 
-Empty Objects and Groups **behave identically in regards to [collisions](#collisions), [triggers](#trigger-gizmo), and [raycasts](#raycast-gizmo)**. In all of those examples, an entity with an [active collider](#active-colliders) is found and then [tag bubbling](#entity-tag-bubbling) is used to find the entity to use as the receiver.
+Empty Objects and Groups **behave identically in regards to [collisions](#collisions), [triggers](#trigger-gizmo), and [raycasts](#raycast-gizmo)**.
 
 The **behave differently with the [projectile launcher](#projectile-launcher-gizmo)**. When a projectile launch is hit, Horizon checks if it has a [parent](#ancestors) and if the parent is a group. If there is a group parent, it uses that as the entity. Otherwise it uses the original entity it started with. Thus a group will appear to "bubble up" one level; empty objects do not.
 
@@ -1141,6 +1141,8 @@ When an [entity](#entities) has **`simulated` set to `false`**:
 
 The `simulated` property defaults to `true`.
 
+When you call `entity.simulated.set(false)` the entity will lose all [linear and angular velocity](#physics) (as if you had called `entity.zeroVelocity()`). If, or when, `simulated` is re-enabled, those velocities are *not* returned.
+
 ### Entity Tags
 
 Entities in Horizon can be assigned a list of **tags** which are used of "classifying" entities. Tags are just `string`s. Tags can be assigned in the Properties panel; they can also be modified in scripting with the `Entity` property `tags: HorizonSetProperty<string>`.
@@ -1631,7 +1633,7 @@ The **return type** of the `raycast` method is `RaycastHit | null`. The result i
 
 **Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#active-colliders), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
 
-Here's the algorithm that is run (it's [tag bubbling](#entity-tag-bubbling)):
+Here's the algorithm that is used (it's [tag bubbling](#entity-tag-bubbling)):
 
 ```mermaid {align=center}
 flowchart
@@ -1927,9 +1929,17 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 
 ### Trigger Collisions
 
-Trigger detection is done at the [collider](#colliders) level. When a collider enters/leaves a trigger set to [detect objects](#trigger-gizmo) with a tag, Horizon checks to see if the collider is associated with an entity (instead of a player). If so, it then checks to see if the entity has the tag, and if so, returns it; if not, it walks up the [ancestor chain](#ancestors) looking for an entity with the tag, or reaches the top (this is the [tag bubbling](#entity-tag-bubbling) algorithm).
+Trigger detection is done at the [collider](#colliders) level.
 
-If the above process finds an entity then it the [OnEntityEnterTrigger / OnEntityExitTrigger](#trigger-gizmo) event will be sent *to the trigger*. If this is an "enter" event and the trigger was just empty, then the "secret" [occupied](#trigger-gizmo) is also sent. If this is an "exit" event and the trigger was just non-empty, then the "secret" [empty](#trigger-gizmo) event is also sent
+**Players**
+
+When a player-related collider enters/leaves a trigger set to [detect players](#trigger-gizmo) it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo) event *to the trigger* with the player as the argument.
+
+**Entities**
+
+When an entity-related collider (from a [mesh](#mesh-asset) or a [collider gizmo](#collider-gizmo)) enters/leaves a trigger set to [detect objects](#trigger-gizmo) Horizon will check to see if that entity has the matching tag; if so, it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo)event *to the trigger* with that entity. But then it also looks at every entity in the [ancestor chain](#ancestors) to see if any of those also have the tag. The event will get sent to the trigger for *all* entities in the ancestor chain that have the tag. This means that **when a group enters a trigger, the group *and* its children can cause `OnEntityEnterTrigger` events* as long as they have the right tags.
+
+When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to see if the trigger was previously unoccupied; if so, then the "secret" [occupied](#trigger-gizmo) is also sent to the trigger. Likewise, if this is an `OnEntityExitTrigger` event and the trigger is now unoccupied, then the "secret" [empty](#trigger-gizmo) event is also sent to the trigger.
 
 ## World Leaderboard Gizmo
 **Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
@@ -3970,22 +3980,17 @@ In order to create a component that transfers data during an [ownership transfer
 
 # Collisions
 
-The collision system handles the detection of one entity colliding with another entity or a player.
+**Collisions** occur when one entity *intersects* with another or with a player (and then are typically pushed apart by [forces](#physics) so that they don't intersect any more).
 
-When an entity collides with another entity or player (unless "preserve ownership on collision" is enabled in the Property panel)
+Collisions are used (under the hood) to drive [trigger events](#trigger-collisions) and to compute [raycasts](#raycast-gizmo). Additionally, [Interactive entities](#interactive-entities) can be configured to receive [collision events](#collision-events) whenever their collide.
 
-- Colliding with dynamic vs static.
-- Colliding with player vs entities.
-- Collider gizmo.
-- Can control if ownership transfer on collision (see [Network](#network)!)
-
-- collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
+There are a number of nuances: collisions start with entities that have a [collider](#colliders) ([meshes](#mesh-asset) and [collider gizmos](#collider-gizmo)) and those colliders must be [active](#active-colliders) for a collision to occur. A number of these features involve [traversing up an ancestor chain to find an entity with a specific tag](#entity-tag-bubbling).
 
 ## Collision Events
 
-**Entity colliding with a player**: the entity's collider must be [active](#active-colliders) for it to be sent `OnPlayerCollision`.
+When an entity has [Motion set to Interactive](#interactive-entities) you can enable it to receive **[built-in collision CodeBlockEvents](#built-in-code-block-events)**. In the properties panel, under "More", is the setting "Collision Events From" which can be set to "Players", "Object Tagged", or "Both". In the latter two cases a [tag](#entity-tags) must be specified (in the field right below the setting).
 
-**Entity colliding with another entity**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag. For two entities to collide, they both must have [actives collider](#active-colliders). *Both entities are eligible* to be sent the `OnEntityCollision` event. Imagine that ... <mark>TODO find out what happens when two groups collide.</mark>
+A collider must be [active](#active-colliders) for it to be detected in collisions.
 
 There are two [CodeBlockEvents](#code-block-events) you can subscribe to on an entity to know when it collides with something:
 
@@ -4001,9 +4006,69 @@ The parameters for both events are:
 | `collidedWith` | [Player](#players) or [Entity](#entity-class) (depending on the event) | What the entity collided with. |
 | `collisionAt` | [Vec3](#vec3) | The global location where the entity *came in contact* with `collidedWith`. |
 | `normal` | [Vec3](#vec3) | The [surface normal](#https://en.wikipedia.org/wiki/Normal_(geometry)) at the position `collidedAt` on `collidedWith`. |
-| `relativeVelocity` | [Vec3](#vec3) | <mark>TODO</mark> |
-| `localColliderName` | `string` | <mark>TODO</mark> |
-| `otherColliderName` | `string` | <mark>TODO</mark> |
+| `relativeVelocity` | [Vec3](#vec3) | The global velocity of `entity` compared to `collidedWith` (which you can use to see how "hard the hit" was). |
+| `localColliderName` | `string` | The *name* of first "leaf-level" collider involved in the collision. |
+| `otherColliderName` | `string` |  The *name* of second "leaf-level" collider involved in the collision. This could be a [player body part](#player-body-parts) (`"Head"`, `"LegCollider"`, `"Torso"`) if the entity is configured for collision events from players. Note that VR players have many colliders on their hands ( `"LeftPalm"`, `"LeftThumbMid"`, `"LeftThumbTip"`, `"LeftIndexFingerBase"`, `"LeftIndexFingerTip"`, `"LeftOtherFingersBase"`, `"LeftOtherFingersTip"`, and similar for the right hand). **Non-VR players do not have colliders on their hands**. |
+
+**Collider Names**: If a group containing a cube collides with a player's left hand, then the the `localColliderName` will be the name of the cube and `otherColliderName` will be the name of the
+
+
+**Entity colliding with a player**
+
+The entity's "Collision Events From" setting must be set to "Player" or "Both" to receive `OnPlayerCollision`.
+
+**Entity colliding with another entity**
+
+The `entity`'s "Collision Events From" setting must be set to "Object Tagged" or "Both" to receive `OnEntityCollision`.
+
+When `entity`'s collider intersects with `other` entity's collider Horizon handles a **one-sided collision** between `entity` and `other` (with `other`'s normal), and then it handles a **one-sided collision** between `other` and `entity` (with `entity`'s normal), since it is possible that both are registered to receive collision events.
+
+**One-Sided Entity Collision Algorithm**
+
+Here's the steps that Horizon takes in a one-sided collision check between `entity` and `other`:
+  1. check what [tag](#entity-tags) the `entity` is configured to get events from. Find a `target` entity with that tag by looking at `other` and then [bubbling up its ancestors](#entity-tag-bubbling).
+  2. If other was found (otherwise skip to #3), send `CodeBlockEvents.OnEntityCollision` to `entity` with `target` as the `collidedWith` parameter.
+  3. If `entity` has a `parent` then go back to step #1 and repeat the process with the `parent` replacing `entity`.
+
+```ts
+// Code approximating the algorithm Horizon
+// uses to handle sending collision events
+function tryOneSidedCollision(
+  startEntity: Entity,
+  other: Entity,
+  otherNormal: Vec3,
+  collisionPoint: Vec3,
+  relativeVelocity: Vec3,
+) {
+  let entity : Entity | null = entity
+
+  while (entity) {
+    // Find the tag that `entity` want to hear
+    // collision event from (not a real method)
+    const tag = collisionEventsFromTag(entity)
+
+    // Find the bubbled entity with the given tag.
+    // findTagBubbledEntity is in "Entity Tag Bubbling"
+    const target = findTagBubbledEntity(other, tag)
+
+    if (target) {
+      // send the event (not a real method)
+      sendCodeBlockEvent(
+        startEntity,
+        CodeBlockEvents.OnEntityCollision,
+        target,
+        collisionPoint,
+        otherNormal,
+        relativeVelocity,
+        startEntity.name.get(),
+        other.name.get(),
+      )
+    }
+
+    entity = entity.parent.get()
+  }
+}
+```
 
 ## Colliders
 
@@ -4042,9 +4107,10 @@ You shouldn't try separating out colliders unless:
     Here's an example of a mesh (a character's face) that has a lot of geometry. It would really hurt perf to have Horizon compute collisions with the full face. So instead, a separate collider has been added (the icosahedron). This can be achieved by making the face with `collidable=false` and the icosahedron with `visible=false`. Or you could use the [sphere collider](#collider-gizmo) instead.
     <img src="images/collider-visualization.png" style="width:250px;display: block;margin-left:auto;margin-right:auto"/>
 
+
 ## Entity Tag Bubbling
 
-When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [trigger detection](#trigger-collisions), [collision detection](#collision-events), and [raycasting](#raycast-gizmo).
+When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [collision detection](#collision-events) and [raycasting](#raycast-gizmo).
 
 ```mermaid {align=center}
 flowchart
@@ -4064,7 +4130,7 @@ flowchart
 In code this algorithm looks like
 ```ts
 // The algorithm used by Horizon in tag bubbling
-function findRelatedEntityWithTag(
+function findTagBubbledEntity(
   startEntity: Entity,
   tag: string
 ): Entity | undefined {
@@ -5907,6 +5973,9 @@ Delete the directory from where you copied the files (like delete the entire wor
 Then open the desktop editor again, and go to the world
 Validate that the world folder has been created again
 And last, if needed, bring back the files that you copied with the first step
+
+
+I found a workaround to know what entity the editor is referring to when they use their id (100006) instead of the name in the errors. With new Entity(theID) and then getting its name or position
 
 # Glossary
 
