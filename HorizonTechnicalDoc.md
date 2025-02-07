@@ -203,20 +203,23 @@
         1. [Spring Push](#spring-push)
         2. [Spring Spin](#spring-spin)
 13. [Players](#players)
-    1. [Identifying Players](#identifying-players)
+    1. [Player Class](#player-class)
+    2. [Identifying Players](#identifying-players)
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
         3. [Listing All Players](#listing-all-players)
         4. [Server Player](#server-player)
         5. [Local Player](#local-player)
-    2. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
-    3. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
-    4. [Pose (Position and Body Parts)](#pose-position-and-body-parts)
-        1. [Player Body Parts](#player-body-parts)
-        2. [Player Hand](#player-hand)
-    5. [VOIP Settings](#voip-settings)
-    6. [Haptics](#haptics)
-    7. [Throwing](#throwing)
+    3. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
+    4. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
+    5. [Player Locomotion](#player-locomotion)
+    6. [Player Body Parts](#player-body-parts)
+        1. [Player Hand](#player-hand)
+    7. [Player Pose](#player-pose)
+    8. [VOIP Settings](#voip-settings)
+    9. [Haptics](#haptics)
+    10. [Aim Assist](#aim-assist)
+    11. [Throwing](#throwing)
 14. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -641,7 +644,7 @@ digraph {
 }
 ```
 
-<a name="local-coordinates">**Local coordinates**</a>. Every [entity](#entities) and every [player and player body part](#pose-position-and-body-parts) has a set of [local axes](#local-transforms) called: **right**, **up**, and **forward** which have an origin at the [pivot point](#pivot-points), if an entity, and at the center of the body part if it is a body part (example: player center is the hips; head center is literally the center of the head). Local coordinates are used for moving entities around in the Desktop editor (if enabled) and are used when interacting with [local transforms](#local-transforms).
+<a name="local-coordinates">**Local coordinates**</a>. Every [entity](#entities) and every [player and player body part](#player-body-parts) has a set of [local axes](#local-transforms) called: **right**, **up**, and **forward** which have an origin at the [pivot point](#pivot-points), if an entity, and at the center of the body part if it is a body part (example: player center is the hips; head center is literally the center of the head). Local coordinates are used for moving entities around in the Desktop editor (if enabled) and are used when interacting with [local transforms](#local-transforms).
 
 !!! example Local Coordinates Example
     The *forward* axis of *a player head* is always pointing away from their face (parallel to their nose), its *right* axis is always point "out" their right ear, and its *up* axis is pointing out from the top of the skull. When the entity or player body part moves, the origin of these axes move; likewise the axes rotate along with the entity (so that the *right* axis always points out from the right ear).
@@ -3627,7 +3630,7 @@ The **Simulation Phase** runs at the start of the frame and includes physics cal
 1. **Pre-Physics**
     - [Broadcasts](#broadcast-events) the [World.onPrePhysicsUpdate](#run-every-frame-prephysics-and-onupdate) event locally, causing all local listeners to run.
 1. **Physics Updates**
-    - Players update their [positions and pose](#pose-position-and-body-parts) based on locomotion inputs.
+    - Players update their [positions and pose](#player-body-parts) based on locomotion inputs.
     - Animation playback is updated.
     - Physics calculations run, applying [accumulated forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
     - Collisions [with object and players](#collisions) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
@@ -4274,6 +4277,12 @@ Note: player position refers to the location in the world of the "center of the 
 
 Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
+    // Physics
+    velocity: HorizonProperty<Vec3>;
+    gravity: HorizonProperty<number>;
+    applyForce(force: Vec3): void;
+    configurePhysicalHands(collideWithDynamicObjects: boolean, collideWithStaticObjects: boolean): void;
+
 ## Springs
 
 Spring physics allows entities to move and rotate as if they were attached to a spring. This system provides smooth, natural motion that can be adjusted using stiffness and damping parameters. The spring helper methods are **intended to be called every frame**.
@@ -4344,8 +4353,6 @@ springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>)
 
 # Players
 
-<mark>TODO</mark> - Velocity, locomotion speed, jump speed, player device type
-
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
 **Max player count**: Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#publishing-and-player-settings).
@@ -4356,9 +4363,68 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 
 **Server Player**: There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the <a href="#maximum-player-count">maximum player count</a> being reached.
 
-**Id and Index**: Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
+**ID and Index**: Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
+
+## Player Class
+
+| `Entity` Class Member | Description |
+|---|---|
+| **Identification** |
+| [deviceType](#identifying-players) | The type of device the player is using |
+| [id](#player-id) | ID in this instance |
+| [index](#player-indices) | Index in this instance |
+| [isInBuildMode](#identifying-players) | Is the player in an editor instance and in build mode |
+| [name](#identifying-players) | Readonly `string` [Horizon Property](#horizon-properties) of the player's name |
+| **Body Parts** |
+| [foot](#player-body-parts) | Player's foot reference object |
+| [head](#player-body-parts) | Player's head object |
+| [leftHand](#player-body-parts) | Player's left hand object |
+| [rightHand](#player-body-parts) | Player's right hand object |
+| [torso](#player-body-parts) | Player's torso object |
+| **Pose** |
+| [clearAvatarGripPoseOverride](#player-pose) | ? |
+| [playAvatarAnimation](#player-pose) | ? |
+| [playAvatarGripPoseAnimationByName](#player-pose) | ? |
+| [setAvatarGripPoseOverride](#player-pose) | ? |
+| [stopAvatarAnimation](#player-pose) | ? |
+| **Transform** |
+| [forward](#local-transforms) | Local forward of the player (measured from their hips) |
+| [position](#player-body-parts) | Position of the player's center point |
+| [rotation](#player-body-parts) | Rotation of the player around their center point |
+| [up](#local-transforms) | Local up of the player (measured from their hips) |
+| **Locomotion** |
+| [isGrounded](#player-locomotion) | Is the player anchored "on the ground" (not falling or jumping) |
+| [locomotionSpeed](#player-locomotion) | The non-sprinting speed of the player |
+| [jumpSpeed](#player-locomotion) | The speed the player leaves the ground at when they jump |
+| **Physics** |
+| [applyForce](#player-physics) | Apply a force to the player |
+| [configurePhysicalHands](#player-physics) | ? |
+| [gravity](#player-physics) | The vertical acceleration of the player (when they are in the air) |
+| [throwHeldItem](#throwing) | Throw the currently held item |
+| [velocity](#player-physics) | ? |
+| **Quests / Achievements** |
+| [hasCompletedAchievement](#quests) | Check if the player has completed the given achievement |
+| [setAchievementComplete](#quests) | Set if the player has completed the given achievement |
+| **UI / Focused Interaction** |
+| [enterFocusedInteractionMode](#focused-interaction) | Change the player from locomotion mode to focus mode (where they can tap on the screen instead of moving the avatar) |
+| [exitFocusedInteractionMode](#focused-interaction) | Return the player to normal locomotion mode |
+| [focusedInteraction](#focused-interaction) | The `FocusedInteraction` object for the player |
+| [unfocusUI](#custom-ui) | Exit a player from the UI they are focused on |
+| **Aim Assist** |
+| [clearAimAssistTarget](#aim-assist) | Remove the aim-assist target |
+| [setAimAssistTarget](#aim-assist) | Configure a non-VR's cursor to be attracted to a given target |
+| **Voip** |
+| [setVoipSetting](#voip-settings) | Configure who can hear the player |
 
 ## Identifying Players
+
+Players have three *readonly* [Horizon Properties](#horizon-properties) you can use to get information about them:
+
+| [Player class](#player-class) readonly Horizon Property | Type | Notes |
+|---|---|---|
+| deviceType | `PlayerDeviceType` | What kind of device the player is currently using. Values are `VR`, `Mobile`, and `Desktop`. |
+| isInBuildMode | `boolean` | Returns true if the player is in an [editor instance](#instance-selection) **[is in edit mode](#visitation-modes-edit-preview-and-publish)**.
+| name | `string` | The player's in-game name. |
 
 Players in Horizon all have a global "account id". There is no way to access this id directly, although Horizon uses it under the hood for persistence (player variables, leaderboards, and quests). Within an instance players can be referenced by the `id` or the `index` they are assigned on entry. Player `index`es are reused when players leave; `id`s are not.
 
@@ -4521,13 +4587,31 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 !!! warning `OnPlayerEnterAFK` and `OnPlayerExitAFK` are sent to only server-owned entities.
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
 
-## Pose (Position and Body Parts)
+## Player Locomotion
+
+<mark>TODO</mark>
+
+    isGrounded: ReadableHorizonProperty<boolean>;
+    locomotionSpeed: WritableHorizonProperty<number>;
+    /**
+     * The speed applied to a player when they jump, in meters per second.
+     * Setting this to 0 effectively disables a player's ability to jump.
+     *
+     * @remarks
+     *
+     * Default value is 4.3.
+     * jumpSpeed must be a value between 0 and 45.
+     * `jumpSpeed.set` can be called on any player from any context, but
+     * `jumpSpeed.get` will throw an error unless it's called from a
+     * local script attached to an object owned by the player in question.
+     */
+    jumpSpeed: HorizonProperty<number>;
+
+[player physics](#player-physics)
+
+## Player Body Parts
 
 The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
-
-There are additional properties for reading the positions and rotations of the [head, torso, feet, left hand, and right hand](#player-body-parts).
-
-### Player Body Parts
 
 A [player](#players) has a number of properties for accessing body parts: `head`, `torso`, `foot`, `leftHand`, and `rightHand`; each return an instance of the class `PlayerBodyPart` (or the more specific `PlayerHand`). They are [Horizon properties](#horizon-properties) and so you must use `get()`:
 
@@ -4556,7 +4640,6 @@ Body parts have two helper methods: `getPosition` and `getRotation` that let you
     ```
     We did "up cross forward" because [Horizon is left-handed](#coordinate-system); "forward cross up" gives the local *left* axis instead.
 
-
 ### Player Hand
 
 `PlayerHand` is a subclass of [PlayerBodyPart](#player-body-parts), thus inheriting all of the behaviors and properties outlined above.
@@ -4564,6 +4647,16 @@ Body parts have two helper methods: `getPosition` and `getRotation` that let you
 `PlayerHand` also has a property `handedness`, returning either `Handedness.Left` or `Handedness.Right`.
 
 Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a VR player's controllers vibrate](#haptics).
+
+## Player Pose
+
+<mark>TODO</mark>
+
+clearAvatarGripPoseOverride(): void;
+stopAvatarAnimation(options?: StopAnimationOptions): void;
+playAvatarAnimation(animation: Asset, options?: PlayAnimationOptions): void;
+playAvatarGripPoseAnimationByName(avatarGripPoseAnimationName: string): void;
+setAvatarGripPoseOverride(avatarGripPose: AvatarGripPose): void;
 
 ## VOIP Settings
 
@@ -4600,7 +4693,7 @@ player.setVoipSetting(VoipSetting.Environment)
 
 A VR player's controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
 
-To vibrate a VR player's controllers, choose a [player hand](#pose-position-and-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength (via the `HapticsStrength` enum), and a sharpness (via the `HapticsSharpness` enum). For example:
+To vibrate a VR player's controllers, choose a [player hand](#player-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength (via the `HapticsStrength` enum), and a sharpness (via the `HapticsSharpness` enum). For example:
 
 ```ts
 player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
@@ -4628,6 +4721,35 @@ The supported values for haptics sharpness are:
 | `Sharp` | A high-frequency vibration with a quick onset and quick decay. Ideal for rapid alerts or precision interactions. |
 | `Coarse` | A moderate vibration with a slightly longer duration, striking a balance between sharp and soft. Ideal for interactions that need to feel distinct without being abrupt. |
 | `Soft` | A low-frequency, smooth vibration that builds and fades gradually, creating a more diffuse, gentle sensation. Ideal for subtle cues or immersive environmental effects. |
+
+## Aim Assist
+
+<mark>TODO</mark>
+
+setAimAssistTarget(target: Player | Entity | Vec3, options?: AimAssistOptions): void;
+clearAimAssistTarget(): void;
+
+type AimAssistOptions = {
+    /**
+     * The intensity of the pulling force towards
+     * the Aim Assist target, in degrees of camera rotation per second. The default
+     * value is 10.
+     */
+    assistanceStrength?: number;
+    /**
+     * The size of the target used to determine whether the
+     * assistance forces apply, in meters. A bigger target causes the
+     * assistance to apply when the aiming reticle (center of the screen) is
+     * farther away from the center of the target. The default value is 4.
+     */
+    targetSize?: number;
+    /**
+     * The duration in seconds after which the aim assistance stops being
+     * applied when no input is received. 0 = infinite. The
+     * default value is 1.
+     */
+    noInputGracePeriod?: number;
+};
 
 ## Throwing
 
@@ -5032,7 +5154,7 @@ When attached, an anchored entity will position its [pivot point](#pivot-points)
 
 The anchor position is a body part specified in [Anchor To](#anchor-attachment-to). Anchor position can be altered by setting [socket attachment](#socket-attachment) offset values.
 
-By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#pose-position-and-body-parts) it is attached to. For example, by default, a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
+By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#player-body-parts) it is attached to. For example, by default, a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
 
 !!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
 
@@ -5180,7 +5302,7 @@ There is a limit of 10 leaderboards per world. In terms of the data that can be 
 | Data Type | Intake Data Type | Display Limitations |
 |---|---|---|
 | *Raw Value* | Integers | Integer values from -2<sup>31</sup> to 2<sup>31</sup>-1<br/>(roughly -2 billion to 2 billion) |
-| *Time in Secs* | Integers | <mark>TODO</mark> Time data range |
+| *Time in Secs* | Integers | - |
 
 !!! warning Leaderboard values are clamped to integers in the range -2<sup>31</sup> to 2<sup>31</sup>-1.
 
@@ -5985,7 +6107,7 @@ I found a workaround to know what entity the editor is referring to when they us
 
 [AchievementsGizmo](#quests)
 [AIAgentGizmo](#npc-gizmo)
-AimAssistOptions
+[AimAssistOptions](#aim-assist)
 [AnimatedEntity](#animated-entities)
 AnimationCallbackReason
 AnimationCallbackReason
@@ -5998,8 +6120,8 @@ AnimationCallbackReasons
 [AudioGizmo](#sound-gizmo)
 [AudibilityMode](#sound-gizmo)
 [AudioOptions](#sound-gizmo)
-AvatarGripPose
-AvatarGripPoseAnimationNames
+[AvatarGripPose](#player-pose)
+[AvatarGripPoseAnimationNames](#player-pose)
 [BaseRaycastHit](#raycast-gizmo)
 [BuiltInVariableType](#builtinvariabletype)
 ButtonIcon
@@ -6044,7 +6166,7 @@ InteractionInfo
 [IUI](#tooltips-and-popups)
 [IWPSellerGizmo](#in-world-item-gizmo)
 [LaunchProjectileOptions](#projectile-launcher-gizmo)
-LayerType
+[LayerType](#raycast-gizmo)
 [LocalEvent](#local-events)
 [LocalEventData](#local-events)
 [MaterialAsset](#material-asset)
@@ -6060,10 +6182,10 @@ MonetizationTimeOption
 [PhysicsForceMode](#applying-forces-and-torque)
 PlayAnimationOptions
 [Player](#players)
-[PlayerBodyPart](#pose-position-and-body-parts)
-[PlayerBodyPartType](#pose-position-and-body-parts)
+[PlayerBodyPart](#player-body-parts)
+[PlayerBodyPartType](#player-body-parts)
 PlayerDeviceType
-[PlayerHand](#pose-position-and-body-parts)
+[PlayerHand](#player-body-parts)
 [PlayerControls](#player-controls)
 PlayerControlsConnectOptions
 PlayerInput
@@ -6160,7 +6282,3 @@ In the table below:
 | [OnProjectileHitPlayer](#projectile-launcher-gizmo) | `playerHit: Player`<br/>`position: Vec3, normal: Vec3, headshot: boolean` |
 | [OnProjectileHitWorld](#projectile-launcher-gizmo) | `position: Vec3`<br/>`normal: Vec3` |
 | [OnProjectileLaunched](#projectile-launcher-gizmo) | `launcher: Entity` |
-
-# OPEN QUESTIONS - {ignore=true}
-
-<mark>TODO</mark>: player locomotion speed, jump speed, grounded, apply force (and put a list of all player properties in the player class "overview" section)
