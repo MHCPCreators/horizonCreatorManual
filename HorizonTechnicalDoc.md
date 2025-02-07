@@ -186,10 +186,10 @@
         3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         4. [Transferring Data Across Owners](#transferring-data-across-owners)
 11. [Collisions](#collisions)
-    1. [Colliders](#colliders)
+    1. [Collision Events](#collision-events)
+    2. [Colliders](#colliders)
         1. [Active Colliders](#active-colliders)
         2. [Separating a Collider from a Mesh](#separating-a-collider-from-a-mesh)
-    2. [Collision Events](#collision-events)
     3. [Entity Tag Bubbling](#entity-tag-bubbling)
 12. [Physics](#physics)
     1. [Overview](#overview-2)
@@ -3981,17 +3981,29 @@ When an entity collides with another entity or player (unless "preserve ownershi
 
 - collision events: need to change "Collision Events From" since the default value is `Nothing`. You need to set a `Object Tag` or you won't get any events either.
 
-<mark>TODO</mark>: CodeBlockEvents
-```ts
-/**
- * The event that is triggered when a player collides with something.
- */
-OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
-/**
- * The event that is triggered when an entity collides with something.
- */
-OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
-```
+## Collision Events
+
+**Entity colliding with a player**: the entity's collider must be [active](#active-colliders) for it to be sent `OnPlayerCollision`.
+
+**Entity colliding with another entity**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag. For two entities to collide, they both must have [actives collider](#active-colliders). *Both entities are eligible* to be sent the `OnEntityCollision` event. Imagine that ... <mark>TODO find out what happens when two groups collide.</mark>
+
+There are two [CodeBlockEvents](#code-block-events) you can subscribe to on an entity to know when it collides with something:
+
+| [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
+|---|---|---|
+| `OnPlayerCollision` | <nobr>`collidedWith: Player`<br/>`collisionAt: Vec3`<br/>`normal: Vec3`<br/>`relativeVelocity: Vec3`<br/>`localColliderName: string`<br/>`otherColliderName: string`</nobr> | Sent when the entity collides the `collidedWith` player. |
+| `OnEntityCollision` | <nobr>`collidedWith: Entity`<br/>`collisionAt: Vec3`<br/>`normal: Vec3`<br/>`relativeVelocity: Vec3`<br/>`localColliderName: string`<br/>`otherColliderName: string`</nobr> | Sent when the entity collides the `collidedWith` entity. |
+
+The parameters for both events are:
+
+| Collision Event Parameter  | Type | Notes |
+|---|---|---|
+| `collidedWith` | [Player](#players) or [Entity](#entity-class) (depending on the event) | What the entity collided with. |
+| `collisionAt` | [Vec3](#vec3) | The global location where the entity *came in contact* with `collidedWith`. |
+| `normal` | [Vec3](#vec3) | The [surface normal](#https://en.wikipedia.org/wiki/Normal_(geometry)) at the position `collidedAt` on `collidedWith`. |
+| `relativeVelocity` | [Vec3](#vec3) | <mark>TODO</mark> |
+| `localColliderName` | `string` | <mark>TODO</mark> |
+| `otherColliderName` | `string` | <mark>TODO</mark> |
 
 ## Colliders
 
@@ -4029,14 +4041,6 @@ You shouldn't try separating out colliders unless:
 !!! example A high resolution mesh with a low resolution collider.
     Here's an example of a mesh (a character's face) that has a lot of geometry. It would really hurt perf to have Horizon compute collisions with the full face. So instead, a separate collider has been added (the icosahedron). This can be achieved by making the face with `collidable=false` and the icosahedron with `visible=false`. Or you could use the [sphere collider](#collider-gizmo) instead.
     <img src="images/collider-visualization.png" style="width:250px;display: block;margin-left:auto;margin-right:auto"/>
-
-
-## Collision Events
-
-1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
-
-- Turn collidable on / off
-- Control can collide with players, entities, or both
 
 ## Entity Tag Bubbling
 
