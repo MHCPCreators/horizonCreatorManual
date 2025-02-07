@@ -4305,7 +4305,7 @@ These values are intended to provide a balanced spring motion that feels natural
 
 ### Spring Push
 
-`springPushTowardPosition` pushes an entity toward a target position as if attached to (and pulled by) a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+`springPushTowardPosition` moves an entity toward a target position as if attached to (and pulled by) a spring. Spring-push computes a [force](#applying-forces-and-torque), so the entity must have **[Motion=Interactive](#interactive-entities)** and **[simulated=true](#simulated)**. A common use case is to call `springPushTowardPosition` every frame.
 
 ```ts
 // PhysicalEntity
@@ -4325,7 +4325,7 @@ springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void
 
 ### Spring Spin
 
-`springSpinTowardRotation` rotates an entity toward a target rotation as if attached to a spring. This is intended to be called every frame. The entity must have **[Motion=Interactive](#interactive-entities)** and should have (<mark>TODO</mark>: verify) **[simulated=true](#simulated)**.
+`springSpinTowardRotation` rotates an entity toward a target rotation as if attached to (and twisted by) a spring. Spring-spin computes a [torque](#applying-forces-and-torque), so the entity must have **[Motion=Interactive](#interactive-entities)** and **[simulated=true](#simulated)**. A common use case is to call `springSpinTowardRotation` every frame.
 
 ```ts
 // PhysicalEntity
