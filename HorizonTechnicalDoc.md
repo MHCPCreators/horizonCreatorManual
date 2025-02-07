@@ -278,10 +278,9 @@
             3. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
         1. [Using Persistent Player Variables](#using-persistent-player-variables)
-        2. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
-        3. [Persistent Variable Groups](#persistent-variable-groups)
+        2. [Persistent Variable Groups](#persistent-variable-groups)
+        3. [Creating, Editing, and Deleting Player Persistent Variables](#creating-editing-and-deleting-player-persistent-variables)
         4. [Persistent Variable Object Data](#persistent-variable-object-data)
-        5. [PPV - TODO Scrap notes](#ppv---todo-scrap-notes)
 19. [Spawning](#spawning)
     1. [Simple Spawning](#simple-spawning)
         1. [Deleting Simply Spawned Entities](#deleting-simply-spawned-entities)
@@ -5466,26 +5465,63 @@ The [World class](#world-class) has a property `persistentStorage` that contains
 !!! example Increment a counter every time a player enters the world.
     ![[ horizonScripts/incrementPPVOnEnter.ts ]]
 
-### Creating, Editing, and Deleting Player Persistent Variables
 
-**Editing PPVs**: ...
-
-**Deleting PPVs**: When a ppv is deleted, its becomes unavailable to all the worlds it is used in.
 
 ### Persistent Variable Groups
 
 Every player persistent variable belows to a **variables group**.
 
-**Variables can be shared between worlds** (<mark>TODO</mark> of the same owner?) to create some cool cross-world experiences (such as earning a "key" in one world that unlocks a door in another; you do this by setting the ppv in the first world and reading it in the second).
+**Variables can be shared between worlds** of the same owner to create some cool cross-world experiences (such as earning a "key" in one world that unlocks a door in another; you do this by setting the ppv in the first world and reading it in the second).
 
 **Limitations**: A group can have up to 100 variables in it. A world can have a maximum of 6 groups associated / accessible within it.
 
 To create a PPV group using the Desktop Editor:
-  1. Access the Systems dropdown and select Persistent Variables
+  1. Access the Systems menu and select Persistent Variables
   1. Click Create Variable Group
   1. Provide a name and optional description
   1. Toggle "Add to this world" to make it available
   1. Click Create
+
+To add a pre-existing variable group created in a different world:
+1. Access the Systems menu, and select Persistent Variables
+1. Click on the Added to World dropdown, and select Owned by me.
+1. Hover over the Variables Group that you want to implement, and click on the elipsis menu (3 dots).
+1. Select Add to world.
+
+In this same contextual menu, you have options to:
+* Edit variable group: to rename it or change its description.
+* View details: containing information about the owner, last modified date, creation date, people with access to these variables, and the list of worlds where the group is being used.
+
+When duplicating a world an UI will provide an option to also include a reference to the Variable Groups in the clone. Only the world owner can duplicate a world.
+
+### Creating, Editing, and Deleting Player Persistent Variables
+
+**Creating PPVs**:
+Once the Variables Group is created and added to the world, you can add Player Persistent Variables by:
+1. Access the Systems menu and select Persistent Variables.
+1. Click on the Variables Groups that will contain the PPV.
+1. Click on Create Variable (indicated with the + sign).
+1. In the Create Persistent Variable UI, enter a name and select a type: Number or Object
+
+**Editing and Deleting PPVs**:
+Once created, only the name and current value of a PPV can be edited. The type can't not be modified. 
+
+To change the name of a PPV:
+1. Access the Systems menu and select Persistent Variables.
+1. Click on the Variables Groups that will contain the PPV.
+1. Hover over the PPV, and click on:
+* The pencil icon to change the name of PPV
+* The trash can to delete it
+
+!!! warning Renaming or deleting a Player Persistent Variable will cause scripting compiling errors if it's currently being used. When a ppv is deleted, its becomes unavailable to all the worlds it is used in.
+
+Sometimes it's convenient to set the values of a PPV manually to test scenarios. To do this:
+1. Return to the Persistent Variables UI (under the Systems menu).
+1. Select a variable group.
+1. Click on Debug Values to open a panel where you can set the PPV values. You can either click each text field individually, or click Clear All Debug Values to reset all of them at once.
+1. If you make individual changes, click Save. If you used the Clear All Debug Values option, a window will appear asking to confirm this action.
+
+Note that this manual changes only affect the PPVs of the user that is making the changes. Collaborators can modify their debug values as well. For testers, you would have to use scripts to clear or adjust their PPV values.
 
 ### Persistent Variable Object Data
 
@@ -5527,28 +5563,6 @@ The `getPlayerVariable` method will return `null` if the data has never been set
       }
     }
     ```
-
-### PPV - TODO Scrap notes
-
--   When duplicating a world. Only the world owner can duplicate a world
--   When creating new variable groups in a world, there is an option to create and add to the existing world
--   When adding a variable group that existed previously
--- can be sorted in alphabetical order A-Z or Z-A
-    -- PPV name accept anything, even special characters
-    -- Renaming a ppv is possible by hovering over the ppv variable name, and clicking the pen icon. The new name can't be same as another existing PPV variable. If the name matches another ppv, an error will appear at the button of the screen explaining this issue, and the menu UI will look like the repeated name has been accepted. However, after closing and reopening the menu, the variable will return to its original name.
-    -- Once a variable has been created, the type can't be changed
-    -- Renaming or deleting a variable will cause reference scripts to break
-    -- Trailing or leading spaces will be automatically deleted from the ui name
-    -- It takes time for the ppvs to be recognized in the world. After creating the PPVs, you might need to leave and come back into the world before being able to use them
-    -- NPCs can be registered in PPVs
-    -- Clicking the Debug Values button will reset the values of all the ppvs variables withing a group. It only affects the player that clicks that button "Clear All Debug Values"
-    -- but if any of the ppv values has been previously set, the ui will allow the player to set the values
-    -- _ Remove from world: PPVs can be removed from the world
-    -- _ Edit variable group: Name can be changed, add a description, and toggle on and off Add to this world
-    -- \* View details: displays the owner's name, last modified date, creation date, edit the sharing permissions (CHECK THIS, I DON'T KNOW IF THIS IS 2P), and a list of all the worlds where the current groups is being used
-    -- groups can be removed from the world immediately right after they are created and none of its PPVs have been used
-    -- If the ppvs have been used before, toggling the "Add to this world" option will not tame any effect, unless, the ppv is renamed first (the intent), so the save btn is activated
-
 # Spawning
 
 **Spawning** is the act of loading content into a world [instance](#instances) while it is already running (meaning that the content was not "laid out" in world already and isn't in the [world snapshot](#world-snapshot)). For example, imagine a racing game that has 100 kinds of vehicles to choose from and allows 8 players. It would use too much memory and really impact perf to put 800 vehicles into the world (so all 8 players have full choice). Instead, you could create a [UI](#custom-ui) to let players choose from and then load in the vehicle that they choose. This act of "load in when needed" is *spawning*.

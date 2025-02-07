@@ -1,25 +1,25 @@
-import {CodeBlockEvents, Component, PropTypes} from 'horizon/core'
+import { CodeBlockEvents, Component, PropTypes } from 'horizon/core'
 
-const VisitPPVKey = 'visits'
+const VisitPPVKey = 'FooGroupName:visits'
 
 class VisitCounter extends Component<typeof VisitCounter> {
-  static propsDefinition = {}
-  override start() {}
+    static propsDefinition = {}
+    override start() { }
 
-  override preStart(): void {
-    this.connectCodeBlockEvent(
-      this.entity,
-      CodeBlockEvents.OnPlayerEnterTrigger,
-      (player) => {
+    override preStart(): void {
+        this.connectCodeBlockEvent(
+            this.entity,
+            CodeBlockEvents.OnPlayerEnterTrigger,
+            (player) => {
 
-        const count = this.world.persistentStorage.getPlayerVariable(
-          player, VisitPPVKey
+                const count = this.world.persistentStorage.getPlayerVariable(
+                    player, VisitPPVKey
+                )
+                this.world.persistentStorage.setPlayerVariable(
+                    player, VisitPPVKey, count + 1
+                )
+            }
         )
-        this.world.persistentStorage.setPlayerVariable(
-          player, VisitPPVKey, count + 1
-        )
-      }
-    )
-  }
+    }
 }
 Component.register(VisitCounter)
