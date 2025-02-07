@@ -874,16 +874,47 @@ The transformation origin point of an entity is called its **pivot point**. It r
 
 ### Transform Helpers
 
-<mark>TODO</mark>
+The [Entity class](#entity-class) has a few methods to help with moving and rotating entities. Note that these methods are "just math"; they update the entity's [position](#position) and [rotation](#rotation).
 
-```ts
-/// Entity
-lookAt(target: Vec3, up?: Vec3): void;
-moveRelativeTo(target: Entity, relativePosition: Vec3, space?: Space): void;
-moveRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativePosition: Vec3, space?: Space): void;
-rotateRelativeTo(target: Entity, relativeRotation: Quaternion, space?: Space): void;
-rotateRelativeToPlayer(player: Player, bodyPart: PlayerBodyPartType, relativeRotation: Quaternion, space?: Space): void;
-```
+* **Look At**: Rotate the entity to point its [forward axis](#local-transforms) in the direct of the target
+    ```ts
+    // Entity
+    lookAt(target: Vec3, up?: Vec3): void;
+    ```
+* **Move Relative To**: Move the `entity` so that its `position` to (*relative to* the `target` or `player`'s `bodyPart`) is `relativePosition` when measured in the `space` [coordinate system](#coordinate-system).
+    ```ts
+    // Entity
+    moveRelativeTo(
+      target: Entity,
+      relativePosition: Vec3,
+      space?: Space
+    ): void;
+
+    // Entity
+    moveRelativeToPlayer(
+      player: Player,
+      bodyPart: PlayerBodyPartType,
+      relativePosition: Vec3,
+      space?: Space
+    ): void;
+    ```
+* **Rotate Relative To**: Rotate the `entity` so that its `rotation` to (*relative to* the `target` or `player`'s `bodyPart`) is `relativeRotation` when measured in the `space` [coordinate system](#coordinate-system).
+    ```ts
+    // Entity
+    rotateRelativeTo(
+      target: Entity,
+      relativeRotation: Quaternion,
+      space?: Space
+    ): void;
+
+    // Entity
+    rotateRelativeToPlayer(
+      player: Player,
+      bodyPart: PlayerBodyPartType,
+      relativeRotation: Quaternion,
+      space?: Space
+    ): void;
+    ```
 
 ### Billboarding
 
