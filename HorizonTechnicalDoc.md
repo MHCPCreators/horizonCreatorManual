@@ -57,37 +57,38 @@
         3. [Entity Visibility](#entity-visibility)
             1. [Entity Visibility Permissions](#entity-visibility-permissions)
 6. [All Gizmos (Intrinsic Entity Types)](#all-gizmos-intrinsic-entity-types)
-    1. [Collider Gizmo](#collider-gizmo)
-    2. [Custom UI Gizmo](#custom-ui-gizmo)
-    3. [Debug Console Gizmo](#debug-console-gizmo)
-    4. [Door Gizmo](#door-gizmo)
-    5. [Dynamic Light Gizmo](#dynamic-light-gizmo)
-    6. [Environment Gizmo](#environment-gizmo)
-    7. [In-World Item Gizmo](#in-world-item-gizmo)
-    8. [Media Board Gizmo](#media-board-gizmo)
-    9. [Mirror Gizmo](#mirror-gizmo)
-    10. [Navigation Volume](#navigation-volume)
-    11. [NPC Gizmo](#npc-gizmo)
-    12. [ParticleFx Gizmo](#particlefx-gizmo)
-    13. [TrailFx Gizmo](#trailfx-gizmo)
-    14. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
-    15. [Quests Gizmo](#quests-gizmo)
-    16. [Raycast Gizmo](#raycast-gizmo)
-    17. [Script Gizmo](#script-gizmo)
-    18. [Snap Destination Gizmo](#snap-destination-gizmo)
-    19. [Sound Gizmos](#sound-gizmos)
-    20. [Spawn Point Gizmo](#spawn-point-gizmo)
-    21. [Static Light Gizmo](#static-light-gizmo)
-    22. [Text Gizmo](#text-gizmo)
+    1. [Avatar Pose Gizmo](#avatar-pose-gizmo)
+    2. [Collider Gizmo](#collider-gizmo)
+    3. [Custom UI Gizmo](#custom-ui-gizmo)
+    4. [Debug Console Gizmo](#debug-console-gizmo)
+    5. [Door Gizmo](#door-gizmo)
+    6. [Dynamic Light Gizmo](#dynamic-light-gizmo)
+    7. [Environment Gizmo](#environment-gizmo)
+    8. [In-World Item Gizmo](#in-world-item-gizmo)
+    9. [Media Board Gizmo](#media-board-gizmo)
+    10. [Mirror Gizmo](#mirror-gizmo)
+    11. [Navigation Volume](#navigation-volume)
+    12. [NPC Gizmo](#npc-gizmo)
+    13. [ParticleFx Gizmo](#particlefx-gizmo)
+    14. [TrailFx Gizmo](#trailfx-gizmo)
+    15. [Projectile Launcher Gizmo](#projectile-launcher-gizmo)
+    16. [Quests Gizmo](#quests-gizmo)
+    17. [Raycast Gizmo](#raycast-gizmo)
+    18. [Script Gizmo](#script-gizmo)
+    19. [Snap Destination Gizmo](#snap-destination-gizmo)
+    20. [Sound Gizmos](#sound-gizmos)
+    21. [Spawn Point Gizmo](#spawn-point-gizmo)
+    22. [Static Light Gizmo](#static-light-gizmo)
+    23. [Text Gizmo](#text-gizmo)
         1. [Using a Text Gizmo](#using-a-text-gizmo)
         2. [Text Gizmo Limitations](#text-gizmo-limitations)
         3. [Text Gizmo Markup](#text-gizmo-markup)
         4. [Text Gizmo Tags](#text-gizmo-tags)
             1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
         5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-    23. [Trigger Gizmo](#trigger-gizmo)
+    24. [Trigger Gizmo](#trigger-gizmo)
         1. [Trigger Collisions](#trigger-collisions)
-    24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+    25. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 7. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -213,13 +214,14 @@
     3. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
     4. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     5. [Player Locomotion](#player-locomotion)
-    6. [Player Body Parts](#player-body-parts)
+    6. [Player Position and Rotation](#player-position-and-rotation)
+    7. [Player Body Parts](#player-body-parts)
         1. [Player Hand](#player-hand)
-    7. [Player Pose](#player-pose)
-    8. [VOIP Settings](#voip-settings)
-    9. [Haptics](#haptics)
-    10. [Aim Assist](#aim-assist)
-    11. [Throwing](#throwing)
+    8. [Player Pose](#player-pose)
+    9. [Voip Settings](#voip-settings)
+    10. [Haptics](#haptics)
+    11. [Aim Assist](#aim-assist)
+    12. [Throwing](#throwing)
 14. [Grabbing and Holding Entities](#grabbing-and-holding-entities)
     1. [Creating a Grabbable Entity](#creating-a-grabbable-entity)
     2. [Can Grab](#can-grab)
@@ -1267,6 +1269,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 | [Intrinsic Type](#entity-types) | TypeScript Class |
 |---|---|
+| [Avatar Pose](#avatar-pose-gizmo) | `Entity` |
 | [Box Collider](#collider-gizmo) | `Entity` |
 | [Capsule Collider](#collider-gizmo) | `Entity` |
 | [Custom UI](#custom-ui-gizmo) | `Entity` |
@@ -1300,6 +1303,18 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [World Leaderboard](#world-leaderboard-gizmo) | `Entity` |
 | [World Promotion](#world-promotion-gizmo) | `Entity` |
 
+## Avatar Pose Gizmo
+
+**Description**: Allows a player to enter into a specific pose (e.g. electing to sit down in a chair).
+
+| Property | Type | Description |
+|---|---|---|
+| Pose | `Seat` | There's currently only one option and this is not changeable. |
+| Use Custom Exit Direction | `boolean` | Enable if you want the player to exit the pose and face a specific direction (e.g. getting out of a chair and facing away from it). |
+| Exit Direction | [Vec3](#vec3) | The direction the player is facing when they exit the pose. This is only available if "Use Custom Exist Direction" is on. |
+
+**TypeScript**: Avatar Pose gizmos are referenced as `Entity` instances with no additional scripting capabilities.
+
 ## Collider Gizmo
 **Description**: Represents a collision field in your world. Used to stop players, objects, and/or projectiles.
 | Property | Type | Description |
@@ -1307,7 +1322,9 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Collidable | `boolean` | Determines whether collision is applied to this collider. |
 | Collision Layer | `Everything`, `Objects Only`, or `Players Only`. Default is `Everything` | Determines which layers will collide. With `Objects Only`, projectiles and other objects will be blocked, but players can pass through and with `Players Only` everything can pass through except players. |
 
-**TypeScript**: Collider Gizmos are references as `Entity` instances with no additional scripting capabilities.
+**TypeScript**: Collider Gizmos are referenced as `Entity` instances with no additional scripting capabilities.
+
+**Limitations**: There is currently no way to script a player to "force"-enter a pose. There is also no way to prevent them from exiting.
 
 ## Custom UI Gizmo
 **Description**: Presents a custom UI (User Interface) to your players. Also see [Custom UI](#custom-ui)
@@ -1344,7 +1361,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Door | Existing World | Which will the door should showcase. |
 | Visible | `boolean` | Whether the door is visible or not. |
 
-**TypeScript**: doors are references as `Entity` instances with no additional scripting capabilities.
+**TypeScript**: doors are referenced as `Entity` instances with no additional scripting capabilities.
 
 **Limitations**:
   * Cannot be [transformed](#transforms) by script. You can put a door in [a group or empty object](#empty-object-and-groups) if you want to script its movement, make it grabbable, etc.
@@ -4631,9 +4648,15 @@ The [Player class](#player-class) has a few properties related to locomotion:
 | jumpSpeed | `HorizonProperty`<br/>`<number>` | A read-write `number` property of how fast the player jumps in m/s. The value must be between `0` and `45`. `0` means that the player can't jump. The default is `4.3` m/s.
 | locomotionSpeed | `WritableHorizonProperty`<br/>`<number>` | A write-only `number` property of how fast the player can locomote when not sprinting, in m/s. `0` means that the player cannot move. The default is `4.5` m/s.
 
-## Player Body Parts
+## Player Position and Rotation
 
 The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
+
+**Moving the player**: You can only `set` player position if "Custom Player Movement" is enabled in [Player Settings](#publishing-and-player-settings).
+
+**Rotating the player**: The only way to rotate a player is to have them enter an [avatar pose gizmo](#avatar-pose-gizmo) and then script the movement of the gizmo. There is currently no way to force a player into a pose gizmo, nor to prevent them from exiting.
+
+## Player Body Parts
 
 A [player](#players) has a number of properties for accessing body parts: `head`, `torso`, `foot`, `leftHand`, and `rightHand`; each return an instance of the class `PlayerBodyPart` (or the more specific `PlayerHand`). They are [Horizon properties](#horizon-properties) and so you must use `get()`:
 
@@ -4680,11 +4703,11 @@ playAvatarAnimation(animation: Asset, options?: PlayAnimationOptions): void;
 playAvatarGripPoseAnimationByName(avatarGripPoseAnimationName: string): void;
 setAvatarGripPoseOverride(avatarGripPose: AvatarGripPose): void;
 
-## VOIP Settings
+## Voip Settings
 
 Horizon has the ability control *who can hear a player and from how far away*.
 
-It call this the **VOIP Setting** which can be configured with a number of values: **mute, whisper, nearby, *default*, extended, global** which representing increases ranges of being heard. Mute means that no one can hear the player, global means that everyone can hear the player (and with full volume). The other values represent a spectrum in between mute and global, with **default** being the recommended setting for most experiences (people in your general vicinity can hear and so can people farther away if you are loud). There is one more special VOIP Setting **environment**, which is described below.
+It call this the **Voip Setting** (borrowing the term [VoIP](#https://en.wikipedia.org/wiki/Voice_over_IP)) which can be configured with a number of values: **mute, whisper, nearby, *default*, extended, global** which representing increases ranges of being heard. Mute means that no one can hear the player, global means that everyone can hear the player (and with full volume). The other values represent a spectrum in between mute and global, with **default** being the recommended setting for most experiences (people in your general vicinity can hear and so can people farther away if you are loud). There is one more special VOIP Setting **environment**, which is described below.
 
 !!! info There are no team-based voip settings (there are no "voice channels").
     There is (currently) no way to configure voip  settings between two specific players or to configure voice channels. Specifically you can't make a team game where a whole hears each other globally but the other team hears them whisper. When a player is set to global or whisper, **the setting controls how everyone else hears them**.
@@ -4746,32 +4769,30 @@ The supported values for haptics sharpness are:
 
 ## Aim Assist
 
-<mark>TODO</mark>
+For experiences at involve the player aiming at something, Horizon offers the ability to *assist a player with their aim**. This only works for non-VR players.
 
-setAimAssistTarget(target: Player | Entity | Vec3, options?: AimAssistOptions): void;
-clearAimAssistTarget(): void;
+There are two methods on the [Player class](#player-class) related to aiming:
 
-type AimAssistOptions = {
-    /**
-     * The intensity of the pulling force towards
-     * the Aim Assist target, in degrees of camera rotation per second. The default
-     * value is 10.
-     */
-    assistanceStrength?: number;
-    /**
-     * The size of the target used to determine whether the
-     * assistance forces apply, in meters. A bigger target causes the
-     * assistance to apply when the aiming reticle (center of the screen) is
-     * farther away from the center of the target. The default value is 4.
-     */
-    targetSize?: number;
-    /**
-     * The duration in seconds after which the aim assistance stops being
-     * applied when no input is received. 0 = infinite. The
-     * default value is 1.
-     */
-    noInputGracePeriod?: number;
-};
+* **Setting an Aim Assist Target**: You can enable aim assist, via `player.setAimAssistTarget(target, options)`, to help `player` aim at `target`. You can call `setAimAssistTarget` again to change the target. The `setAimAssistTarget` method allows you to specify which [Player](#players), [Entity](#entities), or [location](#vec3) you want to help the player aim at. It does this by "pulling" the center of the screen in the direction of the target.
+
+    ```ts
+    // Player
+    setAimAssistTarget(
+      target: Player | Entity | Vec3,
+      options?: AimAssistOptions
+    ): void;
+    ```
+
+    The `AimAssistOptions` object has a few optional fields:
+
+    | `AimAssist` field | Type | Default | Notes |
+    |---|---|---|---|
+    | `assistanceStrength` | `number` | 10 | The speed the camera should rotate (in degrees/second) |
+    | `targetSize` | `number` | 4 | How close the center of the screen has to be to the target for the aim assist to start "pulling". A larger number is *more helpful*.  |
+    | `oInputGracePeriod` | `number` | 1 | How long the aim assist continues rotating the camera after the player stops providing input (in seconds) |
+
+
+* **Clearing an Aim Assist Target**: To disable aim assist, call `player.clearAimAssistTarget()`.
 
 ## Throwing
 
