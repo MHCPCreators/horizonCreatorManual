@@ -3902,7 +3902,7 @@ sequenceDiagram
     ClientB ->> ClientB: Allocate newComponent<br>newComponent.preStart()
     ClientB ->> ClientB: newComponent.start()
     ClientB ->> ClientB: newComponent.receiveOwnership(state, A, B)
-    note over ClientB: newComponent is <br>ready to use
+    note over ClientB: newComponent is <br>ready to be used
 ```
 
 !!! Note Difference between getLocalPlayer() and entity.owner
