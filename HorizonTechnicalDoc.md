@@ -173,8 +173,9 @@
             3. [Scene Graph Mutations](#scene-graph-mutations)
             4. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
-    10. [Script File Execution](#script-file-execution)
-    11. [Helper Functions](#helper-functions)
+    10. [File-Backed Scripts (FBS)](#file-backed-scripts-fbs)
+    11. [Script File Execution](#script-file-execution)
+    12. [Helper Functions](#helper-functions)
 10. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Entity Ownership](#entity-ownership)
@@ -1724,7 +1725,10 @@ type RaycastHit = {
 ```
 
 ## Script Gizmo
-See FBS or [Script API](#scripting)
+
+For Codeblock scripts, the Script gizmo is an in-world gizmo that you can use to open up the Codeblock editor (only in VR).
+
+In the desktop editor, using Typescript scripts, the Script Gizmo doesn't provide much utility. For more info see [file-backed scripts](#file-backed-scripts-fbs).
 
 ## Snap Destination Gizmo
 **Description**: Designed to help position and orientate players that land on it using teleport locomotion. Has no effect for players using slide locomotion.
@@ -3753,7 +3757,13 @@ class Child<T> extends Parent<typeof Child> {
 Component.register(Child)
 ```
 
+## File-Backed Scripts (FBS)
+
+<mark>TODO</mark> [Script Gizmo](#script-gizmo)
+
 ## Script File Execution
+
+<mark>TODO</mark>
 
 Whenever a TypeScript file is saved, the editor will reload it. That results in:
 
@@ -5215,10 +5225,8 @@ The following is a list of player body parts that the attachable entity may anch
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
 
 #### Auto Scale to Anchor
-<mark>TODO</mark> We don't know the use-case for this feature. So we're describing our experience with it.
-Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its original scale. Will not automatically scale back to the original scale.
 
-!!! bug `Auto Scale to Anchor` does nothing when toggled until you leave the world and come back.
+When an entity has "Avatar Attachable" set to "Anchor" there is a setting available: "Auto Scale to Anchor". <mark>The authors of this document are unsure what it does</mark>.
 
 ## Attach to 2D screen
 This toggle causes the attachable entity to become **screen-attached**. This means the entity's transformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
@@ -5675,8 +5683,6 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 !!! info An`OnItemPurchaseComplete` event with `success` set to `false` does not imply ownership.
     If a person tries to buy an item they already own you will get a `success=false` event. Some times a `success=false` event will even send (🐞 erroneously) right after a `success=true` event. When `OnItemPurchaseComplete` is sent `success=false` you should check if the player owns the item with `playerOwnsItem` *before* reacting to the failure.
 
-<mark>TODO</mark>- I haven't been able to make the OnPlayerSpawnedItem work
-
 ## Player Persistent Variables (PPVs)
 
 Player Persistent Variables (PPVs) store custom data that persists across sessions for each player. PPVs provide flexible storage for tracking player state, progress, and preferences. Every PPV exists with a [variable group](#persistent-variable-groups), which can be shared between worlds.
@@ -5740,7 +5746,7 @@ Once the Variables Group is created and added to the world, you can add Player P
 1. In the Create Persistent Variable UI, enter a name and select a type: Number or Object
 
 **Editing and Deleting PPVs**:
-Once created, only the name and current value of a PPV can be edited. The type can't not be modified. 
+Once created, only the name and current value of a PPV can be edited. The type can't not be modified.
 
 To change the name of a PPV:
 1. Access the Systems menu and select Persistent Variables.
