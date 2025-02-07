@@ -3910,8 +3910,8 @@ sequenceDiagram
     
     `entity.owner` is the owner that was manually or automatically requested. Note that before the ownership transfer and immediately after `entity.owner.set(B)`, the entity's owner is A. Then from `transferOwnership` in step 1 and on, the entity's owner is B. 
 
-!!! Note Ownership transfer for an entity with a **Default Script**
-    Only step 3 and 4 occurs without any method callbacks to indicate that an ownership transfer has occurred. Once the Server has validated the ownership change, the `entity.owner` becomes B.
+!!! warning Ownership transfer for an entity with a **Default Script**
+    It is not recommended to transfer ownership of an entity with a Default Script, as you'll get the error "Cannot transfer ownership of non-local script, the script will continue running on the server." In this case, step 3 and 4 occurs. Once the Server has validated the ownership change in the next frame, the `entity.owner` becomes B.
 
 ### Discontinuous Ownership Transfers
 
