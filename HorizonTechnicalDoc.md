@@ -4619,25 +4619,17 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 
 ## Player Locomotion
 
-<mark>TODO</mark>
+A VR player locomotes (moves the avatar) using their controllers. A non-VR player locomotes via mouse and keyboard or via on-screen controls. These inputs are applied during the [simulation phase](#simulation-phase) of each frame. You can also "take over" and override the inputs using [player controls](#player-controls).
 
-    isGrounded: ReadableHorizonProperty<boolean>;
-    locomotionSpeed: WritableHorizonProperty<number>;
-    /**
-     * The speed applied to a player when they jump, in meters per second.
-     * Setting this to 0 effectively disables a player's ability to jump.
-     *
-     * @remarks
-     *
-     * Default value is 4.3.
-     * jumpSpeed must be a value between 0 and 45.
-     * `jumpSpeed.set` can be called on any player from any context, but
-     * `jumpSpeed.get` will throw an error unless it's called from a
-     * local script attached to an object owned by the player in question.
-     */
-    jumpSpeed: HorizonProperty<number>;
+The table below shows some methods related to player locomotion. There are additional ways to interact with player movement in [player physics](#player-physics).
 
-[player physics](#player-physics)
+The [Player class](#player-class) has a few properties related to locomotion:
+
+| [Player class](#player-class) locomotion [Horizon property](#horizon-properties) | Type | Notes |
+|---|---|---|
+| isGrounded | `ReadableHorizonProperty`<br/>`<boolean>` | A read-only `boolean` property denoting if the player is on the ground and able to walk around (grounded) or in the air due to falling or jumping (not grounded). |
+| jumpSpeed | `HorizonProperty`<br/>`<number>` | A read-write `number` property of how fast the player jumps in m/s. The value must be between `0` and `45`. `0` means that the player can't jump. The default is `4.3` m/s.
+| locomotionSpeed | `WritableHorizonProperty`<br/>`<number>` | A write-only `number` property of how fast the player can locomote when not sprinting, in m/s. `0` means that the player cannot move. The default is `4.5` m/s.
 
 ## Player Body Parts
 
