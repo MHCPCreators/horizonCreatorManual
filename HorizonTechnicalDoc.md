@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection: Collisions -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -40,22 +40,23 @@
         5. [Transform Property](#transform-property)
         6. [Local Transforms](#local-transforms)
         7. [Pivot Points](#pivot-points)
-        8. [Transform Relative To](#transform-relative-to)
+        8. [Transform Helpers](#transform-helpers)
         9. [Billboarding](#billboarding)
 5. [Entities](#entities)
-    1. [Entity Types](#entity-types)
+    1. [Entity Class](#entity-class)
+    2. [Entity Types](#entity-types)
         1. [Static vs Dynamic Entities](#static-vs-dynamic-entities)
         2. [Intrinsic Entity Types](#intrinsic-entity-types)
         3. [Behavior Entity Types](#behavior-entity-types)
         4. [Entity as() method](#entity-as-method)
         5. [Animated Entities](#animated-entities)
         6. [Interactive Entities](#interactive-entities)
-    2. [Entity Properties](#entity-properties)
+    3. [Entity Properties](#entity-properties)
         1. [Simulated](#simulated)
         2. [Entity Tags](#entity-tags)
         3. [Entity Visibility](#entity-visibility)
             1. [Entity Visibility Permissions](#entity-visibility-permissions)
-    3. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
+    4. [All Intrinsic Entity Types](#all-intrinsic-entity-types)
         1. [Collider Gizmo](#collider-gizmo)
         2. [Custom UI Gizmo](#custom-ui-gizmo)
         3. [Debug Console Gizmo](#debug-console-gizmo)
@@ -85,6 +86,7 @@
                 1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
             5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
         23. [Trigger Gizmo](#trigger-gizmo)
+            1. [Trigger Collisions](#trigger-collisions)
         24. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 6. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
@@ -184,13 +186,12 @@
         3. [Automatic Ownership Transfers](#automatic-ownership-transfers)
         4. [Transferring Data Across Owners](#transferring-data-across-owners)
 10. [Collisions](#collisions)
-    1. [Collision Layers](#collision-layers)
-    2. [Collidability](#collidability)
-    3. [Controlling Collisions](#controlling-collisions)
-    4. [Collision Events](#collision-events)
-    5. [Trigger Collisions](#trigger-collisions)
-    6. [Tag Bubbling](#tag-bubbling)
-    7. [Raycasts](#raycasts)
+    1. [Colliders](#colliders)
+        1. [Active Colliders](#active-colliders)
+        2. [Separating a Collider from a Mesh](#separating-a-collider-from-a-mesh)
+    2. [Collision Events](#collision-events)
+    3. [Entity Tag Bubbling](#entity-tag-bubbling)
+    4. [Raycasts](#raycasts)
 11. [Physics](#physics)
     1. [Overview](#overview-2)
     2. [PhysicalEntity Class](#physicalentity-class)
@@ -224,13 +225,12 @@
         1. [Setting "Who Can Grab?"](#setting-who-can-grab)
         2. [Setting "Who Can Take From Holder?"](#setting-who-can-take-from-holder)
         3. [Grab Distance](#grab-distance)
-    3. [Grabbing Entities](#grabbing-entities)
-        1. [Grab Lock](#grab-lock)
-        2. [Force Holding](#force-holding)
-    4. [Releasing Entities](#releasing-entities)
+        4. [Grab Lock](#grab-lock)
+        5. [Force Grabbing](#force-grabbing)
+    3. [Releasing Entities](#releasing-entities)
         1. [Manual release](#manual-release)
         2. [Force release](#force-release)
-    5. [Grab Sequence and Events](#grab-sequence-and-events)
+    4. [Grab Sequence and Events](#grab-sequence-and-events)
         1. [Hand-off (Switching Hands or Players)](#hand-off-switching-hands-or-players)
         2. [Moving Held Entities](#moving-held-entities)
             1. [Moving a Held Entity Locally in Relation to the Hand](#moving-a-held-entity-locally-in-relation-to-the-hand)
@@ -590,7 +590,7 @@ When an instance resets, all components are disposed, all assets are [despawned]
 
 # Scene Graph
 
-Every world in Horizon is made out of [entities](#entities) each of which has an [intrinsic type](#entity-types) such as being a mesh or a particle effect. Entities can be configured to have *behaviors* (such as being [grabbable](#grabbing-entities) or [attachable](#attaching-entities)) and be have other entities as their children (or as a parent). The collection of all of these entities, their attributes, and relationships is called the **scene graph**. When you modify the scene graph in the editor, those changes are saved in the [world snapshot](#world-snapshot).
+Every world in Horizon is made out of [entities](#entities) each of which has an [intrinsic type](#entity-types) such as being a mesh or a particle effect. Entities can be configured to have *behaviors* (such as being [grabbable](#grabbing-and-holding-entities) or [attachable](#attaching-entities)) and be have other entities as their children (or as a parent). The collection of all of these entities, their attributes, and relationships is called the **scene graph**. When you modify the scene graph in the editor, those changes are saved in the [world snapshot](#world-snapshot).
 
 ## Hierarchy
 
@@ -655,10 +655,14 @@ digraph {
       O [pos="0,0!" shape=box3d width=0.5 label=""]
       X [pos="1.75,0!" width=0 height=0 shape=none fontcolor=red label=right]
       Y [pos="0,1.5!" width=0 height=0 shape=none fontcolor=green label=up]
-      Z [pos="0.9,0.9!" width=0 height=0 shape=none fontcolor=blue label=forward]
+      Z [pos="0.52,1.05!" width=0 height=0 shape=none fontcolor=blue label=forward]
 
-      O -> X [color="red"]
-      O -> Y [color="green"]
+      X2 [pos="0.22,0!" width=0 height=0 shape=none fontcolor=red label=""]
+
+      Y2 [pos="0,0.22!" width=0 height=0 shape=none fontcolor=green label=""]
+
+      X2 -> X [color="red"]
+      Y2 -> Y [color="green"]
       O -> Z [color="blue"]
     }
     ```
@@ -678,7 +682,7 @@ In the desktop editor you can switch quickly between transform tools via the key
 | Rotate | E |
 | Scale | R |
 
-Entities can be transformed globally and [locally](#local-transforms), they have [pivot points](#pivot-points), and can be [transformed relative to other entities or players](#transform-relative-to).
+Entities can be transformed globally and [locally](#local-transforms), they have [pivot points](#pivot-points), and can be [transformed relative to other entities or players](#transform-helpers).
 
 !!! note No Arbitrary Matrix Transforms
     Horizon does not currently allow matrix transforms. You can achieve some skew effects by rotating an entity inside a non-uniformly scaled one. Arbitrary matrix transforms are not exposed to the developer.
@@ -867,7 +871,7 @@ The transformation origin point of an entity is called its **pivot point**. It r
 !!! warning In the desktop editor the manipulator handles don't always render at the pivot points!
     The desktop editor lets you choose to put the "manipulator handles" at either the `Center` or `Pivot` of entities. Check that dropdown if you aren't seeing the pivots as you expect. This dropdown has no effect on how the world *runs* and is simply there to help with *editing*.
 
-### Transform Relative To
+### Transform Helpers
 
 <mark>TODO</mark>
 
@@ -903,13 +907,50 @@ Every "thing" in the Horizon scene is an _entity_ (a grabbable item, a mesh, a l
 
     In TypeScript `Object` is a built-in for managing data, whereas `Entity` is a Horizon-specific class.
 
-<mark>TODO</mark>
+Entities are represented by the [Entity class](#entity-class). They have an [intrinsic type](#intrinsic-entity-types) (such as being a [particle effect](#particlefx-gizmo)) and may have (multiple) [behavior types](#behavior-entity-types) (such as being [grabbable](#grabbing-and-holding-entities)). Entities have a number of [properties](#entity-properties) and methods for managing [visibility](#entity-visibility). Entities can be [transferred to run on player devices](#clients-devices-and-the-server) to improve "smoothness", can be impacted by [physics](#physics) via forces, be made [grabbable](#grabbing-and-holding-entities), be made [attachable](#attaching-entities), and so much more.
+
+## Entity Class
+
+| `Entity` Class Member | Description |
+|---|---|
+| **Scene Graph** |
+| [children](#hierarchy) | All entities that are children of this one (in the Hierarchy panel) |
+| [getComponents](#converting-between-components-and-entities) | All components attached to this entity |
+| id | A unique id in this [instance](#instances) |
+| name | The name in the Properties panel |
+| [parent](#hierarchy) | The parent (if any) in the Hierarchy panel |
+| **Interaction** |
+| [as](#entity-as-method) | Convert the entity to an [intrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) entity type |
+| [collidable](#colliders) | Control collidability |
+| color | Set the color of the mesh (only works for [SubD](#subd-vs-custom-models)) |
+| [exists](#despawning) | Check if the entity exists (either from despawn or a Codeblock script passing an uninitialized reference) |
+| [interactionMode](#interactive-entities) | Control the type of interactivity |
+| [owner](#entity-ownership) | The player whose [client](#clients-devices-and-the-server) has [authority](#authority-and-reconciliation) of the entity (defaults to the [server player](#server-player)) |
+| [simulated](#simulated) | If the entity updated in the [simulation phase](#simulation-phase) of each frame |
+| [tags](#entity-tags) | The list of [tags](#entity-tags) on the entity |
+| **Transforms** |
+| [forward](#local-transforms) | The local forward vector |
+| [lookAt](#transform-helpers) | Rotate to look at a point |
+| [moveRelativeTo](#transform-helpers) | Move in another entity's [local coordinates](#local-transforms) |
+| [moveRelativeToPlayer](#transform-helpers) | Move in a player's [local coordinates](#local-transforms) |
+| [position](#position) | The entity's global position |
+| [right](#local-transforms) | The local right vector |
+| [rotateRelativeTo](#transform-helpers) | Rotate in another entity's [local coordinates](#local-transforms) |
+| [rotateRelativeToPlayer](#transform-helpers) | Rotate in a player's [local coordinates](#local-transforms) |
+| [rotation](#rotation) | The entity's global rotation |
+| [scale](#scale) | The entity's global scale |
+| [transform](#transforms) | The entity's transform object |
+| [up](#local-transforms) | The local up vector |
+| **Visibility** |
+| [isVisibleToPlayer](#entity-visibility) | Does a player have *[permission](#entity-visibility-permissions)* to see the entity? |
+| [setVisibilityForPlayers](#entity-visibility) | Set the *[permission](#entity-visibility-permissions)* for a player to see the entity |
+| [visible](#entity-visibility) | Is the entity visible (which may be [overridden by its parent or by permissions](#entity-visibility)) |
 
 ## Entity Types
 
 Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-types)** determined by how the entity was originally created (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
 
-Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-entities), [attachable](#attaching-entities), etc).
+Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-and-holding-entities), [attachable](#attaching-entities), etc).
 
 For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
@@ -921,7 +962,7 @@ All entities in Horizon are either **static** or **dynamic**.
 
 **Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-entity-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the Properties panel**
   * When `Motion` is set to `Animated` you can [record a "hand animation"](#animated-entities) on the entity.
-  * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-entities), [physics-simulated](#physicalentity-class), or both.
+  * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-and-holding-entities), [physics-simulated](#physicalentity-class), or both.
 
 !!! note Parents don't affect static vs dynamic.
     A static entity can have a dynamic parent  and vice versa.
@@ -955,7 +996,7 @@ There is a [full list of all intrinsic entity types and their documentation](#al
 | [Attachable](#attaching-entities) | An entity that can be attached to a [Player](#players). | `AttachableEntity` | Set `Motion` to `Animated` or `Interactive`. Set `Avatar Attachable` to `Sticky` or `Anchor` in the Properties panel.
 | [Grabbable](#grabbing-and-holding-entities) | An entity that can be grabbed and held. | `GrabbableEntity` | Set `Motion` to `Interactive`. Set `Interaction` to `Grabbable` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)`. |
 | [Physics-Simulated](#physicalentity-class) | An entity that can respond to [forces and torques](#physics). | `PhysicalEntity`  | Set `Motion` to `Interactive`. Set `Interaction` to `Physics` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)` |
-| [Navigation Mesh Agent](#navigation-mesh-agent) | An entity that can do its own locomotion using a [navigation mesh profile](#navigation-mesh-profile) | `NavMeshAgent` | In the `Navigation Locomotion` property sub-panel, set `Enabled` to `true`. | 
+| [Navigation Mesh Agent](#navigation-mesh-agent) | An entity that can do its own locomotion using a [navigation mesh profile](#navigation-mesh-profile) | `NavMeshAgent` | In the `Navigation Locomotion` property sub-panel, set `Enabled` to `true`. |
 
 ### Entity as() method
 
@@ -1023,7 +1064,7 @@ Use the `AnimatedEntity` class to control recorded animations.
 
 ### Interactive Entities
 
-When a [dynamic entity](#static-vs-dynamic-entities)'s `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-entities), [physics](#physics), or both. We call these **interactive entities**.
+When a [dynamic entity](#static-vs-dynamic-entities)'s `Motion` is set to `Interactive` in the Properties panel it can be used for [grabbing](#grabbing-and-holding-entities), [physics](#physics), or both. We call these **interactive entities**.
 
 An interactive entity's [behavior types](#behavior-entity-types) can be changed at runtime
 ```ts
@@ -1034,7 +1075,7 @@ with any of the following options:
 
 | Value  | Behavior |
 |---|---|
-| `EntityInteractionMode.Grabbable`  | The entity is a [GrabbableEntity](#grabbing-entities) |
+| `EntityInteractionMode.Grabbable`  | The entity is a [GrabbableEntity](#grabbing-and-holding-entities) |
 | `EntityInteractionMode.Physics`  | The entity is a [PhysicalEntity](#physicalentity-class) |
 | `EntityInteractionMode.Both`  | The entity is both a [GrabbableEntity](#grabbing-entities) and a [PhysicalEntity](#physicalentity-class) |
 
@@ -1048,7 +1089,6 @@ you will get one of the above values, unless the entity is not interactive, in w
 |---|---|
 | `EntityInteractionMode.Invalid`  | The entity is not interactive and has neither grabbable nor physics behavior types |
 
-
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
     If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
 
@@ -1060,7 +1100,7 @@ you will get one of the above values, unless the entity is not interactive, in w
 
 ## Entity Properties
 
-All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [transforming relative to an entity or player](#transform-relative-to), and checking if an entity [exists](#entity-exists).
+All `Entity` instances have the class properties in the table below. Additionally, entities have methods for managing [visibility](#entity-visibility), [transforming relative to an entity or player](#transform-helpers), and checking if an entity [exists](#entity-exists).
 
 | `Entity` Class Member | Type | Description |
 |---|---|---|
@@ -1083,7 +1123,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-asset) use [tinting](#tinting). |
 | visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
 | **[Behavior](#interactive-entities)** |
-| [collidable](#collidability) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#collidability). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
+| [collidable](#colliders) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#active-colliders). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
 | [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#simulation-phase) of the frame). |
 | **Ownership** |
@@ -1096,7 +1136,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics calculations](#simulation-phase) of the frame.
 
 When an [entity](#entities) has **`simulated` set to `false`**:
-* It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
+* It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-and-holding-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
 * It **cannot have [forces applied](#applying-forces-and-torque)** ❌ (even if it is [physical](#physicalentity-class)).
 * It **can be attached via scripting** ✅  (if it is [attachable](#attaching-entities)) though it [may push the player](#scripted-attach) (if `collidable` is `true`). If an attached entity has it's `simulated` set to `false` it *will NOT detach*.
 * It **can be moved** ✅ via `position.set(...)` and `rotation.set(...)` (if it is [dynamic](#static-vs-dynamic-entities)).
@@ -1164,7 +1204,7 @@ where `PlayerVisibilityMode` has the values `VisibleTo` and `HiddenFrom`. When y
 **Checking permissions**: `entity.isVisibleToPlayer(player)` allows you to check if `player` can see the `entity` according to the *permissions*. This method is unaffected by the `visible` property; it is telling you if the `player` can see the `entity` *when the entity has `visible` set to `true`*.
 
 !!! note Visibility and Collidability are separate.
-    Making an entity invisible (by setting `visible` to `false` or by using per-player visibility controls) does not impact [collidability](#collidability). Even if an entity is invisible it can still be collided with (if it has an [active collider](#collidability)). If you want an invisible entity to not be a "blocker" then set `collidable` to `false` as well. At this time **there is no per-player collidability**.
+    Making an entity invisible (by setting `visible` to `false` or by using per-player visibility controls) does not impact [collidability](#colliders). Even if an entity is invisible it can still be collided with (if it has an [active collider](#active-colliders)). If you want an invisible entity to not be a "blocker" then set `collidable` to `false` as well. At this time **there is no per-player collidability**.
 
 !!! example Example
     Let `entity` be a cube with `visible` set to `true` in the Properties panel. Let `playerA` and `playerB` be the two [players](#players) in the [instance](#instances).
@@ -1405,7 +1445,7 @@ export declare enum AgentSpawnResult //The result of a player spawn request
 */
 ```
 
-**Limitations**: 
+**Limitations**:
 - Costly to performance. Considered the same cost as a real player.
 - Some methods that work on Players do not work on NPCs, e.g. `GrabbableEntity.forceHold()`, for which `AvatarAIAgent.grabbableInteraction.grab()` should be used instead.
 - NPCs do not persist their PPV values past world shutdown.
@@ -1638,7 +1678,7 @@ enum AudibilityMode {
 |---|---|---|
 | `OnAudioCompleted` |  | Sent when an Sound Gizmo is finished playing or stopped.  |
 
-**Limitations**: 
+**Limitations**:
 - Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
 - The `OnAudioCompleted` event is not sent when sounds loop back to the beginning.
 
@@ -1801,6 +1841,12 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 ![[ horizonScripts/secretTriggerCodeBlockEvents.ts ]]
 
 **Limitations**: Using too many Trigger Gizmos can affect performance due to their impact on the physics system for collision detection.
+
+#### Trigger Collisions
+
+Trigger detection is done at the [collider](#colliders) level. When a collider enters/leaves a trigger set to [detect objects](#trigger-gizmo) with a tag, Horizon checks to see if the collider is associated with an entity (instead of a player). If so, it then checks to see if the entity has the tag, and if so, returns it; if not, it walks up the [ancestor chain](#ancestors) looking for an entity with the tag, or reaches the top (this is the [tag bubbling](#entity-tag-bubbling) algorithm).
+
+If the above process finds an entity then it the [OnEntityEnterTrigger / OnEntityExitTrigger](#trigger-gizmo) event will be sent *to the trigger*. If this is an "enter" event and the trigger was just empty, then the "secret" [occupied](#trigger-gizmo) is also sent. If this is an "exit" event and the trigger was just non-empty, then the "secret" [empty](#trigger-gizmo) event is also sent
 
 ### World Leaderboard Gizmo
 **Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
@@ -3490,7 +3536,7 @@ The **Simulation Phase** runs at the start of the frame and includes physics cal
 1. **Physics Updates**
     - Players update their [positions and pose](#pose-position-and-body-parts) based on locomotion inputs.
     - Animation playback is updated.
-    - Physics calculations run, applying [forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
+    - Physics calculations run, applying [accumulated forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
     - Collisions [with object and players](#collisions) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
 
 1. **On-Update**
@@ -3794,7 +3840,7 @@ When [ownership](#entity-ownership) of an entity is transferred from one [Player
 ### Automatic Ownership Transfers
 
 There are a number of situations where an entity's ownership is changed automatically. These situations act exactly if the ownership was changed via `entity.owner.set(...)`:
-  1. When an entity is [grabbed by](#grabbing-entities) or [attached to](#attaching-entities) a player
+  1. When an entity is [grabbed by](#grabbing-and-holding-entities) or [attached to](#attaching-entities) a player
      * This ensures frame-accurate position updates when tracking player movement.
   2. When an entity [collides](#collisions) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
       * This makes it easy to have the collided entities act with [low latency for the player](#why-local-scripts-and-ownership-matter-network-latency) from then on.
@@ -3841,6 +3887,8 @@ In order to create a component that transfers data during an [ownership transfer
 
 # Collisions
 
+The collision system handles the detection of one entity colliding with another entity or a player.
+
 When an entity collides with another entity or player (unless "preserve ownership on collision" is enabled in the Property panel)
 
 - Colliding with dynamic vs static.
@@ -3862,50 +3910,57 @@ OnPlayerCollision: CodeBlockEvent<[collidedWith: Player, collisionAt: Vec3, norm
 OnEntityCollision: CodeBlockEvent<[collidedWith: Entity, collisionAt: Vec3, normal: Vec3, relativeVelocity: Vec3, localColliderName: string, OtherColliderName: string]>;
 ```
 
-## Collision Layers
+## Colliders
 
-`LayerType`
+**Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exists on [mesh entities](#mesh-asset), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
 
-```ts
-enum LayerType {
-  Player = 0, Objects = 1, Both = 2
-}
-```
+**Colliders (not meshes) drive [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycasts)** but only if they are [active](#active-colliders).
 
-## Collidability
+When a cube enters a trigger, the trigger detects its *collider* (which is shaped like a cube). When a player's head enters a trigger, the trigger detects' the heads *collider* (which is roughly sphere-shaped and has less resolution than the actual avatar head!). When two spheres collide and bounce off one another (with [physics](#physics)), it was actually their colliders (which are spheres) that collided. All of the built-in custom model primitives have built-in colliders already. **When you import your own [meshes](#mesh-asset), Horizon uses the *meshes* to generate the colliders**. At times it makes sense to [separate out the collider](#separating-a-collider-from-a-mesh) to improve performance (don't pre-optimize this until you actually have a performance problem!).
 
-Mesh entities and Collider gizmos have **colliders** that are used by the physics system (for collisions, trigger detection, grabbing, avatars standing, etc).
+### Active Colliders
+
+In order for a collider to be detected it needs to be an **active collider**, otherwise it is ignored in [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycasts).
 
 A **collider is active** when the following true
-
 1. Its entity has `collidable` set `true`
-1. Its `parent` (and all their parents) have `collidable` set to `true`
+1. It has *no `parent`* or its `parent` (and all [ancestors](#ancestors)) have `collidable` set to `true`
 1. It is not occluded by other colliders in the world. *Occlusion is typically from a specific direction*. Example: if you want to grab an object but it is behind a wall then the wall's collider will occlude the object (from the vantage point of the player trying to grab it).
 
 and is otherwise ignored by the physics system. For example if the floor's collider is inactive an avatar will fall through it. If a grabbable entity's collider is inactive you cannot grab it.
 
+Note that many entities, such as a [particle effect](#particlefx-gizmo) do not have a collider and thus can never have an active collider within them.
+
 !!! info In order for a group to be seen by the physics system it must have at least one active collider within it (however deep).
     For example if all the colliders in a group are inactive then that group cannot be grabbed, it will not been seen by any triggers, it cannot be stood on, etc.
 
-## Controlling Collisions
+### Separating a Collider from a Mesh
+
+**For performance reasons a mesh may want to have a collider with less detail than the actual mesh**. Avatars do this. When you import your own [meshes](#mesh-asset), you can disable **collidability** and use [collider gizmos](#collider-gizmo) to approximate the shape instead.
+
+You shouldn't try separating out colliders unless:
+  * you are experienced in doing so
+  * you have identified an actual performance issue in your world
+
+!!! example A high resolution mesh with a low resolution collider.
+    Here's an example of a mesh (a character's face) that has a lot of geometry. It would really hurt perf to have Horizon compute collisions with the full face. So instead, a separate collider has been added (the icosahedron). This can be achieved by making the face with `collidable=false` and the icosahedron with `visible=false`. Or you could use the [sphere collider](#collider-gizmo) instead.
+    <img src="images/collider-visualization.png" style="width:250px;display: block;margin-left:auto;margin-right:auto"/>
+
+
+## Collision Events
+
+1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
 
 - Turn collidable on / off
 - Control can collide with players, entities, or both
 
-## Collision Events
+## Entity Tag Bubbling
 
-## Trigger Collisions
-
-Trigger detection is done at the _collider_ level. When a collider enters/leaves a trigger then (if it is an entity-detecting trigger) Horizon starts with the entity and traverse up the ancestor chain until it finds the first entity with a matching tag, send it the event, and then STOPS the traversal.
-
-This means that whenever it seems both a parent and a child could get a trigger event at the same time then the child always gets it first.
-
-## Tag Bubbling
-
-When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [triggers](#trigger-collisions), [collision detection](#collision-events), and [raycasts](#raycasts).
+When Horizon is looking for an entity with a specific tag it performs a process we'll call **tag bubbling** where it walks up the [ancestor chain](#ancestors) in search of an entity with the tag. This process is used in [trigger detection](#trigger-collisions), [collision detection](#collision-events), and [raycasting](#raycasts).
 
 ```mermaid {align=center}
 flowchart
+  original[start with<br/>an entity] --> entity
   entity{{Does it have<br/>the right <a href="#entity-tags">tag</a>?}} --"yes"--> endEntity((use the<br/>entity))
   entity --"no"--> checkParent{{Does it have a parent?}}
   checkParent --"no"--> bail((stop))
@@ -3913,8 +3968,30 @@ flowchart
   moveToParent --> entity
 
   style moveToParent fill:#fed,stroke:#a98
+  style original fill:#fed,stroke:#a98
   style endEntity fill:#dfe,stroke:#8a9
   style bail fill:#fde,stroke:#a89
+```
+
+In code this algorithm looks like
+```ts
+// The algorithm used by Horizon in tag bubbling
+function findRelatedEntityWithTag(
+  startEntity: Entity,
+  tag: string
+): Entity | undefined {
+  let entity : Entity | undefined = startEntity
+
+  while (entity !== undefined) {
+    if (entity.tags.get().contains(tag)) {
+      return entity
+    } else {
+      entity = entity.parent.get()
+    }
+  }
+
+  return undefined
+}
 ```
 
 ## Raycasts
@@ -3925,7 +4002,7 @@ flowchart
 
 | Property | Type | Description |
 |---|---|---|
-| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which [collision layer(s)](#collision-layers) the raycast will interact with. |
+| Collide With | `Players`, `Objects Tagged`, or `Both` | Sets which "collision layer(s)" the raycast will interact with. |
 | Object Tag | `string` | When the *Collide With* property is "Objects Tagged" or "Both" this specifies which [entity tag](#entity-tags) the raycast will activate on. |
 | Raycast Distance | `number` | The maximum distance (in meters) that the ray should travel before concluding it didn't hit anything. |
 
@@ -3947,14 +4024,14 @@ which takes the following parameters:
 |---|---|---|
 | origin | [Vec3](#vec3) | The location in the world that the ray should start. |
 | direction | [Vec3](#vec3) | The direction the ray should travel in. |
-| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. |
+| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
 
-The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#collidability) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
+The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#active-colliders) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
 
 | `RaycastHit` Property | Type | Description |
 |---|---|---|
 | distance | `number` | The distance traveled from the ray start location until the `hitPoint`. |
-| hitPoint | [Vec3](#vec3) | The world location where the ray first hit an [active collider](#collidability). |
+| hitPoint | [Vec3](#vec3) | The world location where the ray first hit an [active collider](#active-colliders). |
 | normal | [Vec3](#vec3) | A vector [pointing straight out from the surface](#https://en.wikipedia.org/wiki/Normal_(geometry)) where the ray hit. This is useful for [reflecting](#vector-reflect) the ray, for example. |
 | targetType | `RaycastTargetType` | The type that was hit. `RaycastTargetType` has the values: `Entity`, `Player`, and `Static`. See the notes below this table.  |
 | target | `Entity`, `Player`, or *absent* (see the note below the table) | The `Entity` or `Player` hit (matching `targetType`). This field is *missing* if `targetType` is `RaycastTargetType.Static`. |
@@ -3964,9 +4041,9 @@ The **return type** of the `raycast` method is `RaycastHit | null`. The result i
   * **Any other entity**: if the ray collided with an entity that does not have [the tag](#entity-tags) specified in the properties of the Raycast gizmo then `targetType` will be `RaycastTargetType.Static` and there is not a  `target` field. Note that "Static" is not the same as [static entities](#static-vs-dynamic-entities); this is used when there is no tag match (and is thus *misnamed*).
   * **A player**: if the ray collided with a player (human or [NPC](#npc-gizmo)) then `targetType` will be `RaycastTargetType.Player` and the `target` field will be of type `Player`.
 
-**Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#collidability), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
+**Tag checking (Hit Algorithm)**: when the ray intersects an [active collider](#active-colliders), if it is associated with an entity, it will walk up the entity's [ancestor chain](#ancestors) looking for an entity with a matching tag. If it reaches the end of the chain (an entity with no parent) it will return `targetType` as `RaycastTargetType.Static` and there will *not* be a `target` field present.
 
-Here's the algorithm that is run (it's [tag bubbling](#tag-bubbling)):
+Here's the algorithm that is run (it's [tag bubbling](#entity-tag-bubbling)):
 
 ```mermaid {align=center}
 flowchart
@@ -4079,7 +4156,7 @@ export declare class PhysicalEntity extends Entity {
 
 ## Creating a Physical Entity
 For an entity to become a physical entity:
-1. Have an [active collider](#collidability)
+1. Have an [active collider](#active-colliders)
 1. Set `Motion` to `Interactive`
 1. Set `Interaction` to `Physics` or `Both`
 1.  [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
@@ -4362,7 +4439,6 @@ flowchart TD
 ## Player Enter and Exit AFK
 
 A [player](#players) in an [instance](#instances) can become **inactive**. The avatar of a player who has gone afk becomes a spinning coin.
-![Player who has gone afk](images/afkPlayer.png)
 
 Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
 
@@ -4509,13 +4585,19 @@ throwHeldItem(options?: Partial<ThrowOptions>): void;
 
 # Grabbing and Holding Entities
 
-<mark>TODO</mark> overview.
 <mark>TODO</mark> actions (onscreen buttons) and inputs.
-<mark>TODO</mark> explain that there is no current want to know who is holding something or if it is held (other than to track it yourself).
+
+When a VR player grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity. A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
+
+There is no way to check if an entity is currently held but you can listen to [grab events](#grab-sequence-and-events) to know when an entity is grabbed or released.
+
+There are rules for when an entity [can be grabbed](#can-grab) as well as when a player can [take from another player](#setting-who-can-take-from-holder). You [force a player to grab](#force-grabbing) as well as [force a player to release](#force-release) an entity.
+
+When a player grabs an entity, [ownership](#entity-ownership) is [transferred to that player](#grabbables-and-ownership).
 
 ## Creating a Grabbable Entity
 
-Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#collidability) within it.
+Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#active-colliders) within it.
 
 !!! danger Grabbables cannot be inside dynamic objects
     A grabbable entity must be a [root entity](#root-entities) (it can only have [Static Objects](#dynamic-vs-static-entities) in its ancestor chain).
@@ -4533,7 +4615,7 @@ For an entity to be grabbable it needs:
    1. [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
 1. To be currently grabbable
    1. `simulated` set to `true`
-   1. At least one [active collider](#collidability) within it (which is not occluded from the perspective of the player)
+   1. At least one [active collider](#active-colliders) within it (which is not occluded from the perspective of the player)
 1. To be grabbable by this player
    1. Match the rules of ["Who Can Grab"](#setting-who-can-grab)
    1. If it is currently held, match the rules of ["Who Can Take From Holder"](#setting-who-can-take-from-holder)
@@ -4556,7 +4638,7 @@ flowchart TD
 
     isHeld -- no --> success@{ shape: dbl-circ, label: "Can<br/>Grab" }
 
-    isInteractive{{Does the entity have<br/><a href="#interactive-entities">Interactive</a> set to<br/> *Grabbable* or *Both*?}} -- yes --> activeCollider{{Does the entity contain<br/>an <a href="#collidability">active collider</a>?}}
+    isInteractive{{Does the entity have<br/><a href="#interactive-entities">Interactive</a> set to<br/> *Grabbable* or *Both*?}} -- yes --> activeCollider{{Does the entity contain<br/>an <a href="#active-colliders">active collider</a>?}}
 
     isInteractive -- no --> fail@{ shape: dbl-circ, label: "Cannot<br/>Grab" }
 
@@ -4619,19 +4701,11 @@ When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCa
 !!! tip Grab-distance cannot be configured.
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
-## Grabbing Entities
-
-When a VR player grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity.
-
-A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
-
-When a player grabs an entity, [ownership](#entity-ownership) is [transferred to that player](#grabbables-and-ownership).
-
 ### Grab Lock
 
 When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
 
-### Force Holding
+### Force Grabbing
 
 An entity can be forced into the hand of a player used the TypeScript API:
 
@@ -4645,16 +4719,16 @@ It allows you to specify which player to have hold it, which hand they should ho
 **Not quite instantaneous**: calling `forceHold` "animates" the entity into the players hand. It can be a number of frames until they are holding it and the [OnGrabStart](#grab-sequence-and-events) event is sent.
 
 !!! example Giving players a weapon when the game starts
-    A common use case for force-holding is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-holding it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
+    A common use case for force-grabbing is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-grabbing it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
 
-    !!! danger A force-held item can be released "accidentally"
-        Even if an entity is force-held with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
+    !!! danger A force-grabbed item can be released "accidentally"
+        Even if an entity is force-grabbed with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
 
 ## Releasing Entities
 
 ### Manual release
 
-If an entity was manually grabbed or it was [force-held](#force-holding) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-held](#force-holding) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
+If an entity was manually grabbed or it was [force-grabbed](#force-grabbing) with `allowRelease` set to `true`, then a player can manually release it. If an entity was [force-grabbed](#force-grabbing) with `allowRelease` set to `false` then a player will not be able to manually release the entity and instead must wait on it (eventually) being done for them.
 
 ### Force release
 
@@ -4755,7 +4829,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 
 ### Grabbables and Ownership
 
-**Transfer-on-grab**: [Ownership](#entity-ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events). The ownership transfer occurs *before* the `OnGrabEvent`. When the `OnGrabEvent` is sent, the entity will already have the new owner. If the entity is released while the transfer is occurring you will get both `OnGrabStart` and `OnGrabEnd`.
+**Transfer-on-grab**: [Ownership](#entity-ownership) of a [grabbable entity](#grabbing-and-holding-entities) is transferred to the grabbing player, every time it is [grabbed](#grabbing-and-holding-entities). The ownership transfer is visible in the [grab sequence diagram](#grab-sequence-and-events). The ownership transfer occurs *before* the `OnGrabEvent`. When the `OnGrabEvent` is sent, the entity will already have the new owner. If the entity is released while the transfer is occurring you will get both `OnGrabStart` and `OnGrabEnd`.
 
 **No transfer-on-release**: When the grabbable entity is [released](#releasing-entities), the owner continues to be that player (unless explicitly transferred or when that player leaves the [instance](#instances)).
 
@@ -4909,10 +4983,6 @@ The following is a list of player body parts that the attachable entity may anch
 | *Left Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
 | *Right Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
 
-This image illustrates the [local coordinate axes](#local-transforms) of 4 attachables attached at each of the 4 anchors:
-
-![head, torso, left and right hip](images/attachableAnchors.png)
-
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
 
@@ -4944,7 +5014,7 @@ This cross-screen holstering system is basically a simple inventory system that 
 
 !!! warning You must attach one entity to use the holstering system
     The holster icon will only be displayed after attaching an entity. This means if the player grabs an entity, but does not already have an entity attached, the holster icon will not display.
-    
+
     You can attach an entity to a player anytime, like by trigger enter or world enter events. After that, the player will see the holster icon.
 
 ### Holstering Sequence
@@ -5494,7 +5564,7 @@ The `getPlayerVariable` method will return `null` if the data has never been set
 
 Spawning requires a "template" or "blueprint", a description of entities / meshes / scripts / properties, that should be "stamped" into the world. Horizon calls these blueprints **assets**.
 
-**Assets never contain entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
+**Assets never contain entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-and-holding-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
 
 Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
@@ -5897,7 +5967,7 @@ FocusedInteraction
 FocusedInteractionTapOptions
 FocusedInteractionTrailOptions
 [GrabbableEntity](#grabbing-entities)
-Handedness: [force hold](#force-holding), [haptics](#haptics), [throwing](#throwing)
+Handedness: [force hold](#force-grabbing), [haptics](#haptics), [throwing](#throwing)
 [HapticSharpness](#haptics)
 [HapticStrength](#haptics)
 [HorizonProperty](#horizon-properties)
@@ -5948,7 +6018,7 @@ PlayerInputStateChangeCallback
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space: [body part](#player-body-parts), [transform relative to](#transform-relative-to)
+Space: [body part](#player-body-parts), [transform helpers](#transform-helpers)
 [SpawnController](#advanced-spawning)
 [SpawnControllerBase](#advanced-spawning)
 [SpawnError](#advanced-spawning)
