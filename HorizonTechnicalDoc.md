@@ -3865,9 +3865,7 @@ entity.children.get().forEach(c => c.owner.set(newOwner));
 
 ### Ownership Transfer Sequence
 
-An ownership transfer is initiated by a [client](#clients-devices-and-the-server) running the code `entity.owner.set(newPlayer)` or via an [automatic ownership transfer](#automatic-ownership-transfers). The ownership change request is sent (by the server) to the [client](#clients-devices-and-the-server) that currently owns `entity`. 
-
-The following in an ownership transfer for an entity with a **Local Script**.
+An ownership transfer is initiated by a [client](#clients-devices-and-the-server) running the code `entity.owner.set(newPlayer)` or via an [automatic ownership transfer](#automatic-ownership-transfers). The ownership change request is sent (by the server) to the [client](#clients-devices-and-the-server) that currently owns `entity`. Then the following occurs.
 
 The component is [torn down](#component-lifecycle):
 1. [transferOwnership](#transferring-data-across-owners) is called to get the *[transfer state](#transferring-data-across-owners)*.
@@ -3884,33 +3882,26 @@ The new component is [prepared and started](#component-lifecycle):
 1. `start()` runs on the new component
 1. [receiveOwnership](#transferring-data-across-owners) is called on the new component along with [the state](#transferring-data-across-owners) from step #1  (or `null` if the transfer is [discontinuous](#discontinuous-ownership-transfers))
 
-In the process above (and diagram below) that if one of the players involved is the [server player](#server-player) then steps #3 and #4 are merged into just one step. 
+In the process above (and diagram below) that if one of the players involved is the [server player](#server-player) then steps #3 and #4 are merged into just one step.
 
 ```mermaid {align="center}
 %%{init: { 'sequence': {'showSequenceNumbers': 'true'} }}%%
-
 sequenceDiagram
-    participant ClientA as Client A (player "A")<br>`getLocalPlayer() === A`
-    participant Server as Server<br>`getLocalPlayer()<br>===<br>world.getServerPlayer()`
-    participant ClientB as Client B (player "B")<br>`getLocalPlayer() === B`
+    participant ClientA as Client A (player "A")
+    participant Server
+    participant ClientB as Client B (player "B")
 
-    note over ClientA: Request ownership change to B<br>e.g. `entity.owner.set(B)`
-
-    ClientA ->> ClientA: state = component.transferOwnership(A, B)<br>entity.owner becomes B
-
+    note over ClientA: ownership change<br/>is requested
+    ClientA ->> ClientA: state = component.transferOwnership(A, B)
     ClientA ->> ClientA: component.dispose()
     ClientA->>Server: Change ownership<br>{from:A, to:B, state}
     note over Server: Validate ownership change
-
     Server->>ClientB: Change ownership<br>{from:A, to:B, state}
-    ClientB ->> ClientB: Allocate newComponent<br>newComponent.preStart()<br>entity.owner is B
+    ClientB ->> ClientB: Allocate newComponent<br>newComponent.preStart()
     ClientB ->> ClientB: newComponent.start()
     ClientB ->> ClientB: newComponent.receiveOwnership(state, A, B)
     note over ClientB: newComponent "active"
 ```
-
-!!! Note Difference between getLocalPlayer() and entity.owner
-    [getLocalPlayer()](#local-player) indicates the device the script is executing on. `entity.owner` is the owner that was manually or automatically requested. Note that before the ownership transfer, the entity's owner is A, then from step 1 and on, the entity's owner is B. 
 
 ### Discontinuous Ownership Transfers
 
