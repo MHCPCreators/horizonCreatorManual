@@ -392,7 +392,7 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 | Field | Description |
 |---|---|
 | VOIP Settings | `Global` will set every player to global voice. It is not possible to change any VOIP settings further (all gizmos and TypeScript related to VOIP are ignored). The `Local` setting gives the world the default setting, which can then be further changed by environment gizmos and TypeScript. |
-| Maximum Player Count | Set the maxium number of people who can be in your world at the same time. Values are between 4 and 32, default is 8. |
+| Maximum Player Count | Set the maximum number of people who can be in your world at the same time. Values are between 4 and 32, default is 8. |
 | Suggested Minimum Player Count | Sets the recommended minimum number of people needed to enjoy your world. |
 | Emotes | Allows players to use emotes in your world |
 | Emotes Audio | Allows emotes to play sound effects in your world. |
@@ -406,7 +406,7 @@ You use the Desktop Editor to edit worlds, adding content and scripts to build o
 | Footsteps Min Distance | Foots steps will play at full volume up to this distance(in meters). |
 | Footsteps Max Distance | Foots steps fade out until they reach the max distance then you will be unable to hear them. |
 | Hide Action by Default | Mobile Only. Hides action icons by default unless specified otherwise in items properties. |  |
-| Disable Dynamic LOD Toggles on Avatar | If enabled, LOD will no longer be applied to avatars. This descreases their detail for players when viewed from a distance. |
+| Disable Dynamic LOD Toggles on Avatar | If enabled, LOD will no longer be applied to avatars. This decreases their detail for players when viewed from a distance. |
 | Enable Max Quality Avatar | Enabled advanced shading and increased texture resolution on avatars. May affect performance. |
 
 ## Editor Roles
@@ -1411,8 +1411,8 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 |---|---|---|
 | LoD Radius | `number` | Determines at what distance(in meters) the media board will appear for players. |
 | Panel UI Mode | `Light Mode` or `Dark Mode` | Set the view for the gizmo. |
-| Pinned Page | `number` | Up to 30 photos can be listed, each photo is a page numbered 1-30. If a valid number if used here, the mediaboard will always show that page. |
-| Deterministic Ranking | `boolean` | If enabled, photes will be ranked by recency rather than likes. |
+| Pinned Page | `number` | Up to 30 photos can be listed, each photo is a page numbered 1-30. If a valid number if used here, the media board will always show that page. |
+| Deterministic Ranking | `boolean` | If enabled, photos will be ranked by recency rather than likes. |
 
 **TypeScript**:  Media Board Gizmos are referenced as the `Entity` class with no properties or methods.
 
@@ -5203,8 +5203,8 @@ The following is a list of player body parts that the attachable entity may anch
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
 
 #### Auto Scale to Anchor
-<mark>TODO</mark> We dont know the use-case for this feature. So we're describing our experience with it.
-Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its orignal scale. Will not automatically scale back to the orignal scale.
+<mark>TODO</mark> We don't know the use-case for this feature. So we're describing our experience with it.
+Works for Web and Mobile only and will scale an item to 1,1,1 when it is detached from an anchor regardless of its original scale. Will not automatically scale back to the original scale.
 
 !!! bug `Auto Scale to Anchor` does nothing when toggled until you leave the world and come back.
 
@@ -5504,11 +5504,11 @@ When resetting [tracked quests](#simple-vs-tracked-quests) the [persistent varia
 
 In-World Purchases (IWPs) allow players to use Meta Credits to acquire virtual items, enhancements, entitlements, unlocks, special access, give kudos/tips, and more within worlds.
 
-**IWP Properties**
+**IWPs Offer**
 
 * **Transaction Types**: Durable (one-time) or Consumable (repeatable) purchases
-**Asset Integration**: Purchases can be linked to [spawning](#spawning) assets
-**Auto-Use Option**: Consumables can trigger automatically on purchase
+* **Asset Integration**: Purchases can be linked to [spawning](#spawning) assets
+* **Auto-Use Option**: Consumables can trigger automatically on purchase
 * **Pricing Range**: 25 to 20,000 Meta Credits per item
 * **Presentation**: Customizable purchase UI with name, description, and thumbnail
 
@@ -5530,7 +5530,7 @@ To **create an IWP** using the Desktop Editor:
 | Auto Use | Triggers use on purchase | For Consumable items only |
 
 ### Item Packs
-Consumables can be bundled into 2 or more of the same item, offering convenciance to players that otherwise would have to buy items one by one (i.e. health packs, cannon balls, gems). This are also a great option for creators to offer special promotions to motivate purchases (i.e. 1 heart for 25 credits vs a pack of 5 hearts for 100 creadits).
+Consumables can be bundled into 2 or more of the same item so that players can purchase a collection instead of one-by-one (i.e. health packs, cannon balls, gems) as **item packs**. Item packs allow creators to offer special promotions to motivate purchases (such as 1 heart for 25 credits vs a pack of 5 hearts for 100 credits).
 
 To create a pack:
 1. Create the consumable item following the steps from the prior section.
@@ -5541,7 +5541,7 @@ To create a pack:
 1. Specify a price (25 to 20,000 credits).
 1. Click Create.
 
-When a player purchases a pack of consumables without auto-use, they are able to see their unused items quantiy in their inventory. Clicking the inventory icon will not trigger the consume automatically; instead, a broadcast code block event is emitted. This even can then be intersepted with a script, that would also confirm if the player can consume or not the item. For more details see [Handling an Item-Consume Item Request](####handling-an-item-consume-item-request)
+When a player purchases a pack of consumables *without auto-use*, they are able to see their unused item quantity in their inventory. Clicking the inventory icon will not trigger the consume automatically; instead, a broadcast code block event is emitted. This even can then be intercepted with a script, that would also confirm if the player can consume or not the item. For more details see [Handling an Item-Consume Item Request](####handling-an-item-consume-item-request).
 
 ### Using the In-World Purchase Gizmo
 
@@ -5650,7 +5650,7 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| <norbr>🔈🧱🍏`OnItemPurchaseStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player opens the purchase menu (both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). |
+| <nobr>🔈🧱🍏`OnItemPurchaseStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player opens the purchase menu (both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). |
 | <nobr>🔈🧱🍏`OnItemPurchaseComplete`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player closes the purchase menu (for both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). `success` contains if purchase was successful.  |
 | <nobr>~~🔈🧱🍏`OnItemPurchaseSucceeded`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. |
 | <nobr>~~🔈🧱🍏`OnItemPurchaseFailed`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. |
