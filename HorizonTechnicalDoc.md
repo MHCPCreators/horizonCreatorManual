@@ -1,4 +1,4 @@
-<!--focusSection: ## In-World Purchases (IWPs)-->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
