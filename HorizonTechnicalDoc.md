@@ -269,11 +269,12 @@
         4. [Resetting Quests](#resetting-quests)
     3. [In-World Purchases (IWPs)](#in-world-purchases-iwps)
         1. [Creating, Editing, and Deleting IWPs](#creating-editing-and-deleting-iwps)
-        2. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
-        3. [In-World Item ID String](#in-world-item-id-string)
-        4. [In-World Durable Items](#in-world-durable-items)
+        2. [Item Packs](#item-packs)
+        3. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
+        4. [In-World Item ID String](#in-world-item-id-string)
+        5. [In-World Durable Items](#in-world-durable-items)
             1. [Durable In-World Item CodeblockEvents](#durable-in-world-item-codeblockevents)
-        5. [In-World Consumable Items](#in-world-consumable-items)
+        6. [In-World Consumable Items](#in-world-consumable-items)
             1. [Auto-use Consumable In-World Items](#auto-use-consumable-in-world-items)
             2. [Handling an Item-Consume Item Request](#handling-an-item-consume-item-request)
             3. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
@@ -5242,7 +5243,19 @@ To **create an IWP** using the Desktop Editor:
 | Asset Reference | Link the asset to be spawned | For Durable items only |
 | Auto Use | Triggers use on purchase | For Consumable items only |
 
-<mark>TODO</mark> packs
+### Item Packs
+Consumables can be bundled into 2 or more of the same item, offering convenciance to players that otherwise would have to buy items one by one (i.e. health packs, cannon balls, gems). This are also a great option for creators to offer special promotions to motivate purchases (i.e. 1 heart for 25 credits vs a pack of 5 hearts for 100 creadits).
+
+To create a pack:
+1. Create the consumable item following the steps from the prior section.
+1. Once created, open the Commerce UI (Systems > Commerce), and Change the ***Displaying*** drop down to Iem Packs.
+1. Click on the + Icon to opn the ***Create an item pack*** UI.
+1. Select the consumable item, and click ***Select***.
+1. Specify a quantity (between 2 and 99).
+1. Specify a price (25 to 20,000 credits).
+1. Click Create.
+
+When a player purchases a pack of consumables without auto-use, they are able to see their unused items quantiy in their inventory. Clicking the inventory icon will not trigger the consume automatically; instead, a broadcast code block event is emitted. This even can then be intersepted with a script, that would also confirm if the player can consume or not the item. For more details see [Handling an Item-Consume Item Request](####handling-an-item-consume-item-request)
 
 ### Using the In-World Purchase Gizmo
 
