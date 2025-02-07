@@ -74,7 +74,7 @@
         16. [Raycast Gizmo](#raycast-gizmo)
         17. [Script Gizmo](#script-gizmo)
         18. [Snap Destination Gizmo](#snap-destination-gizmo)
-        19. [Sound Recorder Gizmo](#sound-recorder-gizmo)
+        19. [Sound Gizmos](#sound-gizmos)
         20. [Spawn Point Gizmo](#spawn-point-gizmo)
         21. [Static Light Gizmo](#static-light-gizmo)
         22. [Text Gizmo](#text-gizmo)
@@ -301,20 +301,24 @@
         4. [Dynamic List](#dynamic-list)
         5. [ScrollView](#scrollview)
     5. [Animated Bindings](#animated-bindings)
-21. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
+21. [Navigation Mesh](#navigation-mesh)
+    1. [Navigation Mesh Volume](#navigation-mesh-volume)
+    2. [Navigation Mesh Profile](#navigation-mesh-profile)
+    3. [Navigation Mesh Agent](#navigation-mesh-agent)
+22. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-22. [Performance Optimization](#performance-optimization)
+23. [Performance Optimization](#performance-optimization)
     1. [Physics Performance](#physics-performance)
     2. [Gizmos](#gizmos)
     3. [Bridge calls explanation](#bridge-calls-explanation)
     4. [Draw-call specification](#draw-call-specification)
     5. [Perfetto hints](#perfetto-hints)
     6. [Memory](#memory-1)
-23. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-25. [Glossary](#glossary)
+24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+26. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+27. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -912,9 +916,9 @@ For example, a *hat mesh that is grabbable and attachable* has a intrinsic type 
 
 All entities in Horizon are either **static** or **dynamic**.
 
-**Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-types) An entity **is static when `Motion` is set to `None` in the Properties panel**.
+**Static entity**: A static entity can never change in any way (other than being [spawned](#spawning) in and out ). A static entity's position, rotation, color, etc never change. Horizon computes more [detailed lighting](#horizon-lighting) on static entities. Scripts can *read* the data of a static entity (such as getting position) but can never change the values. Static entities **cannot** have [behaviors](#behavior-entity-types) An entity **is static when `Motion` is set to `None` in the Properties panel**.
 
-**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the Properties panel**
+**Dynamic entity**: A dynamic entity is one that changes. It may move and rotate, have its color changed, have forces applied, be grabbed, be attached to an avatar, etc. A dynamic entity has [simpler lighting](#horizon-lighting) than static entities. Dynamic entities *can* have [behaviors](#behavior-entity-types). An entity **is dynamic when `Motion` is set to `Animated` or `Interactive` in the Properties panel**
   * When `Motion` is set to `Animated` you can [record a "hand animation"](#animated-entities) on the entity.
   * When `Motion` is set to `Interactive` you can make the entity [grabbable](#grabbing-entities), [physics-simulated](#physicalentity-class), or both.
 
@@ -923,7 +927,7 @@ All entities in Horizon are either **static** or **dynamic**.
 
 ### Intrinsic Entity Types
 
-The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are access simply as `Entity` instances. Every entity only has **one intrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
+The table below lists all intrinsic types, which are subclasses of `Entity`. Note that some intrinsic types don't have an associated subclass and thus are accessed simply as `Entity` instances. Every entity only has **one intrinsic type** which can be accessed via the [entity.as()](#entity-as-method) method.
 
 The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
@@ -950,6 +954,7 @@ There is a [full list of all intrinsic entity types and their documentation](#al
 | [Attachable](#attaching-entities) | An entity that can be attached to a [Player](#players). | `AttachableEntity` | Set `Motion` to `Animated` or `Interactive`. Set `Avatar Attachable` to `Sticky` or `Anchor` in the Properties panel.
 | [Grabbable](#grabbing-and-holding-entities) | An entity that can be grabbed and held. | `GrabbableEntity` | Set `Motion` to `Interactive`. Set `Interaction` to `Grabbable` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)`. |
 | [Physics-Simulated](#physicalentity-class) | An entity that can respond to [forces and torques](#physics). | `PhysicalEntity`  | Set `Motion` to `Interactive`. Set `Interaction` to `Physics` or `Both`. Interaction can also be changed with `entity.interactionMode.set(...)` |
+| [Navigation Mesh Agent](#navigation-mesh-agent) | An entity that can do its own locomotion using a [navigation mesh profile](#navigation-mesh-profile) | `NavMeshAgent` | In the `Navigation Locomotion` property sub-panel, set `Enabled` to `true`. | 
 
 ### Entity as() method
 
@@ -999,7 +1004,7 @@ Use the `AnimatedEntity` class to control recorded animations.
 | **`pause()`** | Pause the animation at the current frame. Playing again will resume, starting at this frame. |
 | **`stop()`**  | Reset the animation to the first frame, restoring the entity’s position/rotation/scale to its initial state. |
 
-!!! bug `AnimatedEntity` is not yet "active" `preStart()` and `start()`.
+!!! bug `AnimatedEntity` is not yet "active" in `preStart()` and `start()`.
     Calling `play()` in `preStart()` or `start()` doesn't always work. If you always want to play at start, use the **Play on Start** setting. If you want to do it conditionally, then use a small timeout to delay it.
 
 !!! Warning You cannot directly transform an `AnimatedEntity` with a recorded animation.
@@ -1011,6 +1016,9 @@ Use the `AnimatedEntity` class to control recorded animations.
     Since an `AnimatedEntity` performs its recorded animation [locally](#local-transforms), entities with recorded animations can be children of other `AnimatedEntity`s.
 
     This means you can hand-animate a wheel to rotate, duplicate the wheel, set the wheels as children to car, and then hand-animate the car to drive around. You can also script your car to animate on cue by calling `start()` on the car and its wheels on the same frame.
+
+!!! Hint Nested animations can be triggered all at once
+    If an `AnimatedEntity` is a group that has the "Animate Group" property enabled, when `play()`, `pause()`, or `stop()` is called on the group, all descendants of that group that are `AnimatedEntity`s will also have the corresponding play/pause/stop method called on them, even if they are not immediate children.
 
 ### Interactive Entities
 
@@ -1028,7 +1036,16 @@ with any of the following options:
 | `EntityInteractionMode.Grabbable`  | The entity is a [GrabbableEntity](#grabbing-entities) |
 | `EntityInteractionMode.Physics`  | The entity is a [PhysicalEntity](#physicalentity-class) |
 | `EntityInteractionMode.Both`  | The entity is both a [GrabbableEntity](#grabbing-entities) and a [PhysicalEntity](#physicalentity-class) |
-| `EntityInteractionMode.Invalid`  | The entity is neither grabbable nor interactive. It remains [dynamic](#static-vs-dynamic-entities). |
+
+When checking for an entity's interactive [behavior types](#behavior-entity-types) at runtime
+```ts
+const mode = entity.interactionMode.get()
+```
+
+you will get one of the above values, unless the entity is not interactive, in which you will instead get the following value:
+| Value | Behavior |
+|---|---|
+| `EntityInteractionMode.Invalid`  | The entity is not interactive and has neither grabbable nor physics behavior types |
 
 
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
@@ -1092,8 +1109,9 @@ Entities in Horizon can be assigned a list of **tags** which are used of "classi
 When `entity.tags.get().contains(thing)` returns `true` we say that the **`entity` has the tag** `thing`.
 
 Tags (currently) have three primary use cases:
-1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) has a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
+1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) have a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
 1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
+1. **Controlling raycasts**: [Raycast gizmos](#raycast-gizmo) have a Properties panel setting that lets you specify a *tag* so that the raycast will only generate [RaycastTargetType.Entity](#raycasts) hit results for entities that have that tag.
 1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
 ```ts
@@ -1197,7 +1215,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Script](#script-gizmo) | `Entity` |
 | [Snap Destination](#snap-destination-gizmo) | `Entity` |
 | [Sound](#sound-gizmo) | `AudioGizmo` |
-| [Sound Recorder](#sound-recorder-gizmo) | `AudioGizmo` |
+| [Sound Recorder](#sound-gizmos) | `AudioGizmo` |
 | [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
 | [Static Light](#static-light-gizmo) | `Entity` |
 | [Sphere Collider](#collider-gizmo) | `Entity` |
@@ -1222,6 +1240,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
+| Input mode | `No interaction`, `Interactive, Blocking`, or `Interactive, Non Blocking` | Only displayed if the 'Display mode' is `Screen Overlay`. Controls whether the overlay has interaction and, if so, whether it blocks navigation (only for XS players, VR user never have blocked navigation) or does not block navigation (in which case it is invisible to VR players) |
 | Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
 | Mipmap | `boolean` | If enabled, allows you to adjust the level of mipmap which affects how much detail is drawn when viewed from a distance.  |
@@ -1234,7 +1253,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 
 ### Debug Console Gizmo
 
-**Description**: Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).
+**Description**: Allows creators to monitor the console for messages in Play and Publish [visitation modes](#visitation-modes-edit-preview-and-publish).  Debug consoles are never visible to non-collaborators on the world.
 
 | Property | Type | Description
 |---|---|---|
@@ -1281,6 +1300,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 **Limitations**:
   * Maximum of 20 Dynamic Lights per world
   * Performance intensive due to per-frame light/shadow processing
+  * Dynamic light gizmos do **not** obey [entity visibility](#entity-visibility). They must be turned on/off using their 'enabled' property.
 
 ### Environment Gizmo
 **Description**: Allows creators to make changes to the properties  of their world like skydome, lighting, fog, voip settings, etc...
@@ -1303,7 +1323,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 **Typescript**: TypeScript: Environment Gizmos are referenced as Entity instances with no additional scripting capabilities.
 
 **Limitations:**
-- Multiple Environment Gizmos are allowed, but only one can be active at a time. You can use asset spawning to change the environment dynamically.
+- Multiple Environment Gizmos are allowed, but only one can be active at a time. You cannot use typescript to directly change their 'Active' property. You can use asset spawning to add a new Environment Gizmo dynamically that will become the new 'Active' gizmo.
 - When spawning multiple Environment Gizmos, the original Environment Gizmo may not reactivate when all other gizmos despawn. It might be safer to respawn your original Environment Gizmo when needed.
 
 ### In-World Item Gizmo
@@ -1344,17 +1364,17 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 
 **Limitations**: Mirror Gizmos are costly, recommend only one per world and be careful about how much geometry it reflects in your world to avoid performance issues.
 ### Navigation Volume
-**Description**: Allows the creation of navigation meshes thats NPCs can use to walk. Also see [NPCs](#npcs)
+**Description**: Allows the creation of [navigation mesh profiles](#navigation-mesh-profile) that can be used to route paths around obstacles in your world. Can be used directly by [NavMeshAgents](#navigation-mesh-agent) or indirectly by other animated objects such as [NPCs](#npcs).
 
 | Property | Type | Description |
 |---|---|---|
 | Volume Type | `Inclusion` or `Exclusion` | Sets whether the volume is considered an area where NPCs can walk or not walk. |
-| Navigation Profile | dropdown | Contains a list of all the navigation profiles created in the world. |
+| Navigation Profile | dropdown | The navigation profiles added to the world for which this volume should contribute a walkable area configuration. Defaults to All. |
 
 **TypeScript**:  Navigation Volume Gizmos are referenced as the `Entity` class with no properties or methods
 
 ### NPC Gizmo
-**Description**: Represents an NPC Avatar(bot) and its spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs)
+**Description**: Represents an NPC Avatar (bot) spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs).
 
 | Property | Type | Description |
 |---|---|---|
@@ -1362,7 +1382,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 | Spawn on Start | `boolean` | Determines whether the NPC spawns into the world when the world is started. |
 | Appearance | `Edit Avatar` and `Refresh` buttons. | Allows you to edit the avatar's appearance and refresh that appearance in the world. |
 
-**TypeScript**:  NPC Gizmos are referenced as the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
+**TypeScript**:  NPC gizmos are referenced [as](#entity-as-method) the `AIAgentGizmo` class. However, control of NPCs spawned by the NPC Gizmo are referenced [as](#entity-as-method) the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
 
 ```ts
 //Properties
@@ -1384,7 +1404,10 @@ export declare enum AgentSpawnResult //The result of a player spawn request
 */
 ```
 
-**Limitations**: Costly to performance. Considered the same cost as a real player.
+**Limitations**: 
+- Costly to performance. Considered the same cost as a real player.
+- Some methods that work on Players do not work on NPCs, e.g. `GrabbableEntity.forceHold()`, for which `AvatarAIAgent.grabbableInteraction.grab()` should be used instead.
+- NPCs do not persist their PPV values past world shutdown.
 
 ### ParticleFx Gizmo
 
@@ -1528,7 +1551,7 @@ type LaunchProjectileOptions = {
 See FBS or [Script API](#scripting)
 
 ### Snap Destination Gizmo
-**Description**: Designed to help position and orientate players that land on it using teleport.
+**Description**: Designed to help position and orientate players that land on it using teleport locomotion. Has no effect for players using slide locomotion.
 
 | Property | Type | Description
 |---|---|---|
@@ -1536,12 +1559,12 @@ See FBS or [Script API](#scripting)
 
 **Typescript**: Snap Destination Gizmos are referenced as the `Entity` class (with no special methods).
 
-### Sound Recorder Gizmo
+### Sound Gizmos
 **Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
-- `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music.
-- `Audio Graph` generated by Gen AI. Allows you playback audio generated by the Gen AI in the Desktop Editor.
+- `Pre-made sound` found in the Sounds menu. Collection of Horizon provided sound effects, background audio, and music. Some are looping, others are not.
+- `Audio Graph` obtained from your personal Assets library, such as those generated by Gen AI. Allows you playback audio generated by the Gen AI in the Desktop Editor.
 
 **Sound Recorder**
 | Property | Type | Description |
@@ -1561,6 +1584,8 @@ We have 3 different types:
 |---|---|---|
 | Preview | `Play` button | Lets creators hear a preview of the sound in Edit Mode. |
 | Play on Start | `boolean` | Determines if the sound will start to play when the world starts.
+| Play and Forget | `boolean` | (Effects sounds only) A performance enhancement that detaches playback from the sound gizmo location once played. Other copies of the sound can then be played by the gizmo at new locations.
+| Play Limit | `number` | (`Play and Forget` only) The limit on the number of outstanding 'forgotten' copies of the sound that are still playing. Oldest still playing sound is stopped when active number of playing copies is reached.
 | Volume | `number` | Sets the volume of the Pre-made Sound Recorder Gizmo. Values are between 0.0 and 1.0.
 | Pitch | `number` | Sets the pitch of the Pre-made Sound Record Gizmo. Values are between -24 and 24.
 | Global | `boolean` | Determines whether the Pre-made Sound Recorder Gizmo will play where everyone in the world can hear it. |
@@ -1610,9 +1635,11 @@ enum AudibilityMode {
 ```
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
-| `OnAudioCompleted` |  | Sent when an Sound Gizmo is finished playing.  |
+| `OnAudioCompleted` |  | Sent when an Sound Gizmo is finished playing or stopped.  |
 
-**Limitations**: Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
+**Limitations**: 
+- Due to memory cost of storing audio data and CPU cost of spatial audio processing it is recommended 10 max audio graphs in scene.
+- The `OnAudioCompleted` event is not sent when sounds loop back to the beginning.
 
 ### Spawn Point Gizmo
 **Description**: Used to move players instantly to predetermined locations, includes a brief black transition scene. Can also affect camera view, player gravity, and speed.
@@ -1643,6 +1670,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 
 **Notes**:
 - If no spawn points have `Spawn on start` enabled then a spawn point will be picked at random.
+- If multiple spawn points have `Spawn on start` enabled, one will be picked at random for each player entering the world.
 - The blue button above the spawn point can be used to set a default spawn for yourself in Edit mode.
 
 ### Static Light Gizmo
@@ -1651,7 +1679,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 
 | Property | Type | Description |
 |---|---|---|
-| Shape | `Cuboid`, `Ellipsoid`, `Disk`, or `Rectangle` | Determines the shape of the static light, affecting how the light is casted onto the surrounding geometry. |
+| Shape | `Cuboid`, `Ellipsoid`, `Disk`, or `Rectangle` | Determines the shape of the static light, affecting how the light is casted onto the surrounding geometry. `Cuboid` and `Ellipsoid` are omnidirectional, while `Disk` and `Rectangle` have a visual directional arrow.
 | Color | `Color` | Sets the color of the light coming from the Static Light Gizmo.
 | Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
 
@@ -1667,6 +1695,9 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Fixed Font Size | `number` | Sets the font size of the text when `Auto Fit` is disabled. |
 | Visible | `boolean` | Determines if the Text Gizmo is visible to players. |
 
+**Notes**:
+- When using fixed font size, the rendered size of text is a combination of the fixed font size and the scale properties of the text gizmo itself
+
 **Typescript**: Text Gizmos are referenced as the `TextGizmo` class with the following properties.
 
 ```ts
@@ -1681,7 +1712,7 @@ this.entity.as(TextGizmo).text.set('Hello World')
 ```
 
 !!! note Auto Fit Property
-    The text gizmo has the property **auto fit**, which is only settable in the Properties panel. When it is set to `true`, the font size will change to fit the text. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
+    The text gizmo has the property **auto fit**, which is only settable in the Properties panel. When it is set to `true`, the font size will change to fit the scaled extents of the text gizmo. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
 
 !!! note Text gizmos contribute to [draw calls](#draw-calls).
 
@@ -1741,16 +1772,9 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 | Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
 | Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
 
-Under the hood, triggers detect *enter* and *exit* using collisions [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
+Under the hood, triggers detect *enter* and *exit* using [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
 
 **Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following properties.
-
-| Property | Type | Description |
-|---|---|---|
-| Enabled | `boolean` | Determines whether the Trigger Gizmo will detect any events. |
-| Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
-| Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
-| Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
 
 ```ts
 //Properties
@@ -1775,7 +1799,7 @@ this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (e
 
 ![[ horizonScripts/secretTriggerCodeBlockEvents.ts ]]
 
-**Limitations**: Using too many Trigger Gizmos can affect performance.
+**Limitations**: Using too many Trigger Gizmos can affect performance due to their impact on the physics system for collision detection.
 
 ### World Leaderboard Gizmo
 **Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
@@ -5743,6 +5767,14 @@ Limits of type, amount, and frequency.
 
 ## Animated Bindings
 
+# Navigation Mesh
+
+## Navigation Mesh Volume
+
+## Navigation Mesh Profile
+
+## Navigation Mesh Agent
+
 # Cross Screens - Mobile vs PC vs VR
 
 ## Camera
@@ -5940,7 +5972,7 @@ In the table below:
 | 🔈OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
 | [OnAttachEnd](#attachable-by) | `player: Player` |
 | [OnAttachStart](#attachable-by) | `player: Player` |
-| [OnAudioCompleted](#sound-recorder-gizmo) |  |
+| [OnAudioCompleted](#sound-gizmos) |  |
 | OnButton1Down | `player: Player` |
 | OnButton1Up | `player: Player` |
 | OnButton2Down | `player: Player` |
