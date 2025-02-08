@@ -1127,7 +1127,7 @@ When checking for an entity's interactive [behavior types](#behavior-entity-type
 const mode = entity.interactionMode.get()
 ```
 
-you will get one of the above values, unless the entity is not interactive, in which you will instead get the following value:
+you will get one of the above values, unless the entity is not interactive (meaning that its *Motion* is set to *None* or *Animated*), in which you will instead get the following value:
 | Value | Behavior |
 |---|---|
 | `EntityInteractionMode.Invalid`  | The entity is not interactive and has neither grabbable nor physics behavior types |
@@ -3662,7 +3662,7 @@ flowchart LR
   end
 
   subgraph Late [Synchronization Phase]
-    receive(Prepare received<br/>Events to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render@{shape:pill}
+    receive(Prepare received<br/>Network Events to</br>process next frame) --> broadcast(Broadcast NetworkEvents<br/>created this frame) --> Render@{shape:pill}
   end
 
   Early --> Scripting --> Late
@@ -3680,7 +3680,7 @@ flowchart LR
   style Components fill:#dfe,stroke:#8a9
 ```
 
-!!! warning Script execution is *single-threaded* (long-running functions will "stall" the engine).
+!!! warning Script execution is *single-threaded* (long-running functions will "stall" the script runtime).
     If a callback ([event](#receiving-events) or [async](#async-delays-and-timers)) runs for too much time it will "stall" all script execution. Eventually Horizon will kill a long-running callback (but only after some number of seconds). When a callback runs for too long it can block most of the other system behavior and cause unexpected results. Extremely large work-loads should be split up across frames.
 
 #### Simulation Phase
@@ -3737,6 +3737,13 @@ The **Synchronization Phase** finalizes the frame, managing network synchronizat
 
 2. **Render (if on a player device)**
    - The game world is rendered for the player based on the state of the world as it is on their [client](#clients-devices-and-the-server) due to that client's current [reconciliation](#authority-and-reconciliation).
+
+!!! warning Network Events sent to the same client are processed on the frame *after* the next one.
+    When you send a network event back to the same [client](#clients-devices-and-the-server) that sent it, there is a **2-frame delay** before it gets processed.
+
+    This happens because, as shown in the [frame sequence diagram](#frame-sequence), network events are prepared for processing before new events created in that frame are sent out. So when an event is sent back to the same client, that client has already locked in the events it will process next frame, meaning the returned event won’t be handled until the frame after that.
+
+    This delay is usually not an issue, since network events always involve some lag. However, if you need an immediate response, consider using [LocalEvents](#local-events) along with [local scripts](#local-and-default-scripts) and [ownership transfer](#ownership-transfer).
 
 ## Component Inheritance
 
