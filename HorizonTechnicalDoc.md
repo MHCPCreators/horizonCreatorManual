@@ -80,16 +80,17 @@
     20. [Sound Gizmos](#sound-gizmos)
     21. [Spawn Point Gizmo](#spawn-point-gizmo)
     22. [Static Light Gizmo](#static-light-gizmo)
-    23. [Text Gizmo](#text-gizmo)
+    23. [Sublevel Gizmo](#sublevel-gizmo)
+    24. [Text Gizmo](#text-gizmo)
         1. [Using a Text Gizmo](#using-a-text-gizmo)
         2. [Text Gizmo Limitations](#text-gizmo-limitations)
         3. [Text Gizmo Markup](#text-gizmo-markup)
         4. [Text Gizmo Tags](#text-gizmo-tags)
             1. [Text Gizmo Tag Parameters](#text-gizmo-tag-parameters)
         5. [Supported Text Gizmo Tags](#supported-text-gizmo-tags)
-    24. [Trigger Gizmo](#trigger-gizmo)
+    25. [Trigger Gizmo](#trigger-gizmo)
         1. [Trigger Collisions](#trigger-collisions)
-    25. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+    26. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 7. [Assets](#assets)
     1. [Mesh Asset](#mesh-asset)
         1. [Mesh Style](#mesh-style)
@@ -105,6 +106,7 @@
         3. [Tinting](#tinting)
         4. [Textures](#textures)
         5. [Materials](#materials)
+        6. [Horizon Lighting](#horizon-lighting)
 9. [Scripting](#scripting)
     1. [Creating and Editing Scripts](#creating-and-editing-scripts)
         1. [Syncing Scripts](#syncing-scripts)
@@ -298,7 +300,9 @@
     1. [Simple Spawning](#simple-spawning)
         1. [Deleting Simply Spawned Entities](#deleting-simply-spawned-entities)
     2. [Despawning](#despawning)
-    3. [Advanced Spawning](#advanced-spawning)
+    3. [Advanced Spawning (SpawnController)](#advanced-spawning-spawncontroller)
+        1. [SpawnController State Machine](#spawncontroller-state-machine)
+        2. [SpawnController Methods](#spawncontroller-methods)
     4. [Sublevels](#sublevels)
 20. [Tooltips and Popups](#tooltips-and-popups)
 21. [Custom UI](#custom-ui)
@@ -1687,7 +1691,7 @@ which takes the following parameters:
 |---|---|---|
 | origin | [Vec3](#vec3) | The location in the world that the ray should start. |
 | direction | [Vec3](#vec3) | The direction the ray should travel in. |
-| options | <nobr>`{`<br/>`  layerType?: LayerType,`<br/>`  maxDistance?: number`<br/>`} \| undefined`</nobr> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
+| options | <pre class="language-ts ts"><span><code>{</code><br/><code>  layerType?: LayerType,</code><br/><code>  maxDistance?: number</code><br/><code>} \| undefined</code></span></pre> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
 
 The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#active-colliders) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
 
@@ -1886,6 +1890,20 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 | Intensity | `number` | Sets the intensity of the light emitted from the Static Light Gizmo. Values between 0.0 and 100.00 |
 
 **Typescript**:  Static Light Gizmos are referenced simply as the `Entity` class.
+
+## Sublevel Gizmo
+
+**Description**: An entity that helps manage [sublevel spawning](#sublevels).
+
+**Properties**: The first property is called "Sublevel Type", which can be set to `Deeplink` or `Exclude`:
+
+* Use **`Deeplink`** in the world that will load in the sublevel (the *container*). You can then use this entity [as](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in. When this setting is used, 2 more settings appear:
+    * **Sublevel Initial State** determines the state of the sublevel at world-start. It can be `Active` (which means the sublevel is fully present to players), `Loaded` (meaning that the sublevel is fully ready, just waiting to be "shown"), or `Unloaded` (none of the data is present or ready). See [advanced spawning](#advanced-spawning) for more information on these options.
+    * **World Id** is the world that this entity will stream in (the sublevel). There is a thumbnail picture to click on that will open a "world selector".
+* Use **`Exclude`** in a world that is meant to be streamed in (a *sublevel*). Any entities that are [children (or descendants)](#ancestors) of an "Exclude Sublevel" will not load when the sublevel is streamed into the "container world".
+    * Example, in the sublevel world you can have a spawn point which is a child of an "Exclude Sublevel" gizmo; that makes it easy to test the sublevel world, but the spawn gizmo won't load in when the container world streams this world in.
+
+**TypeScript**: When the sublevel entity has "Sublevel Type" set to "Deeplink" you can then use the entity [as](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in.
 
 ## Text Gizmo
 **Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
@@ -2129,6 +2147,8 @@ List and explanation of all possible errors
 
 !!! note No post-processing
     Current Horizon has no post-process rendering options which makes things like bloom, motion blur, sepia, etc impossible.
+
+### Horizon Lighting
 
 # Scripting
 
@@ -3155,8 +3175,8 @@ The [World](#world-class) has two static members exposing [Local Events](#local-
 
 | `World` class<br/>`static` member | Type | Description |
 |---|---|---|
-| `onPrePhysicsUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
-| `onUpdate` | <nobr>`LocalEvent<{`<br/>`  deltaTime: number`<br/>`}>`</nobr> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+| `onPrePhysicsUpdate` | <pre class="language-ts ts"><span><code>LocalEvent<{</code><br/><code>  deltaTime: number</code><br/><code>}></code></span></pre> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
+| `onUpdate` | <pre class="language-ts ts"><span><code>LocalEvent<{</code><br/><code> deltaTime: number</code><br/><code>}></code></span></pre> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
 
 
 
@@ -4395,8 +4415,8 @@ The player avatar acts like a single *physical entity*, although you cannot actu
 
 | [Player class](#player-class) member | Notes |
 |---|---|
-| `applyForce(force: Vec3): void` | Apply a force, as a vector with magnitude in Newtons, to the player. This acts just like [applying a force to an entity](#applying-forces-and-torque):<br/>`physicalEntity.applyForce(`<br/>`  force, PhysicsForceMode.Force`<br/>`)` |
-| <nobr>`configurePhysicalHands(`<br/>`   collideWithDynamicObjects: boolean,`<br/>`  collideWithStaticObjects: boolean`<br/>`): void`</nobr> | This is only for VR players, allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
+| `applyForce(force: Vec3): void` | Apply a force, as a vector with magnitude in Newtons, to the player. This acts just like [applying a force to an entity](#applying-forces-and-torque):<br/><pre class="language-ts ts"><span><code>physicalEntity.applyForce(</code><br/><code>  force, PhysicsForceMode.Force</code><br/><code>)</code></span></pre> |
+| <pre class="language-ts ts"><span><code>configurePhysicalHands(</code><br/><code>   collideWithDynamicObjects: boolean,</code><br/><code>  collideWithStaticObjects: boolean</code><br/><code>): void</code></span></pre> | This is only for VR players, allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
 | `gravity: HorizonProperty<number>` | Read and write the downward acceleration (*not force*) on the player in m/s<sup>2</sup>. The default is Earth gravity: `9.81`. |
 | `velocity: HorizonProperty<Vec3>` | The velocity of the player *due to physics*. See [player physical velocity](#player-physical-velocity) for details. |
 
@@ -5921,16 +5941,16 @@ The `getPlayerVariable` method will return `null` if the data has never been set
 
 **Spawning** is the act of loading content into a world [instance](#instances) while it is already running (meaning that the content was not "laid out" in world already and isn't in the [world snapshot](#world-snapshot)). For example, imagine a racing game that has 100 kinds of vehicles to choose from and allows 8 players. It would use too much memory and really impact perf to put 800 vehicles into the world (so all 8 players have full choice). Instead, you could create a [UI](#custom-ui) to let players choose from and then load in the vehicle that they choose. This act of "load in when needed" is *spawning*.
 
-**What can be spawned**: ... <mark>TODO</mark>
+<a name="spawnable-assets">**What can be spawned**</a>: ... <mark>TODO</mark>
 
 Spawning requires a "template" or "blueprint", a description of entities / meshes / scripts / properties, that should be "stamped" into the world. Horizon calls these blueprints **assets**.
 
-**Assets never contain entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-and-holding-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
+**Assets don't contain actual entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-and-holding-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
 
 Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
 
 **Techniques**:
-  * Spawning an environment gizmo...
+  * Spawning an environment gizmo... <mark>TODO</mark>
 
 Assets must have an `Asset Type` and `Folder`.
 
@@ -5978,131 +5998,146 @@ The `deleteAsset` method returns a `Promise<undefined>` which resolves when the 
 
 ## Despawning
 
-<mark>TODO</mark>
-act of getting rid of spawned content. If `spawnedAsset` was used then `deleteAsset` must be. If `SpawnController` was used then ... DUNNO ... !
+**Despawning** is the act of removing entities from the world that were created by *asset spawning* (or [sublevel streaming](#sublevels)). There are a few ways to *despawn*:
+1. Call `world.deleteAsset(...)` when using [simple spawning](#simple-spawning)
+1. Call `controller.unload()` or `controller.dispose()` on a [SpawnController](#spawncontroller-methods) (after entities have been created with `spawn()`)
+1. Call `sublevel.hide()` on a [SublevelEntity](#sublevels) (after entities have been created with `activate()`)
+1. [Stop or Reset an editor instance](#starting-stopping-and-resetting-an-instance) or call `world.reset()`
 
-## Advanced Spawning
+## Advanced Spawning (SpawnController)
+
+A `SpawnController` gives you more control over spawning than the [simple spawn method](#simple-spawning). Most importantly, it lets you *prepare* as asset (by calling `load()`) before you are ready for it to spawn it; this allows *most of the work* to be done so that when you are ready for the spawn to actually occur it can be done nearly instantaneously. **A SpawnController allows you to spawn in an asset in a "hidden" state and then later "show" it instantaneously**.
+
+You instantiate a spawn controller by specifying a [spawnable asset](#spawnable-assets):
 ```ts
-export declare class SpawnControllerBase {
-    /**
-     * The ID of the asset that is currently being spawned. This is
-     * a protected version of the {@link spawnID} property.
-     */
-    protected _spawnId: number;
-    /**
-     * The ID of the asset that is currently being spawned.
-     */
-    get spawnId(): number;
-    /**
-     * A list of entities contained in a spawned asset.
-     */
-    readonly rootEntities: ReadableHorizonProperty<Entity[]>;
-    /**
-     * The current spawn state of the spawn controller asset.
-     */
-    readonly currentState: ReadableHorizonProperty<SpawnState>;
-    /**
-     * The spawn state the spawn controller asset is attempting to reach.
-     */
-    readonly targetState: ReadableHorizonProperty<SpawnState>;
-    /**
-     * An error associated with the spawn operation.
-     */
-    readonly spawnError: ReadableHorizonProperty<SpawnError>;
-    /**
-     * Loads asset data if it's not previously loaded and then spawns the asset.
-     *
-     * @returns A promise that indicates whether the operation succeeded.
-     */
-    spawn(): Promise<void>;
-    /**
-     * Preloads the asset data for a spawn controller.
-     *
-     * @returns A promise that indicates whether the operation succeeded.
-     */
-    load(): Promise<void>;
-    /**
-     * Pauses the spawning process for a spawn controller.
-     *
-     * @returns A promise that indicates whether the operation succeeded.
-     */
-    pause(): Promise<void>;
-    /**
-     * Unloads the spawn controller asset data. If the spawn controller
-     * isn't needed after the data is unloaded, call {@link dispose}.
-     *
-     * @returns A promise that indicates whether the operation succeeded.
-     */
-    unload(): Promise<void>;
-    /**
-     * Unloads the asset data of a spawn controller, and performs cleanup on
-     * the spawn controller object.
-     *
-     * @remarks
-     * This method is equivalent to {@link unload}, except afterwards the spawn controller
-     * is no longer available for use and all of its methods throw errors. Call
-     * `dispose` in order to clean up resources that are no longer needed.
-     *
-     * @returns A promise that indicates whether the dispose operation succeeded.
-     */
-    dispose(): Promise<unknown>;
-}
+const controller = new SpawnController(
+  asset,    // Spawnable asset
+  position, // Vec3
+  rotation: // Quaternion
+  scale     // Vec3
+)
 ```
+
+**Spawning an Asset**: You can then spawn the asset by calling `spawn()` on the controller. When the promise returned from `spawn()` resolves you can call `controller.rootEntities` to get the list of entities that spawned in (as `Entity[]`).
+
+**Loading an Asset**: If you want to prepare the spawn (doing everything accept adding the entities to the scene graph and showing them) then you can call `load()` instead of `spawn()`.
+
+**Spawning a Loaded Asset**: When you are ready to do the last step (showing the entities) you can call `spawn()`.
+
+**Pausing a Loading Asset**: If you have called `load()` or `spawn()` you can call `pause()` to pause it. Though be aware that nothing will happen if it has already fully loaded.
+
+**Unloading an Asset**: If you want to **despawn** the asset (or unload a loaded asset), you call `unload()`.
+
+**Disposing the Controller**: When you are done with the controller and don't plan to spawn from it again, call `dispose()`.
+
+Note: there is **currently no way to go from *spawned to loaded*** (although [Sublevels *can*](#sublevels)), meaning that you can't simply "hide" the spawned entities but keep them all around. Instead you need to go from *spawned to unloaded* and then *load* again. If you simple try to go from *spawned* to *loaded* then nothing happens, since a spawned asset *is* loaded.
+
+### SpawnController State Machine
+
+The `SpawnController` class is implemented as a state machine. It has two properties `currentState` and `targetState` which are both [readonly Horizon Properties](#horizon-properties) for `SpawnState`. The spawn system will automatically move `currentState` *toward* `targetState`.
+
+The `SpawnState` enum supports the following values:
+* `NotReady`: [clients](#clients-devices-and-the-server) are downloading the asset information
+* `Unloaded`: all [clients](#clients-devices-and-the-server) have downloaded the asset information
+* `Loading`: [clients](#clients-devices-and-the-server) are preparing the asset (e.g. computing [lighting](#horizon-lighting) on all the meshes)
+* `Paused`: [clients](#clients-devices-and-the-server) are paused preparing the asset
+* `Loaded`: all [clients](#clients-devices-and-the-server) have prepared the asset
+* `Active`: [clients](#clients-devices-and-the-server) have inserting entities into the scene graph
+* `Unloading`: [clients](#clients-devices-and-the-server) clients have removed entities from the scene graph (if it had made it to the `Active` state) and are deleting all prepared data (such as [lighting](#horizon-lighting))
+* `Disposed`: [clients](#clients-devices-and-the-server) have deleted the downloaded information, the prepared data, and the created entities (fully returning to before the controller was created).
+
+**`SpawnState` Usage**
+* **`currentState`** moves through all values of `SpawnState`
+* **`targetState`** is only ever `Unloaded`, `Loaded`, `Active`, or `Disposed`
+
+**`SpawnError` (Failure)**
+If any of the spawn process fails (promises reject), you can find the error in `controller.spawnError.get()` which will be a `SpawnError`.
+
+### SpawnController Methods
+
+**Method Promise Return Values**: All of the methods in the table below returns `Promise<void>` for when the action completes. If you call `load()` and then, before it resolves, you call `pause()` then the promise returned from `load()` will *stay unresolved* until you eventually call `load()` or `spawn()` and the loading actually finishes. If you call `unload()` or `dispose()` while it is loading then the original promise returned from `load()` will reject.
+
+| `SpawnController` Method | `targetState` must be | `currentState` must be | Result |
+|---|---|---|--|
+| `load()` | `Unloaded` | - | <nobr>`targetState` ➜ `Loaded`</nobr> |
+| `pause()` | - | `Loading` | <nobr>`targetState` ➜ `Paused`<br/>`currentState` ➜ `Paused`</nobr> |
+| `spawn()` | `Unloaded` or `Loaded` | - | <nobr>`targetState` ➜ `Active`</nobr> |
+| `unload()` | `Loaded` or `Active` | - | <nobr>`targetState` ➜ `Unloaded`</nobr> |
+| `dispose()` | `Loaded` or `Active` or `Unloaded` | - | <nobr>`targetState` ➜ `Unloaded`</nobr> |
+
+**SpawnController `currentState` Transitions**
+1. A spawn controller has a `targetState`.
+
+2. A spawn controller also has a `currentState`.
+
+3. The diagram shows all possible `currentState`s. Whenever `currentState` does not equal `targetState` the system "automatically" progresses through the states in the diagram, moving along the shortest path, updating `currentState` as it progresses through the nodes.
+
+4. Once `targetState` is set to `Disposed`, it will traverse through *red edges* as it tears down.
+
+5. When a spawn controller starts, it's `currentState` is `NotReady` and its target state is `Unloaded`.
+
+**Dotted edges** represent transitions that take time and where all [clients](#clients-devices-and-the-server) are waited on.
+
+**Labeled edges** describe the actions that occur to go from one `currentState` to the next.
+
+```mermaid {align=center}
+%%{init: { "flowchart": { "curve": "linear" } } }%%
+flowchart
+  Begin@{shape: circ, label: " "}-->NotReady
+  NotReady-."download asset info".->Unloaded-->Loading
+  Loading-."prepare asset".->Loaded-."create entities".->Active
+  Active-->Unloading-."destroy entities</br>delete asset".->Unloaded
+
+  NotReady-.->DeleteInfo
+  Unloaded-.->DeleteInfo
+  Loading-.->DeleteAsset
+  Paused-.->DeleteAsset
+  Loaded-.->DeleteEntities
+  Active-.->DeleteEntities
+  Unloading-.->DeleteEntities
+
+  DeleteEntities(( ))-."delete entities".->DeleteAsset(( ))-."delete prepared asset".->DeleteInfo(( ))-."delete asset info".->Disposed
+  Paused-->Loading
+
+  Loading-.->Unloaded
+
+  Loading-->Paused
+  Loaded-->Unloading
+  Loading-->Unloading
+
+  linkStyle 7,8,9,10,11,12,13,14,15,16 stroke:#ff0000
+
+  style Active fill:#e2faea,stroke:#9a9
+  style Paused fill:#fcfcda,stroke:#aa9
+
+  style Begin fill:black,stroke:grey
+  style Disposed fill:#fcdada,stroke:#a89
+  style DeleteEntities fill:#fcdada,stroke:#a89
+  style DeleteAsset fill:#fcdada,stroke:#a89
+  style DeleteInfo fill:#fcdada,stroke:#a89
+```
+
 ## Sublevels
-`horizon/world_streaming`
-```ts
-/**
- * A sublevel of a world that you can stream independently from the rest of
- * the world at runtime.
- *
- * @remarks
- * Sublevels are a way to break up a world into smaller pieces that you can
- * stream separately from other portions of the world. for more information,
- * see the {@link https://developers.meta.com/horizon-worlds/learn/documentation/typescript/asset-spawning/world-streaming | World Streaming} guide.
- */
-export declare class SublevelEntity extends Entity {
-    /**
-     * Gets the current state of the sublevel.
-     */
-    readonly currentState: ReadableHorizonProperty<SublevelStates>;
-    /**
-     * Gets the state the sublevel is attempting to reach.
-     */
-    readonly targetState: ReadableHorizonProperty<SublevelStates>;
-    /**
-     * Loads the sublevel's asset data if not already loaded and makes it active in the world.
-     *
-     * @returns A promise that resolves when the sublevel is active.
-     */
-    activate(): Promise<void>;
-    /**
-     * Despawns the sublevel and preloads the sublevel's asset data so it can be re-activated later.
-     *
-     * @returns A promise that resolves when the sublevel is loaded.
-     */
-    hide(): Promise<void>;
-    /**
-     * Preloads the sublevel's asset data so it can be activated later.
-     *
-     * @returns A promise that resolves when the sublevel is loaded.
-     */
-    load(): Promise<void>;
-    /**
-     * Pauses the sublevel's asset data loading.
-     *
-     * @returns A promise that resolves when the sublevel is paused.
-     */
-    pause(): Promise<void>;
-    /**
-     * Despawns the sublevel's asset data.
-     *
-     * @returns A promise that resolves when the sublevel is unloaded.
-     */
-    unload(): Promise<void>;
-}
-```
+
+**Sublevels** are portions of a world that can be spawned in. They are very similar to [spawnable assets](#spawnable-assets) except that they can pre-compute a lot more data (such as [lighting](#horizon-lighting)) which makes spawning a *lot* faster. **Horizon uses the term *stream* with Sublevels (instead of *spawn*)**.
+
+Sublevel functionality is in the `horizon/world_streaming` module.
+
+**TypeScript**: To spawn in a sublevel you need to have a [Sublevel Gizmo](#sublevel-gizmo) in the world with "Sublevel Type" set to "Deeplink". Then you can use the entity [as](#entity-as-method) the `SublevelEntity` class.
+
+The class interface on `SublevelEntity` acts much like a [SpawnController](#advanced-spawning-spawncontroller) with [currentState and targetState](#spawncontroller-state-machine) using the enum `SublevelStates` which has the exact same values as [SpawnState](#spawncontroller-state-machine).
+
+| `SublevelEntity` Method | Equivalent `SpawnController` Method |
+|---|---|
+| `load` | `load` |
+| `pause` |  `pause` |
+| `unload` | `unload` |
+| `activate` | `spawn` |
+| `hide` | Similar to calling<br/><pre class="language-ts ts"><span><code>spawnController.unload().then(</code><br/><code>  () => spawnController.load()</code><br/><code>)</code></span></pre>|
 
 # Tooltips and Popups
+
+<mark>TODO</mark>
 
 ```ts
 
@@ -6383,11 +6418,11 @@ PlayerInputStateChangeCallback
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
 Space: [body part](#player-body-parts), [transform helpers](#transform-helpers)
-[SpawnController](#advanced-spawning)
-[SpawnControllerBase](#advanced-spawning)
-[SpawnError](#advanced-spawning)
+[SpawnController](#advanced-spawning-spawncontroller)
+[SpawnControllerBase](#advanced-spawning-spawncontroller)
+[SpawnError](#advanced-spawning-spawncontroller)
 [SpawnPointGizmo](#spawn-point-gizmo)
-[SpawnState](#advanced-spawning)
+[SpawnState](#advanced-spawning-spawncontroller)
 [SpringOptions](#springs)
 [StaticRaycastHit](#raycast-gizmo)
 StopAnimationOptions
