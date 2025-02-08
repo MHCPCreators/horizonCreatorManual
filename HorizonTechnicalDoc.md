@@ -3767,7 +3767,7 @@ FBS are 'production ready' and used by many high profile worlds. The legacy gizm
 | Script size | 32 KB per script | No reasonable limit |
 | Script count | Limited | No reasonable limit |
 | Travel time | Impacted by script size/count | Not significantly impacted |
-| Scripted Assets | Duplicates scripts when spawned (with auto-appended digits to name) | Share single script when spawned |
+| Scripted Assets | Duplicates scripts when spawned (with a generic "Script" name with auto-appended digits if the script already exists or spawns more than once) | Share single script when spawned |
 | Scripted Assets | Assets must include referenced Component scripts | Referenced Component scripts are automatically added to the world (*see note below on asset module references) |
 | Cross-World Updates | Not possible, as script data is tied to one world | The latest updates to script data is seen in all worlds referencing the script |
 | Cloned Worlds | Scripts in cloned world have no link to script data in original world | Scripts in cloned world are linked to the same script data as the original world |
@@ -3790,7 +3790,7 @@ FBS are 'production ready' and used by many high profile worlds. The legacy gizm
 
 ### FBS Script Ids
 
-The legacy Gizmo-Backed scripts identified script data by the name of the gizmo in the world. The world would not allow muliple script gizmos with the same name, and spawned in scripts would automatically get new names if there were a name conflict.
+The legacy Gizmo-Backed scripts identified script data by the name of the gizmo in the world. The world would not allow multiple script gizmos with the same name, and spawned in scripts would automatically get new names if there were a name conflict.
 
 In FBS, when a brand new script is added to the world (i.e. one that does not already have a script by that name), a new FBS script id is assigned to that script as unique new script data on the back end storage server.  FBS references are differentiated by this id, not by the name of the scripts.
 
@@ -3806,7 +3806,7 @@ If you make clones of your main world for branching source control development w
 
 Example workflow steps:
 1. Clone main world for branched work
-1. Branch typescipt source in external revision control system for branched world
+1. Branch typescript source in external revision control system for branched world
 1. Create new scripts and assets in branched world
 1. Check in script changes in branched world to external revision control system branch
 1. **Critical:** Add assets referencing _new_ scripts from branch to the main world
@@ -3821,7 +3821,7 @@ If you did this in the other order (merging the source code to the main world be
 To convert your world to FBS, go to the Script settings (gear under </> menu) in the desktop editor, go to the File Backed Scripts section, and if it says "Update Available" click the 'Review' button to read about the ramification, and click Update schedule a pending conversion. Then click Apply to start the conversion. Depending on the size and number of legacy Gizmo-Backed Scripts in your world, it can take some time to convert them all, and a progress meter is available in Script settings if curious.
 
 !!! info
-    Though documented, a way of converting to FBS seems no longer available in the VR editor
+    Though documented, a way of converting to FBS seems no longer available in the VR editor.
 
 !!! warning
     Changing to FBS **cannot be undone**. Your only option to convert your world back to one that uses legacy Gizmo-Backed Scripts is to roll back the entire world to a saved state backup prior to when you initiated the FBS conversion.  You _may_ want to clone your world and convert that clone to FBS first to debug any issues before converting your main world.
