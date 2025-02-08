@@ -1,4 +1,4 @@
-<!--focusSection:-->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -178,7 +178,8 @@
         4. [Codeblock Scripts workflow](#codeblock-scripts-workflow)
         5. [Asset Templates](#asset-templates)
     11. [Script File Execution](#script-file-execution)
-    12. [Helper Functions](#helper-functions)
+    12. [Script Execution Timing](#script-execution-timing)
+    13. [Scripting Helper Functions](#scripting-helper-functions)
 10. [Network](#network)
     1. [Clients (Devices and the Server)](#clients-devices-and-the-server)
     2. [Entity Ownership](#entity-ownership)
@@ -2152,8 +2153,6 @@ List and explanation of all possible errors
 
 # Scripting
 
-<mark>TODO</mark> - FBS section
-
 Scripts are how you create dynamism in worlds. You use them to create interactivity and movement. You use scripts to make something simple like a door that opens when you approach it as well as the most complex things, such as an entire complex team-vs-team shooter game (which would use many separate scripts).
 
 **TypeScript**: Scripts are written in [TypeScript](https://www.typescriptlang.org/). They can be edited in the Desktop Editor as well as the scripts web tool (click [here](https://horizon.meta.com/creator/worlds_all_) and then select a world and then select "Scripts").
@@ -2166,7 +2165,7 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 ## Creating and Editing Scripts
 
-You can create scripts by using the create button in the scripts dropdown or simply creating a new file in the scripts folder. Click the [≣] button in the editor and then "Launch TypeScript Editor". You can then create and edit files.
+You can create scripts by using the create button in the scripts dropdown or simply creating a new file in the scripts folder. Click the [≣] button in the editor and then "Launch TypeScript Editor". You can then create and edit files. Note that script-editing behaves quite differently depending on if [file-backed scripts](#file-backed-scripts-fbs) are enabled.
 
 !!! warning Editing a script while the editor is playing a world **reloads that file**.
     This is often useful, but it can cause surprises with only part of the world reloading. You may need to restart the world for certain efforts. Read about [file execution](#script-file-execution) for more information.
@@ -3793,7 +3792,7 @@ FBS are 'production ready' and used by many high profile worlds. The legacy gizm
 
 The legacy Gizmo-Backed scripts identified script data by the name of the gizmo in the world. The world would not allow muliple script gizmos with the same name, and spawned in scripts would automatically get new names if there were a name conflict.
 
-In FBS, when a brand new script is added to the world (i.e. one that does not already have a script by that name), a new FBS script id is assigned to that script as unique new script data on the back end storage server.  FBS references are differentiated by this id, not by the name of the scripts. 
+In FBS, when a brand new script is added to the world (i.e. one that does not already have a script by that name), a new FBS script id is assigned to that script as unique new script data on the back end storage server.  FBS references are differentiated by this id, not by the name of the scripts.
 
 !!! warning First version of FBS script id in a world "wins"
     If there are version conflicts between different assets spawning the same FBS script id reference into a world, the _first_ version of that FBS script data in the world (either via being part of the world saved state, or spawned in by an earlier asset) is the version that will be used by all subsequently spawned asset entities. A warning is printed on the console when non-identical script versions of the same script id are attempted to be added to the world.
@@ -3803,7 +3802,7 @@ In FBS, when a brand new script is added to the world (i.e. one that does not al
 
 #### Branched world development source control workflow issues
 
-If you make clones of your main world for branching source control development workflow, and add new scripts in the branch world, it is _critically_ important that you assetize the scripts in the branch world and add them as assets to the main world _before_ you use external source control to merge the file changes into the branch used by the main world. 
+If you make clones of your main world for branching source control development workflow, and add new scripts in the branch world, it is _critically_ important that you assetize the scripts in the branch world and add them as assets to the main world _before_ you use external source control to merge the file changes into the branch used by the main world.
 
 Example workflow steps:
 1. Clone main world for branched work
@@ -3811,9 +3810,9 @@ Example workflow steps:
 1. Create new scripts and assets in branched world
 1. Check in script changes in branched world to external revision control system branch
 1. **Critical:** Add assets referencing _new_ scripts from branch to the main world
-1. Merge script changes in external revision control system back to main world branch 
+1. Merge script changes in external revision control system back to main world branch
 
-The reason for this is that you want to ensure that the script id used by the FBS in the main world matches the script id for the branch world, especially any assets created in the branch world that you plan to later spawn into the main world. By dragging the FBS scripts as assets in to the main world, they will _not_ get new FBS script ids, but will reference the same script ids as those in the branch world. Then, when you use external source control to merge the typescript to the main world, the scripts will already be there with the correct id. 
+The reason for this is that you want to ensure that the script id used by the FBS in the main world matches the script id for the branch world, especially any assets created in the branch world that you plan to later spawn into the main world. By dragging the FBS scripts as assets in to the main world, they will _not_ get new FBS script ids, but will reference the same script ids as those in the branch world. Then, when you use external source control to merge the typescript to the main world, the scripts will already be there with the correct id.
 
 If you did this in the other order (merging the source code to the main world before adding the scripts as assets), the merged code would appear as 'brand new' scripts in the main world and would be assigned unique script ids that did not match those of assets created in the branched world. Later, if you tried to spawn those assets into your main world, you would get runtime errors about colliding script names for different script ids.
 
@@ -3851,31 +3850,32 @@ It is _highly_ advised to use FBS when using asset templates.  Asset templates h
 
 ## Script File Execution
 
-<mark>TODO</mark>
+Here’s your rewritten text to match the style and format of the original:
 
-Whenever a TypeScript file is saved, the editor will reload it. That results in:
+---
 
-* dispose existing?
-* file runs (top-level scope)
-* necessary components initialized
-* props updated in editor
+## Script Execution Timing
 
-When world starts:
-* all files are run (top-level scope) on server
-* all components are instantiated
+Scripts run at different times depending on when and how a file is loaded. Below is a breakdown of when files are executed and how components behave in various scenarios.
 
-When player joins
-* all files are run on their client device
+* **On File Save**: When a *TypeScript file is saved*, the editor *reloads it*, triggering the following sequence:
+    1. Existing components are [disposed](#component-lifecycle).
+    2. The file *runs* (executing any top-level code).
+    3. Any necessary [components are reinitialized](#component-lifecycle).
+    4. [Props in the editor](#component-properties) are *updated* accordingly.
+* **On World Start**: When the [world starts](#starting-stopping-and-resetting-an-instance), all scripts execute in the following order:
+    1. *All files are run* (executing any top-level code) on the[server](#server-player).
+    2. All [components are instantiated](#component-lifecycle) on the [server](#server-player).
+* **On Player Join**: When a [player joins](#player-entering-and-exiting-a-world), the following occurs:
+    1. *All files are run* on their [client device](#clients-devices-and-the-server). *No* [components instantiated](#component-lifecycle) *until* later (if, or when, an [ownership transfer](#ownership-transfer) occurs).
+* **On Ownership Transfer**: When [ownership transfers](#ownership-transfer) from one [client](#clients-devices-and-the-server) to another:
+    1. Existing [components are disposed](#component-lifecycle) on the previous owner’s client.
+    2. New [components are initialized](#component-lifecycle) on the new owner’s client. The file itself is *not re-run* during ownership transfer (since all files were run when the player joined).
+* **On Asset Spawn / Sublevel Stream**: When an *asset spawns or sublevel streams in*, the following happens:
+    1. *All files are run* (executing any top-level code) on all active [clients](#clients-devices-and-the-server) (the server and client devices for all players in the world).
+    2. All [components are instantiated](#component-lifecycle) on the [server](#server-player).
 
-When asset / sublevel spawns in
-* all files are run
-* all components are instantiated
-
-When ownership transfer occurs
-* components are disposed
-* new components are initialized (file is NOT run)
-
-## Helper Functions
+## Scripting Helper Functions
 
 Horizon has a few helper functions in `horizon/core`:
 
@@ -6323,7 +6323,7 @@ I found a workaround to know what entity the editor is referring to when they us
 AnimationCallbackReason
 AnimationCallbackReason
 AnimationCallbackReasons
-[assert](#helper-functions)
+[assert](#scripting-helper-functions)
 [Asset](#assets)
 [AssetContentData](#data-asset-text-and-json)
 [AttachableEntity](#attaching-entities)
@@ -6337,7 +6337,7 @@ AnimationCallbackReasons
 [BuiltInVariableType](#builtinvariabletype)
 ButtonIcon
 ButtonPlacement
-[clamp](#helper-functions)
+[clamp](#scripting-helper-functions)
 [Color](#color)
 [CodeBlockEvents](#built-in-code-block-events)
 [Comparable](#comparable-interface)
@@ -6350,7 +6350,7 @@ DefaultFocusedInteractionTrailOptions
 [DefaultSpringOptions](#springs)
 [DefaultThrowOptions](#throwing)
 [DefaultTooltipOptions](#tooltips-and-popups)
-[degreesToRadians](#helper-functions)
+[degreesToRadians](#scripting-helper-functions)
 [DisposableObject](#disposing-objects)
 [DisposableOperation](#disposing-objects)
 [DisposableOperationRegistration](#disposing-objects)
@@ -6408,7 +6408,7 @@ PlayerInputStateChangeCallback
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
 [PropTypes](#proptypes)
 [Quaternion](#quaternion)
-[radiansToDegrees](#helper-functions)
+[radiansToDegrees](#scripting-helper-functions)
 [RaycastGizmo](#raycast-gizmo)
 [RaycastHit](#raycast-gizmo)
 [RaycastTargetType](#raycast-gizmo)
