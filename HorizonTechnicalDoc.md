@@ -223,6 +223,7 @@
         1. [Grip Pose](#grip-pose)
         2. [Scripted Grip Pose](#scripted-grip-pose)
         3. [Scripted Grip Pose Animation](#scripted-grip-pose-animation)
+        4. [Avatar Animation](#avatar-animation)
     9. [Voip Settings](#voip-settings)
     10. [Haptics](#haptics)
     11. [Aim Assist](#aim-assist)
@@ -4447,11 +4448,11 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [rightHand](#player-body-parts) | Player's right hand object |
 | [torso](#player-body-parts) | Player's torso object |
 | **Pose** |
-| [clearAvatarGripPoseOverride](#player-pose) | ? |
-| [playAvatarAnimation](#player-pose) | ? |
-| [playAvatarGripPoseAnimationByName](#player-pose) | ? |
-| [setAvatarGripPoseOverride](#player-pose) | ? |
-| [stopAvatarAnimation](#player-pose) | ? |
+| [clearAvatarGripPoseOverride](#scripted-grip-pose-animation) | Remove the current grip pose override |
+| [playAvatarAnimation](#avatar-animation) | Play avatar animation (<span style="color:#770000">currently unsupported</span>) |
+| [playAvatarGripPoseAnimationByName](#scripted-grip-pose-animation) | Play a grip pose animation |
+| [setAvatarGripPoseOverride](#scripted-grip-pose) | Set a grip pose override |
+| [stopAvatarAnimation](#avatar-animation) | Stop avatar animation (<span style="color:#770000">currently unsupported</span>) |
 | **Transform** |
 | [forward](#local-transforms) | Local forward of the player (measured from their hips) |
 | [position](#player-body-parts) | Position of the player's center point |
@@ -4463,10 +4464,10 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [jumpSpeed](#player-locomotion) | The speed the player leaves the ground at when they jump |
 | **Physics** |
 | [applyForce](#player-physics) | Apply a force to the player |
-| [configurePhysicalHands](#player-physics) | ? |
+| [configurePhysicalHands](#player-physics) | Configure if a VR player's hands can collide with entities in the world |
 | [gravity](#player-physics) | The vertical acceleration of the player (when they are in the air) |
 | [throwHeldItem](#throwing) | Throw the currently held item |
-| [velocity](#player-physics) | ? |
+| [velocity](#player-physics) | The player's velocity due to physics (not including locomotion) |
 | **Quests / Achievements** |
 | [hasCompletedAchievement](#quests) | Check if the player has completed the given achievement |
 | [setAchievementComplete](#quests) | Set if the player has completed the given achievement |
@@ -4754,6 +4755,10 @@ Other animations names not included in the enum are:
 - *Die*: the avatar falls to the ground.
 - *Respawn*: the player stands up instantly.
 
+### Avatar Animation
+
+There are two methods on the [Player Class](#player-class): `playAvatarAnimation` and `stopAvatarAnimation` which are currently **not supported** and are in `horizon/core` by error.
+
 ## Voip Settings
 
 Horizon has the ability control *who can hear a player and from how far away*.
@@ -5025,7 +5030,7 @@ on the held object. If the entity was **force held** then this is how you remove
     1. **Entity is [attached](#attaching-entities).** When an entity is attached to a player it is forced released (after attaching to the player, meaning that it is momentarily held *and* attached at the same time).
     1. **Entity moves too far away from player** - either via scripting, animation, or physics "knocking it out of the hand".
     1. **Player moves too far away entity** - either via scripting, physics, or player movement input "walking away while grabbing physics locked object".
-    1. <span style="color:red">(Not recommended)</span> **[Ownership](#entity-ownership) is [changed while held](#grabbables-and-ownership)** - changing the owner of a held entity will cause it to be force-release from the player. The `grabEnd` event will *not* be sent in this case.
+    1. <span style="color:#770000">(Not recommended)</span> **[Ownership](#entity-ownership) is [changed while held](#grabbables-and-ownership)** - changing the owner of a held entity will cause it to be force-release from the player. The `grabEnd` event will *not* be sent in this case.
 
     !!! info Disabling collidability does *not* cause a force release.
 
@@ -5159,8 +5164,8 @@ Attaching entities involves two built-in code block events being sent to the att
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
-| `OnAttachStart` | <nobr>`player: Player`</nobr> | ? |
-| `OnAttachEnd` | <nobr>`player: Player`</nobr> | ? |
+| `OnAttachStart` | <nobr>`player: Player`</nobr> | Sent when the entity is attached to the given player |
+| `OnAttachEnd` | <nobr>`player: Player`</nobr> | Sent when the entity is detached from the given player |
 
 The flow of events are shown in the diagram below. Ovals represent the *state* the entity is in. The boxes represent what happens when the entity goes from one state to another; in the box, *italics text is the action* that caused the change, **bold text is [built-in CodeBlockEvents](#built-in-code-block-events)** that are sent (in the order top-to-bottom if there are multiple in a box), and <u>underlined text is a system action that occurs</u>.
 
@@ -5711,12 +5716,12 @@ All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built
 |---|---|---|
 | <nobr>🔈🧱🍏`OnItemPurchaseStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player opens the purchase menu (both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). |
 | <nobr>🔈🧱🍏`OnItemPurchaseComplete`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player closes the purchase menu (for both [Durable](#in-world-durable-items) and [Consumable](#in-world-consumable-items)). `success` contains if purchase was successful.  |
-| <nobr>~~🔈🧱🍏`OnItemPurchaseSucceeded`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. |
-| <nobr>~~🔈🧱🍏`OnItemPurchaseFailed`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. |
+| <nobr>~~🔈🧱🍏`OnItemPurchaseSucceeded`~~</nobr><br/>(<span style="color:#770000">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player successfully purchases an item. |
+| <nobr>~~🔈🧱🍏`OnItemPurchaseFailed`~~</nobr><br/>(<span style="color:#770000">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to purchase an item. |
 | <nobr>🔈🍏`OnItemConsumeStart`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player tries to consume an item. You [should handle this event](#handling-an-item-consume-item-request). This is not sent for [auto-use consumables](#auto-use-consumable-in-world-items). |
 | <nobr>🔈🍏`OnItemConsumeComplete`</nobr> | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr><br/><nobr>`success: boolean`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player 's attempt-to-consume finishes, based on if you [handled the request](#handling-an-item-consume-item-request). For an [auto-use consumable](#auto-use-consumable-in-world-items) this will be broadcast right after purchase. |
-| <nobr>~~🔈🍏`OnPlayerConsumeSucceeded`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player consumes an item. |
-| <nobr>~~🔈🍏`OnPlayerConsumeFailed`~~</nobr><br/>(<span style="color:red">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to consume an item.|
+| <nobr>~~🔈🍏`OnPlayerConsumeSucceeded`~~</nobr><br/>(<span style="color:#770000">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player consumes an item. |
+| <nobr>~~🔈🍏`OnPlayerConsumeFailed`~~</nobr><br/>(<span style="color:#770000">deprecated</span>) | <nobr>`player: Player`<nobr/><br/><nobr>`item: string`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player fails to consume an item.|
 | 🔈`OnPlayerSpawnedItem` | <nobr>`player: Player`<nobr/><br/><nobr>`item: Entity`</nobr> | [Broadcast](#built-in-broadcasted-code-block-events) when a player spawns a Durable item into the world from their personal Horizon Inventory. The parameters give you a reference to the `Player` and the item (as an `Entity`).|
 
 !!! info An`OnItemPurchaseComplete` event with `success` set to `false` does not imply ownership.
