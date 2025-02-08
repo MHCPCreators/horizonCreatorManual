@@ -1193,6 +1193,8 @@ The `simulated` property defaults to `true`.
 
 When you call `entity.simulated.set(false)` the entity will lose all [linear and angular velocity](#physics) (as if you had called `entity.zeroVelocity()`). If, or when, `simulated` is re-enabled, those velocities are *not* returned.
 
+Note: the [PhysicalEntity class](#physicalentity-class) has a method `locked`; [locked is very similar to simulated](#simulated-vs-locked-entities).
+
 ### Entity Tags
 
 Entities in Horizon can be assigned a list of **tags** which are used of "classifying" entities. Tags are just `string`s. Tags can be assigned in the Properties panel; they can also be modified in scripting with the `Entity` property `tags: HorizonSetProperty<string>`.
