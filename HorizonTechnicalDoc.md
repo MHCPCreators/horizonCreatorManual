@@ -1,4 +1,4 @@
-<!--focusSection: Players -->
+<!--focusSection: -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -219,6 +219,9 @@
     7. [Player Body Parts](#player-body-parts)
         1. [Player Hand](#player-hand)
     8. [Player Pose](#player-pose)
+        1. [Grip Pose](#grip-pose)
+        2. [Scripted Grip Pose](#scripted-grip-pose)
+        3. [Scripted Grip Pose Animation](#scripted-grip-pose-animation)
     9. [Voip Settings](#voip-settings)
     10. [Haptics](#haptics)
     11. [Aim Assist](#aim-assist)
@@ -420,6 +423,10 @@ The **owner** is the person who [created the world](#creating-a-world). Once a w
 | *Owner*  | ✅ | ✅ | ✅ | ✅ | ✅ |
 | *Editor* | ✅ | ✅ | ❌ | ❌ (Exception: editing Quests *are* allowed) | ❌ |
 | *Tester* |  ✅ (using the VR Headset) | ❌ | ❌ | ❌ | ❌ |
+
+## Cloning a World
+
+<mark>TODO</mark> what happens with leaderboards, quests, PPVs, roles, etc. Who is allowed to clone a world
 
 ## World Snapshot
 
