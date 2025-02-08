@@ -424,7 +424,16 @@ The **owner** is the person who [created the world](#creating-a-world). Once a w
 
 ## Cloning a World
 
-<mark>TODO</mark> what happens with leaderboards, quests, PPVs, roles, etc. Who is allowed to clone a world
+World owners can clone a world. This creates a new one with a different ID than the original. The scene configuration and scripting will be completely independent than the original one, with the exception of asset templates and FBS scripts.
+
+To Clone a world:
+1. Open the Desktop Editor and wait for the Creation Home to load. If you are already inside a world, navigate back to the Creation Home by clicking the sandwich menu (the 3 horizontal lines on the upper left corner), and select Return to Creation Home.
+1. Click on the elipsis menu of the world that you want to clone, and select Duplicate.
+1. A "Duplicate your world?" UI will appear, with the option of using a default name (the original world name with the world Clone at the end). You can overwrite this field accordingly, if needed.
+1. Toggle on the "Add variable groups to duplicate world" option, if you wish to preserve a connection to the Variables Groups of the original world.
+1. Click Duplicate to close the UI. Once the Clone is created, you will see in the list of worlds of the Creation Home.
+
+Quests and Leaderboards are also cloned by default, but their completion state and values will be reset. Tracked Quests will continue referencing a connected PPV, even if the Variable Group was not included in the cloned world.
 
 ## World Snapshot
 
