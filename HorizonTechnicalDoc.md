@@ -1,4 +1,4 @@
-<!--focusSection: File-Backed Scripts (FBS) -->
+<!--focusSection:-->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -169,6 +169,12 @@
             4. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
     10. [File-Backed Scripts (FBS)](#file-backed-scripts-fbs)
+        1. [FBS Script Ids](#fbs-script-ids)
+            1. [Branched world development source control workflow issues](#branched-world-development-source-control-workflow-issues)
+        2. [Converting to FBS](#converting-to-fbs)
+        3. [Typescript scripts workflow](#typescript-scripts-workflow)
+        4. [Codeblock Scripts workflow](#codeblock-scripts-workflow)
+        5. [Asset Templates](#asset-templates)
     11. [Script File Execution](#script-file-execution)
     12. [Helper Functions](#helper-functions)
 10. [Network](#network)
