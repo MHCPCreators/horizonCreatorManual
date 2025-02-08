@@ -3910,8 +3910,8 @@ sequenceDiagram
     
     `entity.owner` is the owner that was manually or automatically requested. Note that before the ownership transfer and immediately after `entity.owner.set(B)`, the entity's owner is A. Then from `transferOwnership` in step 1 and on, the entity's owner is B. 
 
-!!! warning Ownership transfer for an entity with a **Default Script**
-    It is not recommended to transfer ownership of an entity with a Default Script, as you'll get the error "Cannot transfer ownership of non-local script, the script will continue running on the server." In this case, step 3 and 4 occurs. Once the Server has validated the ownership change in the next frame, the `entity.owner` becomes B.
+!!! warning Transfering ownership of an entity with a **Default Script**
+    When ownership of an entity with a Default Script is transferred, only step 3 and 4 occurs. Once the Server has validated the ownership change in the next frame, the `entity.owner` becomes B. If you manually set the owner of an entity with a Default Script, as you'll get the error "Cannot transfer ownership of non-local script, the script will continue running on the server." 
 
 ### Discontinuous Ownership Transfers
 
@@ -4983,8 +4983,8 @@ The following is a list of player body parts that the attachable entity may anch
 |---|---|
 | *Head* | Front-center of the player's forehead.|
 | *Torso* | Front-center-bottom of the player's ribcage. |
-| *Left Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
-| *Right Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
+| *Left Hip* | Front-left-bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
+| *Right Hip* | Front-right-bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
