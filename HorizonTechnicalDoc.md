@@ -2,7 +2,7 @@
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
-> This is an in-development (Jan '25) <b>community-written</b> document.
+> This is an in-development (Feb '25) <b>community-written</b> document.
 > For questions contact <i>wafflecopters</i>.
 
 **Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous (Matt Torres), and UnravelWinter with additional help from HomeMed.
@@ -5272,7 +5272,7 @@ The following is a list of player body parts that the attachable entity may anch
 
 #### Auto Scale to Anchor
 
-When an entity has "Avatar Attachable" set to "Anchor" there is a setting available: "Auto Scale to Anchor". <mark>The authors of this document are unsure what it does</mark>.
+When an entity has "Avatar Attachable" set to "Anchor" there is a setting available: "Auto Scale to Anchor". When enabled, the attached item will have its [scale](#scale) changed when it is [attached](#avatar-attachable) to fit the anchor it has been attached to. This setting makes it easier to support avatars of different shapes and styles. When the entity is *detached* it will be [scaled](#scale) back to its intrinsic size, its scale automatically becoming (1,1,1).
 
 ## Attach to 2D screen
 This toggle causes the attachable entity to become **screen-attached**. This means the entity's transformation will match the camera transformation. The transformation can be offset by setting the 2D Screen Position, 2D Screen Rotation, and 2D Screen Scale.
