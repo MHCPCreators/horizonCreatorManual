@@ -16,8 +16,9 @@
     1. [Creating a World](#creating-a-world)
     2. [Publishing and Player Settings](#publishing-and-player-settings)
     3. [Editor Roles](#editor-roles)
-    4. [World Snapshot](#world-snapshot)
-    5. [World Backups](#world-backups)
+    4. [Cloning a World](#cloning-a-world)
+    5. [World Snapshot](#world-snapshot)
+    6. [World Backups](#world-backups)
 3. [Instances](#instances)
     1. [Instance Lifetime](#instance-lifetime)
     2. [Instance Types](#instance-types)
@@ -282,7 +283,7 @@
         5. [In-World Durable Items](#in-world-durable-items)
             1. [Durable In-World Item CodeblockEvents](#durable-in-world-item-codeblockevents)
         6. [In-World Consumable Items](#in-world-consumable-items)
-            1. [Auto-use Consumable In-World Items](#auto-use-consumable-in-world-items)
+            1. [Auto-Use Consumable In-World Items](#auto-use-consumable-in-world-items)
             2. [Handling an Item-Consume Item Request](#handling-an-item-consume-item-request)
             3. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
@@ -5353,7 +5354,7 @@ The player may choose to unholster 1 of their attached items. They can only see 
 
 ## Focused Interaction
 
-?
+<mark>TODO</mark>
 
 # Persistence
 
@@ -5677,11 +5678,9 @@ There are also a few methods on the `IWPSellerGizmo` class related to durable it
     consumeItemForPlayer(player: Player, item: string): void
     ```
 
-#### Auto-use Consumable In-World Items
+#### Auto-Use Consumable In-World Items
 
-<mark>TODO</mark>
-OnItemConsumeStart
-OnItemConsumeComplete
+When a [consumable item](#in-world-consumable-items) is set to **auto-use**, the player does not initiate the use of the item (since it is used automatically at the time of purchase). This means that **[OnItemConsumeStart](#in-world-consumable-items) is *never sent***. But the **[OnItemConsumeComplete](#in-world-consumable-items) is sent** right after the purchase succeeds (since the item is then auto-used).
 
 #### Handling an Item-Consume Item Request
 
