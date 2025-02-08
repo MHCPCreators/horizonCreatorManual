@@ -4705,13 +4705,72 @@ Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a
 
 ## Player Pose
 
-<mark>TODO</mark>
+For HWXS only, it is possible to activate or deactivate the avatar pose through scripting or through the configuration of grabbable items.
 
-clearAvatarGripPoseOverride(): void;
-stopAvatarAnimation(options?: StopAnimationOptions): void;
-playAvatarAnimation(animation: Asset, options?: PlayAnimationOptions): void;
-playAvatarGripPoseAnimationByName(avatarGripPoseAnimationName: string): void;
-setAvatarGripPoseOverride(avatarGripPose: AvatarGripPose): void;
+**Grab Pose**
+Grab poses allow for a easy avatar configuration, that activates as soon as the HWXS player grabs an entity (pistol, shotgun, sword, RPG... ) These poses do not require any scripting and in most cases there is a secondary animation (recoil, attack sword motion...) that activates when the player presses the action button (Left Mouse Click on PC and on screen button for mobile).
+
+To configure a pose animation through a grabbable entity:
+1. Click on the entity to open its properties.
+1. Scroll down to the More category, and locate the Avatar Pose option.
+1. Select an option from the dropdown menu.
+1. To try the selection, enter preview mode and grab the object. Observe how the avatar chances its pose.
+1. Press the action button and observe the secondary animation.
+
+**Scripted Poses and Animations**
+Scripted animation allow for more control over the behaviour of HWXS avatar poses. These can be triggered wereas the player is grabbing an entity or not, or when it's required to switch between different posses regardless of the configuration of a held object.
+
+```ts
+    /**
+     * Overrides the existing HWXS avatar grip type, which is determined by the currently held grabbable.
+     * @param avatarGripPose - The new pose to apply. This persists until cleared or another grip override is set.
+     */
+    setAvatarGripPoseOverride(avatarGripPose: AvatarGripPose): void;
+```
+
+The possibel AvatarGripPose options are:
+- Default
+- Pistol
+- Shotgun
+- Rifle
+- RPG
+- Sword
+- Torch
+- Shield
+- Fishing
+- CarryLight
+- CarryHeavy
+
+```ts
+    /**
+     * Clears any override on an avatar grip pose, reverting it to the pose of the currently held grabbable.
+     */
+    clearAvatarGripPoseOverride(): void;
+
+ /**
+     * Triggers a one shot {@link AvatarGripPose} animation by name.
+     * @param avatarGripPoseAnimationName - The avatar grip pose animation to play.
+     *
+     * @example
+     * ```
+     * player.playAvatarGripPoseAnimationByName(AvatarGripPoseAnimationNames.Fire)
+     * ```
+     */
+    playAvatarGripPoseAnimationByName(avatarGripPoseAnimationName: string): void;
+
+```
+
+The animations names can be found under the exported enum AvatarGripPoseAnimationNames, with values of:
+- Fire 
+- Reload 
+- ReadyThrow
+- ChargeThrow 
+- Throw 
+- CancelThrow 
+
+Other animations names not included in the enum are:
+- Die: the avatar falls to the ground.
+- Respawn: the player stands up instantly.
 
 ## Voip Settings
 
