@@ -1,4 +1,4 @@
-<!--focusSection: -->
+<!--focusSection:-->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -169,6 +169,12 @@
             4. [Synchronization Phase](#synchronization-phase)
     9. [Component Inheritance](#component-inheritance)
     10. [File-Backed Scripts (FBS)](#file-backed-scripts-fbs)
+        1. [FBS Script Ids](#fbs-script-ids)
+            1. [Branched world development source control workflow issues](#branched-world-development-source-control-workflow-issues)
+        2. [Converting to FBS](#converting-to-fbs)
+        3. [Typescript scripts workflow](#typescript-scripts-workflow)
+        4. [Codeblock Scripts workflow](#codeblock-scripts-workflow)
+        5. [Asset Templates](#asset-templates)
     11. [Script File Execution](#script-file-execution)
     12. [Helper Functions](#helper-functions)
 10. [Network](#network)
@@ -3729,7 +3735,99 @@ Component.register(Child)
 
 ## File-Backed Scripts (FBS)
 
-<mark>TODO</mark> [Script Gizmo](#script-gizmo)
+Horizon Worlds has two ways of storing the code for scripts: legacy Gizmo-Backed Scripts and modern File-Backed Scripts.
+| Type | Description |
+|----|----|
+| Gizmo-Backed Scripts | Script data is stored _within_ script gizmo entities located in your world's scene graph. The script data is tied to your world. |
+| File-Backed Scripts (FBS) | Script data is stored in a central file server unrelated to your world. The script data is pulled into your world by reference.
+
+FBS are 'production ready' and used by many high profile worlds. The legacy gizmo-backed script storage, while intuitive, had a number of shortcomings:
+
+| Constraint | Gizmo-Backed Scripts | File-Backed Scripts (FBS) |
+|---|---|---|
+| Script size | 32 KB per script | No reasonable limit |
+| Script count | Limited | No reasonable limit |
+| Travel time | Impacted by script size/count | Not significantly impacted |
+| Scripted Assets | Duplicates scripts when spawned (with auto-appended digits to name) | Share single script when spawned |
+| Scripted Assets | Assets must include referenced Component scripts | Referenced Component scripts are automatically added to the world (*see note below on asset module references) |
+| Cross-World Updates | Not possible, as script data is tied to one world | The latest updates to script data is seen in all worlds referencing the script |
+| Cloned Worlds | Scripts in cloned world have no link to script data in original world | Scripts in cloned world are linked to the same script data as the original world |
+| Versioning | Not supported | The script data is versioned (tho versions are not directly accessible) |
+| Use in Asset Templates | Not advised | Fully supported (and strongly advised) |
+| In-Scene Gizmo | Requires an in-screen script gizmo to store the script data | In-scene gizmos are optional |
+| In-Scene Gizmo | Each in-scene gizmo has distinct script data | Multiple in-scene gizmos can be aliases to the same script data |
+
+!!! warning FBS Asset Module References
+    While spawned assets will automatically import the FBS script containing Components directly referenced by Entities in the asset, they will _not_ do a transitive closure of all _modules_ imported by that Component's script. You will need to ensure that the scripts for those modules are _already_ in the destination world, or you will need to manually include the script gizmos for those modules in the asset definition. Otherwise, you will get a runtime compilation error during initialization of the spawned asset.
+
+!!! note Assets reference a frozen version of FBS script data
+    When you create an asset, it locks in a version of the FBS script data at the time of creation. If you later want to update the script version used by the asset, you will need to re-create or update them to get a later script version. Using asset templates helps with this.
+
+!!! warning Avoid sharing FBS scripts with untrusted partners
+    As FBS in different worlds all reference and edit the same back end script data, make sure that you are sharing FBS script references only with people you trust. Any edits they make in copies of the FBS will be reflected in all instances of the FBS in all worlds.  Using asset templates can limit automatic updates to published changes which must be accepted into other worlds.
+
+!!! danger Do not mix assets with FBS and Gizmo-Backed Scripts in the same world
+    If you spawn assets with FBS and Gizmo-Backed Scripts into the same world, you can get into very weird situations where it is unclear which script you are editing/referencing. The desktop editor seems to refuse to allow mixing at build time, but runtime spawning may not.
+
+### FBS Script Ids
+
+The legacy Gizmo-Backed scripts identified script data by the name of the gizmo in the world. The world would not allow muliple script gizmos with the same name, and spawned in scripts would automatically get new names if there were a name conflict.
+
+In FBS, when a brand new script is added to the world (i.e. one that does not already have a script by that name), a new FBS script id is assigned to that script as unique new script data on the back end storage server.  FBS references are differentiated by this id, not by the name of the scripts. 
+
+!!! warning First version of FBS script id in a world "wins"
+    If there are version conflicts between different assets spawning the same FBS script id reference into a world, the _first_ version of that FBS script data in the world (either via being part of the world saved state, or spawned in by an earlier asset) is the version that will be used by all subsequently spawned asset entities. A warning is printed on the console when non-identical script versions of the same script id are attempted to be added to the world.
+
+!!! danger Multiple FBS with different ids but the same name are not allowed in the same world
+    When spawning in assets, especially at runtime, ensure that none of the assets use the same name for _different_ script ids (not different versions of the same script id, rather unrelated scripts). A warning will be printed in the console when this happens, and the new script will not execute and its scripted entities will not function.
+
+#### Branched world development source control workflow issues
+
+If you make clones of your main world for branching source control development workflow, and add new scripts in the branch world, it is _critically_ important that you assetize the scripts in the branch world and add them as assets to the main world _before_ you use external source control to merge the file changes into the branch used by the main world. 
+
+Example workflow steps:
+1. Clone main world for branched work
+1. Branch typescipt source in external revision control system for branched world
+1. Create new scripts and assets in branched world
+1. Check in script changes in branched world to external revision control system branch
+1. **Critical:** Add assets referencing _new_ scripts from branch to the main world
+1. Merge script changes in external revision control system back to main world branch 
+
+The reason for this is that you want to ensure that the script id used by the FBS in the main world matches the script id for the branch world, especially any assets created in the branch world that you plan to later spawn into the main world. By dragging the FBS scripts as assets in to the main world, they will _not_ get new FBS script ids, but will reference the same script ids as those in the branch world. Then, when you use external source control to merge the typescript to the main world, the scripts will already be there with the correct id. 
+
+If you did this in the other order (merging the source code to the main world before adding the scripts as assets), the merged code would appear as 'brand new' scripts in the main world and would be assigned unique script ids that did not match those of assets created in the branched world. Later, if you tried to spawn those assets into your main world, you would get runtime errors about colliding script names for different script ids.
+
+### Converting to FBS
+
+To convert your world to FBS, go to the Script settings (gear under </> menu) in the desktop editor, go to the File Backed Scripts section, and if it says "Update Available" click the 'Review' button to read about the ramification, and click Update schedule a pending conversion. Then click Apply to start the conversion. Depending on the size and number of legacy Gizmo-Backed Scripts in your world, it can take some time to convert them all, and a progress meter is available in Script settings if curious.
+
+!!! info
+    Though documented, a way of converting to FBS seems no longer available in the VR editor
+
+!!! warning
+    Changing to FBS **cannot be undone**. Your only option to convert your world back to one that uses legacy Gizmo-Backed Scripts is to roll back the entire world to a saved state backup prior to when you initiated the FBS conversion.  You _may_ want to clone your world and convert that clone to FBS first to debug any issues before converting your main world.
+
+Be aware that after updating to FBS, you will also need to update all assets that were being used in the world to also have FBS scripts.  Assets will not update to FBS scripts automatically.
+
+### Typescript scripts workflow
+
+Using FBS is largely seamless to the typescript workflow, as most edits to the scripts are done via the external editor (e.g. VSCode) without regard to in-world script gizmo entities. In fact, as new typescript scripts tend to pile up at the world at the origin (0, 0, 0), it can clean up your visual view by just deleting all the gizmos from the world and relying on either the VSCode view or the Script </> menu in the desktop editor to find/manage them.
+
+Note: you may need to add script gizmos for typescript FBS if you need to reference them as imported modules in any assets you create.
+
+### Codeblock Scripts workflow
+
+Using FBS with codeblocks can be a challenging experience, as editing script data is primarily done via accessing the in-scene script gizmos. First, script gizmos are no longer synonymous with distinct script data. Simply copying a script gizmo does not make a duplicate of the script data, and editing the data in the copied gizmo will edit the data viewed in the original gizmo as well. Likewise, deleting a script gizmo does not delete the script data. The script data is still available in the Script->Library, and another gizmo can be instantiated.
+
+!!! bug Codeblock script gizmos sometimes vanish in FBS worlds
+    When editing a codeblock script in an FBS world, at times, the script gizmo may vanish while editing. The script data hasn't been deleted, as it is still in the Script->Library. Another gizmo can be respawned for the script data and editing can continue.
+
+!!! bug Codeblock script updates are slow when using FBS
+    Many creators report that edits to codeblock scripts in an FBS world take a long time to sync/update in the scripting UI, greatly slowing development speed.
+
+### Asset Templates
+
+It is _highly_ advised to use FBS when using asset templates.  Asset templates have UI support for identifying when asset definition updates are needed because of version changes to FBS scripts, and for pulling in version updates of FBS scripts to worlds that have instantiated asset templates.
 
 ## Script File Execution
 
