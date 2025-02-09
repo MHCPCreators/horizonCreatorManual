@@ -6469,42 +6469,48 @@ https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/cu
 
 # Navigation Mesh
 
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/npcs/npcs/
+
 ## Navigation Mesh Volume
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/npcs/navigation-mesh-generation#navigation-gizmo
 
 ## Navigation Mesh Profile
 
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/npcs/navigation-mesh-generation#navigation-profile
+
 ## Navigation Mesh Agent
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/npcs/nav-mesh-agents
 
 # Cross Screens - Mobile vs PC vs VR
 
+https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-and-mobile/create-for-web-and-mobile/
+
 ## Camera
-!!! note Scratch notes
-    XS only
 
-    Local Only
-    Local Camera
-
-    - Spawn point camera options
-    - Turnkey modes (1st and 3rd person)
-    - Granular modes? (Fixed, Attach, Orbit, Pan)
-    - Collision (enable/disable)
-    - Disabling perspective switch
+https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-and-mobile/typescript-apis-for-mobile/camera
 
 # Common Problems and Troubleshooting
-- stop, reset, play (don't just hit escape)
-- leave and come back
-- let the instance die
 
-Go to your local directory where all the scripts are and copy all the .ts files that you created
-Save the copies in a different location (this is just-in-case backup, so you don't lose any work)
-Close the desktop editor
-Delete the directory from where you copied the files (like delete the entire world folder)
-Then open the desktop editor again, and go to the world
-Validate that the world folder has been created again
-And last, if needed, bring back the files that you copied with the first step
+**Desktop Editor**
+* If you reset the world without stopping it first, it is possible the things don't fully reset. We recommend that you **always do Stop -> Reset -> Play**.
 
+* If scripts are not syncing or you modify an entity's properties and don't see it behaving as if it has the updates then **leave the world and return**.
 
-I found a workaround to know what entity the editor is referring to when they use their id (100006) instead of the name in the errors. With new Entity(theID) and then getting its name or position
+* If leaving a world and returning doesn't fix an issue, you may want to have everyone leave the [editor instance](#instance-selection) for a few minutes so that the instance is shut down and a new one can be created when you return.
+
+* While waiting for an instance to shutdown, or just as another "debug" trick to try, you can **quit the Desktop app and then relaunch it**.
+
+* If scripts are not syncing you can **delete the `.editor` file and then leave the world and return**.
+
+* When you see an error message showing just an [Entity](#entity-class) `id` (such as 100006) then you can do **an entity debug trick** and run
+    ```ts
+    console.log(
+      new Entity(BigInt("100006")).name.get()
+    )
+    ```
+    to see the name of the entity. You should **never call `new Entity` in a published world**.
 
 # Glossary
 
@@ -6516,7 +6522,6 @@ I found a workaround to know what entity the editor is referring to when they us
 [AIAgentGizmo](#npc-gizmo)
 [AimAssistOptions](#aim-assist)
 [AnimatedEntity](#animated-entities)
-AnimationCallbackReason
 AnimationCallbackReason
 AnimationCallbackReasons
 [assert](#scripting-helper-functions)
@@ -6562,7 +6567,7 @@ FocusedInteraction
 FocusedInteractionTapOptions
 FocusedInteractionTrailOptions
 [GrabbableEntity](#grabbing-entities)
-Handedness: [force hold](#force-grabbing), [haptics](#haptics), [throwing](#throwing)
+**Handedness**: [force hold](#force-grabbing), [haptics](#haptics), [throwing](#throwing)
 [HapticSharpness](#haptics)
 [HapticStrength](#haptics)
 [HorizonProperty](#horizon-properties)
@@ -6613,7 +6618,7 @@ PlayerInputStateChangeCallback
 [SetMaterialOptions](#mesh-asset)
 [SetMeshOptions](#mesh-asset)
 [SetTextureOptions](#mesh-asset)
-Space: [body part](#player-body-parts), [transform helpers](#transform-helpers)
+**Space**: [body part](#player-body-parts), [transform helpers](#transform-helpers)
 [SpawnController](#advanced-spawning-spawncontroller)
 [SpawnControllerBase](#advanced-spawning-spawncontroller)
 [SpawnError](#advanced-spawning-spawncontroller)
