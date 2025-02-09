@@ -285,15 +285,16 @@
         4. [Resetting Quests](#resetting-quests)
     3. [In-World Purchases (IWPs)](#in-world-purchases-iwps)
         1. [Creating, Editing, and Deleting IWPs](#creating-editing-and-deleting-iwps)
-        2. [Item Packs](#item-packs)
-        3. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
-        4. [In-World Item ID String](#in-world-item-id-string)
-        5. [In-World Durable Items](#in-world-durable-items)
-            1. [Durable In-World Item CodeblockEvents](#durable-in-world-item-codeblockevents)
-        6. [In-World Consumable Items](#in-world-consumable-items)
-            1. [Auto-Use Consumable In-World Items](#auto-use-consumable-in-world-items)
-            2. [Handling an Item-Consume Item Request](#handling-an-item-consume-item-request)
-            3. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
+        2. [Using the In-World Purchase Gizmo](#using-the-in-world-purchase-gizmo)
+        3. [In-World Item ID String](#in-world-item-id-string)
+        4. [In-World Durable Items](#in-world-durable-items)
+            1. [Durable In-World Item Asset](#durable-in-world-item-asset)
+            2. [Durable In-World Item CodeblockEvents](#durable-in-world-item-codeblockevents)
+        5. [In-World Consumable Items](#in-world-consumable-items)
+            1. [Item Packs](#item-packs)
+            2. [Auto-Use Consumable In-World Items](#auto-use-consumable-in-world-items)
+            3. [Handling an Item-Consume Item Request](#handling-an-item-consume-item-request)
+        6. [In-World Item CodeBlockEvents](#in-world-item-codeblockevents)
     4. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs)
         1. [Using Persistent Player Variables](#using-persistent-player-variables)
         2. [Persistent Variable Groups](#persistent-variable-groups)
@@ -5712,22 +5713,8 @@ To **create an IWP** using the Desktop Editor:
 | Thumbnail | Display icon (using in purchase flow and in UI showcasing the available purchases in the world) | Select from provided options (currently thumbnails must be created in the editor and cannot be uploaded) |
 | Item Price | Cost in Meta Credits | 25-20,000 range |
 | Item Type | [Durable](#in-world-durable-items) or [Consumable](#in-world-consumable-items) | Durable means "purchased once forever" and Consumable means "can be purchased and consumed, and then purchased again, indefinitely" |
-| Asset Reference | Link the asset to be spawned | For Durable items only |
+| Asset Reference | Link the [asset to be spawned](#durable-in-world-item-asset) | For Durable items only |
 | Auto Use | Triggers use on purchase | For Consumable items only |
-
-### Item Packs
-Consumables can be bundled into 2 or more of the same item so that players can purchase a collection instead of one-by-one (i.e. health packs, cannon balls, gems) as **item packs**. Item packs allow creators to offer special promotions to motivate purchases (such as 1 heart for 25 credits vs a pack of 5 hearts for 100 credits).
-
-To create a pack:
-1. Create the consumable item following the steps from the prior section.
-1. Once created, open the Commerce UI (Systems > Commerce), and Change the ***Displaying*** drop down to Iem Packs.
-1. Click on the + Icon to opn the ***Create an item pack*** UI.
-1. Select the consumable item, and click ***Select***.
-1. Specify a quantity (between 2 and 99).
-1. Specify a price (25 to 20,000 credits).
-1. Click Create.
-
-When a player purchases a pack of consumables *without auto-use*, they are able to see their unused item quantity in their inventory. Clicking the inventory icon will not trigger the consume automatically; instead, a broadcast code block event is emitted. This even can then be intercepted with a script, that would also confirm if the player can consume or not the item. For more details see [Handling an Item-Consume Item Request](####handling-an-item-consume-item-request).
 
 ### Using the In-World Purchase Gizmo
 
@@ -5764,6 +5751,12 @@ playerOwnsItem(player: Player, item: string): boolean;
 There are also [durable item CodeBlockEvents](#in-world-item-codeblockevents) that can be connected to.
 
 There is no method for granting access to a durable item. If you want to allow people to "unlock" the item (e.g. with time instead of money) then you would have to use a combination of a durable item *and* a [player persistent variable](#player-persistent-variables-ppvs), providing the functionality if they have *either*.
+
+#### Durable In-World Item Asset
+
+When creating an durable in-world item, you can specify an [asset](#spawnable-assets) with it. If you do so, then any player who has purchased the item will be able to spawn that given asset (whenever they want). You can [connect to](#receiving-events) the [OnPlayerSpawnedItem CodeBlockEvent](#in-world-item-codeblockevents) to know when a player spawns the asset.
+
+You can [despawn](#despawning) these assets with `world.deleteAsset(...)`.
 
 #### Durable In-World Item CodeblockEvents
 
@@ -5803,6 +5796,21 @@ There are also a few methods on the `IWPSellerGizmo` class related to durable it
     consumeItemForPlayer(player: Player, item: string): void
     ```
 
+#### Item Packs
+Consumables can be bundled into 2 or more of the same item so that players can purchase a collection instead of one-by-one (i.e. health packs, cannon balls, gems) as **item packs**. Item packs allow creators to offer special promotions to motivate purchases (such as 1 heart for 25 credits vs a pack of 5 hearts for 100 credits).
+
+To create a pack:
+1. Create the consumable item following the steps from the prior section.
+1. Once created, open the Commerce UI (Systems > Commerce), and Change the ***Displaying*** drop down to Iem Packs.
+1. Click on the + Icon to opn the ***Create an item pack*** UI.
+1. Select the consumable item, and click ***Select***.
+1. Specify a quantity (between 2 and 99).
+1. Specify a price (25 to 20,000 credits).
+1. Click Create.
+
+When a player purchases a pack of consumables *without auto-use*, they are able to see their unused item quantity in their inventory. Clicking the inventory icon will not trigger the consume automatically; instead, a broadcast code block event is emitted. This even can then be intercepted with a script, that would also confirm if the player can consume or not the item. For more details see [Handling an Item-Consume Item Request](####handling-an-item-consume-item-request).
+
+
 #### Auto-Use Consumable In-World Items
 
 When a [consumable item](#in-world-consumable-items) is set to **auto-use**, the player does not initiate the use of the item (since it is used automatically at the time of purchase). This means that **[OnItemConsumeStart](#in-world-consumable-items) is *never sent***. But the **[OnItemConsumeComplete](#in-world-consumable-items) is sent** right after the purchase succeeds (since the item is then auto-used).
@@ -5828,7 +5836,7 @@ When a [consumable item](#in-world-consumable-items) is set to **auto-use**, the
     })
     ```
 
-#### In-World Item CodeBlockEvents
+### In-World Item CodeBlockEvents
 
 All events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them. Events marked with 🧱 are for [durable items](#in-world-durable-items); events marked with 🍏 are for [consumable items](#in-world-consumable-items).
 
@@ -6031,9 +6039,10 @@ The `deleteAsset` method returns a `Promise<undefined>` which resolves when the 
 ## Despawning
 
 **Despawning** is the act of removing entities from the world that were created by *asset spawning* (or [sublevel streaming](#sublevels)). There are a few ways to *despawn*:
-1. Call `world.deleteAsset(...)` when using [simple spawning](#simple-spawning)
-1. Call `controller.unload()` or `controller.dispose()` on a [SpawnController](#spawncontroller-methods) (after entities have been created with `spawn()`)
+1. Call `world.deleteAsset(...)` on the root entity (or any other to-level entities) when using [simple spawning](#simple-spawning)
+1. Call `controller.unload()` or `controller.dispose()` on a [SpawnController](#spawncontroller-methods) (after entities have been created with `spawn()`). You can also call `world.deleteAsset(...)` on the root entity (but *not* the other top-level entities).
 1. Call `sublevel.hide()` on a [SublevelEntity](#sublevels) (after entities have been created with `activate()`)
+1. Call `world.deleteAsset(...)` on the root entity resulting from a [durable item asset spawn](#durable-in-world-item-asset).
 1. [Stop or Reset an editor instance](#starting-stopping-and-resetting-an-instance) or call `world.reset()`
 
 ## Advanced Spawning (SpawnController)
