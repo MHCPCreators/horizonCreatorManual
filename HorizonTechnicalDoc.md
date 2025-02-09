@@ -218,8 +218,9 @@
         1. [Player ID](#player-id)
         2. [Player Indices](#player-indices)
         3. [Listing All Players](#listing-all-players)
-        4. [Server Player](#server-player)
-        5. [Local Player](#local-player)
+        4. [Checking Human vs NPC vs Server](#checking-human-vs-npc-vs-server)
+        5. [Server Player](#server-player)
+        6. [Local Player](#local-player)
     3. [Player Entering and Exiting a World](#player-entering-and-exiting-a-world)
     4. [Player Enter and Exit AFK](#player-enter-and-exit-afk)
     5. [Player Locomotion](#player-locomotion)
@@ -4676,7 +4677,31 @@ getPlayers() : Player[]
 
 which returns the current list of players in the world (human and [NPC](#npc-gizmo), but does not include the server player). Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
-<mark>TODO</mark> - code snippet for detecting all HUMAN players
+Note that since `getPlayers` returns both human and [NPC](#npc-gizmo) players you can use [the player type function](#checking-human-vs-npc-vs-server) to get just the human players, or just the NPCs:
+
+```ts
+const humanPlayers = this.world.getPlayers().filter(
+  p => getPlayerType(p) === 'human'
+)
+```
+
+### Checking Human vs NPC vs Server
+
+Human players and [NPC](#npc-gizmo) players both use the `Player` class. You can use the function below to detect the type of a player:
+
+```ts
+import { AvatarAIAgent } from 'horizon/avatar_ai_agent'
+
+function getPlayerType(player: Player, world: World) : 'human' | 'npc' | 'server' {
+  if (AvatarAIAgent.getGizmoFromPlayer(player) !== undefined) {
+    return 'npc'
+  } else if (player === world.getServerPlayer()) {
+    return 'server'
+  } else {
+    return 'human'
+  }
+}
+```
 
 ### Server Player
 
@@ -6515,6 +6540,7 @@ https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-an
 # Glossary
 
 *[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
+*[ancestors]: An entity's parent, grandparent, great-grandparent, etc.
 
 ## Horizon TypeScript Symbols
 
