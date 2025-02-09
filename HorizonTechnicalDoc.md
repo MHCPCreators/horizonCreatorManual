@@ -198,17 +198,17 @@
         2. [Separating a Collider from a Mesh](#separating-a-collider-from-a-mesh)
     3. [Entity Tag Bubbling](#entity-tag-bubbling)
 12. [Physics](#physics)
-    1. [Overview](#overview-2)
+    1. [Units](#units)
     2. [PhysicalEntity Class](#physicalentity-class)
     3. [Creating a Physical Entity](#creating-a-physical-entity)
-    4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
-    5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
-    6. [Applying Forces and Torque](#applying-forces-and-torque)
+    4. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
+    5. [Applying Forces and Torque](#applying-forces-and-torque)
         1. [Forces](#forces)
-        2. [Torque](#torque)
+        2. [Torques](#torques)
         3. [Springs](#springs)
             1. [Spring Push](#spring-push)
             2. [Spring Spin](#spring-spin)
+    6. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     7. [Player Physics](#player-physics)
         1. [Player Physical Velocity](#player-physical-velocity)
         2. [Player Position and Physics](#player-position-and-physics)
@@ -3176,8 +3176,6 @@ The [World](#world-class) has two static members exposing [Local Events](#local-
 | `onPrePhysicsUpdate` | <pre class="language-ts ts"><span><code>LocalEvent<{</code><br/><code>  deltaTime: number</code><br/><code>}></code></span></pre> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[before physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
 | `onUpdate` | <pre class="language-ts ts"><span><code>LocalEvent<{</code><br/><code> deltaTime: number</code><br/><code>}></code></span></pre> | A built-in [local event](#local-events) that is [broadcast](#broadcast-events) every frame **[after physics runs](#simulation-phase)** to all clients [device and server](#clients-devices-and-the-server). |
 
-
-
 ```ts
 const subscription = component.connectLocalBroadcastEvent(
   World.onUpdate,
@@ -3188,7 +3186,7 @@ const subscription = component.connectLocalBroadcastEvent(
 )
 ```
 
-Callbacks registered with `onPrePhysicsUpdate` run before physics computations occur in the frame. Callbacks registered with `onUpdate` run after physics computations. **onUpdate is usually what you need**. See the description of [prePhysics vs onUpdate](#prephysics-vs-onupdate-events) for more information.
+Callbacks registered with `onPrePhysicsUpdate` run before physics computations occur in the frame. Callbacks registered with `onUpdate` run after physics computations. **onUpdate is usually what you need**. See the description of [prePhysics vs onUpdate](#prephysics-vs-onupdate-events) for more information. Note that [onPrePhysicsUpdate is only useful for *players* (not entities)](#prephysics-vs-onupdate-events).
 
 The callback provides a single argument of type `{deltaTime: number}` which contains the amount of time that has passed since the event was last broadcast. See the section on [receiving events](#receiving-events) to learn about `connectLocalBroadcastEvent` and the `EventSubscription` that it returns.
 
@@ -4297,108 +4295,75 @@ function findTagBubbledEntity(
 
 # Physics
 
-<mark>TODO</mark> random notes
+The Horizon physics system provides a lightweight simulation of rigid body dynamics. It allows you to add basic physical behaviors—such as gravity, mass, drag, friction, and bounciness to [interactive entities](#interactive-entities). [Forces](#forces) and [torques](#torques) are applied to update an entity’s linear and rotational motion (with helpers to create [spring mechanics](#springs) for moving and rotating). This is all done by [creating a physical entity](#creating-a-physical-entity) and using the [PhysicalEntity](#physicalentity-class).
 
-VelocityChange: velocity += arg
-Force: velocity += arg/mass * deltaTime
-Impulse: velocity += arg/mass
+You can use [simulated and locked](#simulated-vs-locked-entities) to disable physics updates, run callbacks every frame [before or after physics updates](#prephysics-vs-onupdate-events), and also apply [forces to players](#player-physics).
 
-applyLocalForce(force, mode)
-  assumes force is in the coordinate system of the object
+**Simple**: Designed with simplicity in mind, Horizon’s physics system is ideal for simple and casual interactions. However, it intentionally omits more advanced features like complex constraints or detailed rotational inertia modeling. As a result, while you can achieve a range of dynamic effects, building robust physics-based mechanics or full-scale games may require creative workarounds.
 
-applyForceAtPosition(force, position, mode)
-  .Force not supported
-  .Impulse works
-  .VelocityChange not supported
+## Units
 
-  Computes torque as standard r x F
+The physics system in Horizon uses [SI Units](https://en.wikipedia.org/wiki/International_System_of_Units):
 
-
-DO NOT PHYSICS ON EMPTY OBJECTS: - behavior is highly inconsistent across force / torque APIs
-
-Facts that should be ignored because
-
-Don't run physics on empty objects; only use physical at the root OR groups
-  applyForce on empty object fails silently for Force/Impulse and is ok for VelChange
-
-Empty object center-of-mass is at the bounding box center for torque / localTorque
-  But it is at the empty object's position for forceAtPosition
-
-## Overview
-
-High-level framing of what Horizon is capable of. Example: there are no constraints (no hinges, springs, connecting rods, etc)
-
-Somewhere: force vs impulse vs velocity change
-
-<mark>TODO</mark>
+| Quantity | Unit |
+|---|---|
+| Distance | meters |
+| Velocity| [Vec3](#vec3) with `magnitude` in meters/second |
+| Acceleration | meters/second<sup>2</sup> |
+| Angular Velocity | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in radians/second |
+| Angular Acceleration | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in radians/second<sup>2</sup> |
+| Mass | kilograms |
+| Force | [Vec3](#vec3) with `magnitude` in Newtons |
+| Impulse | [Vec3](#vec3) with `magnitude` in Newton \(\cdot \) seconds |
+| Torque | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in Newton \(\cdot \) meters |
 
 ## PhysicalEntity Class
 
-<mark>TODO</mark>
-
-In the table below, "💪" means that a force is generated. "🌀" means that a torque is generated.
-
-| `PhysicalEntity` Class Member | Type | Description |
-|---|---|---|
-| `gravityEnabled` | <nobr>`WritableHorizonProperty<boolean>`</nobr> | When `true`, a force 💪 is generated every [frame](#simulation-phase). |
-| 💪`applyForce` | ? | ? |
-| 💪`applyLocalForce` | ? | ? |
-| <nobr>💪🌀`applyForceAtPosition`</nobr> | ? | ? |
-| 🌀`applyTorque` | ? | ? |
-| 🌀`applyLocalTorque` | ? | ? |
-| <nobr>💪🌀`zeroVelocity`</nobr> | ? | ? |
-| 💪`springPushTowardPosition` | ? | ? |
-| 🌀`springSpinTowardRotation` | ? | ? |
-
-```ts
-export declare class PhysicalEntity extends Entity {
-  gravityEnabled: WritableHorizonProperty<boolean>;
-
-  locked: HorizonProperty<boolean>;
-  velocity: ReadableHorizonProperty<Vec3>;
-  angularVelocity: ReadableHorizonProperty<Vec3>;
-
-  applyForce(vector: Vec3, mode: PhysicsForceMode): void;
-  applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
-  applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
-  applyTorque(vector: Vec3): void;
-  applyLocalTorque(vector: Vec3): void;
-  zeroVelocity(): void;
-
-  springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
-  springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
-}
-```
+| `PhysicalEntity` Class Member | Description |
+|---|---|
+| gravityEnabled | When `true`, a force is generated every [frame](#simulation-phase) with the magnitude set in the Properties panel |
+| [applyForce](#forces) | Add a force (or impulse or velocity change) to the entity |
+| [applyLocalForce](#forces) | Add a force (or impulse or velocity change) to the entity, expressed in [local coordinates](#local-transforms) |
+| [applyForceAtPosition](#forces) | Add a force (or impulse or velocity change) to the entity at a specific position, which may also generate a *torque* |
+| [applyTorque](#torques) | Apply a torque |
+| [applyLocalTorque](#torques) | Apply a torque expressed in [local coordinates](#local-transforms) |
+| [zeroVelocity](#forces) | Immediate stop the entity, positionally and rotationally |
+| [springPushTowardPosition](#spring-push) | Apply a linear spring force |
+| [springSpinTowardRotation](#spring-spin) | Apply a rotational spring torque |
 
 ## Creating a Physical Entity
-For an entity to become a physical entity:
-1. Have an [active collider](#active-colliders)
-1. Set `Motion` to `Interactive`
-1. Set `Interaction` to `Physics` or `Both`
-1.  [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
+For an entity to become a physical entity it must first be an [interactive entity](#interactive-entities):
+1. Its `Motion` to `Interactive`
+1. Its `Interaction` to `Physics` or `Both`.
 
-<mark>TODO</mark>
+As long as `Motion` is set to `Interactive`, the `Interaction` setting can be changed at runtime via the `interactionMode` property on the [Entity class](#entity-class).
 
-|Force Properties|Description|
-|---|---|
-|Gravity ||
-|Mass||
-|Drag||
-|Angular Drag||
-|Dynamic Friction||
-|Static Friction||
-|Bounciness||
-|Center-of-Mass||
+In order for the entity to have physics applied to it, it must have:
+1. An [active collider](#active-colliders)
+1. [simulated](#simulated) set to `true`
+1. [locked](#simulated-vs-locked-entities) set to `false`.
+1. [All ancestors, if any, be Empty Objects with Motion set to None](#interactive-entities).
+
+When an entity has `Interaction` to `Physics` or `Both`, the following properties are available in the Properties panel:
+
+|Physics Properties|Units|Description|
+|---|---|---|
+|Gravity |meters/second<sup>2</sup>| Downward acceleration applied to objects. Default is 9.81 m/s<sup>2</sup>. |
+|Mass| kilogram| Used in calculations for [force](#forces), |
+|Drag| fraction | A measure of how much velocity is lost every frame (simulating air resistance or any other resistive force). Higher numbers represent a much faster loss of velocity. |
+|Angular Drag| fraction | A measure of how much angular velocity is lost every frame (simulating air resistance or any other resistive force). Higher numbers represent a much faster loss of angular velocity. |
+|Dynamic Friction| fraction | A measure of how much velocity is lost every frame when sliding against another entity. Higher numbers represent more resistance (more loss of velocity).  |
+|Static Friction| fraction | A measure of how much velocity is lost when *starting* to slide against another entity (from rest). Higher numbers represent more resistance (more loss of velocity). |
+|Bounciness| fraction | Elasticity of collisions (0 = none, 1 = full bounce). |
+|Center-of-Mass| displacement in meters | A [Vec3](#vec3) in [local coordinates](#local-transforms). This setting is only available when "Center of Mass Override" is enabled in the Properties panel. |
 
 !!! tip Set the mass of a physical entity when first creating a physical entity
     This will ensure that physics calculations with other entities work as expected when you start experimenting with other physical properties and functions.
 
-TODO - Collision type: discrete, continuous - figure out horizon way(Any guarantees?)
-TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantees?)
-
-## PrePhysics vs OnUpdate Events
-
-<mark>TODO</mark>
+!!! danger Do not apply physics to an [Empty Object](#empty-object-and-groups).
+    There are many bugs with Empty Objects and the physics system. For example:
+    * `applyForceAtPosition` and `applyTorque` use different centers-of-mass
+    * `applyForce` silently fails for `PhysicsForceMode.Force` and `PhysicsForceMode.Impulse`.
 
 ## Simulated vs Locked Entities
 
@@ -4412,32 +4377,19 @@ Locked entities can still be [collided](#collisions) with.
 
 ## Applying Forces and Torque
 
-The physics system in Horizon uses [SI Units](https://en.wikipedia.org/wiki/International_System_of_Units):
+Every [PhysicalEntity](#physicalentity-class) has internal state representing ***pending* (linear) acceleration** and ***pending* angular acceleration** (stored on the [client](#clients-devices-and-the-server) that [owns](#entity-ownership) the entity, due to [authority](#authority-and-reconciliation)). In the next [simulation phase](#simulation-phase) the engine will do a simulation step that accumulates the pending accelerations into the velocities, and accumulates the current velocities onto the position and rotation.
 
-| Quantity | Unit |
-|---|---|
-| Distance | meters |
-| Velocity| [Vec3](#vec3) with `magnitude` in meters/second |
-| Speed | meters/second |
-| Angular Velocity | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in radians/second |
-| Mass | kilograms |
-| Force | [Vec3](#vec3) with `magnitude` Newtons |
-| Gravity | meters/second<sup>2</sup> |
-| Impulse | [Vec3](#vec3) with `magnitude` Newton \(\cdot \) seconds |
-| Torque | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in Newton \(\cdot \) meters |
-
-Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending force (impacting *position* and *velocity*) and torque (impacting *rotation* and *angularVelocity*), outlined below.
+The physics-based way to impact acceleration, velocity, and position is via [force](#forces). The physics-based way to impact angular acceleration, angular velocity, and rotation is via [torque](#forces) (the rotational analog of a force).
 
 ### Forces
 
-**Force** causes object to *move* (whereas [torque](#torque) causes them to *rotate*).
+**Force** causes object to *move* (whereas [torque](#torques) causes them to *rotate*).
 
-The force equation ($F = ma$) is:
-\[
-\text{Force} = \text{Mass}\cdot \text{Acceleration}
-\]
+The force equation is
 
-where *mass* can be set in Properties panel for the entity (defaulting to `1` kilogram).
+<div style="text-align:center">Force = Mass · Acceleration</div>
+
+where *mass* can be set in Properties panel for the entity (defaulting to `1` kilogram). This is Newton's famous "F=ma".
 
 Note that:
 * Force creates an *acceleration* for 1 frame, changing the *velocity* just *once*
@@ -4450,19 +4402,18 @@ You can apply a force with a number of methods on [PhysicalEntity](#physicalenti
 | [PhysicalEntity](#physicalentity-class) method | Notes |
 |---|---|
 | <nobr>`zeroVelocity(): void`</nobr> | Apply the exact force and torque needed to bring the entity to a stop (positionally and rotationally). |
-| <pre class="language-ts ts"><span><code>applyForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | <mark>TODO</mark> |
-| <pre class="language-ts ts"><span><code>applyLocalForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | <mark>TODO</mark> |
+| <pre class="language-ts ts"><span><code>applyForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | The `PhysicsForceMode` enum has three values, each of which will change how the input `vector` is will be used in the next [simulation phase](#simulation-phase):<table><tr><td>-</td><td>`vector`<br/>units</td><td>velocity change</td></tr><tr><td>`Force`</td><td>N</td><td><nobr>`v += vector/m * dt`</nobr></td></tr><tr><td>`Impulse`</td><td>N·s</td><td><nobr>`v += vector/m`</nobr></td></tr><tr><td>`VelocityChange`</td><td><nobr>m/s</nobr></td><td><nobr>`v += vector`</nobr></td></tr></table>where `v` is the *velocity*, `m` is the *mass*, and `dt` is the "delta time" (the time, in seconds, since the last frame). |
+| <pre class="language-ts ts"><span><code>applyLocalForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | Behaves the same as `applyForce` except that the force is expressed in they entity's [local coordinates](#local-transforms). |
 | <pre class="language-ts ts"><span><code>applyForceAtPosition(</code><br/><code>  vector: Vec3,</code><br/><code>  position: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | Applies a force, impulse, or velocity change on the entity at the specified position, which will compute both a *force and a torque*. For example: pushing on an bar from the side will cause it to move and turn.<br/><br/>The *position does not need to be "on" the entity*. The position is simply used to compute the torque (a position really far away from the [pivot point](#pivot-points) of the entity will generate a large torque). |
 | <pre class="language-ts ts"><span><code>springPushTowardPosition(</code><br/><code>  position: Position,</code><br/><code>  options?: Partial<SpringOptions></code><br/><code>): void</code></span></pre> | See the documentation in [spring push](#spring-push). |
 
-### Torque
+### Torques
 
 **Torque** is the [rotational analogue of (linear) force](https://en.wikipedia.org/wiki/Torque). Force causes object to *move*. Torque causes them to *rotate*.
 
-The torque equation (an analogue of $F = ma$) is:
-\[
-\text{Torque} = \text{Rotational Inertia}\cdot \text{Angular Acceleration}
-\]
+The torque equation is (as an analog to "F=ma"):
+<div style="text-align:center">Torque = Rotation Inertia · Angular Acceleration</div>
+
 
 but unfortunately there is **no public documentation on how Horizon handles rotational inertia**. You'll have to experiment with torque values until you find a value that works for your use case.
 
@@ -4555,6 +4506,19 @@ springSpinTowardRotation(
     });
     ```
 
+## PrePhysics vs OnUpdate Events
+
+A common way to apply forces (or torques) to entities and players is to do so [every frame](#run-every-frame-prephysics-and-onupdate), e.g. [spring](#spring-push) might exert a [force](#forces) on a [PhysicalEntity](#physicalentity-class) every frame.
+
+The [broadcast local events](#built-in-local-events) for [OnPrePhysicsUpdate and OnUpdate](#run-every-frame-prephysics-and-onupdate) allow you to register callbacks to be run every frame *before* and *after* the physics computations, respectively.
+
+!!! warning `OnPrePhysicsUpdate` is only useful for **moving players** (not entities).
+    If you want to move entities every frame, do so in `OnUpdate`. An entity's pending acceleration updates live in the scene graph and are updated following the [scene graph mutation rules](#scene-graph-mutations). Thus even if you apply a force in an `OnPrePhysicsUpdate` callback, the acceleration won't be *committed* until the end of the frame, and then the physics updates will see it in the *next frame*. **The fact that player positions update after `OnPrePhysicsUpdate` is an exception to the rules.**
+
+**PrePhysics is useful for moving the player and having physics react.** If you move the player in a [OnPrePhysicsUpdate callback](#run-every-frame-prephysics-and-onupdate) with a [force](#forces) (or by setting their [player position](#player-position-and-physics)) then the [physics simulation](#simulation-phase) could respond (for instance, if a movement pushed the player into the wall, then the physics calculations could bounce the player off of it). This is possible because **if you modify a player's position in `OnPrePhysicsUpdate`, it is used during the [physics updates](#simulation-phase) right after.** However, not that there is some [awkwardness in how the values are used](#player-position-and-physics).
+
+**OnUpdate is useful for moving the player as a result of physics.** If you wanted to move a player every frame so that they are standing on top of a boulder rolling down a hill, then you would want to position the player *after* the physics update each from (so that you can move the player *after* the boulder has moved, to keep them in sync).
+
 ## Player Physics
 
 The player avatar acts like a single *physical entity*, although you cannot actually use it as one. But you can still apply forces to the player and have them interact with other physics-based entities in the world (players can [collide with entities and with other players](#collision-events)).
@@ -4568,20 +4532,19 @@ The player avatar acts like a single *physical entity*, although you cannot actu
 
 ### Player Physical Velocity
 
-<mark>TODO</mark>
+The [Player class](#physicalentity-class) has a property: `velocity: HorizonProperty<Vec3>`. Unfortunately **this property does not represent the actual `velocity` of the player**. If you want the actual velocity then you show measure the position two frames apart and divide by the time between (such as with an [OnUpdate callback](#run-every-frame-prephysics-and-onupdate)).
+
+Calling `player.velocity.get()` returns (or `set()` to modify it) a quantify called the **physical velocity** of the player. This quantity represent the velocity of the player that the *physics system is using*. It does not account for locomotion (via a VR controller joystick, computer keyboard, or on-screen controls). Additionally is does not account for a player being [grounded](#player-locomotion); meaning that the physics system might be tracking a person as "falling" even though the *grounding* feature has them standing still.
+
+**This feature was designed with the intent of being used for flying, swimming, climbing, etc where locomotion is replaced with force-based movement**. Any time that the player is [grounded](#player-locomotion), the values in player `velocity` may be unexpected.
 
 ### Player Position and Physics
 
-<mark>TODO</mark>
+**Update player position in `OnPrePhysicsUpdate`**: If you set a player's position in an [OnPrePhysicsUpdate callback](#prephysics-vs-onupdate-events) on the [player's device](#clients-devices-and-the-server), that position will be used in the physics calculation that follows, in the same frame. This is the [only scene graph property that works this way](#scene-graph-mutations). This is useful to have the physics system respond to player movement.
 
-Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics updates the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+Unfortunately, there is **some awkwardness in how Horizon reports the player position**.If you set a player's position in `OnPrePhysicsUpdate`, then the [physics updates](#simulation-phase) will react and compute a new vale. However that new physics-computed value won't actually be set in the scene graph until the end of the frame. Instead, the `position.get()` will keep returning the value you used in `OnPrePhysicsUpdate`, until [scene graph mutations](#scene-graph-mutations) are committed.
 
-Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
-    NOT async
-
-When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
-
-Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
+**Setting player position from the [server](#clients-devices-and-the-server)**: Since a player's device is [authoritative](#authority-and-reconciliation) over the player's position, if you modify a player's position from a script running on the server, then it will have to send a request to the player's device, wait for the movement, and then wait for the response. At that point it will see the new value.
 
 # Players
 
@@ -4621,8 +4584,8 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [stopAvatarAnimation](#avatar-animation) | Stop avatar animation (<span style="color:#770000">currently unsupported</span>) |
 | **Transform** |
 | [forward](#local-transforms) | Local forward of the player (measured from their hips) |
-| [position](#player-body-parts) | Position of the player's center point |
-| [rotation](#player-body-parts) | Rotation of the player around their center point |
+| [position](#player-position-and-rotation) | Position of the player's center point |
+| [rotation](#player-position-and-rotation) | Rotation of the player around their center point |
 | [up](#local-transforms) | Local up of the player (measured from their hips) |
 | **Locomotion** |
 | [isGrounded](#player-locomotion) | Is the player anchored "on the ground" (not falling or jumping) |
@@ -4633,7 +4596,7 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [configurePhysicalHands](#player-physics) | Configure if a VR player's hands can collide with entities in the world |
 | [gravity](#player-physics) | The vertical acceleration of the player (when they are in the air) |
 | [throwHeldItem](#throwing) | Throw the currently held item |
-| [velocity](#player-physics) | The player's velocity due to physics (not including locomotion) |
+| [velocity](#player-physical-velocity) | The player's velocity due to physics (not including locomotion) |
 | **Quests / Achievements** |
 | [hasCompletedAchievement](#quests) | Check if the player has completed the given achievement |
 | [setAchievementComplete](#quests) | Set if the player has completed the given achievement |
@@ -4837,7 +4800,7 @@ The [Player class](#player-class) has a few properties related to locomotion:
 
 The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
 
-**Moving the player**: You can only `set` player position if "Custom Player Movement" is enabled in [Player Settings](#publishing-and-player-settings).
+**Moving the player**: You can only `set` player position if "Custom Player Movement" is enabled in [Player Settings](#publishing-and-player-settings). Note that there are some subtleties with [player position and physics](#player-position-and-physics).
 
 **Rotating the player**: The only way to rotate a player is to have them enter an [avatar pose gizmo](#avatar-pose-gizmo) and then script the movement of the gizmo. There is currently no way to force a player into a pose gizmo, nor to prevent them from exiting.
 
@@ -5532,10 +5495,12 @@ The player may choose to unholster 1 of their attached items. They can only see 
 Persistence allows **data to be stored beyond a single session**, ensuring that player progress, achievements, and purchases remain available when they return.
 
 Persistent data is categorized into the following types:
-1. [Leaderboards](#leaderboards) – Track and display scores globally.
-1. [Quests](#quests) – Track player progression with world-based achievements.
-1. [In-World Purchases (IWP)](#in-world-purchases-iwps) – Store ownership of purchased items.
-1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) – Store per-player custom data.
+1. [Leaderboards](#leaderboards): Track and display scores globally.
+1. [Quests](#quests): Track player progression with world-based achievements.
+1. [In-World Purchases (IWP)](#in-world-purchases-iwps): Store ownership of purchased items.
+1. [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs): Store per-player custom data.
+
+See the section on [cloning a world](#cloning-a-world) for what happens to persistent data when you clone.
 
 !!! info Persistent data can only be set on the [server](#clients-devices-and-the-server) (except [Quests](#quests)).
     [Leaderboards](#leaderboards), [In-World Purchases (IWP)](#in-world-purchases-iwps), and [Player Persistent Variables (PPVs)](#player-persistent-variables-ppvs) can only be updated from scripts [running on the server](#local-and-default-scripts), meaning that it must be a default script or a local script [owned](#entity-ownership) by the [server player](#server-player). [Quests](#quests) are the one exception and can be updated from any [client](#clients-devices-and-the-server).
@@ -5545,8 +5510,6 @@ Persistent data is categorized into the following types:
 
 !!! warning There is no persistent world data.
     Persistence is currently tied to individual players. A world cannot store "global" variables that persist *across sessions* (other than [leaderboards](#leaderboards) which don't have a way to *read* the data back).
-
-<mark>TODO</mark>- - Cloning a world
 
 ## Leaderboards
 
