@@ -5,7 +5,7 @@
 > This is an in-development (Feb '25) <b>community-written</b> document.
 > For questions contact <i>wafflecopters</i>.
 
-**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous (Matt Torres), and UnravelWinter with additional help from HomeMed.
+**Created by the Horizon Community**. Written by wafflecopters (Ari Grant) with contributions from PigeonNo12, SeeingBlue, Shards632, Tellous (Matt Torres), and UnravelWinter and with additional help from HomeMed.
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=true} -->
 
@@ -650,7 +650,7 @@ The **behave differently with the [projectile launcher](#projectile-launcher-giz
 
 **Y-up**. The positive-y axis is *up*.
 
-**Left-handed**. The coordinate system is *left-handed*, meaning that if position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
+**Left-handed**. The coordinate system is *left-handed*, meaning that if you position the camera so that the positive y-axis is pointing up and the positive x-axis is pointing right then the positive z-axis points forward.
 
 ```graphviz {align="center"}
 digraph {
@@ -2561,7 +2561,7 @@ const atEnd = Vec3.lerp(start, end, 1.0)      // (10, 0, 0)
 
 ### Color
 
-The `Color` class represents an RGB color where each component (red, green, blue) is stored as a floating-point number between 0 and 1. It supports color space conversions (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), supports [operations](#color-operations) that can be used for many effects, such as [blending and filtering](#color-blending).
+The `Color` class contains an RGB (red, green, blue) color with each component between 0 and 1. The class allows color space conversion (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), and [operations](#color-operations) that can be used for effects such as [blending and filtering](#color-blending).
 
 **No alpha**: The `Color` class does not have an `alpha` component (transparency). It is possible to use alpha [Custom UI](#custom-ui-style) and with [meshes](#custom-model-import) but those alpha values are *not* part of the `Color` class.
 
@@ -2650,7 +2650,7 @@ const purple = Color.fromHSV(new Vec3(0.83, 1, 1))
 
 #### Hex Colors
 
-Hex color codes are a common way to specify colors using six hexadecimal digits representing RGB values. The `Color` class supports direct conversion to and from hex format:
+Hex color codes are a standard method of specifying colors by using a hash sign (#) and then six hexadecimal digits (0-9 and a-f). The `Color` class supports conversion to and from hex format:
 
 ```ts
 // From hex to Color
@@ -4299,7 +4299,7 @@ The Horizon physics system provides a lightweight simulation of rigid body dynam
 
 You can use [simulated and locked](#simulated-vs-locked-entities) to disable physics updates, run callbacks every frame [before or after physics updates](#prephysics-vs-onupdate-events), and also apply [forces to players](#player-physics).
 
-**Simple**: Designed with simplicity in mind, Horizon’s physics system is ideal for simple and casual interactions. However, it intentionally omits more advanced features like complex constraints or detailed rotational inertia modeling. As a result, while you can achieve a range of dynamic effects, building robust physics-based mechanics or full-scale games may require creative workarounds.
+**Simple**: Horizon’s physics system is best used for simple and casual interactions. It lacks more advanced features such as constraints (rods, hinges, and ball-and-socket joints), rotational inertia modeling, fixed update, pre-physics features for entities, programmatic mass, and more. You can achieve a range of interactions, but creating complex physics-based mechanics or full-scale games may require creative workarounds (or doing your own physics calculations entirely).
 
 ## Units
 
