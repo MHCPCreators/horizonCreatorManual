@@ -204,8 +204,8 @@
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
     6. [Applying Forces and Torque](#applying-forces-and-torque)
-        1. [PhysicalEntity Forces](#physicalentity-forces)
-        2. [PhysicalEntity Torques](#physicalentity-torques)
+        1. [Forces](#forces)
+        2. [Torque](#torque)
         3. [Springs](#springs)
             1. [Spring Push](#spring-push)
             2. [Spring Spin](#spring-spin)
@@ -943,7 +943,7 @@ The [Entity class](#entity-class) has a few methods to help with moving and rota
 
 An entity is a "billboard" when it automatically rotates to face the player. This uses *per-player rotation* so that each player can see the entity facing toward them.
 
-[Empty objects and groups](#empty-object-and-groups) have a property (in the property panel) called **Billboard** with 3 options:
+[Empty objects and groups](#empty-object-and-groups) have a property (in the Properties panel) called **Billboard** with 3 options:
 
 | Billboard Setting  |   |
 |---|---|
@@ -1691,7 +1691,7 @@ which takes the following parameters:
 |---|---|---|
 | origin | [Vec3](#vec3) | The location in the world that the ray should start. |
 | direction | [Vec3](#vec3) | The direction the ray should travel in. |
-| options | <pre class="language-ts ts"><span><code>{</code><br/><code>  layerType?: LayerType,</code><br/><code>  maxDistance?: number</code><br/><code>} \| undefined</code></span></pre> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
+| options | <pre class="language-ts ts"><span><code>{</code><br/><code>  layerType?: LayerType,</code><br/><code>  maxDistance?: number</code><br/><code>} \| undefined</code></span></pre> | This argument is optional. It allows you to momentarily override the "Collide With" and the "Raycast Distance" properties (listed above). The "Object Tag" is only settable in the Properties panel and cannot be overridden. The `LayerType` enum has the values `Player`, `Object`, and `Both`. |
 
 The **return type** of the `raycast` method is `RaycastHit | null`. The result is `null` when the ray traveled the maximum distance without intersecting with any [active colliders](#active-colliders) in the world. Otherwise the result is a `RaycastHit` which has the following properties (notice that the `targetType` value changes the type/existence of the `target` property).
 
@@ -4082,7 +4082,7 @@ When [ownership](#entity-ownership) of an entity is transferred from one [Player
 There are a number of situations where an entity's ownership is changed automatically. These situations act exactly if the ownership was changed via `entity.owner.set(...)`:
   1. When an entity is [grabbed by](#grabbing-and-holding-entities) or [attached to](#attaching-entities) a player
      * This ensures frame-accurate position updates when tracking player movement.
-  2. When an entity [collides](#collisions) with another entity or player (if "preserve ownership on collision" is disable in the Property panel)
+  2. When an entity [collides](#collisions) with another entity or player (if "preserve ownership on collision" is disable in the Properties panel)
       * This makes it easy to have the collided entities act with [low latency for the player](#why-local-scripts-and-ownership-matter-network-latency) from then on.
   3. When a [player leaves the world](#player-entering-and-exiting-a-world)
       * The entities they [own](#entity-ownership) transfer to the server.
@@ -4135,7 +4135,7 @@ There are a number of nuances: collisions start with entities that have a [colli
 
 ## Collision Events
 
-When an entity has [Motion set to Interactive](#interactive-entities) you can enable it to receive **[built-in collision CodeBlockEvents](#built-in-code-block-events)**. In the properties panel, under "More", is the setting "Collision Events From" which can be set to "Players", "Object Tagged", or "Both". In the latter two cases a [tag](#entity-tags) must be specified (in the field right below the setting).
+When an entity has [Motion set to Interactive](#interactive-entities) you can enable it to receive **[built-in collision CodeBlockEvents](#built-in-code-block-events)**. In the Properties panel, under "More", is the setting "Collision Events From" which can be set to "Players", "Object Tagged", or "Both". In the latter two cases a [tag](#entity-tags) must be specified (in the field right below the setting).
 
 A collider must be [active](#active-colliders) for it to be detected in collisions.
 
@@ -4330,7 +4330,11 @@ High-level framing of what Horizon is capable of. Example: there are no constrai
 
 Somewhere: force vs impulse vs velocity change
 
+<mark>TODO</mark>
+
 ## PhysicalEntity Class
+
+<mark>TODO</mark>
 
 In the table below, "💪" means that a force is generated. "🌀" means that a torque is generated.
 
@@ -4373,6 +4377,8 @@ For an entity to become a physical entity:
 1. Set `Interaction` to `Physics` or `Both`
 1.  [All ancestors, if any, are Meshes and Empty Objects with Motion set to None](#interactive-entities).
 
+<mark>TODO</mark>
+
 |Force Properties|Description|
 |---|---|
 |Gravity ||
@@ -4391,6 +4397,8 @@ TODO - Collision type: discrete, continuous - figure out horizon way(Any guarant
 TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantees?)
 
 ## PrePhysics vs OnUpdate Events
+
+<mark>TODO</mark>
 
 ## Simulated vs Locked Entities
 
@@ -4418,27 +4426,61 @@ The physics system in Horizon uses [SI Units](https://en.wikipedia.org/wiki/Inte
 | Impulse | [Vec3](#vec3) with `magnitude` Newton \(\cdot \) seconds |
 | Torque | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in Newton \(\cdot \) meters |
 
-Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending [force](#physicalentity-forces) (impacting *position* and *velocity*) and [torque](#physicalentity-torques) (impacting *rotation* and *angularVelocity*), outlined in the next two sections.
+Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending force (impacting *position* and *velocity*) and torque (impacting *rotation* and *angularVelocity*), outlined below.
 
-The methods `applyForceAtPosition` and `zeroVelocity` impact *both position and rotation*.
+### Forces
 
-### PhysicalEntity Forces
+**Force** causes object to *move* (whereas [torque](#torque) causes them to *rotate*).
 
-applyForce(vector: Vec3, mode: PhysicsForceMode): void
-applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void
-applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void
+The force equation ($F = ma$) is:
+\[
+\text{Force} = \text{Mass}\cdot \text{Acceleration}
+\]
 
-zeroVelocity(): void
-[spring push](#spring-push)
+where *mass* can be set in Properties panel for the entity (defaulting to `1` kilogram).
 
-### PhysicalEntity Torques
+Note that:
+* Force creates an *acceleration* for 1 frame, changing the *velocity* just *once*
+* *Velocity* will continue to update the position *every frame*
+* [PhysicalEntity](#physicalentity-class)'s "angular drag" setting will cause the *velocity* to shrink over time (as long as no further forces are applied)
+* A player or entity can create a force on an entity by colliding with it, grabbing it, or throwing it.
 
-applyTorque(vector: Vec3): void;
-applyLocalTorque(vector: Vec3): void;
-zeroVelocity(): void;
+You can apply a force with a number of methods on [PhysicalEntity](#physicalentity-class):
 
-[applyForceAtPosition](#physicalentity-forces)
-[spring spin](#spring-spin)
+| [PhysicalEntity](#physicalentity-class) method | Notes |
+|---|---|
+| <nobr>`zeroVelocity(): void`</nobr> | Apply the exact force and torque needed to bring the entity to a stop (positionally and rotationally). |
+| <pre class="language-ts ts"><span><code>applyForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | <mark>TODO</mark> |
+| <pre class="language-ts ts"><span><code>applyLocalForce(</code><br/><code>  vector: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | <mark>TODO</mark> |
+| <pre class="language-ts ts"><span><code>applyForceAtPosition(</code><br/><code>  vector: Vec3,</code><br/><code>  position: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | Applies a force, impulse, or velocity change on the entity at the specified position, which will compute both a *force and a torque*. For example: pushing on an bar from the side will cause it to move and turn.<br/><br/>The *position does not need to be "on" the entity*. The position is simply used to compute the torque (a position really far away from the [pivot point](#pivot-points) of the entity will generate a large torque). |
+| <pre class="language-ts ts"><span><code>springPushTowardPosition(</code><br/><code>  position: Position,</code><br/><code>  options?: Partial<SpringOptions></code><br/><code>): void</code></span></pre> | See the documentation in [spring push](#spring-push). |
+
+### Torque
+
+**Torque** is the [rotational analogue of (linear) force](https://en.wikipedia.org/wiki/Torque). Force causes object to *move*. Torque causes them to *rotate*.
+
+The torque equation (an analogue of $F = ma$) is:
+\[
+\text{Torque} = \text{Rotational Inertia}\cdot \text{Angular Acceleration}
+\]
+
+but unfortunately there is **no public documentation on how Horizon handles rotational inertia**. You'll have to experiment with torque values until you find a value that works for your use case.
+
+Note that:
+* Torque creates an *angular acceleration* for 1 frame, changing the *angular velocity* just *once*
+* *Angular velocity* will continue to update the rotation *every frame*
+* [PhysicalEntity](#physicalentity-class)'s "drag" setting will cause the *angular velocity* to shrink over time (as long as no further torques are applied)
+* A player or entity can create a torque on an entity by colliding with it, grabbing it, or throwing it.
+
+You can apply a torque with a number of methods on [PhysicalEntity](#physicalentity-class):
+
+| [PhysicalEntity](#physicalentity-class) method | Notes |
+|---|---|
+| <nobr>`zeroVelocity(): void`</nobr> | Apply the exact force and torque needed to bring the entity to a stop (positionally and rotationally). |
+| <nobr>`applyTorque(vector: Vec3): void`</nobr> | Apply a torque in [(global) world coordinates](#coordinate-system). |
+| <nobr>`applyLocalTorque(vector: Vec3): void`</nobr> | Apply a torque in the entity's [local coordinates](#local-transforms). |
+| <pre class="language-ts ts"><span><code>applyForceAtPosition(</code><br/><code>  vector: Vec3,</code><br/><code>  position: Vec3,</code><br/><code>  mode: PhysicsForceMode</code><br/><code>): void</code></span></pre> | See the documentation in [forces](#forces). |
+| <pre class="language-ts ts"><span><code>springSpinTowardRotation(</code><br/><code>  rotation: Quaternion,</code><br/><code>  options?: Partial<SpringOptions></code><br/><code>): void</code></span></pre> | See the documentation in [spring spin](#spring-spin). |
 
 ### Springs
 
@@ -4475,7 +4517,9 @@ These values are intended to provide a balanced spring motion that feels natural
 
 ```ts
 // PhysicalEntity
-springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
+springPushTowardPosition(
+  position: Vec3, options?: Partial<SpringOptions>
+): void
 ```
 
 * `position`: the target position, which acts as the origin of the spring force.
@@ -4495,8 +4539,11 @@ springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void
 
 ```ts
 // PhysicalEntity
-springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+springSpinTowardRotation(
+  rotation: Quaternion, options?: Partial<SpringOptions>
+): void
 ```
+
 * `rotation`: the target rotation, represented as a quaternion.
 * `options` (optional): overrides the spring behavior.
 
@@ -5445,7 +5492,7 @@ sequenceDiagram
 When a player has more than one attached entity, they will see this UI when pressing the holster icon.
 <img src="images/holstering-menu.png" style="display: block;margin-left:auto;margin-right:auto"/>
 
-The icon that is displayed can be selected in the entity's `Holster Icon` property in the properties panel.
+The icon that is displayed can be selected in the entity's `Holster Icon` property in the Properties panel.
 
 The player may choose to unholster 1 of their attached items. They can only see 6 holstered items at a time in the UI. The player can press Z or the arrow button to see the next set of 6 items. Maximum amount of holstered items is limited to the maximum amount of grabbable entities allowed in a world.
 
