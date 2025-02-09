@@ -1,5 +1,27 @@
+# Performance Optimization
 
-## Performance
+## Physics Performance
+
+Colliders, triggers,
+
+## Gizmos
+
+- pool FX, sounds,
+- limit mirror (1) and dynamic lights (20)
+
+## Bridge calls explanation
+
+## Draw-call specification
+
+## Perfetto hints
+
+## Memory
+
+- UIGizmos have an option to enable mipmaps; this will increase visual quality but also increase memory use
+
+# CMI
+
+## Custom Model Performance
 
 ### Draw Calls
 

@@ -2,5 +2,6 @@
 Local
 ./*.html
 ./*.pdf
+*.zip
 HorizonTechnicalDoc.html
 HorizonTechnicalDoc.pdf

@@ -326,18 +326,11 @@
     3. [Navigation Mesh Agent](#navigation-mesh-agent)
 23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-24. [Performance Optimization](#performance-optimization)
-    1. [Physics Performance](#physics-performance)
-    2. [Gizmos](#gizmos)
-    3. [Bridge calls explanation](#bridge-calls-explanation)
-    4. [Draw-call specification](#draw-call-specification)
-    5. [Perfetto hints](#perfetto-hints)
-    6. [Memory](#memory)
-25. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-26. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-27. [Glossary](#glossary)
+24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
+25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+26. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-28. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+27. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -4425,22 +4418,27 @@ The physics system in Horizon uses [SI Units](https://en.wikipedia.org/wiki/Inte
 | Impulse | [Vec3](#vec3) with `magnitude` Newton \(\cdot \) seconds |
 | Torque | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in Newton \(\cdot \) meters |
 
-Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending force and torque:
+Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending [force](#physicalentity-forces) (impacting *position* and *velocity*) and [torque](#physicalentity-torques) (impacting *rotation* and *angularVelocity*), outlined in the next two sections.
 
-  * `applyForce(vector: Vec3, mode: PhysicsForceMode)`
-  applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
-    applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
-    applyTorque(vector: Vec3): void;
-    applyLocalTorque(vector: Vec3): void;
-    zeroVelocity(): void;
-    springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
-    springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
+The methods `applyForceAtPosition` and `zeroVelocity` impact *both position and rotation*.
 
 ### PhysicalEntity Forces
 
+applyForce(vector: Vec3, mode: PhysicsForceMode): void
+applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void
+applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void
+
+zeroVelocity(): void
+[spring push](#spring-push)
+
 ### PhysicalEntity Torques
 
-[]
+applyTorque(vector: Vec3): void;
+applyLocalTorque(vector: Vec3): void;
+zeroVelocity(): void;
+
+[applyForceAtPosition](#physicalentity-forces)
+[spring spin](#spring-spin)
 
 ### Springs
 
@@ -6069,7 +6067,7 @@ const controller = new SpawnController(
 
 **Unloading an Asset**: If you want to **despawn** the asset (or unload a loaded asset), you call `unload()`.
 
-**Disposing the Controller**: When you are done with the controller and don't plan to spawn from it again, call `dispose()`.
+**Disposing the Controller**: When you are done with the controller and don't plan to spawn from it again, call `dispose()`. ⚠️ Once you call `dispose` the `SpawnController` is no longer usable; you have to create an entirely new `SpawnController` if/when you want to spawn the asset again.
 
 Note: there is **currently no way to go from *spawned to loaded*** (although [Sublevels *can*](#sublevels)), meaning that you can't simply "hide" the spawned entities but keep them all around. Instead you need to go from *spawned to unloaded* and then *load* again. If you simple try to go from *spawned* to *loaded* then nothing happens, since a spawned asset *is* loaded.
 
@@ -6306,27 +6304,6 @@ Limits of type, amount, and frequency.
     - Granular modes? (Fixed, Attach, Orbit, Pan)
     - Collision (enable/disable)
     - Disabling perspective switch
-
-# Performance Optimization
-
-## Physics Performance
-
-Colliders, triggers,
-
-## Gizmos
-
-- pool FX, sounds,
-- limit mirror (1) and dynamic lights (20)
-
-## Bridge calls explanation
-
-## Draw-call specification
-
-## Perfetto hints
-
-## Memory
-
-- UIGizmos have an option to enable mipmaps; this will increase visual quality but also increase memory use
 
 # List of all desktop editor shortcuts
 
