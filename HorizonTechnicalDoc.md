@@ -6083,7 +6083,7 @@ The `SpawnState` enum supports the following values:
 * `Loaded`: all [clients](#clients-devices-and-the-server) have prepared the asset
 * `Active`: [clients](#clients-devices-and-the-server) have inserting entities into the scene graph
 * `Unloading`: [clients](#clients-devices-and-the-server) clients have removed entities from the scene graph (if it had made it to the `Active` state) and are deleting all prepared data (such as [lighting](#horizon-lighting))
-* `Disposed`: [clients](#clients-devices-and-the-server) have deleted the downloaded information, the prepared data, and the created entities (fully returning to before the controller was created).
+* `Disposed`: [clients](#clients-devices-and-the-server) have deleted the downloaded information, the prepared data, and the created entities. The controller is no longer usable (all methods will throw errors) and should be discarded.
 
 **`SpawnState` Usage**
 * **`currentState`** moves through all values of `SpawnState`
@@ -6098,11 +6098,11 @@ If any of the spawn process fails (promises reject), you can find the error in `
 
 | `SpawnController` Method | `targetState` must be | `currentState` must be | Result |
 |---|---|---|--|
-| `load()` | `Unloaded` | - | <nobr>`targetState` ➜ `Loaded`</nobr> |
+| `load()` | `Unloaded` | not `Disposed` | <nobr>`targetState` ➜ `Loaded`</nobr> |
 | `pause()` | - | `Loading` | <nobr>`targetState` ➜ `Paused`<br/>`currentState` ➜ `Paused`</nobr> |
-| `spawn()` | `Unloaded` or `Loaded` | - | <nobr>`targetState` ➜ `Active`</nobr> |
-| `unload()` | `Loaded` or `Active` | - | <nobr>`targetState` ➜ `Unloaded`</nobr> |
-| `dispose()` | `Loaded` or `Active` or `Unloaded` | - | <nobr>`targetState` ➜ `Unloaded`</nobr> |
+| `spawn()` | `Unloaded` or `Loaded` | not `Disposed` | <nobr>`targetState` ➜ `Active`</nobr> |
+| `unload()` | `Loaded` or `Active` | not `Disposed` | <nobr>`targetState` ➜ `Unloaded`</nobr> |
+| `dispose()` | `Loaded` or `Active` or `Unloaded` | not `Disposed` | <nobr>`targetState` ➜ `Disposed`</nobr> |
 
 **SpawnController `currentState` Transitions**
 1. A spawn controller has a `targetState`.
