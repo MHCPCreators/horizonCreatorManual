@@ -312,25 +312,30 @@
 21. [Custom UI](#custom-ui)
     1. [UIComponent Class](#uicomponent-class)
     2. [Bindings](#bindings)
-    3. [Style](#style)
-    4. [View Types](#view-types)
-        1. [View](#view)
-        2. [Image](#image)
-        3. [Pressable](#pressable)
-        4. [Dynamic List](#dynamic-list)
-        5. [ScrollView](#scrollview)
-    5. [Animated Bindings](#animated-bindings)
+        1. [Binding Class](#binding-class)
+        2. [Creating Bindings](#creating-bindings)
+        3. [Global vs Player Binding Values](#global-vs-player-binding-values)
+        4. [Setting and Resetting Bindings](#setting-and-resetting-bindings)
+        5. [Deriving Bindings](#deriving-bindings)
+        6. [Animated Bindings](#animated-bindings)
+    3. [UINode Types](#uinode-types)
+        1. [Conditional UI (If)](#conditional-ui-if)
+        2. [UI View](#ui-view)
+        3. [UI Text](#ui-text)
+        4. [UI Image](#ui-image)
+        5. [UI Pressable](#ui-pressable)
+        6. [UI ScrollView](#ui-scrollview)
+        7. [UI Dynamic List](#ui-dynamic-list)
 22. [Navigation Mesh](#navigation-mesh)
     1. [Navigation Mesh Volume](#navigation-mesh-volume)
     2. [Navigation Mesh Profile](#navigation-mesh-profile)
     3. [Navigation Mesh Agent](#navigation-mesh-agent)
 23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
-24. [List of all desktop editor shortcuts](#list-of-all-desktop-editor-shortcuts)
-25. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-26. [Glossary](#glossary)
+24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
+25. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-27. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -4671,6 +4676,8 @@ getPlayers() : Player[]
 
 which returns the current list of players in the world (human and [NPC](#npc-gizmo), but does not include the server player). Note that the order of this array should not be relied upon. The order may change between calls and there is no relation to the `index` property described above.
 
+<mark>TODO</mark> - code snippet for detecting all HUMAN players
+
 ### Server Player
 
 There is a special instance of the `Player` class that represents the [_server_](#clients-devices-and-the-server). It has an `id` but no meaningful `index`. All `Player` APIs work for the server player, but return default values (example: the location will return the origin; name will return the empty string).
@@ -6194,7 +6201,11 @@ export interface IUI {
      * @param displayTime - The duration, in seconds, to display the popup.
      * @param options - The configuration, such as color or position, for the popup.
      */
-    showPopupForEveryone(text: string | i18n_utils.LocalizableText, displayTime: number, options?: Partial<PopupOptions>): void;
+    showPopupForEveryone(
+      text: string | i18n_utils.LocalizableText,
+      displayTime: number,
+      options?: Partial<PopupOptions>
+    ): void;
     /**
      * Shows a popup modal to a player.
      * @param player - The player to whom the popup is to displayed.
@@ -6202,7 +6213,12 @@ export interface IUI {
      * @param displayTime - The duration, in seconds, to display the popup.
      * @param options - The configuration, such as color or position, for the popup.
      */
-    showPopupForPlayer(player: Player, text: string | i18n_utils.LocalizableText, displayTime: number, options?: Partial<PopupOptions>): void;
+    showPopupForPlayer(
+      player: Player,
+      text: string | i18n_utils.LocalizableText,
+      displayTime: number,
+      options?: Partial<PopupOptions>
+    ): void;
     /**
      * Shows a tooltip modal to a specific player
      * @param player - the player this tooltip displays for
@@ -6210,13 +6226,21 @@ export interface IUI {
      * @param tooltipText - the message the tooltip displays
      * @param options - configuration for the tooltip (display line, play sounds, attachment entity, etc)
      */
-    showTooltipForPlayer(player: Player, tooltipAnchorLocation: TooltipAnchorLocation, tooltipText: string | i18n_utils.LocalizableText, options?: Partial<TooltipOptions>): void;
+    showTooltipForPlayer(
+      player: Player,
+      tooltipAnchorLocation: TooltipAnchorLocation,
+      tooltipText: string | i18n_utils.LocalizableText,
+      options?: Partial<TooltipOptions>
+    ): void;
     /**
      * Dismisses any active tooltip for the target player
      * @param player - the player that has their tooltip dismissed
      * @param playSound - determines if a default "close sound" should play when the tooltip is closed
      */
-    dismissTooltip(player: Player, playSound?: boolean): void;
+    dismissTooltip(
+      player: Player,
+      playSound?: boolean
+    ): void;
 }
 
 export declare type PopupOptions = {
@@ -6231,34 +6255,24 @@ export declare type PopupOptions = {
 export declare const DefaultPopupOptions: PopupOptions;
 
 export declare enum TooltipAnchorLocation {
-    /**
-     * The tooltip is anchored at the left wrist.
-     */
     LEFT_WRIST = "LEFT_WRIST",
-    /**
-     * The tooltip is anchored at the right wrist.
-     */
     RIGHT_WRIST = "RIGHT_WRIST",
-    /**
-     * The tooltip is anchored at the torso.
-     */
     TORSO = "TORSO"
 }
-/*
 
 export declare type TooltipOptions = {
-    tooltipAnchorOffset?: Vec3;
-    displayTooltipLine?: boolean;
-    tooltipLineAttachmentProperties?: TooltipLineAttachmentProperties;
-    playSound?: boolean;
+  tooltipAnchorOffset?: Vec3;
+  displayTooltipLine?: boolean;
+  tooltipLineAttachmentProperties?: TooltipLineAttachmentProperties;
+  playSound?: boolean;
 };
 
 export declare type TooltipLineAttachmentProperties = {
-    lineAttachmentEntity?: Entity | PlayerBodyPartType;
-    lineAttachmentLocalOffset?: Vec3;
-    lineAttachmentRounded?: boolean;
-    lineChokeStart?: number;
-    lineChokeEnd?: number;
+  lineAttachmentEntity?: Entity | PlayerBodyPartType;
+  lineAttachmentLocalOffset?: Vec3;
+  lineAttachmentRounded?: boolean;
+  lineChokeStart?: number;
+  lineChokeEnd?: number;
 };
 
 DefaultTooltipOptions
@@ -6266,31 +6280,192 @@ DefaultTooltipOptions
 
 # Custom UI
 
-<mark>TODO</mark>
-Overview - immutable tree (even on ownership transfer?) with bindings. Flexbox; many supported HTML/CSS attributes.
+Custom UI you to create 2D user interfaces (somewhat inspired by [React](https://react.dev/)) using [CSS flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox) for layout. Custom UI creates a "view tree" *once* and then you use [bindings](#bindings) (and [animated bindings](#animated-bindings)) to update the view thereafter. Horizon calls each element in a UI tree a `UINode`.
+
+To create a UI you instantiate a [Custom UI Gizmo](#custom-ui-gizmo), create a [UIComponent](#uicomponent-class) subclass, and then attach it to the gizmo. The UIComponent subclass implements `initializeUI()` to return a collection of [Views](#ui-view), [Images](#ui-image), [Pressables](#ui-pressable), [Dynamic Lists](#ui-dynamic-list), and [ScrollViews](#ui-scrollview).
+
+Here's an example that shows a collection of features:
+* `UIComponent` is a subclass of [Component](#component-class) and so you can still use [start](#component-class) and [propsDefinition](#component-properties).
+* [Bindings](#bindings) and [derived Bindings](#derived-bindings)
+* [View](#ui-view) and [Text](#ui-text)
+
+![[ horizonScripts/uicomponentExample.ts ]]
 
 ## UIComponent Class
 
+The `UIComponent` class is a subclass of the [Component class](#component-class). Thus the following all exactly as they do in `UIComponent`:
+* [Component.register](#component-class)
+* [propsDefinition](#component-properties)
+* [preStart](#component-class)
+* [start](#component-class)
+* [transferOwnership](#transferring-data-across-owners)
+* [receiveOwnership](#transferring-data-across-owners)
+* [dispose](#disposing-objects)
+
+There are some members specific to `UIComponent`. Additionally, whereas `Component` can be attached to [any entity](#all-gizmos-intrinsic-entity-types), a `UIComponent` **must be attached to a [Custom UI Gizmo](#custom-ui-gizmo)** for it to render any UI.
+
+| UIComponent Member | Description |
+|---|---|
+| `abstract initializeUI(): UINode` | You *must* override this method and return the initial "view tree". This method is called [before preStart](#component-lifecycle). |
+| `readonly panelWidth: number` | The total number of pixels the UI gizmo is wide. This doesn't change the size of the UI (use [scale](#scale for that)); it just changes how you reference the UI. For instance if you set this to `100` then you can use `50` to reference the midpoint. The default is `500`. |
+| `readonly panelHeight: number` | The same as `panelWidth` except specifying *height*. |
+
 ## Bindings
-Technical overview (what _T_ is allowed, set, derive, and notes on preventing memory growth - e.g. don't keep deriving). T must be serializable (not throwing via JSON.stringify. For example: bigint is not allowed which means that Entity is not allowed.)
 
-Limits of type, amount, and frequency.
+Bindings are **the only way that a Custom UI changes its contents**. A binding is a *container with a value inside*. Any time that you change the contents of it, via `binding.set(...)`, the UI will update accordingly. Many fields in the various [UINode types](#UINode-types) accept bindings for their values. For instance:
 
-## Style
+```ts
+const contents = new Binding('hi!')
 
-## View Types
+Text({
+  text: contents
+})
+```
 
-### View
+will create a [Text](#ui-text) view that renders the word `hi!`. If, or when, `contents.set('ciao!')` is run, then that Text node in the UI will update its contents to render `ciao!` instead.
 
-### Image
+**Performance**: Having too many bindings, or updating them too frequently, can impact the performance of your world. Monitor your performance metrics as you build complex UIs.
 
-### Pressable
+**Per-Player Values**: Binding can have different values for each player. This makes it so that multiple players can interact with a UI at the same and see different results (example: reading instructions). You can choose to [set values per-player](#global-vs-player-binding-values) whenever using [set() and reset()](#setting-and-resetting-bindings).
 
-### Dynamic List
+**Derived Bindings**: You can have [a binding that "flows" downstream from another binding (or multiple)](#deriving-bindings). For instance if you have a binding containing an array of strings, you could then make a new binding that just has the length of that array. Whenever the array one changes, the length one will change too.
 
-### ScrollView
+**Values**: The value inside a `Binding` must be [JSON-serializable](#creating-bindings).
 
-## Animated Bindings
+### Binding Class
+
+| `Binding` Class Member | Description |
+|---|---|
+| [set](#setting-bindings) | Update the values in a binding. This can be done by setting a new value or by running a function on current values. This can be done per-player. |
+| [reset](#resetting-bindings) | Reset the values in the bindings. This can be done per-player. |
+| [derive](#deriving-bindings) | Create a new binding whose values update whenever the original one does. |
+| [static derive](#deriving-bindings) | Create a new binding whose values update whenever any of the original ones do. |
+
+### Creating Bindings
+
+You create a binding using the `Binding` class and pass in the initial value that all players will have:
+```ts
+const binding = new Binding(123)
+```
+
+You can specify the type directly if it can't be inferred from the initial value:
+```ts
+const otherBinding = new Binding<number | string>(123)
+```
+
+**Value types**: Bindings serialize their values via [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify). Thus you cannot use any values that `JSON.stringify` doesn't allows. For example: **you cannot put a `bigint` into a binding**. This means that an **[Entity](#entity-class) cannot be put into a binding** (since its `id` is a `bigint`).
+
+You can also create bindings by [deriving them](#deriving-bindings).
+
+**Bindings count**: Having a large number of binding (or [frequently updating them](#setting-and-resetting-bindings)) will hurt the world's performance. You should **create (or derive) bindings *once* and store them** instead of regularly creating them.
+
+**Player Enter**: Whenever a player enters the world they will see the binding with the [global value](#global-vs-player-binding-values).
+
+### Global vs Player Binding Values
+
+Every binding has an underlying value, the **global value**. When you [create a binding](#creating-bindings), the value passed in becomes the global value.
+
+The value *can be overridden for a player* in the [set and reset](#setting-and-resetting-bindings) methods.
+
+The **current value** of a player is their override if they have one; otherwise it is the global value.
+
+### Setting and Resetting Bindings
+
+The [Binding class](#binding-class) has set and resets method to update the value(s) in the binding:
+```ts
+// Binding
+set(
+  value: T | ((prev: T) => T),
+  players?: Array<Player>
+): void
+reset(players?: Array<Player>): void
+```
+
+The `reset` method acts exactly like `binding.set(originalValue, players)`.
+
+The **players** argument describes who the update is for. It is optional:
+* If `players` is **specified** then those players will get per-player values that [override the global value](#global-vs-player-binding-values).
+* If `players` is **omitted** then the global value will be updated and *all per-player overrides will be cleared*.
+
+The **value** argument specifies the data. It can be a value or a function:
+  * If it is a **value** then it will be used for the new global value (or new overrides if `players` was included).
+  * If it is a **function** then that function will be applied to the current global value to compute the new one. Unless `players` was included, then the function will be used to compute a new override for each of those players using their current values (an override or the global value if they don't yet have an override).
+
+**Derived Bindings**: whenever `set()` or `reset()` is called on a binding, it will also update all bindings that are [derived from it](#deriving-bindings).
+
+Example uses:
+| Code | Global Value | Player Overrides |
+|---|---|---|
+| <pre class="language-ts ts"><span><code>binding.set(4)</code></span></pre> | Becomes `4` | All player overrides are removed |
+| <pre class="language-ts ts"><span><code>binding.set(</code><br/><code>  5,</code></br><code>  [groucho, harpo]</code><br/><code>)</code></span></pre> | Untouched | *Only* Groucho and Harpo will have  overrides set to 5 |
+| <pre class="language-ts ts"><span><code>binding.set(</code><br/><code>  (d: number) => d + 1,</code></br><code>)</code></span></pre> | Increases by 1 | All player overrides are removed |
+| <pre class="language-ts ts"><span><code>binding.set(</code><br/><code>  (d: number) => d + 2,</code></br><code>  [laurel, hardy]</code><br/><code>)</code></span></pre> | Untouched | *Only* Laurel and Hardy will have overrides that are their previous values increased by 2. Previous value means their override, if they had one, or the global value otherwise. |
+
+### Deriving Bindings
+
+The [Binding class](#binding-class) has a method **derive** that is used to create a binding that **does not have a *set* method**. Instead, these bindings are "downstream" of another binding and use that other binding's value(s) to compute theirs (every time it changes). For example
+```ts
+const derived = binding.derive((s: string) => s.length)
+```
+creates a new binding whose values are all computed from those in `binding`.
+* The [global value](#global-vs-player-binding-values) in `derived` will be updated (by calling the function) whenever the global value in `binding` changes.
+* The [player overrides](#global-vs-player-binding-values) will be updated (by calling the function) on the player overrides in `binding`.
+
+You can only derive from a top-level binding. You **cannot derive from a derived binding**.
+
+There is also a `static` version of derive (similar to a *zip* if you know that term) that allows you to create a binding derived from a collection of others. For example here is a binding that contains a `boolean` representing if a `string` in a binding is contained in a `string[]` in another binding.
+
+```ts
+const needleBinding = new Binding('lemon')
+const haystackBinding = new Binding(['apple', 'pear'])
+
+const containedBinding = Binding.derive(
+  [needleBinding, haystackBinding],
+  (needle, haystack) => haystack.includes(needle)
+)
+```
+
+### Animated Bindings
+
+The `AnimatedBinding` class offers a way to have a binding change smoothly every frame, which is useful for creating animations. The docs are here:
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#animatedbinding
+
+## UINode Types
+
+There are a number of built-in `UINode` types. We link to Meta's docs below. Most builtin `UINode` types take a `style` argument. The `LayoutStyle` type is documented here:
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#styles
+
+### Conditional UI (If)
+
+Use `UINode.If` to create a `UINode` that uses a binding to choose between showing one of two children:
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#if
+
+### UI View
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#view
+
+### UI Text
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#text
+
+### UI Image
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#image
+
+### UI Pressable
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#pressable
+
+### UI ScrollView
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/api-reference-for-custom-ui#scrollview
+
+### UI Dynamic List
+
+https://developers.meta.com/horizon-worlds/learn/documentation/desktop-editor/custom-ui/dynamic-list
 
 # Navigation Mesh
 
@@ -6314,10 +6489,6 @@ Limits of type, amount, and frequency.
     - Granular modes? (Fixed, Attach, Orbit, Pan)
     - Collision (enable/disable)
     - Disabling perspective switch
-
-# List of all desktop editor shortcuts
-
-e.g. alt-click to orbit
 
 # Common Problems and Troubleshooting
 - stop, reset, play (don't just hit escape)
