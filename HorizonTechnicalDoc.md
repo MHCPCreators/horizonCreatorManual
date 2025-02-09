@@ -204,12 +204,14 @@
     4. [PrePhysics vs OnUpdate Events](#prephysics-vs-onupdate-events)
     5. [Simulated vs Locked Entities](#simulated-vs-locked-entities)
     6. [Applying Forces and Torque](#applying-forces-and-torque)
+        1. [PhysicalEntity Forces](#physicalentity-forces)
+        2. [PhysicalEntity Torques](#physicalentity-torques)
+        3. [Springs](#springs)
+            1. [Spring Push](#spring-push)
+            2. [Spring Spin](#spring-spin)
     7. [Player Physics](#player-physics)
         1. [Player Physical Velocity](#player-physical-velocity)
         2. [Player Position and Physics](#player-position-and-physics)
-    8. [Springs](#springs)
-        1. [Spring Push](#spring-push)
-        2. [Spring Spin](#spring-spin)
 13. [Players](#players)
     1. [Player Class](#player-class)
     2. [Identifying Players](#identifying-players)
@@ -1148,6 +1150,8 @@ you will get one of the above values, unless the entity is not interactive (mean
 |---|---|
 | `EntityInteractionMode.Invalid`  | The entity is not interactive and has neither grabbable nor physics behavior types |
 
+You cannot `set` the `interactionMode` to the `Invalid` value. **To temporarily disable interaction set [simulated](#simulated) to `false`** (and the entity will behave as if ["Motion"](#interactive-entities) is set to "None").
+
 !!! warning Be careful putting Interactive Entities inside of hierarchies. Interactivity may be disabled!
     If you want to have an interactive entity be within a hierarchy (e.g. child of another entity) then all of its [ancestors](#ancestors) should be *Empty Objects* or *Mesh Entities*. All ancestors should have `Motion` set to `None`.
 
@@ -1192,13 +1196,14 @@ All `Entity` instances have the class properties in the table below. Additionall
 
 ### Simulated
 
-The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property controls whether the entity is updated in the [physics calculations](#simulation-phase) of the frame.
+The **simulated** property is only available in scripting (as a `boolean` [read-write Horizon property](#horizon-properties)). The property allows you to disable interaction (as if temporarily setting "Motion" to "None") so that entities don't respond to [physics](#physics) and are not [grabbable](#grabbing-and-holding-entities).
 
 When an [entity](#entities) has **`simulated` set to `false`**:
 * It **cannot be grabbed** ❌ (even if [grabbable](#grabbing-and-holding-entities)). If a held entity has it's `simulated` set to `false` it *will [force release](#force-release)*.
 * It **cannot have [forces applied](#applying-forces-and-torque)** ❌ (even if it is [physical](#physicalentity-class)).
 * It **can be attached via scripting** ✅  (if it is [attachable](#attaching-entities)) though it [may push the player](#scripted-attach) (if `collidable` is `true`). If an attached entity has it's `simulated` set to `false` it *will NOT detach*.
 * It **can be moved** ✅ via `position.set(...)` and `rotation.set(...)` (if it is [dynamic](#static-vs-dynamic-entities)).
+* It **can be collided with** following the standard rules for [collisions](#collisions).
 
 The `simulated` property defaults to `true`.
 
@@ -4395,11 +4400,32 @@ TODO - Average?, min?, max? - friction and bounciness calculation (Any guarantee
 
 ## Simulated vs Locked Entities
 
+Every [Entity](#entities) has a [simulated property](#simulated) which *disables physics and interaction* (to make the entity act as if [Motion](#interactive-entities) is set to "None").
+
+The [PhysicalEntity class](#physicalentity-class) has a `locked` property to **disable just physics**. Then `locked` is `false` the entity will not response to any physics-based or avatar-based movement. That means you cannot move the entity with forces or moving by grabbing. However, **a locked entity *can be grabbed*, but the hand stays locked to the entity, unable to move it**.
+
+Locking a physical entity is useful for: [steering wheels, levers, and other things that a player's hands should "attach to"](#moving-a-held-entity-globally-in-relation-to-the-world) (without moving the entity).
+
+Locked entities can still be [collided](#collisions) with.
+
 ## Applying Forces and Torque
 
-Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and the torque to apply in the next [simulation phase](#simulation-phase)**. When code runs in [event callbacks](#receiving-events) and [async callbacks], it can add to the pending force and torque values.
+The physics system in Horizon uses [SI Units](https://en.wikipedia.org/wiki/International_System_of_Units):
 
-Through a [frame](#frame-sequence) different [event callbacks](#receiving-events) and [async callbacks](#async-delays-and-timers) may call a number of different methods on a [PhysicalEntity](#physicalentity-class):
+| Quantity | Unit |
+|---|---|
+| Distance | meters |
+| Velocity| [Vec3](#vec3) with `magnitude` in meters/second |
+| Speed | meters/second |
+| Angular Velocity | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in radians/second |
+| Mass | kilograms |
+| Force | [Vec3](#vec3) with `magnitude` Newtons |
+| Gravity | meters/second<sup>2</sup> |
+| Impulse | [Vec3](#vec3) with `magnitude` Newton \(\cdot \) seconds |
+| Torque | [Vec3](#vec3) where the direction is the *axis of rotation* and the `magnitude` is in Newton \(\cdot \) meters |
+
+Every [PhysicalEntity](#physicalentity-class) has internal state representing the ***pending* force and torque to apply in the next [simulation phase](#simulation-phase)**. Scripts can use a number of methods to add to the pending force and torque:
+
   * `applyForce(vector: Vec3, mode: PhysicsForceMode)`
   applyLocalForce(vector: Vec3, mode: PhysicsForceMode): void;
     applyForceAtPosition(vector: Vec3, position: Vec3, mode: PhysicsForceMode): void;
@@ -4409,35 +4435,13 @@ Through a [frame](#frame-sequence) different [event callbacks](#receiving-events
     springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void;
     springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>): void;
 
-## Player Physics
+### PhysicalEntity Forces
 
-The player avatar acts like a single *physical entity*, although you cannot actually use it as one. But you can still apply forces to the player and have them interact with other physics-based entities in the world (players can [collide with entities and with other players](#collision-events)).
+### PhysicalEntity Torques
 
-| [Player class](#player-class) member | Notes |
-|---|---|
-| `applyForce(force: Vec3): void` | Apply a force, as a vector with magnitude in Newtons, to the player. This acts just like [applying a force to an entity](#applying-forces-and-torque):<br/><pre class="language-ts ts"><span><code>physicalEntity.applyForce(</code><br/><code>  force, PhysicsForceMode.Force</code><br/><code>)</code></span></pre> |
-| <pre class="language-ts ts"><span><code>configurePhysicalHands(</code><br/><code>   collideWithDynamicObjects: boolean,</code><br/><code>  collideWithStaticObjects: boolean</code><br/><code>): void</code></span></pre> | This is only for VR players, allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
-| `gravity: HorizonProperty<number>` | Read and write the downward acceleration (*not force*) on the player in m/s<sup>2</sup>. The default is Earth gravity: `9.81`. |
-| `velocity: HorizonProperty<Vec3>` | The velocity of the player *due to physics*. See [player physical velocity](#player-physical-velocity) for details. |
+[]
 
-### Player Physical Velocity
-
-<mark>TODO</mark>
-
-### Player Position and Physics
-
-<mark>TODO</mark>
-
-Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics updates the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
-
-Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
-    NOT async
-
-When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
-
-Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
-
-## Springs
+### Springs
 
 Spring physics allows entities to move and rotate as if they were attached to a spring. This system provides smooth, natural motion that can be adjusted using stiffness and damping parameters. The spring helper methods are **intended to be called every frame**.
 
@@ -4466,7 +4470,7 @@ const DefaultSpringOptions: SpringOptions = {
 
 These values are intended to provide a balanced spring motion that feels natural without excessive oscillation.
 
-### Spring Push
+#### Spring Push
 
 `springPushTowardPosition` moves an entity toward a target position as if attached to (and pulled by) a spring. Spring-push computes a [force](#applying-forces-and-torque), so the entity must have **[Motion=Interactive](#interactive-entities)** and **[simulated=true](#simulated)**. A common use case is to call `springPushTowardPosition` every frame.
 
@@ -4486,7 +4490,7 @@ springPushTowardPosition(position: Vec3, options?: Partial<SpringOptions>): void
     });
     ```
 
-### Spring Spin
+#### Spring Spin
 
 `springSpinTowardRotation` rotates an entity toward a target rotation as if attached to (and twisted by) a spring. Spring-spin computes a [torque](#applying-forces-and-torque), so the entity must have **[Motion=Interactive](#interactive-entities)** and **[simulated=true](#simulated)**. A common use case is to call `springSpinTowardRotation` every frame.
 
@@ -4504,6 +4508,34 @@ springSpinTowardRotation(rotation: Quaternion, options?: Partial<SpringOptions>)
       physEnt.springSpinTowardRotation(this.props.obj2.rotation.get(), {stiffness: 10, damping: 0.5, axisIndependent: false});
     });
     ```
+
+## Player Physics
+
+The player avatar acts like a single *physical entity*, although you cannot actually use it as one. But you can still apply forces to the player and have them interact with other physics-based entities in the world (players can [collide with entities and with other players](#collision-events)).
+
+| [Player class](#player-class) member | Notes |
+|---|---|
+| `applyForce(force: Vec3): void` | Apply a force, as a vector with magnitude in Newtons, to the player. This acts just like [applying a force to an entity](#applying-forces-and-torque):<br/><pre class="language-ts ts"><span><code>physicalEntity.applyForce(</code><br/><code>  force, PhysicsForceMode.Force</code><br/><code>)</code></span></pre> |
+| <pre class="language-ts ts"><span><code>configurePhysicalHands(</code><br/><code>   collideWithDynamicObjects: boolean,</code><br/><code>  collideWithStaticObjects: boolean</code><br/><code>): void</code></span></pre> | This is only for VR players, allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
+| `gravity: HorizonProperty<number>` | Read and write the downward acceleration (*not force*) on the player in m/s<sup>2</sup>. The default is Earth gravity: `9.81`. |
+| `velocity: HorizonProperty<Vec3>` | The velocity of the player *due to physics*. See [player physical velocity](#player-physical-velocity) for details. |
+
+### Player Physical Velocity
+
+<mark>TODO</mark>
+
+### Player Position and Physics
+
+<mark>TODO</mark>
+
+Setting player position (locally) in pre-physics results in that position being used during Physics in the same frame. If not local you are waiting on a network send. In that frame's physics updates the position may then further be updated. If you update a position of a player (locally) in PrePhysics then that position will be reported for the rest of the frame (even though there is a new physics-based position, which will start being reported at the start of the next frame).
+
+Player positions are committed to the scene graph after prePhysics (and used in physics), onUpdate, codeBlockEvent (and likely not after network events)
+    NOT async
+
+When set position of player (locally) in async: the value is used in that frame's physics calculation to get a new physics value is not seen until prePhysics of the next frame; in the meantime, the new (scene graph position) that you just is seen the rest of the frame.
+
+Setting a player's position will require a network trip from server to player since player's are authoritative over their own position and pose.
 
 # Players
 
@@ -5990,7 +6022,7 @@ The [World Class](#world-class) has one more spawn-related method: `deleteAsset`
 | `deleteAsset` Parameter Name | Type | Default Value | Notes |
 |---|---|--|----|
 | entity | [Entity](#entities) | n/a - required | The entity to remove from the [instance](#instances). It is an error to pass in an entity that wasn't spawned via `spawnAsset`. |
-| fullDelete | `boolean` | `true` | If `true` the `entity` must be the *root entity* (the first one in the spawned entities array). The `entity` and all its *associated entities* will be deleted (essentially undoing the single "spawn event" that created them all). |
+| fullDelete | `boolean` | `false` | If `true` the `entity` must be the *root entity* (the first one in the spawned entities array). The `entity` and all its *associated entities* will be deleted (essentially undoing the single "spawn event" that created them all). |
 
 The `deleteAsset` method returns a `Promise<undefined>` which resolves when the spawned entities have been fully removed from the [instance](#instances).
 
@@ -6088,15 +6120,13 @@ flowchart
   Loading-."prepare asset".->Loaded-."create entities".->Active
   Active-->Unloading-."destroy entities</br>delete asset".->Unloaded
 
-  NotReady-.->DeleteInfo
-  Unloaded-.->DeleteInfo
   Loading-.->DeleteAsset
   Paused-.->DeleteAsset
   Loaded-.->DeleteEntities
   Active-.->DeleteEntities
   Unloading-.->DeleteEntities
 
-  DeleteEntities(( ))-."delete entities".->DeleteAsset(( ))-."delete prepared asset".->DeleteInfo(( ))-."delete asset info".->Disposed
+  DeleteEntities(( ))-."delete entities".->DeleteAsset(( ))-."delete prepared asset".->Disposed
   Paused-->Loading
 
   Loading-.->Unloaded
@@ -6105,7 +6135,7 @@ flowchart
   Loaded-->Unloading
   Loading-->Unloading
 
-  linkStyle 7,8,9,10,11,12,13,14,15,16 stroke:#ff0000
+  linkStyle 7,8,9,10,11,12,13,14,16 stroke:#ff0000
 
   style Active fill:#e2faea,stroke:#9a9
   style Paused fill:#fcfcda,stroke:#aa9
@@ -6114,7 +6144,6 @@ flowchart
   style Disposed fill:#fcdada,stroke:#a89
   style DeleteEntities fill:#fcdada,stroke:#a89
   style DeleteAsset fill:#fcdada,stroke:#a89
-  style DeleteInfo fill:#fcdada,stroke:#a89
 ```
 
 ## Sublevels
@@ -6347,7 +6376,7 @@ ButtonPlacement
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
 [DefaultPopupOptions](#tooltips-and-popups)
-[DefaultSpringOptions](#springs)
+[DefaultSpringOptions](#physics-springs)
 [DefaultThrowOptions](#throwing)
 [DefaultTooltipOptions](#tooltips-and-popups)
 [degreesToRadians](#scripting-helper-functions)
@@ -6423,7 +6452,7 @@ Space: [body part](#player-body-parts), [transform helpers](#transform-helpers)
 [SpawnError](#advanced-spawning-spawncontroller)
 [SpawnPointGizmo](#spawn-point-gizmo)
 [SpawnState](#advanced-spawning-spawncontroller)
-[SpringOptions](#springs)
+[SpringOptions](#physics-springs)
 [StaticRaycastHit](#raycast-gizmo)
 StopAnimationOptions
 [TextGizmo](#text-gizmo)
