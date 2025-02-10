@@ -317,7 +317,9 @@
         1. [SpawnController State Machine](#spawncontroller-state-machine)
         2. [SpawnController Methods](#spawncontroller-methods)
     4. [Sublevels](#sublevels)
-20. [Tooltips and Popups](#tooltips-and-popups)
+20. [Showing Players Temporary Messages](#showing-players-temporary-messages)
+    1. [Popups](#popups)
+    2. [Tooltips](#tooltips)
 21. [Custom UI](#custom-ui)
     1. [UIComponent Class](#uicomponent-class)
     2. [Bindings](#bindings)
@@ -1372,11 +1374,11 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Property | Type | Description |
 |---|---|---|
 | Display mode | `Spatial` or `Screen Overlay` | Determines how your UIs will be seen. `Spatial` means the UI is 3D object somewhere in your world. `Screen Overlay` means it will appear on top of the players screen. |
-| Input mode | `No interaction`, `Interactive, Blocking`, or `Interactive, Non Blocking` | Only displayed if the 'Display mode' is `Screen Overlay`. Controls whether the overlay has interaction and, if so, whether it blocks navigation (only for XS players, VR user never have blocked navigation) or does not block navigation (in which case it is invisible to VR players) |
-| Raycast | `boolean` | Determines if the raycast will appear for VR players. If disabled, VR players cannot interact, web and mobile can unless `Focus Prompt` is disabled.|
+| Input mode | `No interaction`, `Interactive, Blocking`, or `Interactive, Non Blocking` | Only displayed if the 'Display mode' is `Screen Overlay`. Controls whether the overlay has interaction and, if so, whether it blocks navigation (only for XS players, VR user never have blocked navigation) or does not block navigation (in which case it is invisible to [VR players](#identifying-players)) |
+| Raycast | `boolean` | Determines if the raycast will appear for [VR players](#identifying-players). If disabled, [VR players](#identifying-players) cannot interact, [Mobile/Web players](#identifying-players) can unless `Focus Prompt` is disabled.|
 | Raycast distance | `number` |  Controls the distance within which a player can interact with the UI panel if `Raycast` is enabled. |
 | Mipmap | `boolean` | If enabled, allows you to adjust the level of mipmap which affects how much detail is drawn when viewed from a distance.  |
-| Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. If disabled, web and mobile players cannot interact, but VR players can unless `Raycast` is disabled. |
+| Focus Prompt | `boolean` | Determines if [Mobile/Web](#identifying-players) can interact with the UI. If disabled, [Mobile/Web players](#identifying-players) cannot interact, but [VR players](#identifying-players) can unless `Raycast` is disabled. |
 | Focus prompt distance | `number` | Controls the distance within which a player can interact with the UI panel if `Focus Prompt` is enabled. |
 
 **TypeScript**: Custom UI Gizmos are referenced [as()](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
@@ -1870,7 +1872,7 @@ enum AudibilityMode {
 | Set Position Only | `boolean` | Determines if the Spawn Point Gizmo will rotate the player to match its rotation when it spawns them. |
 | Player Gravity | `number` | Sets the gravity of each player to this value when this spawn is used. Values between 0.0 and 9.81. |
 | Player Speed | `number` | Sets the speed of each player to this value when this spawn is used. Values between 0.0 and 45. |
-| Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view web and mobile players will have after using the spawn (HWXS stands for Horizon Worlds Cross Screens) |
+| Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view [Mobile/Web players](#identifying-players) will have after using the spawn (HWXS stands for Horizon Worlds Cross Screens) |
 
 **Typescript**:  Spawn Point Gizmos are referenced [as()](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods.
 
@@ -2004,7 +2006,7 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 | Enabled | `boolean` | Determines whether the Trigger Gizmo will detect any events. |
 | Trigger On | `Players` or `Objects Tagged` | Sets whether the triggers response to players or objects with a specific tag. |
 | Object Tag | `string` | If `Trigger On` is set to `Objects Tagged` then this is the required tag for an object to trigger an event.
-| Selectable in Screen Mode | `boolean` | Determines whether web and mobile users will see an interaction option when near the Trigger Gizmo. |
+| Selectable in Screen Mode | `boolean` | Determines whether [Mobile/Web players](#identifying-players)s will see an interaction option when near the Trigger Gizmo. |
 
 Under the hood, triggers detect *enter* and *exit* using [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
 
@@ -2192,7 +2194,10 @@ You can change the mesh on a [MeshEntity](#meshentity-class) while the world is 
 
 ```ts
 // MeshEntity
-setMesh(mesh: Asset, options: SetMeshOptions): Promise<void>;
+setMesh(
+  mesh: Asset,
+  options: SetMeshOptions
+): Promise<void>;
 ```
 
 Which takes two arguments:
@@ -2208,29 +2213,59 @@ The method returns a `Promise<void>` which you can `await` for to know when the 
 
 ## Texture Asset
 
-<mark>TODO</mark>
+**Description**: A Texture Asset is a 2D image (or set of images) that can be applied to [MeshEntities](#meshentity-class) or used in [Custom UIs](#custom-ui). You can convert an `Asset` to a `TextureAsset` using the [Asset as() method](#asset-as-method).
+
+**Creation**: To create a texture asset go to the Assets panel and click "Add New" or go to the [Creator Portal](https://horizon.meta.com/creator/) and click "Import". You can then import PNG (.png) files. If the texture is to be used with a [Custom UI Gizmo](#custom-ui-gizmo) then it should just be RGB. If it is to be used with `setTexture` (below) then it should match the [texture configuration of the material it will be paired](#materials) with.
+
+!!! tip Power-of-two dimensions
+    For best performance and memory usage, texture dimensions should be powers of two (e.g. 256x256, 512x1024, etc.).
+
+**Usage**: Textures can be applied to [MeshEntities](#meshentity-class) via the `setTexture` method:
+
+```typescript
+// MeshEntity
+setTexture(
+  texture: TextureAsset,
+  options?: SetTextureOptions
+): Promise<void>;
 
 type SetTextureOptions = {
-    players?: Array<Player>;
+  players?: Array<Player>;
 };
-// MeshEntity
-setTexture(texture: TextureAsset, options?: SetTextureOptions): Promise<void>;
+```
+
+The method returns a `Promise<void>` which you can `await` to know when the swap has occurred. The swap is not instantaneous since the texture may need to be downloaded and processed.
+
+!!! tip Player-specific textures
+    Using the `players` option lets you show different textures to different players. This is useful for things like player-specific UI elements or visual effects that should only be visible to certain players.
 
 ## Material Asset
 
-<mark>TODO</mark>
+**Description**: A Material Asset defines how a surface should be rendered, representing one of the [supported materials](#materials). You can convert an `Asset` to a `MaterialAsset` using the [Asset as() method](#asset-as-method).
+
+**Creation**: Materials are typically created as part of [3D Model Assets](#3d-model-asset) when importing from DCCs like Blender or Maya. The Desktop editor also provides some built-in materials in the Asset Library.
+
+**Usage**: Materials can be applied to [MeshEntities](#meshentity-class) via the `setMaterial` method:
+
+```typescript
+// MeshEntity
+setMaterial(
+  materialAsset: MaterialAsset,
+  options?: SetMaterialOptions
+): Promise<void>;
 
 type SetMaterialOptions = {
-    materialSlot?: number | string;
+  // Which material slot to update (for multi-material meshes)
+  materialSlot?: number | string;
 }
-// MeshEntity
-setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
+```
 
-**Description**:
+The method returns a `Promise<void>` which you can `await` to know when the swap has occurred. The swap is not instantaneous since the material may need to be downloaded and processed.
 
-**Creation**:
+!!! warning Material slots
+    If a mesh uses multiple materials, you must specify which slot to update using the `materialSlot` option. Slots can be referenced by index or by using the Unreal naming convention: a material name ending in `_skin##` will determine a slot index (e.g. `face_skin00` is slot `0`; `face_skin03` is slot `3`). You cannot specify a slot number higher than the number of materials in the original material.
 
-**Usage**:
+    See more info here: https://developers.meta.com/horizon-worlds/learn/documentation/custom-model-import/creating-custom-models-for-horizon-worlds/multiple-materials-per-mesh
 
 ## Audio Asset
 
@@ -3051,7 +3086,7 @@ The `World` class represents the currently running [instance](#instances) and th
 | `getPlayers` | Get [all current players in the instance](#listing-all-players). |
 | `getServerPlayer` | Get the [player representing the server](#server-player). |
 | `getLocalPlayer` | Determine [which player's client is running the current code](#clients-devices-and-the-server).  |
-| `ui` | Show a [popup or tooltip UI](#tooltips-and-popups) to players. |
+| `ui` | Show a [popup or tooltip UI](#showing-players-temporary-messages) to players. |
 | **World Entities** |
 | `getEntitiesWithTags` | [Find entities](#entity-tags) in the instance. |
 | `spawnAsset` | [Spawn an asset](#simple-spawning) into the instance. |
@@ -3079,7 +3114,7 @@ The steps above are the "main path" but there are also many more parts of script
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
 * [Interacting with the physics system](#applying-forces-and-torque)
 * [Rendering UI](#custom-ui)
-* [Creating tooltips and popups](#tooltips-and-popups)
+* [Creating popups (or tooltips)](#showing-players-temporary-messages)
 * [Spawning assets](#spawning)
 * [Tinting and modifying meshes](#tinting)
 * [Managing NPCs](#npc-gizmo)
@@ -4341,7 +4376,7 @@ The parameters for both events are:
 | `normal` | [Vec3](#vec3) | The [surface normal](#https://en.wikipedia.org/wiki/Normal_(geometry)) at the position `collidedAt` on `collidedWith`. |
 | `relativeVelocity` | [Vec3](#vec3) | The global velocity of `entity` compared to `collidedWith` (which you can use to see how "hard the hit" was). |
 | `localColliderName` | `string` | The *name* of first "leaf-level" collider involved in the collision. |
-| `otherColliderName` | `string` |  The *name* of second "leaf-level" collider involved in the collision. This could be a [player body part](#player-body-parts) (`"Head"`, `"LegCollider"`, `"Torso"`) if the entity is configured for collision events from players. Note that VR players have many colliders on their hands ( `"LeftPalm"`, `"LeftThumbMid"`, `"LeftThumbTip"`, `"LeftIndexFingerBase"`, `"LeftIndexFingerTip"`, `"LeftOtherFingersBase"`, `"LeftOtherFingersTip"`, and similar for the right hand). **Mobile/Web players do not have colliders on their hands**. |
+| `otherColliderName` | `string` |  The *name* of second "leaf-level" collider involved in the collision. This could be a [player body part](#player-body-parts) (`"Head"`, `"LegCollider"`, `"Torso"`) if the entity is configured for collision events from players. Note that [VR players](#identifying-players) have many colliders on their hands ( `"LeftPalm"`, `"LeftThumbMid"`, `"LeftThumbTip"`, `"LeftIndexFingerBase"`, `"LeftIndexFingerTip"`, `"LeftOtherFingersBase"`, `"LeftOtherFingersTip"`, and similar for the right hand). **[Mobile/Web players](#identifying-players) do not have colliders on their hands**. |
 
 **Collider Names**: If a group containing a cube collides with a player's left hand, then the the `localColliderName` will be the name of the cube and `otherColliderName` will be the name of the
 
@@ -4714,7 +4749,7 @@ The player avatar acts like a single *physical entity*, although you cannot actu
 | [Player class](#player-class) member | Notes |
 |---|---|
 | `applyForce(force: Vec3): void` | Apply a force, as a vector with magnitude in Newtons, to the player. This acts just like [applying a force to an entity](#applying-forces-and-torque):<br/><pre class="language-ts ts"><span><code>physicalEntity.applyForce(</code><br/><code>  force, PhysicsForceMode.Force</code><br/><code>)</code></span></pre> |
-| <pre class="language-ts ts"><span><code>configurePhysicalHands(</code><br/><code>   collideWithDynamicObjects: boolean,</code><br/><code>  collideWithStaticObjects: boolean</code><br/><code>): void</code></span></pre> | This is only for VR players, allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
+| <pre class="language-ts ts"><span><code>configurePhysicalHands(</code><br/><code>   collideWithDynamicObjects: boolean,</code><br/><code>  collideWithStaticObjects: boolean</code><br/><code>): void</code></span></pre> | This is only for [VR players](#identifying-players), allowing you to set if their hands should *physically* collide with [dynamic and static entities](#static-vs-dynamic-entities) in the world. To be able to change these values you have to set "Can Hands Collide With Physics Objects" and "Can Hands Collide With Static Objects" in [Player Settings](#publishing-and-player-settings). |
 | `gravity: HorizonProperty<number>` | Read and write the downward acceleration (*not force*) on the player in m/s<sup>2</sup>. The default is Earth gravity: `9.81`. |
 | `velocity: HorizonProperty<Vec3>` | The velocity of the player *due to physics*. See [player physical velocity](#player-physical-velocity) for details. |
 
@@ -4781,7 +4816,7 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [jumpSpeed](#player-locomotion) | The speed the player leaves the ground at when they jump |
 | **Physics** |
 | [applyForce](#player-physics) | Apply a force to the player |
-| [configurePhysicalHands](#player-physics) | Configure if a VR player's hands can collide with entities in the world |
+| [configurePhysicalHands](#player-physics) | Configure if a [VR player](#identifying-players)'s hands can collide with entities in the world |
 | [gravity](#player-physics) | The vertical acceleration of the player (when they are in the air) |
 | [throwHeldItem](#throwing) | Throw the currently held item |
 | [velocity](#player-physical-velocity) | The player's velocity due to physics (not including locomotion) |
@@ -4795,7 +4830,7 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [unfocusUI](#custom-ui) | Exit a player from the UI they are focused on |
 | **Aim Assist** |
 | [clearAimAssistTarget](#aim-assist) | Remove the aim-assist target |
-| [setAimAssistTarget](#aim-assist) | Configure a Mobile/Web player's cursor to be attracted to a given target |
+| [setAimAssistTarget](#aim-assist) | Configure a [Mobile/Web player](#identifying-players)'s cursor to be attracted to a given target |
 | **Voip** |
 | [setVoipSetting](#voip-settings) | Configure who can hear the player |
 
@@ -5000,9 +5035,9 @@ A [player](#players) in an [instance](#instances) can become **inactive**. The a
 
 Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom <u>K</u>eyboard). The exact rules for inactivity are not documented and are subject to change. Roughly speaking:
 
-**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen, when they temporarily switch to a different app, or when they quit the app. A VR player goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
+**Becoming inactive (AFK)**: A mobile player becomes inactive when they go for a while without touching the screen, when they temporarily switch to a different app, or when they quit the app. A [VR player](#identifying-players) goes inactive when they take off their headset (or even raise it to their forehead) or when they open the Quest OS menu while in the app.
 
-**Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A VR player becomes active when they put their headset back on or close the OS menu.
+**Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A [VR player](#identifying-players) becomes active when they put their headset back on or close the OS menu.
 
 There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK. Both are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
 
@@ -5018,7 +5053,7 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 
 ## Player Locomotion
 
-A VR player locomotes (moves the avatar) using their controllers. A Mobile/Web player locomotes via mouse and keyboard or via on-screen controls. These inputs are applied during the [simulation phase](#simulation-phase) of each frame. You can also "take over" and override the inputs using [player controls](#player-controls).
+A [VR player](#identifying-players) locomotes (moves the avatar) using their controllers. A [Mobile/Web player](#identifying-players) locomotes via mouse and keyboard or via on-screen controls. These inputs are applied during the [simulation phase](#simulation-phase) of each frame. You can also "take over" and override the inputs using [player controls](#player-controls).
 
 The table below shows some methods related to player locomotion. There are additional ways to interact with player movement in [player physics](#player-physics).
 
@@ -5077,10 +5112,10 @@ Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a
 
 ## Player Pose
 
-For Mobile/Web players, it is possible to activate or deactivate an avatar pose through scripting or through the configuration of grabbable items.
+For [Mobile/Web players](#identifying-players), it is possible to activate or deactivate an avatar pose through scripting or through the configuration of grabbable items.
 
 ### Grip Pose
-Grip poses allow for a easy avatar configuration, activating as soon as the Mobile/Web player grabs an entity (pistol, sword, etc). These poses do not require any scripting and in most cases have a secondary animation (recoil, attack sword motion, etc) which activate when the player presses the action button (Left mouse click on PC and onscreen button for mobile).
+Grip poses allow for a easy avatar configuration, activating as soon as the [Mobile/Web player](#identifying-players) grabs an entity (pistol, sword, etc). These poses do not require any scripting and in most cases have a secondary animation (recoil, attack sword motion, etc) which activate when the player presses the action button (Left mouse click on PC and onscreen button for mobile).
 
 To configure a pose animation through on a [grabbable entity](#grabbing-and-holding-entities):
 1. Click on the entity in the desktop editor to open its properties.
@@ -5090,7 +5125,7 @@ To configure a pose animation through on a [grabbable entity](#grabbing-and-hold
 To test the selection, enter preview mode and grab the object. Observe how the avatar chances its pose. Press the action button and observe the secondary animation.
 
 ### Scripted Grip Pose
-Scripted animations allow for more control over the behavior of Mobile/Web player avatar poses. You can set the pose the avatar is using with respect to a held item (the **grip pose**):
+Scripted animations allow for more control over the behavior of [Mobile/Web player](#identifying-players) avatar poses. You can set the pose the avatar is using with respect to a held item (the **grip pose**):
 
 ```ts
 // Player
@@ -5155,9 +5190,9 @@ player.setVoipSetting(VoipSetting.Environment)
 
 ## Haptics
 
-A VR player's controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
+A [VR player](#identifying-players)'s controllers can be made to vibrate to add immersion to an experience. There is currently no way to vibrate a mobile device.
 
-To vibrate a VR player's controllers, choose a [player hand](#player-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength (via the `HapticsStrength` enum), and a sharpness (via the `HapticsSharpness` enum). For example:
+To vibrate a [VR player](#identifying-players)'s controllers, choose a [player hand](#player-body-parts) and then call the `playHaptics` method on it with a duration (in seconds), a strength (via the `HapticsStrength` enum), and a sharpness (via the `HapticsSharpness` enum). For example:
 
 ```ts
 player.leftHand.playHaptics(0.5, HapticStrength.Medium, HapticSharpness.Sharp)
@@ -5188,7 +5223,7 @@ The supported values for haptics sharpness are:
 
 ## Aim Assist
 
-For experiences at involve the player aiming at something, Horizon offers the ability to *assist a player with their aim**. This only works for Mobile/Web players.
+For experiences at involve the player aiming at something, Horizon offers the ability to *assist a player with their aim**. This only works for [Mobile/Web players](#identifying-players).
 
 There are two methods on the [Player class](#player-class) related to aiming:
 
@@ -5232,7 +5267,7 @@ throwHeldItem(options?: Partial<ThrowOptions>): void;
 
 # Grabbing and Holding Entities
 
-When a VR player grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity. A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
+When a [VR player](#identifying-players) grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity. A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
 
 There is no way to check if an entity is currently held but you can listen to [grab events](#grab-sequence-and-events) to know when an entity is grabbed or released.
 
@@ -5250,7 +5285,7 @@ Select an entity and then in the Properties panel set its `Motion` to `Interacti
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
 
-A grabbable entity can be configured to automatically modify a Mobile/Web player's pose when they grab the item and also configure what action buttons are onscreen while holding the entity. For more details [see the article on configure held items for Mobile/Web players](https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-and-mobile/grabbable-entities/intro-to-grabbable-entities).
+A grabbable entity can be configured to automatically modify a [Mobile/Web player](#identifying-players)'s pose when they grab the item and also configure what action buttons are onscreen while holding the entity. For more details [see the article on configuring held items for Mobile/Web players](https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-and-mobile/grabbable-entities/intro-to-grabbable-entities).
 
 ## Can Grab
 
@@ -5343,14 +5378,14 @@ When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCa
 ### Grab Distance
 
 !!! warning Grab distance varies between platforms.
-    For example mobile players can grab entities when much farther away than VR players
+    For example [Mobile/Web](#identifying-players) can grab entities when much farther away than [VR players](#identifying-players).
 
 !!! tip Grab-distance cannot be configured.
     You cannot explicitly control from how far away an entity can be grabbed; however you can use a trigger to control grabbability (for example: make an entity grabbable by a specific play when they are in that trigger).
 
 ### Grab Lock
 
-When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a VR player no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a VR player presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
+When an entity is [grabbable](#creating-a-grabbable-entity) there is a setting its Properties called `Grab Lock`. When it is enabled a [VR player](#identifying-players) no longer needs to keep the trigger (on their VR controller) pressed to hold the entity (which gets tiring after a while!). When `Grab lock` is enabled a [VR player](#identifying-players) presses (and releases) the trigger to grab. When they release the trigger the entity _stays held_. When they later again press and release the trigger again, the entity is released.
 
 ### Force Grabbing
 
@@ -5361,7 +5396,7 @@ An entity can be forced into the hand of a player used the TypeScript API:
 forceHold(player: Player, hand: Handedness, allowRelease: boolean): void;
 ```
 
-It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a VR player can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
+It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a [VR player](#identifying-players) can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
 
 **Not quite instantaneous**: calling `forceHold` "animates" the entity into the players hand. It can be a number of frames until they are holding it and the [OnGrabStart](#grab-sequence-and-events) event is sent.
 
@@ -5488,7 +5523,7 @@ Here is a simple example of a grabbable entity that is constrained to move along
 Entities can be attached to players and avatar NPCs.
 
 !!! warning Attaching multiple entities to one player.
-    It's possible for a VR player to put multiple entities on their head at the same time, for example. You can also use [scripted attach](#scripted-attach) to put multiple entities on a player at the same attachment anchor. If this behavior is undesirable, you should track when entities are attached to which players and handle the case where a second entity is attached to an anchor.
+    It's possible for a [VR players](#identifying-players) to put multiple entities on their head at the same time, for example. You can also use [scripted attach](#scripted-attach) to put multiple entities on a player at the same attachment anchor. If this behavior is undesirable, you should track when entities are attached to which players and handle the case where a second entity is attached to an anchor.
 
 ## Creating an Attachable
 
@@ -5523,7 +5558,7 @@ Attaching an entity to player can be done by the following:
 | *Release on body part* | Upon releasing the held entity, the entity checks if collision has occurred between the active collider and the body part of the [Attachable By](#attachable-by) permitted player.|
 | *Script* | See attachables API.|
 
-Attaching entities involves two built-in code block events being sent to the attachable. If the player attached or detached by hand (only possible for a VR player) then there are also events related to [grabbing](#grab-sequence-and-events).
+Attaching entities involves two built-in code block events being sent to the attachable. If the player attached or detached by hand (only possible for a [VR player](#identifying-players)) then there are also events related to [grabbing](#grab-sequence-and-events).
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
@@ -5563,7 +5598,7 @@ flowchart TD
 
 Entities can be attached to players and detached from players in scripting using `Entity`'s  `attachToPlayer` and `detach`, respectively. The `attachToPlayer` method is not not restricted by the [Attachable By](#attachable-by) and [Anchor To](#anchor-attachment-to) settings set in Properties panel; those settings only impact a player manually grabbing an entity and attaching it to themselves (in VR). In order for `attachToPlayer` and `detach` to work the [Avatar Attachable](#avatar-attachable) property must be enabled in the Properties panel.
 
-**Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor`. If the entity has a Local Script, the ownership is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a VR player manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
+**Attach and ownership**: When `entity.attachToPlayer(player, anchor)` is run, the `entity` is attached to `player` at the `anchor`. If the entity has a Local Script, the ownership is [automatically transferred](#automatic-ownership-transfers) to `player`. When `detach()` is called (or a [VR player](#identifying-players) manually removes an item) there is *no* ownership transfer; ownership of the `entity` stays with the player.
 
 !!! bug `attachToPlayer` only automatically transfers ownership of the entity when it has a Local Script on it.
     This behavior is different from `forceHold`, which always automatically transfer ownership of the entity to the player capable of holding the entity.
@@ -5577,7 +5612,7 @@ Entities can be attached to players and detached from players in scripting using
 
 An attachable entity can be detached in 2 ways:
 1. By calling `entity.detach()`
-1. A VR player grabs the attachment off their, or someone else's, body (if it is [grabbable](#creating-a-grabbable-entity) and the player [can grab](#can-grab) it).
+1. A [VR player](#identifying-players) grabs the attachment off their, or someone else's, body (if it is [grabbable](#creating-a-grabbable-entity) and the player [can grab](#can-grab) it).
 
 In both cases the `OnAttachEnd` event is sent (as shown in [the diagram](#avatar-attachable)).
 
@@ -5643,12 +5678,12 @@ This toggle causes the attachable entity to become **screen-attached**. This mea
 Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable types.
 
 !!! note Attach to 2D screen is meant for cross-screen players
-    A VR player who attaches the entity will see the attachable attach to their body as expected.
+    A [VR player](#identifying-players) who attaches the entity will see the attachable attach to their body as expected.
 
 !!! warning Screen-attached entities will appear on every cross-screen player's screen by default
     Consider setting [who can see](#visibility) an entity to avoid this issue.
 
-!!! bug VR players will see other players' screen-attached incorrectly
+!!! bug [VR players](#identifying-players) will see other players' screen-attached incorrectly
     The attachable follows their camera's position, but the orientation will be wrong.
 
 # Holstering Entities
@@ -6398,95 +6433,140 @@ The class interface on `SublevelEntity` acts much like a [SpawnController](#adva
 | `activate` | `spawn` |
 | `hide` | Similar to calling<br/><pre class="language-ts ts"><span><code>spawnController.unload().then(</code><br/><code>  () => spawnController.load()</code><br/><code>)</code></span></pre>|
 
-# Tooltips and Popups
+# Showing Players Temporary Messages
 
-<mark>TODO</mark>
+There are two ways to show temporary messages to players: popups (which appear in a fixed screen position) and tooltips (which can follow players or entities). Note that there are currently many limitations with tooltips (they only work with [VR players](#identifying-players), for example). We recommend to **only use popups; do not use tooltips (for now)**.
+
+## Popups
+
+You can show popups to every player in the world by accessing the `ui` field on a [World](#world-class) instance
 
 ```ts
+world.ui.showPopupForEveryone(
+  "Go!", 3 /* seconds */
+);
+```
 
-export interface IUI {
-    /**
-     * Shows a popup modal to all players.
-     * @param text - The text to display in the popup.
-     * @param displayTime - The duration, in seconds, to display the popup.
-     * @param options - The configuration, such as color or position, for the popup.
-     */
-    showPopupForEveryone(
-      text: string | i18n_utils.LocalizableText,
-      displayTime: number,
-      options?: Partial<PopupOptions>
-    ): void;
-    /**
-     * Shows a popup modal to a player.
-     * @param player - The player to whom the popup is to displayed.
-     * @param text - The text to display in the popup.
-     * @param displayTime - The duration, in seconds, to display the popup.
-     * @param options - The configuration, such as color or position, for the popup.
-     */
-    showPopupForPlayer(
-      player: Player,
-      text: string | i18n_utils.LocalizableText,
-      displayTime: number,
-      options?: Partial<PopupOptions>
-    ): void;
-    /**
-     * Shows a tooltip modal to a specific player
-     * @param player - the player this tooltip displays for
-     * @param tooltipAnchorLocation - the anchor point that is used to determine the tooltip display location
-     * @param tooltipText - the message the tooltip displays
-     * @param options - configuration for the tooltip (display line, play sounds, attachment entity, etc)
-     */
-    showTooltipForPlayer(
-      player: Player,
-      tooltipAnchorLocation: TooltipAnchorLocation,
-      tooltipText: string | i18n_utils.LocalizableText,
-      options?: Partial<TooltipOptions>
-    ): void;
-    /**
-     * Dismisses any active tooltip for the target player
-     * @param player - the player that has their tooltip dismissed
-     * @param playSound - determines if a default "close sound" should play when the tooltip is closed
-     */
-    dismissTooltip(
-      player: Player,
-      playSound?: boolean
-    ): void;
-}
+or to just one player
 
-export declare type PopupOptions = {
-    position: Vec3;
-    fontSize: number;
-    fontColor: Color;
-    backgroundColor: Color;
-    playSound: boolean;
-    showTimer: boolean;
+```ts
+world.ui.showPopupForPlayer(
+  player, "Shhh! You found a secret", 5 /* seconds */
+);
+```
+
+**Methods**: The two "showPopup" methods take a `text`, `displayTime` (duration in seconds that the message is shown), and optional `options`.
+
+```ts
+// IUI (accessed via `ui` on World)
+showPopupForEveryone(
+  text: string | i18n_utils.LocalizableText,
+  displayTime: number,
+  options?: Partial<PopupOptions>
+): void;
+showPopupForPlayer(
+  player: Player,
+  text: string | i18n_utils.LocalizableText,
+  displayTime: number,
+  options?: Partial<PopupOptions>
+): void;
+```
+
+!!! info Screen position for [Mobile/Web players](#identifying-players).
+    For players on screen devices, popups appear in the center of the screen by default. The position offset in `options` moves the popup in screen coordinates (whereas for [VR players](#identifying-players) it is in [player-local coordinates](#local-transforms)).
+
+**Popup Options**: When showing a popup the optional `options` parameter can specify any of the fields in `PopupOptions`:
+
+```ts
+type PopupOptions = {
+  position: Vec3;         // Local player offset of UI
+  fontSize: number;
+  fontColor: Color;
+  backgroundColor: Color;
+  playSound: boolean;     // Play a sound when it appears?
+  showTimer: boolean;     // Show the countdown timer?
 };
+```
 
-export declare const DefaultPopupOptions: PopupOptions;
+The default values for `PopupOptions` are available in `DefaultPopupOptions`:
+```ts
+const DefaultPopupOptions = {
+  position: new Vec3(0, -0.5, 0),
+  fontSize: 5,
+  fontColor: Color.black,
+  backgroundColor: Color.white,
+  playSound: true,
+  showTimer: false
+};
+```
 
-export declare enum TooltipAnchorLocation {
-    LEFT_WRIST = "LEFT_WRIST",
-    RIGHT_WRIST = "RIGHT_WRIST",
-    TORSO = "TORSO"
-}
+!!! info `i18n_utils` is not available.
+    Although the `text` argument is typed as a `string | i18n_utils.LocalizableText`, there is currently no way to use `i18n_utils` 🙈. The `text` (for now) must be a `string`.
 
-export declare type TooltipOptions = {
-  tooltipAnchorOffset?: Vec3;
-  displayTooltipLine?: boolean;
+## Tooltips
+
+!!! danger Tooltips are not recommended
+    Tooltips currently only work for VR players and have known issues with Quest Link. We recommend using [popups](#popups) or [Custom UI](#custom-ui) instead.
+
+Tooltips can be shown to a player by accessing the `ui` field on a [World](#world-class) instance:
+
+```ts
+world.ui.showTooltipForPlayer(
+  player,
+  TooltipAnchorLocation.LEFT_WRIST,
+  "Check your wrist!"
+);
+```
+
+The tooltip must be be manually dismissed:
+
+```ts
+world.ui.dismissTooltip(player, true /* play sound */);
+```
+
+**Methods**: The tooltip API has two methods show showing and dismissing the tooltip:
+
+```ts
+// IUI (accessed via `ui` on World)
+showTooltipForPlayer(
+  player: Player,
+  tooltipAnchorLocation: TooltipAnchorLocation,
+  tooltipText: string | i18n_utils.LocalizableText,
+  options?: Partial<TooltipOptions>
+): void;
+dismissTooltip(
+  player: Player,
+  playSound?: boolean
+): void;
+```
+
+**Tooltip Anchor Location**: The tooltip appears near one of three anchor points on the player, using the `TooltipAnchorLocation` enum (with values `LEFT_WRIST`, `RIGHT_WRIST`, and `TORSO`).
+
+**Tooltip Options**: When showing a tooltip the optional `options` parameter can specify any of the fields in `TooltipOptions`:
+
+```ts
+type TooltipOptions = {
+  tooltipAnchorOffset?: Vec3;    // Offset from anchor point
+  displayTooltipLine?: boolean;  // Show line to anchor
   tooltipLineAttachmentProperties?: TooltipLineAttachmentProperties;
-  playSound?: boolean;
-};
+  playSound?: boolean;           // Play sound when shown
+}
+```
 
-export declare type TooltipLineAttachmentProperties = {
+The `tooltipLineAttachmentProperties` allow you to customize how the connecting line looks and acts:
+
+```ts
+type TooltipLineAttachmentProperties = {
   lineAttachmentEntity?: Entity | PlayerBodyPartType;
   lineAttachmentLocalOffset?: Vec3;
   lineAttachmentRounded?: boolean;
   lineChokeStart?: number;
   lineChokeEnd?: number;
-};
-
-DefaultTooltipOptions
+}
 ```
+
+!!! info i18n_utils is not available.
+    Although the tooltipText argument is typed as a string | i18n_utils.LocalizableText, there is currently no way to use i18n_utils 🙈. The tooltipText (for now) must be a string.
 
 # Custom UI
 
@@ -6758,10 +6838,10 @@ ButtonPlacement
 [DefaultFetchAsDataOptions](#text-asset-json)
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
-[DefaultPopupOptions](#tooltips-and-popups)
+[DefaultPopupOptions](#popups)
 [DefaultSpringOptions](#physics-springs)
 [DefaultThrowOptions](#throwing)
-[DefaultTooltipOptions](#tooltips-and-popups)
+[DefaultTooltipOptions](#tooltips)
 [degreesToRadians](#scripting-helper-functions)
 [DisposableObject](#disposing-objects)
 [DisposableOperation](#disposing-objects)
@@ -6786,7 +6866,7 @@ FocusedInteractionTrailOptions
 [ILeaderboards](#leaderboards)
 InteractionInfo
 [IPersistentStorage](#persistence)
-[IUI](#tooltips-and-popups)
+[IUI](#showing-players-temporary-messages)
 [IWPSellerGizmo](#in-world-item-gizmo)
 [LaunchProjectileOptions](#projectile-launcher-gizmo)
 [LayerType](#raycast-gizmo)
@@ -6807,7 +6887,7 @@ PlayAnimationOptions
 [Player](#players)
 [PlayerBodyPart](#player-body-parts)
 [PlayerBodyPartType](#player-body-parts)
-PlayerDeviceType
+[PlayerDeviceType](#identifying-players)
 [PlayerHand](#player-body-parts)
 [PlayerControls](#player-controls)
 PlayerControlsConnectOptions
@@ -6816,7 +6896,7 @@ PlayerInputAction
 PlayerInputStateChangeCallback
 [PlayerRaycastHit](#raycast-gizmo)
 [PlayerVisibilityMode](#entity-visibility)
-[PopupOptions](#tooltips-and-popups)
+[PopupOptions](#popups)
 [ProjectileLauncherGizmo](#projectile-launcher-gizmo)
 [PropTypes](#proptypes)
 [Quaternion](#quaternion)
@@ -6841,9 +6921,9 @@ StopAnimationOptions
 [TextGizmo](#text-gizmo)
 [TextureAsset](#texture-asset)
 [ThrowOptions](#throwing)
-[TooltipAnchorLocation](#tooltips-and-popups)
-[TooltipLineAttachmentProperties](#tooltips-and-popups)
-[TooltipOptions](#tooltips-and-popups)
+[TooltipAnchorLocation](#tooltips)
+[TooltipLineAttachmentProperties](#tooltips)
+[TooltipOptions](#tooltips)
 [TrailGizmo](#trailfx-gizmo)
 [Transform](#transforms)
 [TriggerGizmo](#trigger-gizmo)
