@@ -77,7 +77,7 @@
     17. [Raycast Gizmo](#raycast-gizmo)
     18. [Script Gizmo](#script-gizmo)
     19. [Snap Destination Gizmo](#snap-destination-gizmo)
-    20. [Sound Gizmos](#sound-gizmos)
+    20. [Sound Gizmo](#sound-gizmo)
     21. [Spawn Point Gizmo](#spawn-point-gizmo)
     22. [Static Light Gizmo](#static-light-gizmo)
     23. [Sublevel Gizmo](#sublevel-gizmo)
@@ -92,12 +92,19 @@
         1. [Trigger Collisions](#trigger-collisions)
     26. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
 7. [Assets](#assets)
-    1. [Mesh Asset](#mesh-asset)
-        1. [Mesh Style](#mesh-style)
-    2. [Data Asset (Text and JSON)](#data-asset-text-and-json)
-    3. [Texture Asset](#texture-asset)
-    4. [Material Asset](#material-asset)
-    5. [Asset Template](#asset-template)
+    1. [Creating Assets](#creating-assets)
+    2. [Managing Assets](#managing-assets)
+    3. [Referencing Assets (Props and IDs)](#referencing-assets-props-and-ids)
+    4. [3D Model Asset](#3d-model-asset)
+        1. [MeshEntity Class](#meshentity-class)
+        2. [Mesh Entity Style](#mesh-entity-style)
+    5. [Mesh Asset](#mesh-asset)
+    6. [Texture Asset](#texture-asset)
+    7. [Material Asset](#material-asset)
+    8. [Audio Asset](#audio-asset)
+    9. [Text Asset (JSON)](#text-asset-json)
+    10. [Template Asset](#template-asset)
+    11. [Legacy Asset Group](#legacy-asset-group)
 8. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-1)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -174,9 +181,9 @@
         1. [FBS Script Ids](#fbs-script-ids)
             1. [Branched world development source control workflow issues](#branched-world-development-source-control-workflow-issues)
         2. [Converting to FBS](#converting-to-fbs)
-        3. [Typescript scripts workflow](#typescript-scripts-workflow)
+        3. [Typescript Scripts Workflow](#typescript-scripts-workflow)
         4. [Codeblock Scripts workflow](#codeblock-scripts-workflow)
-        5. [Asset Templates](#asset-templates)
+        5. [Scripts and Template Assets](#scripts-and-template-assets)
     11. [Script File Execution](#script-file-execution)
     12. [Script Execution Timing](#script-execution-timing)
     13. [Scripting Helper Functions](#scripting-helper-functions)
@@ -437,7 +444,7 @@ The **owner** is the person who [created the world](#creating-a-world). Once a w
 
 ## Cloning a World
 
-World owners can clone a world. This creates a new one with a different ID than the original. The scene configuration and scripting will be completely independent than the original one, with the exception of asset templates and FBS scripts.
+World owners can clone a world. This creates a new one with a different ID than the original. The scene configuration and scripting will be completely independent than the original one, with the exception of [template assets](#template-asset) and FBS scripts.
 
 To Clone a world:
 1. Open the Desktop Editor and wait for the Creation Home to load. If you are already inside a world, navigate back to the Creation Home by clicking the sandwich menu (the 3 horizontal lines on the upper left corner), and select Return to Creation Home.
@@ -1009,11 +1016,11 @@ Entities are represented by the [Entity class](#entity-class). They have an [int
 
 ## Entity Types
 
-Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-types)** determined by how the entity was originally created (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [Mesh Asset](#mesh-assets), etc).
+Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-types)** determined by how the entity was originally created (e.g. whether you instantiated a [Sound Gizmo](#sound-gizmo), [Text Gizmo](#text-gizmo), [3D Model](#3d-model-asset), etc).
 
 Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-and-holding-entities), [attachable](#attaching-entities), etc).
 
-For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-asset) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
+For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-entity) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
 ### Static vs Dynamic Entities
 
@@ -1035,7 +1042,7 @@ The table below lists all intrinsic types, which are subclasses of `Entity`. Not
 The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
 [Intrinsic entity types](#intrinsic-entity-types) are organized in the desktop editor into a few top-level categories:
-* **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#mesh-asset).
+* **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#mesh-entity).
 * **Gizmos**: entities that have in-world behavior (such as for spawning a player at a location, showing UI, rendering a particle effect, launching a projectile, and so much more). These are all listed in the [table below](#intrinsic-entity-types) and enumerated in full detail [below](#all-gizmos-intrinsic-entity-types).
 * **Colliders**: mesh-less entities that still have [a "shape" that can be collided with](#collider-gizmo) (such as sphere, cube, and capsule). It's type is just `Entity`.
 * **Sounds**: a large library of pre-made sound effects; you can also create more using the AI sound feature. These all instantiate [sounds gizmos](#sound-gizmo) (which have the type `AudioGizmo`).
@@ -1183,7 +1190,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | up | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive y-axis](#local-transforms). |
 | right | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive x-axis](#local-transforms). |
 | **Rendering** |
-| color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-asset) use [tinting](#tinting). |
+| color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-entity) use [tinting](#tinting). |
 | visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
 | **[Behavior](#interactive-entities)** |
 | [collidable](#colliders) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#active-colliders). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
@@ -1314,7 +1321,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Group](#empty-object-and-groups) | `Entity` |
 | [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
 | [Media Board](#media-board-gizmo) | `Entity` |
-| [Mesh](#mesh-asset) | `MeshEntity` |
+| [Mesh](#mesh-entity) | `MeshEntity` |
 | [Mirror](#mirror-gizmo) | `Entity` |
 | [Navigation Volume](#navigation-volume-Gizmo) | `Entity` |
 | [NPC](#npc-gizmo) | `AIAgentGizmo` |
@@ -1325,7 +1332,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Script](#script-gizmo) | `Entity` |
 | [Snap Destination](#snap-destination-gizmo) | `Entity` |
 | [Sound](#sound-gizmo) | `AudioGizmo` |
-| [Sound Recorder](#sound-gizmos) | `AudioGizmo` |
+| [Sound Recorder](#sound-gizmo) | `AudioGizmo` |
 | [Spawn Point](#spawn-point-gizmo) | `SpawnPointGizmo` |
 | [Static Light](#static-light-gizmo) | `Entity` |
 | [Sphere Collider](#collider-gizmo) | `Entity` |
@@ -1771,7 +1778,7 @@ In the desktop editor, using Typescript scripts, the Script Gizmo doesn't provid
 
 **Typescript**: Snap Destination Gizmos are referenced as the `Entity` class (with no special methods).
 
-## Sound Gizmos
+## Sound Gizmo
 **Description**: Sound Recorders allow you to record audio for playback, but that's not the only type of audio gizmo in Horizon.
 We have 3 different types:
 - `Sound Recorder` found in the Gizmo menu. Lets creators record up to 20 minutes of their own audio.
@@ -2037,7 +2044,7 @@ When a player-related collider enters/leaves a trigger set to [detect players](#
 
 **Entities**
 
-When an entity-related collider (from a [mesh](#mesh-asset) or a [collider gizmo](#collider-gizmo)) enters/leaves a trigger set to [detect objects](#trigger-gizmo) Horizon will check to see if that entity has the matching tag; if so, it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo)event *to the trigger* with that entity. But then it also looks at every entity in the [ancestor chain](#ancestors) to see if any of those also have the tag. The event will get sent to the trigger for *all* entities in the ancestor chain that have the tag. This means that **when a group enters a trigger, the group *and* its children can cause `OnEntityEnterTrigger` events* as long as they have the right tags.
+When an entity-related collider (from a [mesh](#mesh-entity) or a [collider gizmo](#collider-gizmo)) enters/leaves a trigger set to [detect objects](#trigger-gizmo) Horizon will check to see if that entity has the matching tag; if so, it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo)event *to the trigger* with that entity. But then it also looks at every entity in the [ancestor chain](#ancestors) to see if any of those also have the tag. The event will get sent to the trigger for *all* entities in the ancestor chain that have the tag. This means that **when a group enters a trigger, the group *and* its children can cause `OnEntityEnterTrigger` events* as long as they have the right tags.
 
 When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to see if the trigger was previously unoccupied; if so, then the "secret" [occupied](#trigger-gizmo) is also sent to the trigger. Likewise, if this is an `OnEntityExitTrigger` event and the trigger is now unoccupied, then the "secret" [empty](#trigger-gizmo) event is also sent to the trigger.
 
@@ -2046,74 +2053,204 @@ When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to
 
 # Assets
 
-<mark>TODO</mark> need some kind of "collection asset" when you select items and make an asset (separate from an Asset Template)
+**Assets** represent data that can be created and used in a world.
+
+**Assets never contain actual entities**. Instead, assets contain *data* such as a texture, text, mesh, or audio. Some asset types ([Template Assets](#template-asset) and [Legacy Asset Groups](#legacy-asset-group)) contain *instructions on how to create entities*. An asset may represent "a [grabbable](#grabbing-and-holding-entities) blue cone with a [script attached](#attaching-components-to-entities)". When you drag that asset out of the Assets panel (or [spawn](#spawning) the asset) it will create a new instance of a blue cone [MeshEntity](#meshentity-class) with the correct properties applied and script attached. You could drag out the asset again and get another new entity. When an asset is "dragged out" of the assets panel, we say the entities are **instantiated (from the asset)**. When an assets is spawned, we say the entities are **spawned (from the asset)**.
+
+**Asset types**: There are various types of assets that are split into two categories:
+* **Entity Asset Typse**: Assets that are used to *create (configured) entities*.
+* **Data Asset Types**: Assets that *provide data* (most of which are used to modify a [MeshEntity](#meshentity-class)).
+
+Note: [3D Model](#3d-model-asset) is in both groups (although it can only be used as data, as a mesh, when there is exactly 1 mesh in the asset).
+
+| Entity Asset Type | Entities Created<br/>([spawning](#spawning) or in-editor) | Where to [Create](#creating-assets) |
+|---|---|---|
+| [3D Model](#3d-model-asset) | [MeshEntity](#mesh-entity)<br/>or<br/>[Empty Object](#empty-object-and-groups) (with [MeshEntity](#mesh-entity) children) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+| [Audio](#audio-asset) | [Sound Gizmo](#sound-gizmo) | Gen AI |
+| [Legacy Group](#legacy-asset-group) | Array of [Entity](#entities) | Right-click then "Create Asset" |
+| [Template](#template-asset) | Array of [Entity](#entities) | Right-click then "Create Asset" |
+
+| Data Asset Type | How to apply at runtime | Where to [Create](#creating-assets) |
+|---|---|---|
+| Single Mesh [3D Model](#3d-model-asset) | Use [setMesh](#mesh-asset) on a [MeshEntity](#entities) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+| [Material](#material-asset) | Use [setMaterial](#material-asset) on a [MeshEntity](#entities) | Assets panel |
+| [Text](#text-asset-json) | Use [fetchAsData](#text-asset-json) on an `Asset` | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+| [Texture](#texture-asset) | Use [setTexture](#texture-asset) on a [MeshEntity](#entities) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+
+## Creating Assets
+
+In the Desktop editor there is the "Assets" panel. In this panel you can view, organize, edit, delete, and create assets.
+
+**Create an asset in the Assets panel**: In the assets panel of the desktop editor click "Add New" and then choose from the dropdown. Here you can upload a [3D Model](#3d-model-asset), [Material](#material-asset), [Texture](#texture-asset), or [Text](#text-asset-json). You can also create a folder here to help manage all your assets.
+
+**Upload to the (web) Creator Portal**: Go the the [Creator Portal](https://horizon.meta.com/creator/assets/) in a browser and select "Import". From there you can upload a [3D Model Assets](#3d-model-asset), [Texture Assets](#texture-asset), or [Text Assets](#text-asset-json).
+
+**Create Asset from Editor Selection**: In the desktop editor, select some entities and then right-click. One of the options is "Create Asset". This is where to create [Template Assets](#template-asset) and [Legacy Asset Groups](#legacy-asset-group).
+
+## Managing Assets
+
+In the Assets panel and the [Creator Portal](https://horizon.meta.com/creator/assets/) you can edit assets, remove assets, create asset folders, move assets into asset folders, and so on.
+
+**Sharing folders**: Shared folders make collaborating much easier. To share a folder go to the [Creator Portal](https://horizon.meta.com/creator/assets/), navigate to the folder, and click "Share". You can manage who the folder is shared with. Shared folders appear in the "Assets Panel" under the section "Shared With Me".
+
+!!! warning Assets can be shared across worlds
+    Using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
+
+## Referencing Assets (Props and IDs)
+
+You need an instance of the `Asset` class in order to [spawn](#spawning), fetch [text data](#text-asset-json), or [modify the material/mesh/style/texture on a mesh](#meshentity-class). There are two ways to get an instance of `Asset`:
+1. **Props**: Create a [Component property](#component-properties) with type `PropTypes.Asset` and then when the script is [attached to an entity](#attaching-components-to-entities) you can drag the asset from the Assets panel into the property slot in the Properties panel.
+1. **Direct Allocation**: You can call `new Asset` with the asset id (which you can find by clicking on an asset in the Assets panel). The constructor takes an optional second argument if you want to instance a specific *version* of the asset (you can also find version ids when clicking on an asset and clicking "Version History"). Horizon **does not support JavaScript bigint notation** so you have to create a `bigint` from a `string`. So, you might instantiate an asset like:
+      ```ts
+      const myAsset = new Asset(BigInt("10000"))
+      ```
+
+      If you don't want the latest version you can do:
+      ```ts
+      const myAsset = new Asset(BigInt("10000"), BigInt("1"))
+      ```
+
+## 3D Model Asset
+
+A 3D Model Asset is 1, or many, 3D meshes with associated materials (and possibly textures).
+* **1 Mesh**: When a 3D Model Asset is 1 mesh, it will instantiate/[spawn](#spawning) as a single [MeshEntity](#meshentity-class).
+* **Multiple Meshes**: When a 3D Model Asset has more than 1 mesh, it will instantiate/[spawn](#spawning) as an [Empty Object](#empty-object-and-groups) containing an array children (each of which is a [MeshEntity](#meshentity-class)).
+
+### MeshEntity Class
+
+Every [Entity](#entities) that has a 3D mesh (including the built-in "CMI Primitives") can be used [as](#entity-as-method) a `MeshEntity`. You can then make scripting changes to the mesh, its material, its texture, or tint it.
+
+| `MeshEntity` Class Member | Description |
+|---|---|
+| [setMaterial](#material-asset) | Change a material |
+| [setTexture](#texture-asset) | Change the texture  |
+| [setMesh](#mesh-asset) | Change the mesh |
+| [style](#mesh-entity-style) | Change the tint color, tint strength, and overall brightness on the material |
+
+### Mesh Entity Style
+
+The [MeshEntity class](#meshentity-class) has a property `style` of type `EntityStyle`. You can use it for tweaking the visual presentation of the `MeshEntity`.
+
+**The `style` property only works if the `MeshEntity` has a *texture***. So, for example, a VXC (vertex-lit) material cannot have its style modified.
+
+`EntityStyle` has a few [read-write Horizon properties](#horizon-properties):
+
+| `EntityStyle` read-write Horizon property | Type | Default | Notes |
+|---|---|---|---|
+| `brightness` | `number`<br/><nobr>(`0` to `100`)</nobr> | `1` | Luminance adjustment.<nobr><ul><li>`0` is black</li><li>`1` is no change</li><li>`100` is very bright</li></ul></nobr> |
+| `tintColor` | [Color](#color) | white `(1,1,1)` | A color to mix into the base color. |
+| `tintStrength` | `number`<br/><nobr>(`0` to `1`)</nobr> | `0` | The amount to mix `tintColor` into the base color..<nobr><ul><li>`0` is no tint</li><li>`1` is fully tinted</li></ul></nobr> |
+
+**Mesh Style Equation**: When Horizon is rendering a pixel on a textured [MeshEntity](#meshentity-class), it computes a color (by looking up a pixel in the texture, a "texel"). Call that the `baseColor` is then augments that color by the equation (these are not all real functions in Horizon):
+```ts
+colorLerp(
+  baseColor,
+  tintColor.mul(luminance(baseColor)),
+  tintStrength
+).mul(brightness)
+```
+where `luminance` gets the brightness of the texel color and `colorLerp` acts just like [Vec3 lerp](#vector-linear-interpolation-lerp).
 
 ## Mesh Asset
 
-type SetTextureOptions = {
-    players?: Array<Player>;
-};
-
-type SetMaterialOptions = {
-    materialSlot?: number | string;
-}
+<mark>TODO</mark>
 
 type SetMeshOptions = {
     updateMaterial?: boolean;
 };
-
-class MeshEntity extends Entity {
-    style: EntityStyle;
-
-    setTexture(texture: TextureAsset, options?: SetTextureOptions): Promise<void>;
-
-    setMesh(mesh: Asset, options: SetMeshOptions): Promise<void>;
-
-    setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
-}
-
-### Mesh Style
-
-interface EntityStyle {
-    /**
-     * @example
-     * ```
-     * // Augment base color as such:
-     *
-     * outColor.rgb = lerp(inColor.rgb, Luminance(inColor.rgb) * tintColor, tintStrength) * brightness;
-     * ```
-     */
-    /**
-     * Color in the RGB range of 0 - 1; defaults to 1, 1, 1 (no tint color).
-     */
-    tintColor: HorizonProperty<Color>;
-    /**
-     * Tint strength in the range of 0 - 1; where 0 is no tint and 1 is fully tinted; defaults to 0.
-     */
-    tintStrength: HorizonProperty<number>;
-    /**
-     * Brightness in the range of 0 - 100; where 0 is black, 1 is no adjustment, and 100 is very bright; defaults to 1.
-     */
-    brightness: HorizonProperty<number>;
-}
-
-## Data Asset (Text and JSON)
-```ts
-DefaultFetchAsDataOptions:false
-type FetchAsDataOptions = {
-    skipCache: boolean;
-};
-fetchAsData(options?: Partial<FetchAsDataOptions>): Promise<AssetContentData>;
-```
+// MeshEntity
+setMesh(mesh: Asset, options: SetMeshOptions): Promise<void>;
 
 ## Texture Asset
 
+<mark>TODO</mark>
+
+type SetTextureOptions = {
+    players?: Array<Player>;
+};
+// MeshEntity
+setTexture(texture: TextureAsset, options?: SetTextureOptions): Promise<void>;
+
 ## Material Asset
 
-## Asset Template
+<mark>TODO</mark>
+
+type SetMaterialOptions = {
+    materialSlot?: number | string;
+}
+// MeshEntity
+setMaterial(materialAsset: MaterialAsset, options?: SetMaterialOptions): Promise<void>;
+
+**Description**:
+
+**Creation**:
+
+**Usage**:
+
+## Audio Asset
+
+**Description**: Audio assets created [Sound Gizmos](#sound-gizmo) when instantiated or spawned.
+
+**Creation**: The only way to create an Audio Asset is to use the *Gen AI* feature in the Desktop editor. Note that currently **the GenAI feature is not available to all creators**.
+
+**Usage**: Instantiate or [spawn](#spawning) the asset. Usage is then the same as a [Sound Gizmo](#sound-gizmo).
+
+## Text Asset (JSON)
+
+**Description**: Text Assets make it easy store (and version) `string` or [JSON](https://en.wikipedia.org/wiki/JSON) data. You could also paste the data into a TypeScript file, but Text Assets make it much easier to manage, share, version, etc.
+
+**Creation**: To create a text asset go to the Assets panel and click "Add New" or go to the [Creator Portal](https://horizon.meta.com/creator/) and click "Import".
+
+**Usage**: To use a text asset, first get it [as an Asset instance](#referencing-assets-props-and-ids). Then call `fetchAsData` on it:
+
+```ts
+// Asset
+fetchAsData(
+  options?: Partial<FetchAsDataOptions>
+): Promise<AssetContentData>;
+```
+
+**fetchasData options**: The optional `options` parameter in `fetchAsData` lets you specify if you want to "skip the cache":
+```ts
+type FetchAsDataOptions = {
+  skipCache: boolean;
+};
+```
+
+Skipping the caches means to fetch the latest data from the servers. If you don't provide the options then `skipCache=false` is used. Regularly fetching data with `skipCache=true` can greatly degrade the performance of your world.
+
+**fetchAsData return type**: The `fetchAsData` function returns `Promise<AssetContentData>`. The `AssetContentData` class has two relevant methods:
+
+```ts
+// AssetContentData
+asText(): string
+asJSON<T = JSON>(): T | null
+```
+
+The `asText` method will return the JSON serialized (e.g. as if with [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)).
+
+The `asJSON` method returns `null` if the the asset is not a text asset with JSON. Otherwise it returns the JSON data casted to the type `T`. **`asJson()` does no work to ensure that the data is compatible with the type `T`**. You should do runtime checks to ensure that the data has the right structure before using it. We recommend included a type "tag" and version number in the JSON if possible, to ease these checks. This is the same advice we give for [persistent object data](#persistent-variable-object-data). See that section for more details on our advice.
+
+## Template Asset
+
+<mark>TODO</mark>
+
+Similar to [Prefabs in Unity](https://docs.unity3d.com/Manual/Prefabs.html). Allows for publishing, versioning, and local editing/overriding
 
 E.g. only root-level properties and scripts are maintained in an update.
 You CAN nest.
+
+## Legacy Asset Group
+
+**⚠️ Recommendation: do not use**. [Template Assets](#template-asset) support all the same functionality and more (hence the *"legacy"* part).
+
+**Description**: A *Legacy Asset Group* represents a collection of entities, property settings, and/or scripts. Unlike [Template Assets](#template-asset), they do not allow you to automatically update all instances whenever you make an edit.
+
+**Creation**: To create a legacy asset group, select some assets in the Desktop Editor and then right-click. The dropdown will include the "Create Asset" option. In the dialogue that appears, change "Asset Type" to "Legacy Asset Group".
+
+**Instantiation**: You can drag a legacy asset group out from the Assets panel and into the world to instantiate its contents.
+
+**Spawning**: If you [spawn](#spawning) a legacy asset group into a world, the entities will be in the array in the same order that you selected the entities when you made the asset. The first entity you select, when making the asset, becomes the **root entity**.
 
 # Custom Model Import
 
@@ -2312,7 +2449,7 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 | [World](#world-class) | Information and methods related to the current [instance](#instance). |
 | [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types) available via [entity.as()](#entity-as-method). |
 | [Player](#players) | A [player](#players) in the world ([instance](#instances)), including the "[server player](#server-player)" and [NPC players](#npc-gizmo). |
-| [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#data-asset), [textures](#textures), and ["prefabs"](#asset-template)). |
+| [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#text-asset-json), [textures](#textures), and ["prefabs"](#template-asset)). |
 | [Vec3](#vec3) | A "3D quantity" which can be used to represent [position](#position), [velocity, acceleration, force, torque](#physics), [scale](#scale), and more. |
 | [Quaternion](#quaternion) | An abstract mathematical object primarily used for representing *rotations*. |
 | [Color](#color) | An RGB Color with each component between 0 and 1. |
@@ -3773,9 +3910,9 @@ FBS are 'production ready' and used by many high profile worlds. The legacy gizm
 | Scripted Assets | Duplicates scripts when spawned (with a generic "Script" name with auto-appended digits if the script already exists or spawns more than once) | Share single script when spawned |
 | Scripted Assets | Assets must include referenced Component scripts | Referenced Component scripts are automatically added to the world (*see note below on asset module references) |
 | Cross-World Updates | Not possible, as script data is tied to one world | The latest updates to script data is seen in all worlds referencing the script |
-| Cloned Worlds | Scripts in cloned world have no link to script data in original world | Scripts in cloned world are linked to the same script data as the original world |
+| [Cloned Worlds](#cloning-a-world) | Scripts in cloned world have no link to script data in original world | Scripts in cloned world are linked to the same script data as the original world |
 | Versioning | Not supported | The script data is versioned (tho versions are not directly accessible) |
-| Use in Asset Templates | Not advised | Fully supported (and strongly advised) |
+| Use in [Template Assets](#template-asset) | Not advised | Fully supported (and strongly advised) |
 | In-Scene Gizmo | Requires an in-screen script gizmo to store the script data | In-scene gizmos are optional |
 | In-Scene Gizmo | Each in-scene gizmo has distinct script data | Multiple in-scene gizmos can be aliases to the same script data |
 
@@ -3783,10 +3920,10 @@ FBS are 'production ready' and used by many high profile worlds. The legacy gizm
     While spawned assets will automatically import the FBS script containing Components directly referenced by Entities in the asset, they will _not_ do a transitive closure of all _modules_ imported by that Component's script. You will need to ensure that the scripts for those modules are _already_ in the destination world, or you will need to manually include the script gizmos for those modules in the asset definition. Otherwise, you will get a runtime compilation error during initialization of the spawned asset.
 
 !!! note Assets reference a frozen version of FBS script data
-    When you create an asset, it locks in a version of the FBS script data at the time of creation. If you later want to update the script version used by the asset, you will need to re-create or update them to get a later script version. Using asset templates helps with this.
+    When you create an asset, it locks in a version of the FBS script data at the time of creation. If you later want to update the script version used by the asset, you will need to re-create or update them to get a later script version. Using [template assets](#template-asset) helps with this.
 
 !!! warning Avoid sharing FBS scripts with untrusted partners
-    As FBS in different worlds all reference and edit the same back end script data, make sure that you are sharing FBS script references only with people you trust. Any edits they make in copies of the FBS will be reflected in all instances of the FBS in all worlds.  Using asset templates can limit automatic updates to published changes which must be accepted into other worlds.
+    As FBS in different worlds all reference and edit the same back end script data, make sure that you are sharing FBS script references only with people you trust. Any edits they make in copies of the FBS will be reflected in all instances of the FBS in all worlds.  Using [template assets](#template-asset) can limit automatic updates to published changes which must be accepted into other worlds.
 
 !!! danger Do not mix assets with FBS and Gizmo-Backed Scripts in the same world
     If you spawn assets with FBS and Gizmo-Backed Scripts into the same world, you can get into very weird situations where it is unclear which script you are editing/referencing. The desktop editor seems to refuse to allow mixing at build time, but runtime spawning may not.
@@ -3821,7 +3958,7 @@ If you did this in the other order (merging the source code to the main world be
 
 ### Converting to FBS
 
-To convert your world to FBS, go to the Script settings (gear under </> menu) in the desktop editor, go to the File Backed Scripts section, and if it says "Update Available" click the 'Review' button to read about the ramification, and click Update schedule a pending conversion. Then click Apply to start the conversion. Depending on the size and number of legacy Gizmo-Backed Scripts in your world, it can take some time to convert them all, and a progress meter is available in Script settings if curious.
+To convert your world to FBS, go to the Script settings (gear under <pre><code></></code></pre> menu) in the desktop editor, go to the File Backed Scripts section, and if it says "Update Available" click the 'Review' button to read about the ramification, and click Update schedule a pending conversion. Then click Apply to start the conversion. Depending on the size and number of legacy Gizmo-Backed Scripts in your world, it can take some time to convert them all, and a progress meter is available in Script settings if curious.
 
 !!! info
     Though documented, a way of converting to FBS seems no longer available in the VR editor.
@@ -3831,9 +3968,9 @@ To convert your world to FBS, go to the Script settings (gear under </> menu) in
 
 Be aware that after updating to FBS, you will also need to update all assets that were being used in the world to also have FBS scripts.  Assets will not update to FBS scripts automatically.
 
-### Typescript scripts workflow
+### Typescript Scripts Workflow
 
-Using FBS is largely seamless to the typescript workflow, as most edits to the scripts are done via the external editor (e.g. VSCode) without regard to in-world script gizmo entities. In fact, as new typescript scripts tend to pile up at the world at the origin (0, 0, 0), it can clean up your visual view by just deleting all the gizmos from the world and relying on either the VSCode view or the Script </> menu in the desktop editor to find/manage them.
+Using FBS is largely seamless to the typescript workflow, as most edits to the scripts are done via the external editor (e.g. VSCode) without regard to in-world script gizmo entities. In fact, as new typescript scripts tend to pile up at the world at the origin (0, 0, 0), it can clean up your visual view by just deleting all the gizmos from the world and relying on either the VSCode view or the Script <pre><code></></code></pre> menu in the desktop editor to find/manage them.
 
 Note: you may need to add script gizmos for typescript FBS if you need to reference them as imported modules in any assets you create.
 
@@ -3847,9 +3984,9 @@ Using FBS with codeblocks can be a challenging experience, as editing script dat
 !!! bug Codeblock script updates are slow when using FBS
     Many creators report that edits to codeblock scripts in an FBS world take a long time to sync/update in the scripting UI, greatly slowing development speed.
 
-### Asset Templates
+### Scripts and Template Assets
 
-It is _highly_ advised to use FBS when using asset templates.  Asset templates have UI support for identifying when asset definition updates are needed because of version changes to FBS scripts, and for pulling in version updates of FBS scripts to worlds that have instantiated asset templates.
+It is _highly_ advised to use FBS when using [template assets](#template-asset). Template assets have UI support for identifying when asset definition updates are needed because of version changes to FBS scripts, and for pulling in version updates of FBS scripts to worlds that have instantiated template assets.
 
 ## Script File Execution
 
@@ -4135,7 +4272,7 @@ In order to create a component that transfers data during an [ownership transfer
 
 Collisions are used (under the hood) to drive [trigger events](#trigger-collisions) and to compute [raycasts](#raycast-gizmo). Additionally, [Interactive entities](#interactive-entities) can be configured to receive [collision events](#collision-events) whenever their collide.
 
-There are a number of nuances: collisions start with entities that have a [collider](#colliders) ([meshes](#mesh-asset) and [collider gizmos](#collider-gizmo)) and those colliders must be [active](#active-colliders) for a collision to occur. A number of these features involve [traversing up an ancestor chain to find an entity with a specific tag](#entity-tag-bubbling).
+There are a number of nuances: collisions start with entities that have a [collider](#colliders) ([meshes](#mesh-entity) and [collider gizmos](#collider-gizmo)) and those colliders must be [active](#active-colliders) for a collision to occur. A number of these features involve [traversing up an ancestor chain to find an entity with a specific tag](#entity-tag-bubbling).
 
 ## Collision Events
 
@@ -4159,7 +4296,7 @@ The parameters for both events are:
 | `normal` | [Vec3](#vec3) | The [surface normal](#https://en.wikipedia.org/wiki/Normal_(geometry)) at the position `collidedAt` on `collidedWith`. |
 | `relativeVelocity` | [Vec3](#vec3) | The global velocity of `entity` compared to `collidedWith` (which you can use to see how "hard the hit" was). |
 | `localColliderName` | `string` | The *name* of first "leaf-level" collider involved in the collision. |
-| `otherColliderName` | `string` |  The *name* of second "leaf-level" collider involved in the collision. This could be a [player body part](#player-body-parts) (`"Head"`, `"LegCollider"`, `"Torso"`) if the entity is configured for collision events from players. Note that VR players have many colliders on their hands ( `"LeftPalm"`, `"LeftThumbMid"`, `"LeftThumbTip"`, `"LeftIndexFingerBase"`, `"LeftIndexFingerTip"`, `"LeftOtherFingersBase"`, `"LeftOtherFingersTip"`, and similar for the right hand). **Non-VR players do not have colliders on their hands**. |
+| `otherColliderName` | `string` |  The *name* of second "leaf-level" collider involved in the collision. This could be a [player body part](#player-body-parts) (`"Head"`, `"LegCollider"`, `"Torso"`) if the entity is configured for collision events from players. Note that VR players have many colliders on their hands ( `"LeftPalm"`, `"LeftThumbMid"`, `"LeftThumbTip"`, `"LeftIndexFingerBase"`, `"LeftIndexFingerTip"`, `"LeftOtherFingersBase"`, `"LeftOtherFingersTip"`, and similar for the right hand). **Mobile/Web players do not have colliders on their hands**. |
 
 **Collider Names**: If a group containing a cube collides with a player's left hand, then the the `localColliderName` will be the name of the cube and `otherColliderName` will be the name of the
 
@@ -4223,11 +4360,11 @@ function tryOneSidedCollision(
 
 ## Colliders
 
-**Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exists on [mesh entities](#mesh-asset), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
+**Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exists on [mesh entities](#mesh-entity), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
 
 **Colliders (not meshes) drive [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycast-gizmo)** but only if they are [active](#active-colliders).
 
-When a cube enters a trigger, the trigger detects its *collider* (which is shaped like a cube). When a player's head enters a trigger, the trigger detects' the heads *collider* (which is roughly sphere-shaped and has less resolution than the actual avatar head!). When two spheres collide and bounce off one another (with [physics](#physics)), it was actually their colliders (which are spheres) that collided. All of the built-in custom model primitives have built-in colliders already. **When you import your own [meshes](#mesh-asset), Horizon uses the *meshes* to generate the colliders**. At times it makes sense to [separate out the collider](#separating-a-collider-from-a-mesh) to improve performance (don't pre-optimize this until you actually have a performance problem!).
+When a cube enters a trigger, the trigger detects its *collider* (which is shaped like a cube). When a player's head enters a trigger, the trigger detects' the heads *collider* (which is roughly sphere-shaped and has less resolution than the actual avatar head!). When two spheres collide and bounce off one another (with [physics](#physics)), it was actually their colliders (which are spheres) that collided. All of the built-in custom model primitives have built-in colliders already. **When you import your own [3D models](#3d-model-asset), Horizon uses the *meshes* to generate the colliders**. At times it makes sense to [separate out the collider](#separating-a-collider-from-a-mesh) to improve performance (don't pre-optimize this until you actually have a performance problem!).
 
 ### Active Colliders
 
@@ -4248,7 +4385,7 @@ Regarding #3, *occlusion is often from a specific direction*. Example: if you wa
 
 ### Separating a Collider from a Mesh
 
-**For performance reasons a mesh may want to have a collider with less detail than the actual mesh**. Avatars do this. When you import your own [meshes](#mesh-asset), you can disable **collidability** and use [collider gizmos](#collider-gizmo) to approximate the shape instead.
+**For performance reasons a mesh may want to have a collider with less detail than the actual mesh**. Avatars do this. When you import your own [3D models](#3d-model-asset), you can disable **collidability** and use [collider gizmos](#collider-gizmo) to approximate the shape instead.
 
 You shouldn't try separating out colliders unless:
   * you are experienced in doing so
@@ -4613,7 +4750,7 @@ The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in 
 | [unfocusUI](#custom-ui) | Exit a player from the UI they are focused on |
 | **Aim Assist** |
 | [clearAimAssistTarget](#aim-assist) | Remove the aim-assist target |
-| [setAimAssistTarget](#aim-assist) | Configure a non-VR's cursor to be attracted to a given target |
+| [setAimAssistTarget](#aim-assist) | Configure a Mobile/Web player's cursor to be attracted to a given target |
 | **Voip** |
 | [setVoipSetting](#voip-settings) | Configure who can hear the player |
 
@@ -4681,8 +4818,19 @@ Note that since `getPlayers` returns both human and [NPC](#npc-gizmo) players yo
 
 ```ts
 const humanPlayers = this.world.getPlayers().filter(
-  p => getPlayerType(p) === 'human'
+  p => getPlayerType(p, this.world) === 'human'
 )
+```
+
+When a [player leaves](#player-entering-and-exiting-a-world), they `Player` instance is no long in the `getPlayers()` array. So you can also use this helper:
+
+```ts
+import { Player, World } from 'horizon/core'
+
+function isPlayerInWorld(player: Player, world: World) {
+  return world.getPlayers().includes(player) &&
+    !player.isInBuildMode.get()
+}
 ```
 
 ### Checking Human vs NPC vs Server
@@ -4690,14 +4838,21 @@ const humanPlayers = this.world.getPlayers().filter(
 Human players and [NPC](#npc-gizmo) players both use the `Player` class. You can use the function below to detect the type of a player:
 
 ```ts
+import { Player, World } from 'horizon/core'
 import { AvatarAIAgent } from 'horizon/avatar_ai_agent'
 
-function getPlayerType(player: Player, world: World) : 'human' | 'npc' | 'server' {
-  if (AvatarAIAgent.getGizmoFromPlayer(player) !== undefined) {
-    return 'npc'
-  } else if (player === world.getServerPlayer()) {
+type PlayerType = 'human' | 'npc' | 'server' | 'builder' | 'departed'
+
+function getPlayerType(player: Player, world: World) : PlayerType {
+  if (player === world.getServerPlayer()) {
     return 'server'
-  } else {
+  } else if (!this.getPlayers().includes(player)) {
+    return 'departed'
+  } else if (player.isInBuildMode.get()) {
+    return 'builder'
+  } else if (AvatarAIAgent.getGizmoFromPlayer(player) !== undefined) {
+    return 'npc'
+  } else else {
     return 'human'
   }
 }
@@ -4750,7 +4905,9 @@ for determining which `Player`'s device the current script is running one. This 
 
 When a player (human or [NPC](#npc-gizmo)) enters an [instance](#instances) they are assigned a [player id](#player-id) and a [player index](#player-indices). The [built-in CodeBlockEvent](#built-in-code-block-events) `OnPlayerEnterWorld` is then sent to all [component instances](#component-class) that have [registered to receive](#receiving-events) to it. Likewise `OnPlayerEnterWorld` is [broadcast](#built-in-broadcasted-code-block-events) when a player leaves the instance.
 
-Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any [server-owned](#entity-ownership) entity to receive them.
+**Is in World**: You can check if a `Player` instance is (still) in the world by using the [isPlayerInWorld helper function](#listing-all-players).
+
+**CodeBlockEvents**: Both events in the table below are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any [server-owned](#entity-ownership) entity to receive them.
 
 | [Built-In CodeBlockEvent](#built-in-code-block-events) | Parameter(s) | Description  |
 |---|---|---|
@@ -4816,7 +4973,7 @@ See the [diagram in the player enter / exit section](#player-entering-and-exitin
 
 ## Player Locomotion
 
-A VR player locomotes (moves the avatar) using their controllers. A non-VR player locomotes via mouse and keyboard or via on-screen controls. These inputs are applied during the [simulation phase](#simulation-phase) of each frame. You can also "take over" and override the inputs using [player controls](#player-controls).
+A VR player locomotes (moves the avatar) using their controllers. A Mobile/Web player locomotes via mouse and keyboard or via on-screen controls. These inputs are applied during the [simulation phase](#simulation-phase) of each frame. You can also "take over" and override the inputs using [player controls](#player-controls).
 
 The table below shows some methods related to player locomotion. There are additional ways to interact with player movement in [player physics](#player-physics).
 
@@ -4875,10 +5032,10 @@ Additionally, `PlayerHand` has the method `playHaptics` which is used to [make a
 
 ## Player Pose
 
-For non-VR players, it is possible to activate or deactivate an avatar pose through scripting or through the configuration of grabbable items.
+For Mobile/Web players, it is possible to activate or deactivate an avatar pose through scripting or through the configuration of grabbable items.
 
 ### Grip Pose
-Grip poses allow for a easy avatar configuration, activating as soon as the non-VR player grabs an entity (pistol, sword, etc). These poses do not require any scripting and in most cases have a secondary animation (recoil, attack sword motion, etc) which activate when the player presses the action button (Left mouse click on PC and onscreen button for mobile).
+Grip poses allow for a easy avatar configuration, activating as soon as the Mobile/Web player grabs an entity (pistol, sword, etc). These poses do not require any scripting and in most cases have a secondary animation (recoil, attack sword motion, etc) which activate when the player presses the action button (Left mouse click on PC and onscreen button for mobile).
 
 To configure a pose animation through on a [grabbable entity](#grabbing-and-holding-entities):
 1. Click on the entity in the desktop editor to open its properties.
@@ -4888,7 +5045,7 @@ To configure a pose animation through on a [grabbable entity](#grabbing-and-hold
 To test the selection, enter preview mode and grab the object. Observe how the avatar chances its pose. Press the action button and observe the secondary animation.
 
 ### Scripted Grip Pose
-Scripted animations allow for more control over the behavior of non-VR player avatar poses. You can set the pose the avatar is using with respect to a held item (the **grip pose**):
+Scripted animations allow for more control over the behavior of Mobile/Web player avatar poses. You can set the pose the avatar is using with respect to a held item (the **grip pose**):
 
 ```ts
 // Player
@@ -4986,7 +5143,7 @@ The supported values for haptics sharpness are:
 
 ## Aim Assist
 
-For experiences at involve the player aiming at something, Horizon offers the ability to *assist a player with their aim**. This only works for non-VR players.
+For experiences at involve the player aiming at something, Horizon offers the ability to *assist a player with their aim**. This only works for Mobile/Web players.
 
 There are two methods on the [Player class](#player-class) related to aiming:
 
@@ -5030,8 +5187,6 @@ throwHeldItem(options?: Partial<ThrowOptions>): void;
 
 # Grabbing and Holding Entities
 
-<mark>TODO</mark> actions (onscreen buttons) and inputs.
-
 When a VR player grabs an entity is stays grabbed until they release the trigger. The entity is only held as long as they are holding the entity. A screen-based player uses an onscreen button to grab and then (later) a different onscreen button to release.
 
 There is no way to check if an entity is currently held but you can listen to [grab events](#grab-sequence-and-events) to know when an entity is grabbed or released.
@@ -5049,6 +5204,8 @@ Select an entity and then in the Properties panel set its `Motion` to `Interacti
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
+
+A grabbable entity can be configured to automatically modify a Mobile/Web player's pose when they grab the item and also configure what action buttons are onscreen while holding the entity. For more details [see the article on configure held items for Mobile/Web players](https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-and-mobile/grabbable-entities/intro-to-grabbable-entities).
 
 ## Can Grab
 
@@ -5979,7 +6136,7 @@ Note that this manual changes only affect the PPVs of the user that is making th
 
 ### Persistent Variable Object Data
 
-When a PPV is [created](#creating-editing-and-deleting-player-persistent-variables), it's type is set to "number" or "object". If "object" is chosen then you can read and write values with the type [PersistentSerializableState](#serializablestate) (which is similar to `JSON.stringify` but also supports `Vec3`, `Entity`, and others. It *does not support `Player`* since [player ids](#player-id) are per-instance).
+When a PPV is [created](#creating-editing-and-deleting-player-persistent-variables), it's type is set to "number" or "object". If "object" is chosen then you can read and write values with the type [PersistentSerializableState](#serializablestate) (which is similar to [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) but also supports `Vec3`, `Entity`, and others. It *does not support `Player`* since [player ids](#player-id) are per-instance).
 
 When you read data you need to use TypeScript's `as` operator to cast it to the write type:
 
@@ -6019,31 +6176,14 @@ The `getPlayerVariable` method will return `null` if the data has never been set
     ```
 # Spawning
 
-**Spawning** is the act of loading content into a world [instance](#instances) while it is already running (meaning that the content was not "laid out" in world already and isn't in the [world snapshot](#world-snapshot)). For example, imagine a racing game that has 100 kinds of vehicles to choose from and allows 8 players. It would use too much memory and really impact perf to put 800 vehicles into the world (so all 8 players have full choice). Instead, you could create a [UI](#custom-ui) to let players choose from and then load in the vehicle that they choose. This act of "load in when needed" is *spawning*.
-
-<a name="spawnable-assets">**What can be spawned**</a>: ... <mark>TODO</mark>
+**Spawning** is the act of loading content into a world [instance](#instances) while it is already running (meaning that the content was not "laid out" in the Desktop editor; it's not in the [world snapshot](#world-snapshot)). For example, imagine a racing game that has 100 kinds of vehicles to choose from and allows 8 players. It would use too much memory and really impact perf to put 800 vehicles into the world (so all 8 players have full choice). Instead, you could create a [UI](#custom-ui) to let players choose from and then load in the vehicle that they choose. This act of "load in when needed" is *spawning*.
 
 Spawning requires a "template" or "blueprint", a description of entities / meshes / scripts / properties, that should be "stamped" into the world. Horizon calls these blueprints **assets**.
 
-**Assets don't contain actual entities**. Instead, assets contain *instructions on how to create some entities*. An asset may represent "a blue cone shape that has a [script attached](#attaching-components-to-entities) and is [grabbable](#grabbing-and-holding-entities)". When you drag that asset out of the assets panel it will create a new instance of the blue cone mesh with the right properties applied and the right script attached. You could easily drag out the asset again (and get another entity!) or spawn it while the world is running (which would create an *ephemeral* identity). When an asset is "dragged out" of the asset panel, we say the entities are **instantiated entities (from the asset)**. When an assets is spawned, we say the entities are **spawned entities (from the asset)**.
+<a name="spawnable-assets">**What can be spawned**</a>: Not all asset types can be spawned. You can only spawn the ones that encode [Entities](#entities). You **can spawn [3D models](#3d-model-asset), [audio assets](#audio-asset), [template assets](#template-asset), and [legacy asset groups](#legacy-asset-group)**.
 
-Entities and hierarchies can be saved as an asset. Assets are like packages of entities, property configurations, and scripts.
-
-**Techniques**:
-  * Spawning an environment gizmo... <mark>TODO</mark>
-
-Assets must have an `Asset Type` and `Folder`.
-
-Saved Asset will receive an ID that is used for spawning.
-
-|Asset Types|Description|
-|---|---|
-|Template Asset| Similar to [Prefabs in Unity](https://docs.unity3d.com/Manual/Prefabs.html). Allows for publishing, versioning, and local editing/overriding.|
-|Legacy Asset Group|Simple collection of entities, property configurations, and/or scripts.
-
-!!! warning Assets can be used across worlds, but using a [Template Asset](#template-asset) simplifies the process of updating reused assets.
-
-!!! note Asset Folders can be shared with other users.
+!!! tip Spawn an environment gizmo to change *lighting and the sky*.
+    You can spawn an [Environment Gizmo](#environment-gizmo) to change the sky and lighting while a world is running. But note that this will change [Voip Settings](#voip-settings), fog, and all other properties associated with the gizmo.
 
 ## Simple Spawning
 
@@ -6552,7 +6692,7 @@ AnimationCallbackReason
 AnimationCallbackReasons
 [assert](#scripting-helper-functions)
 [Asset](#assets)
-[AssetContentData](#data-asset-text-and-json)
+[AssetContentData](#text-asset-json)
 [AttachableEntity](#attaching-entities)
 [AttachablePlayerAnchor](#attaching-entities)
 [AudioGizmo](#sound-gizmo)
@@ -6570,7 +6710,7 @@ ButtonPlacement
 [Comparable](#comparable-interface)
 [Component](#component-class)
 [CodeBlockEvent](#code-block-events)
-[DefaultFetchAsDataOptions](#data-asset-text-and-json)
+[DefaultFetchAsDataOptions](#text-asset-json)
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
 [DefaultPopupOptions](#tooltips-and-popups)
@@ -6584,11 +6724,11 @@ DefaultFocusedInteractionTrailOptions
 [DynamicLightGizmo](#dynamic-light-gizmo)
 [EntityInteractionMode](#interactive-entities)
 [EntityRaycastHit](#raycast-gizmo)
-[EntityStyle](#mesh-asset-style)
+[EntityStyle](#mesh-entity-style)
 [EntityTagMatchOperation](#entity-tags)
 [EulerOrder](#quaternion)
 [EventSubscription](#receiving-events)
-[FetchAsDataOptions](#data-asset-text-and-json)
+[FetchAsDataOptions](#text-asset-json)
 FocusedInteraction
 FocusedInteractionTapOptions
 FocusedInteractionTrailOptions
@@ -6608,7 +6748,7 @@ InteractionInfo
 [LocalEvent](#local-events)
 [LocalEventData](#local-events)
 [MaterialAsset](#material-asset)
-[MeshEntity](#mesh-asset)
+[MeshEntity](#mesh-entity)
 MonetizationTimeOption
 [NetworkEvent](#network-events)
 [NetworkEventData](#network-events)
@@ -6641,9 +6781,9 @@ PlayerInputStateChangeCallback
 [RaycastTargetType](#raycast-gizmo)
 [ReadableHorizonProperty](#horizon-properties)
 [SerializableState](#serializablestate)
-[SetMaterialOptions](#mesh-asset)
-[SetMeshOptions](#mesh-asset)
-[SetTextureOptions](#mesh-asset)
+[SetMaterialOptions](#mesh-entity)
+[SetMeshOptions](#mesh-entity)
+[SetTextureOptions](#mesh-entity)
 **Space**: [body part](#player-body-parts), [transform helpers](#transform-helpers)
 [SpawnController](#advanced-spawning-spawncontroller)
 [SpawnControllerBase](#advanced-spawning-spawncontroller)
@@ -6681,7 +6821,7 @@ In the table below:
 | 🔈OnAssetSpawned | `entity: Entity`<br/>`asset: Asset` |
 | [OnAttachEnd](#attachable-by) | `player: Player` |
 | [OnAttachStart](#attachable-by) | `player: Player` |
-| [OnAudioCompleted](#sound-gizmos) |  |
+| [OnAudioCompleted](#sound-gizmo) |  |
 | OnButton1Down | `player: Player` |
 | OnButton1Up | `player: Player` |
 | OnButton2Down | `player: Player` |
