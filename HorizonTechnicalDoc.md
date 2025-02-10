@@ -4121,10 +4121,10 @@ Horizon has a few helper functions in `horizon/core`:
   * This is typically used for debugging and enforcing invariants.
   * Example: `assert(user !== null)` // Throws if user is null
 * **radian to degree conversion**: converts an angle from radians to degrees. `radiansToDegrees(radians: number): number`
-  * Uses the formula: $\text{degrees} = \text{radians}\frac{180}{\pi}$.
+  * Uses the formula: `degrees = radians * 180 / Math.PI`
   * Example: `radiansToDegrees(Math.PI)` is `180`
 * **degree to radian conversion**: converts an angle from degrees to radians. `degreesToRadians(degrees: number): number`
-  * Uses the formula: $\text{radians} = \text{degrees}\frac{\pi}{180}$.
+  * Uses the formula: `radians = degrees * Math.PI / 180`.
   * Example: `degreesToRadians(180)` is `3.141...`
 
 # Network
