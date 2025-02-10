@@ -95,16 +95,17 @@
     1. [Creating Assets](#creating-assets)
     2. [Managing Assets](#managing-assets)
     3. [Referencing Assets (Props and IDs)](#referencing-assets-props-and-ids)
+        1. [Asset as() method](#asset-as-method)
     4. [3D Model Asset](#3d-model-asset)
         1. [MeshEntity Class](#meshentity-class)
-        2. [Mesh Entity Style](#mesh-entity-style)
-    5. [Mesh Asset](#mesh-asset)
-    6. [Texture Asset](#texture-asset)
-    7. [Material Asset](#material-asset)
-    8. [Audio Asset](#audio-asset)
-    9. [Text Asset (JSON)](#text-asset-json)
-    10. [Template Asset](#template-asset)
-    11. [Legacy Asset Group](#legacy-asset-group)
+        2. [MeshEntity Style](#meshentity-style)
+        3. [MeshEntity setMesh](#meshentity-setmesh)
+    5. [Texture Asset](#texture-asset)
+    6. [Material Asset](#material-asset)
+    7. [Audio Asset](#audio-asset)
+    8. [Text Asset (JSON)](#text-asset-json)
+    9. [Template Asset](#template-asset)
+    10. [Legacy Asset Group](#legacy-asset-group)
 8. [Custom Model Import](#custom-model-import)
     1. [Overview](#overview-1)
     2. [SubD vs Custom Models](#subd-vs-custom-models)
@@ -795,7 +796,7 @@ See [local transforms](#local-transforms) for setting rotation relative to a par
 
 Scales are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
 
-**Inherent Size**: All entities have their own inherent size. For instance, a SubD cube is inherently 1 meter long on each side. Mesh assets have a size based on how they were authored. The inherent size of an entity is the size it is when it is *unscaled*.
+**Inherent Size**: All entities have their own inherent size. For instance, a SubD cube is inherently 1 meter long on each side. [3D model assets](#3d-model-asset) have a size based on how they were authored. The inherent size of an entity is the size it is when it is *unscaled*.
 
 The `scale` property determines the fraction an entity should be of its inherent size. For instance, a SubD cube is inherently 1 meter long on each side. If you set its scale to be `(1, 0.5, 2)` then the cube will be 1 meter long on its right-axis, 0.5 meters long on its up-axis, and 2 meters long on its forward-axis. In this example, the object has been "shrunk" along its up-axis, and "expanded" along its forward-axis.
 
@@ -1020,7 +1021,7 @@ Every entity in Horizon has an underlying **[intrinsic type](#intrinsic-entity-t
 
 Additionally, an entity can have (multiple) **[behavior types](#behavior-entity-types)** based on settings in the Properties panel (such as being [grabbable](#grabbing-and-holding-entities), [attachable](#attaching-entities), etc).
 
-For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#mesh-entity) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
+For example, a *hat mesh that is grabbable and attachable* has a intrinsic type of [MeshEntity](#meshentity-class) and two behavior types: [GrabbableEntity](#grabbing-and-holding-entities) and [AttachableEntity](#attaching-entities).
 
 ### Static vs Dynamic Entities
 
@@ -1042,7 +1043,7 @@ The table below lists all intrinsic types, which are subclasses of `Entity`. Not
 The intrinsic type classes (in the table below) all subclass `Entity`. All the [entity properties](#entity-properties) are available on all of them.
 
 [Intrinsic entity types](#intrinsic-entity-types) are organized in the desktop editor into a few top-level categories:
-* **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#mesh-entity).
+* **Shapes**: built-in mesh "primitive" shapes (such as cube, sphere, torus, cylinder, etc) all of which instantiate [Mesh Entities](#meshentity-class).
 * **Gizmos**: entities that have in-world behavior (such as for spawning a player at a location, showing UI, rendering a particle effect, launching a projectile, and so much more). These are all listed in the [table below](#intrinsic-entity-types) and enumerated in full detail [below](#all-gizmos-intrinsic-entity-types).
 * **Colliders**: mesh-less entities that still have [a "shape" that can be collided with](#collider-gizmo) (such as sphere, cube, and capsule). It's type is just `Entity`.
 * **Sounds**: a large library of pre-made sound effects; you can also create more using the AI sound feature. These all instantiate [sounds gizmos](#sound-gizmo) (which have the type `AudioGizmo`).
@@ -1068,7 +1069,7 @@ There is a [full list of all intrinsic entity types and their documentation](#al
 
 ### Entity as() method
 
-You can convert an entity instance into its [intrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) types using the entity `as()` method.
+You can convert an [Entity](#entity-class) instance into its [intrinsic](#intrinsic-entity-types) or [behavior](#behavior-entity-types) types using the entity `as()` method.
 
 For example:
 
@@ -1078,10 +1079,10 @@ const particleEffect: ParticleGizmo = entity.as(ParticleGizmo)
 
 Once you call `as()` on an entity, you can store that "casted" entity (in a `let`, `const`, or `class` member) and you don't need to call `as()` on it again.
 
-Note that `as()` returns the same entity back, preserving equality. Thus after the line above `particleEffect === entity` would evaluate to `true`.
+Note that `as()` returns the same entity back, preserving equality. Thus after the line above, `particleEffect === entity` would evaluate to `true`.
 
-!!! danger `as()` always succeeds! Do not cast to the wrong type!
-    The `as()` method will always return an instance of the requested type. This means that you can convert a text gizmo entity into an `AudioGizmo` without error or warning. However if you then attempt to use it as an `AudioGizmo` you will get errors, warnings, and unexpected behavior. Don't cast entities, with `as()` to classes they are not. **This is a brittle part of Horizon's TypeScript API that has no workaround.**
+!!! danger The [Entity](#entity-class) `as()` method always succeeds! Do not cast to the wrong type!
+    The `as()` method will always return an instance of the requested type. This means that you can convert a text gizmo entity into an `AudioGizmo` without error or warning. However if you then attempt to use it as an `AudioGizmo` you will get errors, warnings, and other unexpected behavior. Don't cast entities, with `as()` to classes they are not. **This is a brittle part of Horizon's TypeScript API that has no workaround.**
 
 !!! danger Do not use TypeScript's built-in `as` operator on an `Entity`.
     The `as()` method on `Entity` actually does work at runtime; it is not just a type-cast. That means the following two lines are **not the same**:
@@ -1190,7 +1191,7 @@ All `Entity` instances have the class properties in the table below. Additionall
 | up | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive y-axis](#local-transforms). |
 | right | `ReadableHorizonProperty`<br/>`<Vec3>` | The entity's [local positive x-axis](#local-transforms). |
 | **Rendering** |
-| color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#mesh-entity) use [tinting](#tinting). |
+| color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#meshentity-class) use [tinting](#tinting). |
 | visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
 | **[Behavior](#interactive-entities)** |
 | [collidable](#colliders) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#active-colliders). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
@@ -1321,7 +1322,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Group](#empty-object-and-groups) | `Entity` |
 | [In-World Item](#in-world-item-gizmo) | `IWPSellerGizmo` |
 | [Media Board](#media-board-gizmo) | `Entity` |
-| [Mesh](#mesh-entity) | `MeshEntity` |
+| [Mesh](#3d-model-asset) | `MeshEntity` |
 | [Mirror](#mirror-gizmo) | `Entity` |
 | [Navigation Volume](#navigation-volume-Gizmo) | `Entity` |
 | [NPC](#npc-gizmo) | `AIAgentGizmo` |
@@ -1378,7 +1379,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Focus Prompt | `boolean` | Determines if web and mobile players can interact with the UI. If disabled, web and mobile players cannot interact, but VR players can unless `Raycast` is disabled. |
 | Focus prompt distance | `number` | Controls the distance within which a player can interact with the UI panel if `Focus Prompt` is enabled. |
 
-**TypeScript**: Custom UI Gizmos are referenced [as](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
+**TypeScript**: Custom UI Gizmos are referenced [as()](#entity-as-method) the `UIGizmo` class from `horizon/ui` with no properties or methods. For more information on `horizon/ui` see [Custom UI](#custom-ui)
 
 **Limitations**: Custom UI Gizmo and their bindings will cause performance issues. See [Custom UI](#custom-ui) for recommendations.
 
@@ -1419,7 +1420,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | Intensity | `number` | Light brightness (0-10). |
 | Falloff Distance | `number` | Distance light travels (0-100). |
 
-**TypeScript**: dynamic light gizmos are referenced [as](#entity-as-method) the `DynamicLightGizmo` class with the following properties (light type and color are *not* modifiable in scripts):
+**TypeScript**: dynamic light gizmos are referenced [as()](#entity-as-method) the `DynamicLightGizmo` class with the following properties (light type and color are *not* modifiable in scripts):
 ```typescript
 // DynamicLightGizmo
 enabled: HorizonProperty<boolean>;        // Enable/disable the light
@@ -1513,7 +1514,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 | Spawn on Start | `boolean` | Determines whether the NPC spawns into the world when the world is started. |
 | Appearance | `Edit Avatar` and `Refresh` buttons. | Allows you to edit the avatar's appearance and refresh that appearance in the world. |
 
-**TypeScript**:  NPC gizmos are referenced [as](#entity-as-method) the `AIAgentGizmo` class. However, control of NPCs spawned by the NPC Gizmo are referenced [as](#entity-as-method) the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
+**TypeScript**:  NPC gizmos are referenced [as()](#entity-as-method) the `AIAgentGizmo` class. However, control of NPCs spawned by the NPC Gizmo are referenced [as()](#entity-as-method) the `AvatarAIAgent` class from the `horizon/avatar_ai_agent` with the following properties and methods.
 
 ```ts
 //Properties
@@ -1563,7 +1564,7 @@ export declare enum AgentSpawnResult //The result of a player spawn request
 | Preview | Button | Test effect |
 | Custom FX Properties | Various | Effect-specific settings (e.g., fire color) |
 
-**TypeScript**: particle effect gizmos are referenced [as](#entity-as-method) the `ParticleGizmo` class with the following methods:
+**TypeScript**: particle effect gizmos are referenced [as()](#entity-as-method) the `ParticleGizmo` class with the following methods:
 ```typescript
 /// Particle Gizmo
 play(options?: ParticleFXPlayOptions): void;
@@ -1604,7 +1605,7 @@ The `player` property defaults to [all players](#listing-all-players), if not sp
 | End Color | `Color` | RGB values (0.0-1.0) at trail end |
 | Preset | `Simple Trail` or `Tapered Trail` | Trail style preset to determine if the trail gets narrower toward the tail (tapered) or stays the same width throughout (simple) |
 
-**TypeScript**: trail effect gizmos are referenced [as](#entity-as-method) the `TrailGizmo` class with the following members:
+**TypeScript**: trail effect gizmos are referenced [as()](#entity-as-method) the `TrailGizmo` class with the following members:
 ```typescript
 // TrailGizmo
 length: HorizonProperty<number>;  // Trail length in meters
@@ -1635,7 +1636,7 @@ stop(): void;                     // Stop and remove trail
 | Trail Length Scale | `number` | Length of particle trail in meters. Defaults to 1. |
 | Projectile Color | `Color` | RGB values (0.0-1.0) for projectile tint. Defaults to (1,1,1) white. |
 
-**TypeScript**: projectile launcher gizmos are referenced [as](#entity-as-method) the `ProjectileLauncherGizmo` class with the following members:
+**TypeScript**: projectile launcher gizmos are referenced [as()](#entity-as-method) the `ProjectileLauncherGizmo` class with the following members:
 ```typescript
 // ProjectileLauncherGizmo
 projectileGravity: WritableHorizonProperty<number>;
@@ -1688,7 +1689,7 @@ Note that [empty objects and groups](#empty-object-and-groups) **behave differen
 
 **Limitations**: Raycasting too often in a short period of time can hurt performance.
 
-**Typescript**: Raycast Gizmos are referenced [as](#entity-as-method) the `RaycastGizmo` class with the following method:
+**Typescript**: Raycast Gizmos are referenced [as()](#entity-as-method) the `RaycastGizmo` class with the following method:
 
 ```ts
 /// Raycast Gizmo
@@ -1828,7 +1829,7 @@ We have 3 different types:
 | Low-Pass Cutoff | `number` | Reduces the amplitude of higher frequency signals. Values are between  1 and 20000. |
 | Send Audio Complete | `boolean` | Determines whether the Pre-made Sound Gizmo sends an event when the audio is finished. |
 
-**Typescript**: Sound Gizmos are referenced [as](#entity-as-method) the `AudioGizmo` class with the following properties and methods.
+**Typescript**: Sound Gizmos are referenced [as()](#entity-as-method) the `AudioGizmo` class with the following properties and methods.
 
 ```ts
 //Properties
@@ -1871,7 +1872,7 @@ enum AudibilityMode {
 | Player Speed | `number` | Sets the speed of each player to this value when this spawn is used. Values between 0.0 and 45. |
 | Force HWXS Camera | `None`, `Third Person`, `First Person`, `Orbit`, and `Pan` | Determines which camera view web and mobile players will have after using the spawn (HWXS stands for Horizon Worlds Cross Screens) |
 
-**Typescript**:  Spawn Point Gizmos are referenced [as](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods.
+**Typescript**:  Spawn Point Gizmos are referenced [as()](#entity-as-method) the `SpawnPointGizmo` class with the following properties and methods.
 
 ```ts
 //Properties
@@ -1910,13 +1911,13 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 
 **Properties**: The first property is called "Sublevel Type", which can be set to `Deeplink` or `Exclude`:
 
-* Use **`Deeplink`** in the world that will load in the sublevel (the *container*). You can then use this entity [as](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in. When this setting is used, 2 more settings appear:
+* Use **`Deeplink`** in the world that will load in the sublevel (the *container*). You can then use this entity [as()](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in. When this setting is used, 2 more settings appear:
     * **Sublevel Initial State** determines the state of the sublevel at world-start. It can be `Active` (which means the sublevel is fully present to players), `Loaded` (meaning that the sublevel is fully ready, just waiting to be "shown"), or `Unloaded` (none of the data is present or ready). See [advanced spawning](#advanced-spawning) for more information on these options.
     * **World Id** is the world that this entity will stream in (the sublevel). There is a thumbnail picture to click on that will open a "world selector".
 * Use **`Exclude`** in a world that is meant to be streamed in (a *sublevel*). Any entities that are [children (or descendants)](#ancestors) of an "Exclude Sublevel" will not load when the sublevel is streamed into the "container world".
     * Example, in the sublevel world you can have a spawn point which is a child of an "Exclude Sublevel" gizmo; that makes it easy to test the sublevel world, but the spawn gizmo won't load in when the container world streams this world in.
 
-**TypeScript**: When the sublevel entity has "Sublevel Type" set to "Deeplink" you can then use the entity [as](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in.
+**TypeScript**: When the sublevel entity has "Sublevel Type" set to "Deeplink" you can then use the entity [as()](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in.
 
 ## Text Gizmo
 **Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
@@ -2007,7 +2008,7 @@ Some tags accept a parameter, which is specified after the tag name and an equal
 
 Under the hood, triggers detect *enter* and *exit* using [collisions](#collisions). See the [trigger collisions](#trigger-collisions) section for details on when triggers can and can't detect entities.
 
-**Typescript**:  Trigger Gizmos are referenced [as](#entity-as-method) the `TriggerGizmo` class with the following properties.
+**Typescript**:  Trigger Gizmos are referenced [as()](#entity-as-method) the `TriggerGizmo` class with the following properties.
 
 ```ts
 //Properties
@@ -2044,7 +2045,7 @@ When a player-related collider enters/leaves a trigger set to [detect players](#
 
 **Entities**
 
-When an entity-related collider (from a [mesh](#mesh-entity) or a [collider gizmo](#collider-gizmo)) enters/leaves a trigger set to [detect objects](#trigger-gizmo) Horizon will check to see if that entity has the matching tag; if so, it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo)event *to the trigger* with that entity. But then it also looks at every entity in the [ancestor chain](#ancestors) to see if any of those also have the tag. The event will get sent to the trigger for *all* entities in the ancestor chain that have the tag. This means that **when a group enters a trigger, the group *and* its children can cause `OnEntityEnterTrigger` events* as long as they have the right tags.
+When an entity-related collider (from a [mesh](#meshentity-class) or a [collider gizmo](#collider-gizmo)) enters/leaves a trigger set to [detect objects](#trigger-gizmo) Horizon will check to see if that entity has the matching tag; if so, it sends the [OnEntityEnterTrigger or OnEntityExitTrigger](#trigger-gizmo)event *to the trigger* with that entity. But then it also looks at every entity in the [ancestor chain](#ancestors) to see if any of those also have the tag. The event will get sent to the trigger for *all* entities in the ancestor chain that have the tag. This means that **when a group enters a trigger, the group *and* its children can cause `OnEntityEnterTrigger` events* as long as they have the right tags.
 
 When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to see if the trigger was previously unoccupied; if so, then the "secret" [occupied](#trigger-gizmo) is also sent to the trigger. Likewise, if this is an `OnEntityExitTrigger` event and the trigger is now unoccupied, then the "secret" [empty](#trigger-gizmo) event is also sent to the trigger.
 
@@ -2058,21 +2059,21 @@ When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to
 **Assets never contain actual entities**. Instead, assets contain *data* such as a texture, text, mesh, or audio. Some asset types ([Template Assets](#template-asset) and [Legacy Asset Groups](#legacy-asset-group)) contain *instructions on how to create entities*. An asset may represent "a [grabbable](#grabbing-and-holding-entities) blue cone with a [script attached](#attaching-components-to-entities)". When you drag that asset out of the Assets panel (or [spawn](#spawning) the asset) it will create a new instance of a blue cone [MeshEntity](#meshentity-class) with the correct properties applied and script attached. You could drag out the asset again and get another new entity. When an asset is "dragged out" of the assets panel, we say the entities are **instantiated (from the asset)**. When an assets is spawned, we say the entities are **spawned (from the asset)**.
 
 **Asset types**: There are various types of assets that are split into two categories:
-* **Entity Asset Typse**: Assets that are used to *create (configured) entities*.
+* **Entity Asset Types**: Assets that are used to *create (configured) entities*.
 * **Data Asset Types**: Assets that *provide data* (most of which are used to modify a [MeshEntity](#meshentity-class)).
 
 Note: [3D Model](#3d-model-asset) is in both groups (although it can only be used as data, as a mesh, when there is exactly 1 mesh in the asset).
 
 | Entity Asset Type | Entities Created<br/>([spawning](#spawning) or in-editor) | Where to [Create](#creating-assets) |
 |---|---|---|
-| [3D Model](#3d-model-asset) | [MeshEntity](#mesh-entity)<br/>or<br/>[Empty Object](#empty-object-and-groups) (with [MeshEntity](#mesh-entity) children) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+| [3D Model](#3d-model-asset) | [MeshEntity](#meshentity-class)<br/>or<br/>[Empty Object](#empty-object-and-groups) (with [MeshEntity](#meshentity-class) children) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
 | [Audio](#audio-asset) | [Sound Gizmo](#sound-gizmo) | Gen AI |
 | [Legacy Group](#legacy-asset-group) | Array of [Entity](#entities) | Right-click then "Create Asset" |
 | [Template](#template-asset) | Array of [Entity](#entities) | Right-click then "Create Asset" |
 
 | Data Asset Type | How to apply at runtime | Where to [Create](#creating-assets) |
 |---|---|---|
-| Single Mesh [3D Model](#3d-model-asset) | Use [setMesh](#mesh-asset) on a [MeshEntity](#entities) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
+| Single Mesh [3D Model](#3d-model-asset) | Use [setMesh](#3d-model-asset) on a [MeshEntity](#entities) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
 | [Material](#material-asset) | Use [setMaterial](#material-asset) on a [MeshEntity](#entities) | Assets panel |
 | [Text](#text-asset-json) | Use [fetchAsData](#text-asset-json) on an `Asset` | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
 | [Texture](#texture-asset) | Use [setTexture](#texture-asset) on a [MeshEntity](#entities) | Assets panel or [Creator Portal](https://horizon.meta.com/creator/assets/) |
@@ -2110,24 +2111,58 @@ You need an instance of the `Asset` class in order to [spawn](#spawning), fetch 
       const myAsset = new Asset(BigInt("10000"), BigInt("1"))
       ```
 
+### Asset as() method
+
+You can convert an `Asset` instance into its specific type using the asset `as()` method, which behaves just like the [Entity as() method](#entity-as-method).
+
+For example:
+
+```ts
+const materialAsset: MaterialAsset = asset.as(MaterialAsset)
+```
+
+Once you call `as()` on an asset, you can store that "casted" asset (in a `let`, `const`, or `class` member) and you don't need to call `as()` on it again.
+
+Note that `as()` returns the same asset back, preserving equality. Thus after the line above, `materialAsset === asset` would evaluate to `true`.
+
+!!! danger The [Asset](#assets) `as()` method always succeeds! Do not cast to the wrong type!
+    The `as()` method will always return an instance of the requested type. This means that you can convert a text asset into a `TextureAsset` without error or warning. However if you then attempt to use it in [setTexture](#texture-asset), you will get errors, warnings, or other unexpected behavior. Don't cast assets, with `as()` to classes they are not. **This is a brittle part of Horizon's TypeScript API that has no workaround.**
+
+!!! danger Do not use TypeScript's built-in `as` operator on an `Asset`.
+    The `as()` method on `Asset` actually does work at runtime; it is not just a type-cast. That means the following two lines are **not the same**:
+    ```ts
+    ✅ const material = asset.as(MaterialAsset)
+    ❌ const material = asset as MaterialAsset
+    ```
+
 ## 3D Model Asset
 
-A 3D Model Asset is 1, or many, 3D meshes with associated materials (and possibly textures).
-* **1 Mesh**: When a 3D Model Asset is 1 mesh, it will instantiate/[spawn](#spawning) as a single [MeshEntity](#meshentity-class).
-* **Multiple Meshes**: When a 3D Model Asset has more than 1 mesh, it will instantiate/[spawn](#spawning) as an [Empty Object](#empty-object-and-groups) containing an array children (each of which is a [MeshEntity](#meshentity-class)).
+**Description**: A 3D Model Asset is 1, or many, 3D meshes with associated materials (and possibly textures).
+
+**Creation**:  To create a 3D model asset go to the Assets panel and click "Add New" or go to the [Creator Portal](https://horizon.meta.com/creator/) and click "Import". Then add [fbx](https://www.autodesk.com/products/fbx/overview) files and images (typically created in digital content creation tools, DCCs, such as [Blender](https://www.blender.org/), [ZBrush](https://www.maxon.net/en/zbrush), or [Maya](https://www.autodesk.com/products/maya/overview) along with [GIMP](#https://www.gimp.org/) or [Adobe Substance Painter](#https://www.adobe.com/products/substance3d/apps/painter.html)). To learn about creating these files, **see the section on [Custom Model Import](#custom-model-import)**.
+
+**Instantiation**: When you drag out a 3D Model Asset from the Assets panel new entities are created in the world, depending on how many *root meshes* are in the asset:
+* **1 Mesh**: A single [MeshEntity](#meshentity-class) is instantiated in the editor.
+* **2 or More Meshes**: A an [Empty Object](#empty-object-and-groups) containing an array children (each of which is a [MeshEntity](#meshentity-class)) is instantiated in the editor.
+
+**Spawning**: Regardless of the number of *root meshes*, a 3D Model Asset will spawn as `Array<Entity>`. The entities in the array can be casted to [MeshEntity](#meshentity-class) instances using the [Asset as() method](#asset-as-method).
+
+**Usage**: Instantiating and spawning 3D Model Assets is where all the geometry in worlds come from. These entities will be used to create the world that players move around in, by creating [empty objects and groups](#empty-object-and-groups)  of them, [grabbables](#grabbing-and-holding-entities) to pick up, [attachables](#attaching-entities) to wear, [physics elements](#physicalentity-class) to interact with, and all other things in a world. These assets are how you create [MeshEntities](#meshentity-class), on which you can make [modifications via scripting](#meshentity-class).
 
 ### MeshEntity Class
 
-Every [Entity](#entities) that has a 3D mesh (including the built-in "CMI Primitives") can be used [as](#entity-as-method) a `MeshEntity`. You can then make scripting changes to the mesh, its material, its texture, or tint it.
+Every [Entity](#entities) that has a 3D mesh (including the built-in "CMI Primitives") can be used as a `MeshEntity` (accessed using the [Asset as() method](#entity-as-method)). These come from [3D Model Assets](#3d-model-asset).
+
+You can apply a [tint](#mesh-entity-style), [modify color brightness](#mesh-entity-style), [change the texture](#texture-asset), [change the material](#material-asset), or [change the mesh](#mesh-entity-setmesh).
 
 | `MeshEntity` Class Member | Description |
 |---|---|
 | [setMaterial](#material-asset) | Change a material |
 | [setTexture](#texture-asset) | Change the texture  |
-| [setMesh](#mesh-asset) | Change the mesh |
-| [style](#mesh-entity-style) | Change the tint color, tint strength, and overall brightness on the material |
+| [setMesh](#mesh-entity-setmesh) | Change the mesh |
+| [style](#mesh-entity-style) | Change the tint color, tint strength, and overall brightness of the material |
 
-### Mesh Entity Style
+### MeshEntity Style
 
 The [MeshEntity class](#meshentity-class) has a property `style` of type `EntityStyle`. You can use it for tweaking the visual presentation of the `MeshEntity`.
 
@@ -2151,15 +2186,25 @@ colorLerp(
 ```
 where `luminance` gets the brightness of the texel color and `colorLerp` acts just like [Vec3 lerp](#vector-linear-interpolation-lerp).
 
-## Mesh Asset
+### MeshEntity setMesh
 
-<mark>TODO</mark>
+You can change the mesh on a [MeshEntity](#meshentity-class) while the world is running via the `setMesh` method:
 
-type SetMeshOptions = {
-    updateMaterial?: boolean;
-};
+```ts
 // MeshEntity
 setMesh(mesh: Asset, options: SetMeshOptions): Promise<void>;
+```
+
+Which takes two arguments:
+* **mesh**: An asset which needs to actually be a [3D Model Asset](#3d-model-asset) or you will get an error. If the asset has 1 mesh then it will replace the current mesh on the entity. If the asset has multiple root meshes, then the first one will be used for the replacement.
+* **options**: An optional parameter to specify whether you also want to update the material as well (which defaults to `true`)
+  ```ts
+  type SetMeshOptions = {
+    updateMaterial?: boolean;
+  };
+  ```
+
+The method returns a `Promise<void>` which you can `await` for to know when the swap has occurred. Note that the swap is not instantaneous since the new mesh may have to be downloaded, have its lighting computed, have its [collider](#colliders) updated, etc.
 
 ## Texture Asset
 
@@ -4272,7 +4317,7 @@ In order to create a component that transfers data during an [ownership transfer
 
 Collisions are used (under the hood) to drive [trigger events](#trigger-collisions) and to compute [raycasts](#raycast-gizmo). Additionally, [Interactive entities](#interactive-entities) can be configured to receive [collision events](#collision-events) whenever their collide.
 
-There are a number of nuances: collisions start with entities that have a [collider](#colliders) ([meshes](#mesh-entity) and [collider gizmos](#collider-gizmo)) and those colliders must be [active](#active-colliders) for a collision to occur. A number of these features involve [traversing up an ancestor chain to find an entity with a specific tag](#entity-tag-bubbling).
+There are a number of nuances: collisions start with entities that have a [collider](#colliders) ([meshes](#meshentity-class) and [collider gizmos](#collider-gizmo)) and those colliders must be [active](#active-colliders) for a collision to occur. A number of these features involve [traversing up an ancestor chain to find an entity with a specific tag](#entity-tag-bubbling).
 
 ## Collision Events
 
@@ -4360,7 +4405,7 @@ function tryOneSidedCollision(
 
 ## Colliders
 
-**Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exists on [mesh entities](#mesh-entity), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
+**Colliders** are invisible (non-rendered) "shapes" that are used for detecting when entities and players overlap in 3D space (a "collision"). Colliders exist on [mesh entities](#meshentity-class), on avatars (on each of their [body parts](#player-body-parts)), and as [collider gizmos](#collider-gizmo) that are literally just colliders.
 
 **Colliders (not meshes) drive [trigger events](#trigger-collisions), [collision events](#collision-events), and [raycast detections](#raycast-gizmo)** but only if they are [active](#active-colliders).
 
@@ -5854,7 +5899,7 @@ The Quest gizmo displays quest information to players. Each player sees only the
 | Panel UI Mode | `Light Mode` or `Dark Mode` | Color theme (light vs dark refers to background color) |
 | LoD Radius | `number` | Maximum visibility distance |
 
-**Typescript**: Quest Gizmos are referenced [as](#entity-as-method) the `AchievementsGizmo` class with the method
+**Typescript**: Quest Gizmos are referenced [as()](#entity-as-method) the `AchievementsGizmo` class with the method
 
 ```ts
 // AchievementsGizmo
@@ -5926,7 +5971,7 @@ The IWP gizmo can be found in the Desktop Editor under the Build Menu, Gizmos op
 
 **Testing**: The In-World Item Gizmo allows [the world owner & editors](#editor-roles) to test purchases (in [preview and play mode](#visitation-modes-edit-preview-and-publish)) without being charged. Testers *cannot* perform test-purchases; they will be charged.
 
-**TypeScript**: In-World Item Gizmos are referenced [as](#entity-as-method) the `IWPSellerGizmo` class. There are methods for [durables](#in-world-durable-items) and for [consumables](#in-world-consumable-items).
+**TypeScript**: In-World Item Gizmos are referenced [as()](#entity-as-method) the `IWPSellerGizmo` class. There are methods for [durables](#in-world-durable-items) and for [consumables](#in-world-consumable-items).
 
 ### In-World Item ID String
 
@@ -6341,7 +6386,7 @@ flowchart
 
 Sublevel functionality is in the `horizon/world_streaming` module.
 
-**TypeScript**: To spawn in a sublevel you need to have a [Sublevel Gizmo](#sublevel-gizmo) in the world with "Sublevel Type" set to "Deeplink". Then you can use the entity [as](#entity-as-method) the `SublevelEntity` class.
+**TypeScript**: To spawn in a sublevel you need to have a [Sublevel Gizmo](#sublevel-gizmo) in the world with "Sublevel Type" set to "Deeplink". Then you can use the entity [as()](#entity-as-method) the `SublevelEntity` class.
 
 The class interface on `SublevelEntity` acts much like a [SpawnController](#advanced-spawning-spawncontroller) with [currentState and targetState](#spawncontroller-state-machine) using the enum `SublevelStates` which has the exact same values as [SpawnState](#spawncontroller-state-machine).
 
@@ -6748,7 +6793,7 @@ InteractionInfo
 [LocalEvent](#local-events)
 [LocalEventData](#local-events)
 [MaterialAsset](#material-asset)
-[MeshEntity](#mesh-entity)
+[MeshEntity](#meshentity-class)
 MonetizationTimeOption
 [NetworkEvent](#network-events)
 [NetworkEventData](#network-events)
@@ -6781,9 +6826,9 @@ PlayerInputStateChangeCallback
 [RaycastTargetType](#raycast-gizmo)
 [ReadableHorizonProperty](#horizon-properties)
 [SerializableState](#serializablestate)
-[SetMaterialOptions](#mesh-entity)
-[SetMeshOptions](#mesh-entity)
-[SetTextureOptions](#mesh-entity)
+[SetMaterialOptions](#material-asset)
+[SetMeshOptions](#meshentity-setmesh)
+[SetTextureOptions](#texture-asset)
 **Space**: [body part](#player-body-parts), [transform helpers](#transform-helpers)
 [SpawnController](#advanced-spawning-spawncontroller)
 [SpawnControllerBase](#advanced-spawning-spawncontroller)
