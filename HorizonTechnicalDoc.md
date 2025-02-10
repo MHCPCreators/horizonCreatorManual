@@ -1,4 +1,5 @@
 <!--focusSection: -->
+<!--checkLinks: false -->
 
 # Meta Horizon Worlds Technical Specification {ignore=true}
 
@@ -91,6 +92,7 @@
     25. [Trigger Gizmo](#trigger-gizmo)
         1. [Trigger Collisions](#trigger-collisions)
     26. [World Leaderboard Gizmo](#world-leaderboard-gizmo)
+    27. [World Promotion Gizmo](#world-promotion-gizmo)
 7. [Assets](#assets)
     1. [Creating Assets](#creating-assets)
     2. [Managing Assets](#managing-assets)
@@ -107,8 +109,7 @@
     9. [Template Asset](#template-asset)
     10. [Legacy Asset Group](#legacy-asset-group)
 8. [Custom Model Import](#custom-model-import)
-    1. [Overview](#overview-1)
-    2. [SubD vs Custom Models](#subd-vs-custom-models)
+    1. [SubD vs Custom Models](#subd-vs-custom-models)
         1. [Uploads](#uploads)
         2. [Errors](#errors)
         3. [Tinting](#tinting)
@@ -122,7 +123,7 @@
     2. [Horizon Properties](#horizon-properties)
         1. [Horizon Property Subtleties](#horizon-property-subtleties)
     3. [Types](#types)
-        1. [Comparable<T> Interface](#comparablet-interface)
+        1. [Comparable Interface](#comparable-interface)
         2. [Copying vs Mutating Methods](#copying-vs-mutating-methods)
         3. [Vec3](#vec3)
             1. [Vector Creation](#vector-creation)
@@ -344,9 +345,8 @@
 23. [Cross Screens - Mobile vs PC vs VR](#cross-screens---mobile-vs-pc-vs-vr)
     1. [Camera](#camera)
 24. [Common Problems and Troubleshooting](#common-problems-and-troubleshooting)
-25. [Glossary](#glossary)
     1. [Horizon TypeScript Symbols](#horizon-typescript-symbols)
-26. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
+25. [All Built-In CodeBlockEvents](#all-built-in-codeblockevents)
 
 <!-- /code_chunk_output -->
 
@@ -480,7 +480,7 @@ For instance, before starting a major change to the world, you could create a ba
 
 # Instances
 
-Once published, Horizon maybe have multiple *copies* of a world running at the same time. For example if the <a href="#maximum-player-count">maximum player count</a> is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
+Once published, Horizon maybe have multiple *copies* of a world running at the same time. For example if the [maximum player count](#maximum-player-count) is set to 20 and there are 100 people "in the world" then they would be spread out across *at least* 5 separate copies. These copies are called **instances**.
 
 !!! info Horizon sometimes refers to Instances as "Sessions"
     In all technical documentation, Horizon uses the word *instance*. Given that this is a somewhat technical term, it refers to them as **sessions** within the user-facing side of the product. For example, a person can "create a new session".
@@ -683,7 +683,7 @@ digraph {
 }
 ```
 
-<a name="local-coordinates">**Local coordinates**</a>. Every [entity](#entities) and every [player and player body part](#player-body-parts) has a set of [local axes](#local-transforms) called: **right**, **up**, and **forward** which have an origin at the [pivot point](#pivot-points), if an entity, and at the center of the body part if it is a body part (example: player center is the hips; head center is literally the center of the head). Local coordinates are used for moving entities around in the Desktop editor (if enabled) and are used when interacting with [local transforms](#local-transforms).
+<a id="local-coordinates">**Local coordinates**</a>. Every [entity](#entities) and every [player and player body part](#player-body-parts) has a set of [local axes](#local-transforms) called: **right**, **up**, and **forward** which have an origin at the [pivot point](#pivot-points), if an entity, and at the center of the body part if it is a body part (example: player center is the hips; head center is literally the center of the head). Local coordinates are used for moving entities around in the Desktop editor (if enabled) and are used when interacting with [local transforms](#local-transforms).
 
 !!! example Local Coordinates Example
     The *forward* axis of *a player head* is always pointing away from their face (parallel to their nose), its *right* axis is always point "out" their right ear, and its *up* axis is pointing out from the top of the skull. When the entity or player body part moves, the origin of these axes move; likewise the axes rotate along with the entity (so that the *right* axis always points out from the right ear).
@@ -731,7 +731,7 @@ Entities can be transformed globally and [locally](#local-transforms), they have
 
 Positions are specified as 3-dimensional vectors, represented as the `Vec3` type in TypeScript. In the editor these are written as a "triple" such as `(0, 0, 0)`.
 
-The `position` property on an entity determines where in 3D space the [pivot point](#pivots) of the entity is, in relation to the origin of the world. Often the pivot is just the center of the entity, and so typically the position of an entity is where its center point is.
+The `position` property on an entity determines where in 3D space the [pivot point](#pivot-points) of the entity is, in relation to the origin of the world. Often the pivot is just the center of the entity, and so typically the position of an entity is where its center point is.
 
 !!! example Setting a position
     Position is a [read-write property](#horizon-properties) on the `Entity` class. To get the current position of an entity, do:
@@ -748,7 +748,7 @@ The `position` property on an entity determines where in 3D space the [pivot poi
 Setting the `position` property is not influenced by the position of any [ancestors](#ancestors).
 See [local transforms](#local-transforms) for setting position relative to a parent entity.
 
-!!! danger <a name="world-max-bounds">An entity position cannot have a value outside of `[-10,000, 10,000]`</a>
+!!! danger <a id="world-max-bounds">An entity position cannot have a value outside of `[-10,000, 10,000]`</a>
     When an entity moves (via `position.set` or via physics) to a location where any of its x-, y-, or z-values are outside the range `[-10,000, 10,000]`, then instead, the **entity will be automatically moved to the location it had at world start** (or at spawn-time if it was spawn). If it is a physics entity then it will also have its velocity cleared out.
 
      **Players do not auto-move / respawn when they are too far away from the origin**.
@@ -766,7 +766,7 @@ Rotations in the editor are specified using [Euler Angles](https://en.wikipedia.
 !!! tip Rotations are tricky!
     Rotations, Quaternions, Euler Angles, etc are all rather tricky and subtle concepts. It will take a lot of time to build an intuition for them. Be patient and don't worry if rotations seem complex (they are)!
 
-The `rotation` property on an entity determines how much the entity is rotated around its [pivot point](#pivots). This rotation is specified *globally*, meaning that it is measured with respect to the world. A zero-rotation will have an entity's up-axis align with the world's y-axis, it's right-axis align with the world's x-axis, etc.
+The `rotation` property on an entity determines how much the entity is rotated around its [pivot point](#pivot-points). This rotation is specified *globally*, meaning that it is measured with respect to the world. A zero-rotation will have an entity's up-axis align with the world's y-axis, it's right-axis align with the world's x-axis, etc.
 
 !!! example Setting a rotation
     Rotation is a [read-write property](#horizon-properties) on the `Entity` class. To get the current rotation of an entity, do:
@@ -803,7 +803,7 @@ Scales are specified as 3-dimensional vectors, represented as the `Vec3` type in
 The `scale` property determines the fraction an entity should be of its inherent size. For instance, a SubD cube is inherently 1 meter long on each side. If you set its scale to be `(1, 0.5, 2)` then the cube will be 1 meter long on its right-axis, 0.5 meters long on its up-axis, and 2 meters long on its forward-axis. In this example, the object has been "shrunk" along its up-axis, and "expanded" along its forward-axis.
 
 !!! example Setting a scale
-    Scale is a [read-write property](#horizion-properties) on the `Entity` class. To get the current scale of an entity, do:
+    Scale is a [read-write property](#horizon-properties) on the `Entity` class. To get the current scale of an entity, do:
 
     ```td
     entity.scale.get()
@@ -1148,7 +1148,7 @@ with any of the following options:
 |---|---|
 | `EntityInteractionMode.Grabbable`  | The entity is a [GrabbableEntity](#grabbing-and-holding-entities) |
 | `EntityInteractionMode.Physics`  | The entity is a [PhysicalEntity](#physicalentity-class) |
-| `EntityInteractionMode.Both`  | The entity is both a [GrabbableEntity](#grabbing-entities) and a [PhysicalEntity](#physicalentity-class) |
+| `EntityInteractionMode.Both`  | The entity is both a [GrabbableEntity](#grabbing-and-holding-entities) and a [PhysicalEntity](#physicalentity-class) |
 
 When checking for an entity's interactive [behavior types](#behavior-entity-types) at runtime
 ```ts
@@ -1196,13 +1196,13 @@ All `Entity` instances have the class properties in the table below. Additionall
 | color | `HorizonProperty`<br/>`<Color>` | The color the entity renders as. This is *only supported with the [SubD rendering](#subd-vs-custom-models) system*. To change the color of a [MeshEntity](#meshentity-class) use [tinting](#tinting). |
 | visible | `HorizonProperty`<br/>`<boolean>` | The top-level control for visibility. Read the [rules for when an entity is visible](#entity-visibility).
 | **[Behavior](#interactive-entities)** |
-| [collidable](#colliders) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#active-colliders). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-entry-and-exit), if a play can stand on an entity (or is blocked by it), etc. |
+| [collidable](#colliders) | `HorizonProperty`<br/>`<boolean>` | If the entity has its [collider active](#active-colliders). This impacts [grabbability](#can-grab), physics [collision](#collisions), [trigger detection](#trigger-collisions), if a play can stand on an entity (or is blocked by it), etc. |
 | [interactionMode](#interactive-entities) | `HorizonProperty`<br/>`<EntityInteractionMode>` | The kind of [interactive entity](#interactive-entities) the entity is. This only works when `Motion` is set to `Interactive`. |
 | [simulated](#simulated) | `HorizonProperty`<br/>`<boolean>` | Whether the entity is impacted by [physics](#physics) (if its position and rotation are updated in the [physics calculations](#simulation-phase) of the frame). |
 | **Ownership** |
 | [owner](#entity-ownership) | `HorizonProperty`<br/>`<Player>` | The [owner](#entity-ownership) of the entity. Changing this property executes an [ownership transfer](#ownership-transfer).
 
-**<a name="entity-exists">exists() method</a>**: When an entity is [depawned](#despawning) it's `Entity` instances will then have `exists()` return `false`. Additionally, in Horizon's code block system it is possible to create an `Entity` variable, never set it to anything, and then send it in an event. TypeScript will also see this as an `Entity` instance with `exists()` returning `false`. Non-existent entities return "default values" (e.g. [position](#position) returns the [origin](#coordinate-system)); you should not `set()` any properties on one.
+**<a id="entity-exists">exists() method</a>**: When an entity is [depawned](#despawning) it's `Entity` instances will then have `exists()` return `false`. Additionally, in Horizon's code block system it is possible to create an `Entity` variable, never set it to anything, and then send it in an event. TypeScript will also see this as an `Entity` instance with `exists()` returning `false`. Non-existent entities return "default values" (e.g. [position](#position) returns the [origin](#coordinate-system)); you should not `set()` any properties on one.
 
 ### Simulated
 
@@ -1229,7 +1229,7 @@ When `entity.tags.get().contains(thing)` returns `true` we say that the **`entit
 
 Tags (currently) have three primary use cases:
 1. **Controlling triggers**: [Trigger gizmos](#trigger-gizmo) have a Properties panel setting that lets you specify a *tag* so that the trigger will only receive trigger enter and exit events for entities that have that tag.
-1. **Controlling collisions**: [Entities](#entity) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
+1. **Controlling collisions**: [Entities](#entities) have a Properties panel setting that lets you specify a *tag* that the entity will receive [collision events](#collision-events) from. The entity will only receive collision events if it collides with another entity which has the specified tag.
 1. **Controlling raycasts**: [Raycast gizmos](#raycast-gizmo) have a Properties panel setting that lets you specify a *tag* so that the raycast will only generate [RaycastTargetType.Entity](#raycast-gizmo) hit results for entities that have that tag.
 1. **Finding entities**: Horizon has a method on the [World class](#world-class) to get all entities in the [instance](#instances) which match a given "query":
 
@@ -1326,7 +1326,7 @@ All [intrinsic entity types](#intrinsic-entity-types) are listed in the table be
 | [Media Board](#media-board-gizmo) | `Entity` |
 | [Mesh](#3d-model-asset) | `MeshEntity` |
 | [Mirror](#mirror-gizmo) | `Entity` |
-| [Navigation Volume](#navigation-volume-Gizmo) | `Entity` |
+| [Navigation Volume](#navigation-mesh-volume) | `Entity` |
 | [NPC](#npc-gizmo) | `AIAgentGizmo` |
 | [ParticleFx](#particlefx-gizmo) | `ParticleGizmo` |
 | [Projectile Launcher](#projectile-launcher-gizmo) | `ProjectileLauncherGizmo` |
@@ -1498,7 +1498,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 
 **Limitations**: Mirror Gizmos are costly, recommend only one per world and be careful about how much geometry it reflects in your world to avoid performance issues.
 ## Navigation Volume
-**Description**: Allows the creation of [navigation mesh profiles](#navigation-mesh-profile) that can be used to route paths around obstacles in your world. Can be used directly by [NavMeshAgents](#navigation-mesh-agent) or indirectly by other animated objects such as [NPCs](#npcs).
+**Description**: Allows the creation of [navigation mesh profiles](#navigation-mesh-profile) that can be used to route paths around obstacles in your world. Can be used directly by [NavMeshAgents](#navigation-mesh-agent) or indirectly by other animated objects such as [NPCs](#npc-gizmo).
 
 | Property | Type | Description |
 |---|---|---|
@@ -1508,7 +1508,7 @@ spread: HorizonProperty<number>;          // Spot light spread (0-100)
 **TypeScript**:  Navigation Volume Gizmos are referenced as the `Entity` class with no properties or methods
 
 ## NPC Gizmo
-**Description**: Represents an NPC Avatar (bot) spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npcs).
+**Description**: Represents an NPC Avatar (bot) spawning location. NPCs act like real [Players](#players). They get a [player id](#player-id) and have events like [Player Enter](#player-entering-and-exiting-a-world). Also see [NPCs](#npc-gizmo).
 
 | Property | Type | Description |
 |---|---|---|
@@ -1914,7 +1914,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 **Properties**: The first property is called "Sublevel Type", which can be set to `Deeplink` or `Exclude`:
 
 * Use **`Deeplink`** in the world that will load in the sublevel (the *container*). You can then use this entity [as()](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in. When this setting is used, 2 more settings appear:
-    * **Sublevel Initial State** determines the state of the sublevel at world-start. It can be `Active` (which means the sublevel is fully present to players), `Loaded` (meaning that the sublevel is fully ready, just waiting to be "shown"), or `Unloaded` (none of the data is present or ready). See [advanced spawning](#advanced-spawning) for more information on these options.
+    * **Sublevel Initial State** determines the state of the sublevel at world-start. It can be `Active` (which means the sublevel is fully present to players), `Loaded` (meaning that the sublevel is fully ready, just waiting to be "shown"), or `Unloaded` (none of the data is present or ready). See [advanced spawning](#advanced-spawning-spawncontroller) for more information on these options.
     * **World Id** is the world that this entity will stream in (the sublevel). There is a thumbnail picture to click on that will open a "world selector".
 * Use **`Exclude`** in a world that is meant to be streamed in (a *sublevel*). Any entities that are [children (or descendants)](#ancestors) of an "Exclude Sublevel" will not load when the sublevel is streamed into the "container world".
     * Example, in the sublevel world you can have a spawn point which is a child of an "Exclude Sublevel" gizmo; that makes it easy to test the sublevel world, but the spawn gizmo won't load in when the container world streams this world in.
@@ -1922,7 +1922,7 @@ this.entity.as(SpawnPointGizmo).teleportPlayer(player)
 **TypeScript**: When the sublevel entity has "Sublevel Type" set to "Deeplink" you can then use the entity [as()](#entity-as-method) a [SublevelEntity](#sublevels) to stream the level in.
 
 ## Text Gizmo
-**Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-tags).
+**Description**: The text gizmo is a 2D surface on which text can be rendered. It supports a wide variety of [markup](#text-gizmo-markup) commands that allows changing color, size, font, bold, italics, underline, vertical and horizontal offsets, line height, alignment, and [more](#supported-text-gizmo-tags).
 
 | Property | Type | Description |
 |---|---|---|
@@ -1950,7 +1950,7 @@ this.entity.as(TextGizmo).text.set('Hello World')
 !!! note Auto Fit Property
     The text gizmo has the property **auto fit**, which is only settable in the Properties panel. When it is set to `true`, the font size will change to fit the scaled extents of the text gizmo. This is useful for making signs, for example; but, it can look weird to have all signs using slightly different text sizes. You'll have more control of the text, and have more consistency in the world, if you **turn auto fit *off***.
 
-!!! note Text gizmos contribute to [draw calls](#draw-calls).
+!!! note Text gizmos contribute to draw calls.
 
 ### Text Gizmo Limitations
 
@@ -2054,6 +2054,16 @@ When a trigger send an [OnEntityEnterTrigger](#trigger-gizmo) event it checks to
 ## World Leaderboard Gizmo
 **Description**: Used track and display *sorted* player scores in your world. See the [leaderboard section](#leaderboards) for full detail.
 
+## World Promotion Gizmo
+**Description**: Used to show a sign in a world that offers a player to "save the world for later" in the bookmarked worlds.
+
+| Property | Type | Description |
+|---|---|---|
+| Promotion Type | `Save Panel` | This option cannot currently be changed.  |
+| Panel UI Mode | `Light Mode` or `Dark Mode` | Determines the color theme. Light vs dark refers to the background color of the gizmo.
+
+**TypeScript**: World Promotion gizmos are referenced as `Entity` instances with no additional scripting capabilities.
+
 # Assets
 
 **Assets** represent data that can be created and used in a world.
@@ -2155,14 +2165,14 @@ Note that `as()` returns the same asset back, preserving equality. Thus after th
 
 Every [Entity](#entities) that has a 3D mesh (including the built-in "CMI Primitives") can be used as a `MeshEntity` (accessed using the [Asset as() method](#entity-as-method)). These come from [3D Model Assets](#3d-model-asset).
 
-You can apply a [tint](#mesh-entity-style), [modify color brightness](#mesh-entity-style), [change the texture](#texture-asset), [change the material](#material-asset), or [change the mesh](#mesh-entity-setmesh).
+You can apply a [tint](#meshentity-style), [modify color brightness](#meshentity-style), [change the texture](#texture-asset), [change the material](#material-asset), or [change the mesh](#meshentity-setmesh).
 
 | `MeshEntity` Class Member | Description |
 |---|---|
 | [setMaterial](#material-asset) | Change a material |
 | [setTexture](#texture-asset) | Change the texture  |
-| [setMesh](#mesh-entity-setmesh) | Change the mesh |
-| [style](#mesh-entity-style) | Change the tint color, tint strength, and overall brightness of the material |
+| [setMesh](#meshentity-setmesh) | Change the mesh |
+| [style](#meshentity-style) | Change the tint color, tint strength, and overall brightness of the material |
 
 ### MeshEntity Style
 
@@ -2334,7 +2344,7 @@ You CAN nest.
 
 # Custom Model Import
 
-## Overview
+<mark>TODO</mark>
 
 Assets, imports, templates, updates.
 
@@ -2381,9 +2391,9 @@ Scripts are how you create dynamism in worlds. You use them to create interactiv
 
 **Code Blocks**: Horizon also has a drag-and-drop scripting system called "Code Blocks" that are only editable in VR (and outside the scope of this document).
 
-**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#props-and-wiring) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have a detailed [lifecycle](#component-lifecycle) that execution through the [frame](#frame-sequence).
+**Components and Files**: In scripts you define [Component](#components) classes that you can attach to `Entities` in the Desktop editor. You can specify [properties](#component-properties) ("props") in the `Components` that will show in the Properties panel in the Desktop editor, allowing you to set and change the properties in the editor, per-entity. Scripts can contain other code too, which is executed [when files are loaded](#script-file-execution). Components have a detailed [lifecycle](#component-lifecycle) that execution through the [frame](#frame-sequence).
 
-**Core types**: Component instances communicate with one another and [the world](#system-code-block-events) by [sending and receiving events](#communication-between-components). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
+**Core types**: Component instances communicate with one another and [the world](#built-in-code-block-events) by [sending and receiving events](#communication-between-components). There are many types in Horizon, but you'll most often use the core game types: [Entity](#entities), [Player](#players), [Asset](#assets), [Component](#components), and [World](#world-class); the core data types: [Vec3](#vec3) (for position and scale), [Color](#color), and [Quaternion](#quaternion) (for rotations); and the event types: [LocalEvent](#local-events), and [NetworkEvent](#network-events).
 
 ## Creating and Editing Scripts
 
@@ -2526,7 +2536,7 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 | Type | Description |
 |---|---|
 | [Component](#components)  | Add interactivity and logic to a world (by creating a [subclasses](#component-class) and attaching it to an entity). |
-| [World](#world-class) | Information and methods related to the current [instance](#instance). |
+| [World](#world-class) | Information and methods related to the current [instance](#instances). |
 | [Entity](#entities) | A [node](#entities) in the [scene graph](#scene-graph) with intrinsic attributes and behavior. There are many [subtypes](#entity-types) available via [entity.as()](#entity-as-method). |
 | [Player](#players) | A [player](#players) in the world ([instance](#instances)), including the "[server player](#server-player)" and [NPC players](#npc-gizmo). |
 | [Asset](#assets) | Data that lives outside the scene graph (such as [text blobs](#text-asset-json), [textures](#textures), and ["prefabs"](#template-asset)). |
@@ -2538,7 +2548,7 @@ There are many TypeScript types in Horizon; however, there are a few that form t
 
 **Equality comparison**: `Entity` and `Player` can be compared directly with `===` and `!==`; these have been implemented to compare their underlying `id`s. All other types will use built-in TypeScript equality checks. `Vec3`, `Quaternion`, and `Color` implement [Comparable<T>](#comparable-interface)
 
-### Comparable<T> Interface
+### Comparable Interface
 `Vec3`, `Quaternion`, and `Color` implement `Comparable<T>` which provides the methods `equal(other: T): boolean` and `equalApprox(other: T, epsilon?: number): boolean`.
 
 **Epsilon**: represents the maximum distance the two can be apart and still be considered equal (it defaults to a small number around `1e-6` which is 0.000001).
@@ -2786,7 +2796,7 @@ const atEnd = Vec3.lerp(start, end, 1.0)      // (10, 0, 0)
 
 The `Color` class contains an RGB (red, green, blue) color with each component between 0 and 1. The class allows color space conversion (from [HSV](#color-space-conversions-hsv)), [hex colors](#hex-colors), and [operations](#color-operations) that can be used for effects such as [blending and filtering](#color-blending).
 
-**No alpha**: The `Color` class does not have an `alpha` component (transparency). It is possible to use alpha [Custom UI](#custom-ui-style) and with [meshes](#custom-model-import) but those alpha values are *not* part of the `Color` class.
+**No alpha**: The `Color` class does not have an `alpha` component (transparency). It is possible to use alpha with [Custom UI](#uinode-types) and with [meshes](#custom-model-import) but those alpha values are *not* part of the `Color` class.
 
 #### Creation
 
@@ -3110,7 +3120,7 @@ The **primary steps for scripting** are:
 The steps above are the "main path" but there are also many more parts of scripting:
 * [Sending events](#sending-events)
 * [Creating timers and async code](#async-delays-and-timers)
-* [Creating local scripts](#local-scripts) and [transferring ownership](#ownership-transfer) for low-latency interactions
+* [Creating local scripts](#local-and-default-scripts) and [transferring ownership](#ownership-transfer) for low-latency interactions
 * [Running code every frame](#run-every-frame-prephysics-and-onupdate)
 * [Interacting with the physics system](#applying-forces-and-torque)
 * [Rendering UI](#custom-ui)
@@ -3649,7 +3659,7 @@ Usage example (where the event is sent to the component's entity):
 #### Built-In Code Block Events
 The system uses `CodeBlockEvent`s for many built-in actions. For example, when an [entity](#entities) enters a [trigger zone](#trigger-gizmo) with matching [tags](#entity-tags), the system sends `CodeBlockEvents.onEntityEnterTrigger` to the trigger. See the [list of built-in CodeBlockEvents](#all-built-in-codeblockevents) for more info.
 
-<a name="#built-in-broadcasted-code-block-events">**Broadcasted `CodeBlockEvents`**</a>: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the event is emitted on). The [list built-in CodeBlockEvents](#all-built-in-codeblockevents) includes information on which ones are *broadcast*. Throughout this document, 🔈 denotes a *server-broadcast* `CodeBlockEvent`; 🏠 denotes a *device-broadcast* `CodeBlockEvent`.
+<a id="built-in-broadcasted-code-block-events">**Broadcasted `CodeBlockEvents`**</a>: some built-in `CodeBlockEvent`s are "broadcast" meaning that you can *listen to any entity to receive them* (as long the receiver is executing on the same [client](#clients-devices-and-the-server) the event is emitted on). The [list built-in CodeBlockEvents](#all-built-in-codeblockevents) includes information on which ones are *broadcast*. Throughout this document, 🔈 denotes a *server-broadcast* `CodeBlockEvent`; 🏠 denotes a *device-broadcast* `CodeBlockEvent`.
 
 For example, to listen to `CodeBlockEvents.onPlayerEnterWorld`, you can listen to it on *any entity* (though it has to be [server-owned](#entity-ownership)). There is no way to *send* a broadcast event yourself.
 
@@ -3671,7 +3681,7 @@ this.connectCodeBlockEvent(
 !!! danger A TypeScript connecting to an entity with an attached [Codeblock scripts](#scripting) can lead to issues.
     Some times TypeScript and [Codeblock scripts](#scripting) will "fight each other" when both listening to events from the same entity. It is a subtle bug that doesn't appear in all cases. However we recommend: **do not have TypeScript and [Codeblock scripts](#scripting) listen to events from the same entity**.
 
-    Example: Imagine a [trigger](#trigger-gizmo) that has a [Codeblock script](#scripting) attached to it that listens to [trigger enter](#trigger-entry-and-exit) on `self` (Codeblock's version of `this.entity`). If you then have a TypeScript script also connect to the [trigger enter](#trigger-entry-and-exit) event then it turns out that neither script will receive trigger events for that trigger.
+    Example: Imagine a [trigger](#trigger-gizmo) that has a [Codeblock script](#scripting) attached to it that listens to [trigger enter](#trigger-gizmo) on `self` (Codeblock's version of `this.entity`). If you then have a TypeScript script also connect to the [trigger enter](#trigger-gizmo) event then it turns out that neither script will receive trigger events for that trigger.
 
 ### Network Events
 
@@ -3892,7 +3902,7 @@ The **Simulation Phase** runs at the start of the frame and includes physics cal
     - Players update their [positions and pose](#player-body-parts) based on locomotion inputs.
     - Animation playback is updated.
     - Physics calculations run, applying [accumulated forces and torques](#applying-forces-and-torque) to entities with [simulated=true](#simulated) to update their linear and angular velocities.
-    - Collisions [with object and players](#collisions) as well as with [triggers](#trigger-entry-and-exit) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
+    - Collisions [with object and players](#collisions) as well as with [triggers](#trigger-gizmo) are detected; the [associated CodeBlockEvents](#built-in-code-block-events) are queued to run later in the frame in the [Script Phase](#script-phase).
 
 1. **On-Update**
     - [Broadcasts](#broadcast-events) the [World.onUpdate](#run-every-frame-prephysics-and-onupdate) event locally, causing all local listeners to run.
@@ -4124,7 +4134,7 @@ Horizon has a few helper functions in `horizon/core`:
 Horizon Worlds [instances](#instances) run as a *distributed systems* with multiple machines involved. Each machine is called a **client**. Clients have the full [scene graph](#scene-graph), can [run code](#scripting), and have a [Player](#players) associated with them.
 
 There are two types of clients:
-  * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#synchronization-phase) the world from their player's camera / eyes every frame, and [synchronize](#late-frame-pahse) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
+  * **Player Devices**: a client associated with a human player. These clients receive player input, can run [local scripts](#local-and-default-scripts), [render](#synchronization-phase) the world from their player's camera / eyes every frame, and [synchronize](#synchronization-phase) data with Meta's servers. For a mobile player the device is their phone or tablet, for a PC or web-based player it is the computer and for a VR user this is their headset (or their computer if they are tethered).
   * **Server**: a special client that lives on Meta's servers. It's associated player is the special [server player](#server-player). The server client runs all [default scripts and local scripts on entities owned by the server player](#local-and-default-scripts). The server operates just like player devices except that it skips [rendering](#synchronization-phase) at the end of each frame.
 
 Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connected to on the server (such as [OnPlayerEnterWorld](#player-entering-and-exiting-a-world)) whereas others can only be connected to on a player device (such as [OnPlayerEnteredFocusedInteraction](#focused-interaction)). Similarly, most [persistence APIs](#persistence) can only be called from [scripts](#scripting) running on the server.
@@ -4134,7 +4144,7 @@ Some [built-in CodeBlockEvents](#built-in-code-block-events) can only be connect
 
 ## Entity Ownership
 Each entity in the world is owned by exactly one [client](#clients-devices-and-the-server). An entity's owner:
-  * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts*)*).
+  * **Runs local scripts**: The owning client runs the attached script on the entity (if there is one and if it is set to *[local execution mode](#local-and-default-scripts)*).
   * **Has scene graph authority**: The owning client is the *[authority](#authority-and-reconciliation)* for that entity's core attributes (such as position, visibility, and collision settings). When a client wants to modify an entity it doesn't own, it must send a message to the owning client requesting the change.
 
 When an [instance](#instances) starts (or assets / sublevels [spawn in](#spawning)) **all entities begin owned by the server** until their [ownership is changed](#ownership-transfer). When the owner changes, the [local components](#local-and-default-scripts) attached to the entity [move](#ownership-transfer). When a [player leaves](#player-entering-and-exiting-a-world), all entities owned by them are [transferred](#ownership-transfer) back to the [server](#clients-devices-and-the-server).
@@ -4773,13 +4783,13 @@ Unfortunately, there is **some awkwardness in how Horizon reports the player pos
 
 The `Player` class represents a person in the instance, an [NPC](#npc-gizmo) in the instance, or the "omnipotent player" (the server).
 
-**Max player count**: Each world has a [maximum player count](#maximum-player-count) that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#publishing-and-player-settings).
+**<a id="maximum-player-count">Max player count</a>**: Each world has a maximum player count that controls the maximum number of players allowed in each [instance](#instances). The count is configured in [world settings](#publishing-and-player-settings).
 
 **Construction / New**: `Player` instances are allocated by the system; you should *never allocate them directly* (never use `new Player`).
 
 **Equality Comparison**: `Player` instances can be compared referentially `aPlayer === bPlayer` which is the same as `aPlayer.id === bPlayer.id`.
 
-**Server Player**: There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the <a href="#maximum-player-count">maximum player count</a> being reached.
+**Server Player**: There is a special "Server `Player`" instance that represents the [server](#server-player). It's primary use is in checking or setting which player "owns" an entity (it's the "server player" if none of the human players do). The server player does not count against the [maximum player count](#maximum-player-count) being reached.
 
 **ID and Index**: Each `Player` has an `id` and an `index` which serve different purposes (see below). From a `Player` instance you can access `PlayerBodyBart`s, e.g. `aPlayer.leftHand` or get their name `aPlayer.name.get()`. There are many `CodeBlockEvents` associated with players (such as entering/exiting a world, grabbing entities, and much). All aspects of players are described in detail in the next sections.
 
@@ -4944,7 +4954,7 @@ There is a special instance of the `Player` class that represents the [_server_]
 
 The **server player does not count as one of the human player**s:
   * it does not get assigned an `index`
-  * it does not count toward the <a href="#maximum-player-count">maximum player count</a> being reached
+  * it does not count toward the [maximum player count](#maximum-player-count) being reached
   * it is not included in the [getPlayer()](#listing-all-players) array
 
 The server player [owns all entities](#entity-ownership) when the world starts (or when entities are [spawned](#spawning) in).
@@ -5021,7 +5031,7 @@ flowchart TD
     If an entity is [owned by a player](#entity-ownership) then the two code blocks above *are not* sent to it. Any component connected to receive those events from that entity will not get them.
 
 !!! bug `OnPlayerExitWorld` is not sent if a player leaves suddenly.
-    When a player leaves suddenly (crash, quit the Horizon app, turn off the device, etc...) then some player-related events such as [OnPlayerExitWorld](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases held entities when they leave the world, then [detach](#detaching)/[forceRelease](#force-release) the entities on `OnPlayerEnterAFK` and [attach](#scripted-attach)/[forceHold](#force-holding) them on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
+    When a player leaves suddenly (crash, quit the Horizon app, turn off the device, etc...) then some player-related events such as [OnPlayerExitWorld](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases held entities when they leave the world, then [detach](#detaching)/[forceRelease](#force-release) the entities on `OnPlayerEnterAFK` and [attach](#scripted-attach)/[forceHold](#force-grabbing) them on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 !!! bug Entities are not [transferred to the server](#ownership-transfer) when leaving [preview mode](#visitation-modes-edit-preview-and-publish).
     When `OnPlayerExitWorld` is called on a player all the entities they own are [automatically transferred to the server player](#automatic-ownership-transfers). However this does not happen when going from preview to edit mode (when in an [editor instance](#instances)). This can result in unusual behavior where entities continue to react to a player that is in build mode. To avoid this, listen to the `OnPlayerExitWorld` event and assign entities back to the [server player](#server-player).
@@ -5039,7 +5049,7 @@ Horizon calls this inactive state: **AFK** (standing for <u>A</u>way <u>F</u>rom
 
 **Becoming active (no longer AFK)**: A mobile player becomes active when they foreground the app and begin touching the screen. A [VR player](#identifying-players) becomes active when they put their headset back on or close the OS menu.
 
-There are two [built-in code block events](#system-code-block-events) associated with inactivity / AFK. Both are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
+There are two [built-in code block events](#built-in-code-block-events) associated with inactivity / AFK. Both are [🔈 server-broadcast CodeBlockEvents](#built-in-broadcasted-code-block-events); you can connect to any server-owned entity to receive them.
 
 | [Built-In CodeBlockEvents](#built-in-code-block-events) | Parameter(s) | Description |
 |---|---|---|
@@ -5067,7 +5077,7 @@ The [Player class](#player-class) has a few properties related to locomotion:
 
 ## Player Position and Rotation
 
-The [Player](#player) class has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
+The [Player class](#player-class) has properties for `position` and `rotation`. These are [Horizon properties](#horizon-properties) and so you must call `get()` (e.g. `player.position.get()`). The `position` properties returns the world location of the player's center point (which is near the middle of their hips).
 
 **Moving the player**: You can only `set` player position if "Custom Player Movement" is enabled in [Player Settings](#publishing-and-player-settings). Note that there are some subtleties with [player position and physics](#player-position-and-physics).
 
@@ -5280,7 +5290,7 @@ When a player grabs an entity, [ownership](#entity-ownership) is [transferred to
 Select an entity and then in the Properties panel set its `Motion` to `Interactive` and `Interaction` to `Grabbable` or `Both`. The entity _must_ be a root entity or it will not actually be allowed to be grabbed. Ensure that `collidable` is `true` and that (if it is a group) there is an [active collider](#active-colliders) within it.
 
 !!! danger Grabbables cannot be inside dynamic objects
-    A grabbable entity must be a [root entity](#root-entities) (it can only have [Static Objects](#dynamic-vs-static-entities) in its ancestor chain).
+    A grabbable entity must be a *root entity* (it can only have [Static Objects](#static-vs-dynamic-entities) in its ancestor chain).
 
 !!! warning Entities must be collidable to be grabbed!
     If a grabbable entity is not `collidable` then it cannot be grabbed. If it is a group and none of the colliders within it are active then it cannot be grabbed, even if the root is collidable!
@@ -5352,7 +5362,7 @@ flowchart TD
 | Setting | Behavior |
 |---|---|
 | **Anyone** | Any player is eligible to grab the entity. |
-| **First To Grab Only** | If an entity has never been grabbed then any player can grab it. Once a player grabs it, only that player can re-grab it until [they exit the world instance](#entering-and-exiting-a-world). Then anyone can grab the entity, and only next player to grab it can re-grab it until they exit the instance, and so on. |
+| **First To Grab Only** | If an entity has never been grabbed then any player can grab it. Once a player grabs it, only that player can re-grab it until [they exit the world instance](#player-entering-and-exiting-a-world). Then anyone can grab the entity, and only next player to grab it can re-grab it until they exit the instance, and so on. |
 | **Script Assignee(s)** | A player is only eligible to grab the entity if they are in the list of allowed players assigned with `entity.setWhoCanGrab(listOfPlayers)`. |
 
 When the **Who Can Grab** setting is set to **Script Assignee(s)**, no one can grab the entity until `setWhoCanGrab` is called with an array of some players. You can pass an empty array to make an entity not grabbable.
@@ -5360,7 +5370,7 @@ When the **Who Can Grab** setting is set to **Script Assignee(s)**, no one can g
 When the **Who Can Grab** setting is *not* **Script Assignee(s)**, the `setWhoCanGrab` method does nothing when called.
 
 !!! bug **First To Grab Only** can cause an entity to be grabbable by no one, even after the player is no longer in the world.
-    If a player kills the app after going AFK, [OnPlayerExitWorld](#entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player and releasing held and attached entities. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts. Instead, set **Can Grab** to **Anyone**, or to **Script Assignee(s)** and `forceRelease` any held entity when a player is AFK.
+    If a player kills the app after going AFK, [OnPlayerExitWorld](#player-entering-and-exiting-a-world) is not triggered. When that happens, the entity will be ungrabbable unless that player re-enters the same world instance, thereby triggering OnPlayerExitWorld on that player and releasing held and attached entities. Our recommendation is to not use **First to Grab Only** because there would be no way to reset who can grab using scripts. Instead, set **Can Grab** to **Anyone**, or to **Script Assignee(s)** and `forceRelease` any held entity when a player is AFK.
 
 !!! note `setWhoCanGrab` does not auto-update.
     There is no way to have it auto-update when new players join the instance (example: everyone except one player can grab the entity). If you want to include a newly-joined player in the list then you must call the API again.
@@ -5396,7 +5406,7 @@ An entity can be forced into the hand of a player used the TypeScript API:
 forceHold(player: Player, hand: Handedness, allowRelease: boolean): void;
 ```
 
-It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release) or by [distance-based release](#distance-based-release). When `allowRelease` is set to `true` a [VR player](#identifying-players) can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
+It allows you to specify which player to have hold it, which hand they should hold it in, and whether or not that can _manually_ release it. If `allowRelease` is `false` then the entity can only be released by [force release](#force-release). When `allowRelease` is set to `true` a [VR player](#identifying-players) can release the entity by pressing the trigger on their VR controller; a screen-based player can release it using the onscreen release button.
 
 **Not quite instantaneous**: calling `forceHold` "animates" the entity into the players hand. It can be a number of frames until they are holding it and the [OnGrabStart](#grab-sequence-and-events) event is sent.
 
@@ -5404,7 +5414,7 @@ It allows you to specify which player to have hold it, which hand they should ho
     A common use case for force-grabbing is a game where every player has a sword, for example. When the round starts, you given all players a weapon by force-grabbing it. If you don't want them to let go then set `allowRelease` to `false`. Then you can [force release](#force-release) the entities at the end of the game.
 
     !!! danger A force-grabbed item can be released "accidentally"
-        Even if an entity is force-grabbed with `allowRelease` set to `false`, it is possible for the entity to be released by [distance-based release](#distance-based-release). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
+        Even if an entity is force-grabbed with `allowRelease` set to `false`, it is still possible for the entity to be released by [force release](#force-release), including if the entity gets too far away from the player or is knocked out of their hand (by physics). If you want to ensure that players are always holding an entity during a game, then you should listen for the [grab-release](#grab-sequence-and-events) event and have the player force-hold the entity again.
 
 ## Releasing Entities
 
@@ -5470,7 +5480,7 @@ flowchart TD
 ```
 
 !!! bug `OnGrabEnd` and `OnMultiGrabEnd` are not sent if a player leaves suddenly.
-    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases a held entity when they leave the instance (for example, if the entity has ["Who Can Take From Holder?"=NoOne](#setting-who-can-take-from-holder)), then [forceRelease](#force-release) the entity on `OnPlayerEnterAFK` and [forceHold](#force-holding) it on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
+    When a player leaves suddenly (crash, force quit, turn off the device, etc) then some player-related events such as [OnPlayerExit](#player-entering-and-exiting-a-world), [OnAttachEnd](#player-entering-and-exiting-a-world), [OnGrabEnd](#grabbing-and-holding-entities) and [OnMultiGrabEnd](#grabbing-and-holding-entities) *may not be sent*. However, `OnPlayerEnterAFK` is sent immediately. So if you need to ensure a player releases a held entity when they leave the instance (for example, if the entity has ["Who Can Take From Holder?"=NoOne](#setting-who-can-take-from-holder)), then [forceRelease](#force-release) the entity on `OnPlayerEnterAFK` and [forceHold](#force-grabbing) it on `OnPlayerExitAFK`. Note [`getPlayers()`](#listing-all-players) is only affected by `OnPlayerEnterWorld` and `OnPlayerExitWorld`, so it will not have an accurate list of all players in the instance.
 
 ### Hand-off (Switching Hands or Players)
 
@@ -5653,7 +5663,7 @@ The anchor position is a body part specified in [Anchor To](#anchor-attachment-t
 
 By default an anchored entity's [rotation](#rotation) matches the rotation of the [body part](#player-body-parts) it is attached to. For example, by default, a hat's forward vector will match the head's forward vector (assuming the hat was attached the head with no [socket attachment](#socket-attachment) offsets).
 
-!!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detach) from player.
+!!! note Once attached, the entity will be affixed to the body part defined in `Anchor To` until [detached](#detaching) from player.
 
 #### Anchor Attachment To
 The following is a list of player body parts that the attachable entity may anchor to.
@@ -5681,7 +5691,7 @@ Attach to 2D screen can be toggled on for both `Sticky` and `Anchor` attachable 
     A [VR player](#identifying-players) who attaches the entity will see the attachable attach to their body as expected.
 
 !!! warning Screen-attached entities will appear on every cross-screen player's screen by default
-    Consider setting [who can see](#visibility) an entity to avoid this issue.
+    Consider setting [who can see](#entity-visibility) an entity to avoid this issue.
 
 !!! bug [VR players](#identifying-players) will see other players' screen-attached incorrectly
     The attachable follows their camera's position, but the orientation will be wrong.
@@ -6260,7 +6270,7 @@ The `getPlayerVariable` method will return `null` if the data has never been set
 
 Spawning requires a "template" or "blueprint", a description of entities / meshes / scripts / properties, that should be "stamped" into the world. Horizon calls these blueprints **assets**.
 
-<a name="spawnable-assets">**What can be spawned**</a>: Not all asset types can be spawned. You can only spawn the ones that encode [Entities](#entities). You **can spawn [3D models](#3d-model-asset), [audio assets](#audio-asset), [template assets](#template-asset), and [legacy asset groups](#legacy-asset-group)**.
+<a id="spawnable-assets">**What can be spawned**</a>: Not all asset types can be spawned. You can only spawn the ones that encode [Entities](#entities). You **can spawn [3D models](#3d-model-asset), [audio assets](#audio-asset), [template assets](#template-asset), and [legacy asset groups](#legacy-asset-group)**.
 
 !!! tip Spawn an environment gizmo to change *lighting and the sky*.
     You can spawn an [Environment Gizmo](#environment-gizmo) to change the sky and lighting while a world is running. But note that this will change [Voip Settings](#voip-settings), fog, and all other properties associated with the gizmo.
@@ -6279,7 +6289,7 @@ The simplest way to spawn an asset is using the [World class'](#world-class) `sp
 
 **Root entity**: The first entity, in the list that `spawnAsset` resolves with, is called the **root entity**; it was the first entity you selected in the desktop editor when you made the asset (if it is a multi-entity asset). The root entity is imported for [despawning](#deleting-simply-spawned-entities). The other entities in the array are called the **associated entities**.
 
-**Not immediate (asynchronous)**: Spawning takes time. It needs to prepare the information, send it to all [clients](#clients-devices-and-the-server), wait for them to all load it and be ready, and then the spawn will complete. The means that if even one player has a slow network that the entire spawn process can be prolonged. It you want **to make spawning faster, use [controller-based spawning](#advanced-spawning)**.
+**Not immediate (asynchronous)**: Spawning takes time. It needs to prepare the information, send it to all [clients](#clients-devices-and-the-server), wait for them to all load it and be ready, and then the spawn will complete. The means that if even one player has a slow network that the entire spawn process can be prolonged. It you want **to make spawning faster, use [controller-based spawning](#advanced-spawning-spawncontroller)**.
 
 **Spawning static content**: You can spawn [static](#static-vs-dynamic-entities) anywhere in the world, but once it is spawned you cannot move it, since it would have to be [dynamic](#static-vs-dynamic-entities) to be moved in scripting. The closest you could get to moving a static spawned entity would be [despawn](#despawning) it and then spawn it again elsewhere. Since spawning is not immediate, you **cannot use this technique to move anything quickly**.
 
@@ -6576,7 +6586,7 @@ To create a UI you instantiate a [Custom UI Gizmo](#custom-ui-gizmo), create a [
 
 Here's an example that shows a collection of features:
 * `UIComponent` is a subclass of [Component](#component-class) and so you can still use [start](#component-class) and [propsDefinition](#component-properties).
-* [Bindings](#bindings) and [derived Bindings](#derived-bindings)
+* [Bindings](#bindings) and [derived Bindings](#deriving-bindings)
 * [View](#ui-view) and [Text](#ui-text)
 
 ![[ horizonScripts/uicomponentExample.ts ]]
@@ -6602,7 +6612,7 @@ There are some members specific to `UIComponent`. Additionally, whereas `Compone
 
 ## Bindings
 
-Bindings are **the only way that a Custom UI changes its contents**. A binding is a *container with a value inside*. Any time that you change the contents of it, via `binding.set(...)`, the UI will update accordingly. Many fields in the various [UINode types](#UINode-types) accept bindings for their values. For instance:
+Bindings are **the only way that a Custom UI changes its contents**. A binding is a *container with a value inside*. Any time that you change the contents of it, via `binding.set(...)`, the UI will update accordingly. Many fields in the various [UINode types](#uinode-types) accept bindings for their values. For instance:
 
 ```ts
 const contents = new Binding('hi!')
@@ -6626,8 +6636,8 @@ will create a [Text](#ui-text) view that renders the word `hi!`. If, or when, `c
 
 | `Binding` Class Member | Description |
 |---|---|
-| [set](#setting-bindings) | Update the values in a binding. This can be done by setting a new value or by running a function on current values. This can be done per-player. |
-| [reset](#resetting-bindings) | Reset the values in the bindings. This can be done per-player. |
+| [set](#setting-and-resetting-bindings) | Update the values in a binding. This can be done by setting a new value or by running a function on current values. This can be done per-player. |
+| [reset](#setting-and-resetting-bindings) | Reset the values in the bindings. This can be done per-player. |
 | [derive](#deriving-bindings) | Create a new binding whose values update whenever the original one does. |
 | [static derive](#deriving-bindings) | Create a new binding whose values update whenever any of the original ones do. |
 
@@ -6802,11 +6812,6 @@ https://developers.meta.com/horizon-worlds/learn/documentation/create-for-web-an
     ```
     to see the name of the entity. You should **never call `new Entity` in a published world**.
 
-# Glossary
-
-*[ancestor]: An entity's parent, grandparent, great-grandparent, etc.
-*[ancestors]: An entity's parent, grandparent, great-grandparent, etc.
-
 ## Horizon TypeScript Symbols
 
 [AchievementsGizmo](#quests)
@@ -6839,7 +6844,7 @@ ButtonPlacement
 DefaultFocusedInteractionTapOptions
 DefaultFocusedInteractionTrailOptions
 [DefaultPopupOptions](#popups)
-[DefaultSpringOptions](#physics-springs)
+[DefaultSpringOptions](#springs)
 [DefaultThrowOptions](#throwing)
 [DefaultTooltipOptions](#tooltips)
 [degreesToRadians](#scripting-helper-functions)
@@ -6849,7 +6854,7 @@ DefaultFocusedInteractionTrailOptions
 [DynamicLightGizmo](#dynamic-light-gizmo)
 [EntityInteractionMode](#interactive-entities)
 [EntityRaycastHit](#raycast-gizmo)
-[EntityStyle](#mesh-entity-style)
+[EntityStyle](#meshentity-style)
 [EntityTagMatchOperation](#entity-tags)
 [EulerOrder](#quaternion)
 [EventSubscription](#receiving-events)
@@ -6857,7 +6862,7 @@ DefaultFocusedInteractionTrailOptions
 FocusedInteraction
 FocusedInteractionTapOptions
 FocusedInteractionTrailOptions
-[GrabbableEntity](#grabbing-entities)
+[GrabbableEntity](#grabbing-and-holding-entities)
 **Handedness**: [force hold](#force-grabbing), [haptics](#haptics), [throwing](#throwing)
 [HapticSharpness](#haptics)
 [HapticStrength](#haptics)
@@ -6915,7 +6920,7 @@ PlayerInputStateChangeCallback
 [SpawnError](#advanced-spawning-spawncontroller)
 [SpawnPointGizmo](#spawn-point-gizmo)
 [SpawnState](#advanced-spawning-spawncontroller)
-[SpringOptions](#physics-springs)
+[SpringOptions](#springs)
 [StaticRaycastHit](#raycast-gizmo)
 StopAnimationOptions
 [TextGizmo](#text-gizmo)
