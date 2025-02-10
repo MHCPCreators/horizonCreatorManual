@@ -4262,7 +4262,9 @@ entity.children.get().forEach(c => c.owner.set(newOwner));
 
 ### Ownership Transfer Sequence
 
-An ownership transfer is initiated by a [client](#clients-devices-and-the-server) running the code `entity.owner.set(newPlayer)` or via an [automatic ownership transfer](#automatic-ownership-transfers). The ownership change request is sent (by the server) to the [client](#clients-devices-and-the-server) that currently owns `entity`. Then the following occurs.
+An ownership transfer is initiated by a [client](#clients-devices-and-the-server) running the code `entity.owner.set(newPlayer)` or via an [automatic ownership transfer](#automatic-ownership-transfers). The ownership change request is sent (by the server) to the [client](#clients-devices-and-the-server) that currently owns `entity`. 
+
+The following in an ownership transfer for an entity with a **Local Script**. 
 
 The component is [torn down](#component-lifecycle):
 1. [transferOwnership](#transferring-data-across-owners) is called to get the *[transfer state](#transferring-data-across-owners)*.
@@ -4288,7 +4290,7 @@ sequenceDiagram
     participant Server
     participant ClientB as Client B (player "B")
 
-    note over ClientA: ownership change<br/>is requested
+    note over ClientA: Request<br/>ownership change
     ClientA ->> ClientA: state = component.transferOwnership(A, B)
     ClientA ->> ClientA: component.dispose()
     ClientA->>Server: Change ownership<br>{from:A, to:B, state}
@@ -4297,8 +4299,13 @@ sequenceDiagram
     ClientB ->> ClientB: Allocate newComponent<br>newComponent.preStart()
     ClientB ->> ClientB: newComponent.start()
     ClientB ->> ClientB: newComponent.receiveOwnership(state, A, B)
-    note over ClientB: newComponent "active"
+    note over ClientB: newComponent is <br>ready to be used
 ```
+
+!!! Note Difference between getLocalPlayer() and entity.owner
+    [getLocalPlayer()](#local-player) indicates the device the script is executing on, i.e. The vertical lines in the diagram indicating Client A, Server, or Client B.
+    
+    `entity.owner` is the owner that was manually or automatically requested. Note that before the ownership transfer and immediately after `entity.owner.set(B)`, the entity's owner is A. Then from `transferOwnership` in step 1 and on, the entity's owner is B. 
 
 ### Discontinuous Ownership Transfers
 
