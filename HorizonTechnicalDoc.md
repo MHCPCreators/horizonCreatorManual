@@ -5681,8 +5681,8 @@ The following is a list of player body parts that the attachable entity may anch
 |---|---|
 | *Head* | Front-center of the player's forehead.|
 | *Torso* | Front-center-bottom of the player's ribcage. |
-| *Left Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
-| *Right Hip* | Left side of the bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
+| *Left Hip* | Front-left-bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
+| *Right Hip* | Front-right-bottom of the player's pelvis. Note that the attachment will be rotated to "look down", simulating a "holstered" item. |
 
 !!! warning As of 1/15, `Left Hip` or `Right Hip` are not available as a `AttachablePlayerAnchor`
     Use [socket attachments](#socket-attachment) with `AttachablePlayerAnchor.Torso` to get around this.
