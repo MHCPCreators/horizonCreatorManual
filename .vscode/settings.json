@@ -9,6 +9,7 @@
     "Collidability",
     "collidable",
     "Cubemap",
+    "Deeplink",
     "depawned",
     "despawn",
     "despawned",
@@ -30,11 +31,15 @@
     "penwidth",
     "ppvs",
     "Pressable",
+    "Pressables",
     "Raycast",
     "respawn",
     "royale",
     "skydome",
+    "Spawnable",
     "Tellous",
+    "texel",
+    "uicomponent",
     "unfocus",
     "ungrabbable",
     "unholster",
@@ -43,6 +48,7 @@
     "wafflecopters"
   ],
   "cSpell.ignoreWords": [
-    "eyboard"
+    "eyboard",
+    "harpo"
   ]
 }
