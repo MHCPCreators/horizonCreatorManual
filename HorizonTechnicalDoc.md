@@ -639,7 +639,7 @@ Every world in Horizon is made out of [entities](#entities) each of which has an
 
 ## Hierarchy
 
-Any [entity](#entities) can be set as the child of another entity. For example, you might make a robot's forearm a Mesh Entity that is a child of the upper arm Mesh Entity. Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
+Any [entity](#entities) can be set as the child of another entity. For example, you might make a robot's forearm a [Mesh Entity](#meshentity-class) that is a child of the upper arm [Mesh Entity](#meshentity-class). Or you might put a steering wheel inside a car. The main reasons to create parent-child relationships are:
 
 1. To have the transform of one entity impact another (e.g. moving a car also moves the steering wheel within it).
 2. To create "layers" or "folders" in the editor (e.g. putting all trees in a ["collection"](#empty-object-and-groups) to make them easier to manage).
