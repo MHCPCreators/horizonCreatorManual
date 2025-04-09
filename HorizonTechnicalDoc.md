@@ -4997,7 +4997,7 @@ function getPlayerType(player: Player, world: World) : PlayerType {
   } else {
     return 'human'
   }
-}
+} 
 ```
 
 ### Server Player
