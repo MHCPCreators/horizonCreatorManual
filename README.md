@@ -8,7 +8,7 @@ To contribute to the Creator Manual, create a pull request. Keep all pull reques
 
 If you are fixing types or grammar, yoy can simply create a pull request. If you are updating facts or creating new sections, please include in your summary: what work and testing you have done to verify that the information is fully correct.
 
-**DCO**: when creating a pull request, you MUST include [DCO](https://discord.com/channels/@me/1359226259661393920/1359646860830179460) in your commits. The easiest was is with `git commit -s -m ...`. See the [dco docs](https://discord.com/channels/@me/1359226259661393920/1359646860830179460) for more info.
+**DCO**: when creating a pull request, you MUST include [DCO](https://probot.github.io/apps/dco/) in your commits. The easiest was is with `git commit -s -m ...`. See the [dco docs](https://probot.github.io/apps/dco/) for more info.
 
 ### How To Edit Locally
 
