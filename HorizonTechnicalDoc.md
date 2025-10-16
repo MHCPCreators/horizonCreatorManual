@@ -5018,16 +5018,20 @@ getServerPlayer(): Player
 which can be used to access the server player. The primary use cases are:
 1. Transferring ownership to the server
     ```ts
-    entity.owner.set(world.getServerPlayer());
+    entity.owner.set(this.world.getServerPlayer());
     ```
 2. Checking if an entity is owned by the server
     ```ts
-    if (entity.owner.get() === world.getServerPlayer()) { ... }
+    if (entity.owner.get() === this.world.getServerPlayer()) { ... }
     ```
-3. Checking if a script is running locally
+3. Checking if a script is running on the server
     ```ts
-    if (world.getLocalPlayer() === world.getServerPlayer()) { ... }
+    if (this.world.getLocalPlayer() === this.world.getServerPlayer()) { ... }
     ```
+4. Checking if a script is running locally (i.e. not on the server)
+   ```ts
+   if (this.world.getLocalPlayer() !== this.world.getServerPlayer() { ... }
+   ```
 
 ### Local Player
 
